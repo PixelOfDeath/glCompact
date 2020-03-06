@@ -53,7 +53,7 @@ namespace glCompact {
 
         The type can be:
 
-            void* (*)(const char* glFunctionName)
+            void *(*)(const char*)
 
             e.g. for
             SDL2
@@ -61,8 +61,7 @@ namespace glCompact {
 
         or
 
-            typedef void(* GlFunctionPointer) (void);
-            GlFunctionPointer (*)(const char* glFunctionName)
+            void(*(*)(const char*))()
 
             e.g. for
             GLFW
@@ -74,7 +73,7 @@ namespace glCompact {
         Otherwise a type cast to one of this types is neccessary.
     */
     ContextScope::ContextScope(
-        void*(*getGlFunctionPointer)(const char* glFunctionName)
+        void*(*getGlFunctionPointer)(const char*)
     ) {
         checkContext();
         checkContextGroup();
@@ -96,7 +95,7 @@ namespace glCompact {
     }
 
     ContextScope::ContextScope(
-        GlFunctionPointer (*getGlFunctionPointer)(const char* glFunctionName)
+        void(*(*getGlFunctionPointer)(const char*))()
     ) : ContextScope(reinterpret_cast<void*(*)(const char*)>(getGlFunctionPointer)){}
 
     ContextScope::ContextScope(

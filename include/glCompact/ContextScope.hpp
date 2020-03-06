@@ -21,9 +21,8 @@ namespace glCompact {
     class ContextGroup;
     class ContextScope {
         public:
-            ContextScope(void* (*getGlFunctionPointer)(const char* glFunctionName));
-            typedef void(* GlFunctionPointer) (void);
-            ContextScope(GlFunctionPointer (*getGlFunctionPointer)(const char* glFunctionName));
+            ContextScope(void *(*getGlFunctionPointer)(const char*));
+            ContextScope(void(*(*getGlFunctionPointer)(const char*))());
             ContextScope(const ContextScope* contextGroupSource);
             ~ContextScope();
         ///\cond HIDDEN_FROM_DOXYGEN
