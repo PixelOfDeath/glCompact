@@ -18,6 +18,7 @@
 #define GLFW_INCLUDE_NONE //include no OpenGL headers via GLFW
 #include <GLFW/glfw3.h>
 #include <glCompact/glCompact.hpp>
+#include <iostream>
 
 void crash(std::string s){
     std::cout << s << std::endl;

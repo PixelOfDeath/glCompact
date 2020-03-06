@@ -17,6 +17,7 @@
 */
 #include <SDL.h>
 #include <glCompact/glCompact.hpp>
+#include <iostream>
 
 void crash(std::string s){
     std::cout << s << std::endl;
