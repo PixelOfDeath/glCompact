@@ -1,0 +1,14 @@
+#/bin/sh
+#this links are not up-to-date!
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://cvs.khronos.org/svn/repos/ogl/trunk/doc/registry/public/api/egl.xml
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://cvs.khronos.org/svn/repos/ogl/trunk/doc/registry/public/api/gl.xml
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://cvs.khronos.org/svn/repos/ogl/trunk/doc/registry/public/api/glx.xml
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://cvs.khronos.org/svn/repos/ogl/trunk/doc/registry/public/api/wgl.xml
+
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://raw.github.com/KhronosGroup/OpenGL-Registry/master/xml/egl.xml
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://www.khronos.org/registry/EGL/api/egl.xml
+
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://raw.githubusercontent.com/KhronosGroup/EGL-Registry/master/api/egl.xml
+wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://raw.github.com/KhronosGroup/OpenGL-Registry/master/xml/gl.xml
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://raw.github.com/KhronosGroup/OpenGL-Registry/master/xml/glx.xml
+#wget -P xml --no-parent --no-host-directories --cut-dirs=8 https://raw.github.com/KhronosGroup/OpenGL-Registry/master/xml/wgl.xml
