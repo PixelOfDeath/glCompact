@@ -15,7 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
 */
-///\cond HIDDEN_FROM_DOXYGEN
 #include "glCompact/gl/Functions.hpp"
 #include "glCompact/gl/FunctionsTypedef.hpp"
 
@@ -29,4 +28,3 @@ namespace glCompact {
         }
     }
 }
-///\endcond

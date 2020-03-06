@@ -42,9 +42,7 @@ namespace glCompact {
     };
 
     class Sampler {
-        ///\cond HIDDEN_FROM_DOXYGEN
             friend class PipelineInterface;
-        ///\endcond
         public:
             Sampler();
             ~Sampler();
@@ -66,7 +64,6 @@ namespace glCompact {
             void setDepthCompareMode(CompareOperator compareOperator);
             void setDepthCompareModeOff();
 
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             uint32_t id;
 
@@ -74,6 +71,5 @@ namespace glCompact {
             void setParameter(int32_t pname, int32_t value);
 
             void detachFromThreadContext();
-        ///\endcond
     };
 }

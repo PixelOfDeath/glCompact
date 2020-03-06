@@ -15,7 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
 */
-///\cond HIDDEN_FROM_DOXYGEN
 #pragma once
 #include <cstdint> //C++11
 
@@ -36,4 +35,3 @@ namespace glCompact {
         bool isSigned                       : 1;
     };
 }
-///\endcond

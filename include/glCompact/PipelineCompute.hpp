@@ -35,7 +35,6 @@ namespace glCompact {
             void dispatchIndirect(const BufferInterface& buffer, uintptr_t offset);
 
             glm::ivec3 getWorkGroupSize()const{return workGroupSize;}
-        ///\cond HIDDEN_FROM_DOXYGEN
         protected:
             virtual std::string getPipelineIdentificationString();
             std::string getPipelineInformationQueryString();
@@ -48,6 +47,5 @@ namespace glCompact {
             void activate();
 
             void processPendingChanges();
-        ///\endcond
     };
 }

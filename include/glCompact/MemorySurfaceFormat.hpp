@@ -294,9 +294,7 @@ namespace glCompact {
                 return *this;
             }
             const MemorySurfaceFormatDetail* operator->() const;
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             FormatEnum formatEnum;
-        ///\endcond
     };
 }

@@ -22,14 +22,12 @@ namespace glCompact {
     struct SurfaceFormatDetail;
 
     class SurfaceFormat {
-        ///\cond HIDDEN_FROM_DOXYGEN
             friend class SurfaceInterface;
             friend class TextureInterface;
             friend class Frame;
             friend class PipelineInterface;
             friend class RenderBuffer2d;
             friend class RenderBuffer2dMultisample;
-        ///\endcond
         public:
             enum FormatEnum {
                 R8_UNORM = 1,
@@ -232,10 +230,8 @@ namespace glCompact {
             inline bool operator!=(const SurfaceFormat& surfaceFormat){
                 return this->formatEnum != surfaceFormat.formatEnum;
             }
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             FormatEnum formatEnum;
             const SurfaceFormatDetail* operator->() const;
-        ///\endcond
     };
 }

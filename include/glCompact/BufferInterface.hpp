@@ -22,12 +22,10 @@
 namespace glCompact {
     class BufferInterface;
     class BufferInterface {
-            ///\cond HIDDEN_FROM_DOXYGEN
             friend class TextureInterface;
             friend class PipelineInterface;
             friend class PipelineRasterization;
             friend class PipelineCompute;
-            ///\endcond
         public:
             void copyFromBuffer(const BufferInterface& srcBuffer, uintptr_t   srcOffset, uintptr_t thisOffset, uintptr_t size);
             void copyFromMemory(                                  const void* srcMem   , uintptr_t thisOffset, uintptr_t size);
@@ -61,7 +59,6 @@ namespace glCompact {
             bool isClientMemoryCopyable()const{return clientMemoryCopyable;}
 
             uintptr_t getSize()const{return size_;}
-        ///\cond HIDDEN_FROM_DOXYGEN
         protected:
             BufferInterface() = default;
             ~BufferInterface() = default;
@@ -74,6 +71,5 @@ namespace glCompact {
             void clear_(uintptr_t offset, uintptr_t size, uintptr_t fillValueSize, const void* fillValue);
             void free();
         private:
-        ///\endcond
     };
 }

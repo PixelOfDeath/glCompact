@@ -23,11 +23,9 @@
 
 namespace glCompact {
     class SurfaceInterface {
-        ///\cond HIDDEN_FROM_DOXYGEN
             friend class PipelineInterface;
             friend class SurfaceSelector;
             friend class Frame;
-        ///\endcond
         public:
             void detachFromThreadContext();
             void free();
@@ -45,7 +43,6 @@ namespace glCompact {
             SurfaceFormat getSurfaceFormat(){return surfaceFormat;}
 
             bool isLayered();
-        ///\cond HIDDEN_FROM_DOXYGEN
         protected:
             SurfaceInterface() = default;
             SurfaceInterface& operator=(SurfaceInterface&& surfaceInterface);
@@ -63,6 +60,5 @@ namespace glCompact {
             void bindTemporalNonMultiBind() const;
             void bindTemporalFirstTime()    const;
             void bindTemporal()             const;
-        ///\endcond
     };
 }

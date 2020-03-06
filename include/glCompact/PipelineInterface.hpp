@@ -149,7 +149,6 @@ namespace glCompact {
 
             } myUniformStruct;*/
 
-        ///\cond HIDDEN_FROM_DOXYGEN
         protected:
             PipelineInterface() = default;
             ~PipelineInterface();
@@ -406,6 +405,5 @@ namespace glCompact {
             void processPendingChangesTextures();
             void processPendingChangesSamplers();
             void processPendingChangesImages();
-        ///\endcond
     };
 }

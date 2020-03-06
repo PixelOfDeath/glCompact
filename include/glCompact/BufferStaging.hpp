@@ -32,11 +32,9 @@ namespace glCompact {
             void free();
 
             void* getMem()const{return mem_;}
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             void* mem_ = 0;
 
             void create(uintptr_t size);
-        ///\endcond
     };
 }

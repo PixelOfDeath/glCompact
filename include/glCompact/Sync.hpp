@@ -31,10 +31,8 @@ namespace glCompact {
             bool waitForSync(bool flushIfUnsignaled, uint64_t timeout = 0xFFFFFFFFFFFFFFFF); //GL_TIMEOUT_IGNORED
             bool isSignaled();
             void withholdFutureCommandsUntilSync();
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             void* syncObj;
             bool glClientWaitSyncDidFlushAlready;
-        ///\endcond
     };
 }

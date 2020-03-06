@@ -28,11 +28,9 @@
     //#include <string>
 
 //This can just change the content of any buffer, but not change the buffer itself!
-///\cond HIDDEN_FROM_DOXYGEN
 /*
     The buffer classes automaticly use GL_ARB_buffer_storage if it is available. (Except for BufferStaging that depends on GL_ARB_buffer_storage to be present to work at all!)
 */
-///\endcond
 
 using namespace glCompact::gl;
 

@@ -25,12 +25,10 @@
 namespace glCompact {
     class Frame;
     class Frame {
-        ///\cond HIDDEN_FROM_DOXYGEN
             friend class Context;
             friend class GraphicsPipeline;
             friend void setDrawFrame(Frame& frame);
             friend void setWindowFrameSize(uint32_t x, uint32_t y);
-        ///\endcond
         public:
             Frame() = default;
             Frame(SurfaceSelector depthAndOrStencilSurface,
@@ -100,7 +98,6 @@ namespace glCompact {
             bool     isLayered(){return layered;}
             bool     isSrgb(){return srgb;}
 
-        ///\cond HIDDEN_FROM_DOXYGEN
             //TODO: And ref of active rgba/depth/stencil attachments?
         protected:
             uint32_t id      = 0;
@@ -149,6 +146,5 @@ namespace glCompact {
             void detachFromThreadContextState() const;
 
             void setDefaultValues();
-        ///\endcond
     };
 }

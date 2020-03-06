@@ -21,9 +21,7 @@
 
 namespace glCompact {
     class AttributeLayout {
-        ///\cond HIDDEN_FROM_DOXYGEN
             friend class PipelineRasterization;
-        ///\endcond
         public:
             AttributeLayout();
             ~AttributeLayout();
@@ -35,7 +33,6 @@ namespace glCompact {
             void addSpacing(AttributeFormat attributeFormat);
 
             void reset();
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             int8_t uppermostActiveBufferIndex = -1;
             int8_t uppermostActiveLocation    = -1;
@@ -51,6 +48,5 @@ namespace glCompact {
             } location[Config::MAX_ATTRIBUTES];
 
             void addBufferIndex_(bool instancing);
-        ///\endcond
     };
 }

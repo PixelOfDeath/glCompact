@@ -33,7 +33,6 @@ namespace glCompact {
 
             static uintptr_t getPageSize();
             void commitment(uintptr_t offset, uintptr_t size, bool commit);
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             void create(bool clientMemoryCopyable, uintptr_t size);
 
@@ -47,6 +46,5 @@ namespace glCompact {
                 __builtin_popcountl = long int
                 __builtin_popcountll = long long
             */
-        ///\endcond
     };
 }

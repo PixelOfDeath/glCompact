@@ -15,7 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
 */
-///\cond HIDDEN_FROM_DOXYGEN
 #pragma once
 #include <cstddef>
 #include <cstdint> //C++11
@@ -75,4 +74,3 @@ namespace glCompact {
         struct _cl_event;
     }
 }
-///\endcond

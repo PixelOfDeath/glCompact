@@ -124,7 +124,6 @@ namespace glCompact {
             bool hasGeometryStage     ()const{return hasShader[3];}
             bool hasFragmentStage     ()const{return hasShader[4];}
 
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             virtual std::string getPipelineIdentificationString();
             std::string getPipelineInformationQueryString();
@@ -247,6 +246,5 @@ namespace glCompact {
 
             static const std::string shaderTypeString[];
             static const std::string shaderTypeStringSameLenght[];
-        ///\endcond
     };
 }

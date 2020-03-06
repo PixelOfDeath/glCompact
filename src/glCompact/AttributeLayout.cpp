@@ -27,7 +27,6 @@
 
 #include <stdexcept>
 
-///\cond HIDDEN_FROM_DOXYGEN
 /*
     Instancing is Core since 3.1, and before that also available via extension like GL_ARB_draw_instanced
 
@@ -101,7 +100,6 @@ ARB_vertex_attrib_binding (Core since 4.3)
     Mat3xX     3
     Mat4xX     4
 */
-///\endcond
 
 using namespace std;
 

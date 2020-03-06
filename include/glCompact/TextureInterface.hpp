@@ -23,10 +23,8 @@
 
 namespace glCompact {
     class TextureInterface : public SurfaceInterface {
-        ///\cond HIDDEN_FROM_DOXYGEN
             friend class Frame;
             friend class TextureSelector;
-        ///\endcond
         public:
             TextureInterface& operator=(TextureInterface&& textureInterface) = default;
 
@@ -53,7 +51,6 @@ namespace glCompact {
             void invalidate(uint32_t mipmapLevel, glm::ivec3 offset, glm::ivec3 size);
 
             glm::ivec3 getMipmapLevelSize(uint32_t mipmapLevel);
-        ///\cond HIDDEN_FROM_DOXYGEN
         protected:
             TextureInterface() = default;
             ~TextureInterface();
@@ -71,6 +68,5 @@ namespace glCompact {
             uint8_t mipmapBaseLevel = 0;
 
             static void checkSurfaceFormatCompatibleToMemorySurfaceFormat(SurfaceFormat surfaceFormat, MemorySurfaceFormat memorySurfaceFormat);
-        ///\endcond
     };
 }

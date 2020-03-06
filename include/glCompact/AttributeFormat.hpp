@@ -19,21 +19,17 @@
 #include <cstdint> //C++11
 
 namespace glCompact {
-    ///\cond HIDDEN_FROM_DOXYGEN
     struct AttributeFormatDetail {
         int32_t componentsType;        //Base type or complex type. E.g. GL_UNSIGNED_BYTE, or special type like GL_INT_2_10_10_10_REV
         int32_t componentsCountOrBGRA; //1, 2, 3, 4 or GL_BGRA
         bool    normalized;
         uint8_t byteSize;
     };
-    ///\endcond
 
     class AttributeFormat {
-        ///\cond HIDDEN_FROM_DOXYGEN
             friend class AttributeLayout;
             friend class AttributeLayoutStates;
             friend class PipelineRasterization;
-        ///\endcond
         public:
             enum FormatEnum : uint8_t {
                 R8_UNORM = 1,
@@ -129,11 +125,9 @@ namespace glCompact {
             inline const AttributeFormatDetail* operator->() const {
                 return &attributeFormatDetail[formatEnum];
             }
-        ///\cond HIDDEN_FROM_DOXYGEN
         private:
             static constexpr FormatEnum NONE = static_cast<FormatEnum>(0);
             FormatEnum formatEnum = NONE;
             static const AttributeFormatDetail attributeFormatDetail[];
-        ///\endcond
     };
 }
