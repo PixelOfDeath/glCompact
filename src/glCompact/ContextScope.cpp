@@ -25,6 +25,46 @@
 #include "glCompact/ThreadContextGroup.hpp"
 
 namespace glCompact {
+    /**
+        \ingroup API
+        \class glCompact::ContextScope
+        \brief Scope object that initalizes the glCompact internals
+
+        \details Before using any other glCompact functionality in this thread/context, this object needs to be created.
+
+        The current thread needs to have an active OpenGL context with a minimum version of 3.3.
+
+        There are two constructors that take a function pointer to a function that itself returns a OpenGL function pointer from a c-string name parameter.
+
+        Most Windows and OpenGL context creation libraries supply such a function.
+
+        The type can be:
+
+            void *(*)(const char*)
+
+        for SDL2
+
+            ContextScope myContextScope(SDL_GL_GetProcAddress)
+
+        or
+
+            void(*(*)(const char*))()
+
+        for GLFW
+
+            ContextScope myContextScope(glfwGetProcAddress)
+
+        for SFML
+
+            ContextScope myContextScope(sf::Context::getFunction)
+
+        Otherwise a type cast to one of this types is neccessary.
+
+
+        If there is another OpenGL thread/context that already has a ContextScope object and shares states with this thread/context,
+        then there is a constructor that takes a pointer to the ContextScope object.
+    */
+
     static void checkContext() {
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             UNLIKELY_IF (threadContext != 0)
@@ -45,34 +85,11 @@ namespace glCompact {
         #endif
     }
 
-    /*
-        This constructor initiates glCompacts internal ContextGroup and Context objects.
-        The current thread needs to have an active OpenGL context with a minimum version of 3.3.
-        It takes a function pointer to a function that itself returns a OpenGL function pointer from a c-string name parameter.
-
-        Most Windows and OpenGL context creation libraries supply such a function.
-
-        The type can be:
-
-            void *(*)(const char*)
-
-            e.g. for
-            SDL2
-                ContextScope myContextScope(SDL_GL_GetProcAddress)
-
-        or
-
-            void(*(*)(const char*))()
-
-            e.g. for
-            GLFW
-                ContextScope myContextScope(glfwGetProcAddress)
-
-            SFML
-                ContextScope myContextScope(sf::Context::getFunction)
-
-        Otherwise a type cast to one of this types is neccessary.
-    */
+    /**
+     * \brief Constructor
+     *
+     * \param getGlFunctionPointer pointer to function that returns OpenGL functions pointers via c-string name
+     */
     ContextScope::ContextScope(
         void*(*getGlFunctionPointer)(const char*)
     ) {
@@ -95,10 +112,20 @@ namespace glCompact {
         #endif
     }
 
+    /**
+     * \brief Constructor
+     *
+     * \param getGlFunctionPointer pointer to function that returns OpenGL functions pointers via c-string name
+     */
     ContextScope::ContextScope(
         void(*(*getGlFunctionPointer)(const char*))()
     ) : ContextScope(reinterpret_cast<void*(*)(const char*)>(getGlFunctionPointer)){}
 
+    /**
+     * \brief Constructor
+     *
+     * \param contextScope already initalized ContextScope object that was initalized on a OpenGL context that is shared with the current context
+     */
     ContextScope::ContextScope(
         const ContextScope* contextScope
     ) {
