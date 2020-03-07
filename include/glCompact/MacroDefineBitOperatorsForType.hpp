@@ -26,10 +26,4 @@ inline ENUMTYPE  operator| (ENUMTYPE& lhs, ENUMTYPE rhs){return ENUMTYPE(static_
 inline ENUMTYPE& operator|=(ENUMTYPE& lhs, ENUMTYPE rhs){lhs =  ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) |  static_cast<std::underlying_type<ENUMTYPE>::type>(rhs)); return lhs;} \
 inline ENUMTYPE  operator^ (ENUMTYPE& lhs, ENUMTYPE rhs){return ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) ^  static_cast<std::underlying_type<ENUMTYPE>::type>(rhs));}             \
 inline ENUMTYPE& operator^=(ENUMTYPE& lhs, ENUMTYPE rhs){lhs =  ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) ^  static_cast<std::underlying_type<ENUMTYPE>::type>(rhs)); return lhs;} \
-inline ENUMTYPE  operator~ (               ENUMTYPE rhs){return ENUMTYPE(                                                         ~static_cast<std::underlying_type<ENUMTYPE>::type>(rhs));}             \
-inline ENUMTYPE& operator+=(ENUMTYPE& lhs, ENUMTYPE rhs){lhs =  ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) |  static_cast<std::underlying_type<ENUMTYPE>::type>(rhs)); return lhs;} \
-inline ENUMTYPE& operator-=(ENUMTYPE& lhs, ENUMTYPE rhs){lhs =  ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) & ~static_cast<std::underlying_type<ENUMTYPE>::type>(rhs)); return lhs;}
-
-//inline ENUMTYPE  operator+ (ENUMTYPE& lhs, ENUMTYPE rhs){return ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) &  static_cast<std::underlying_type<ENUMTYPE>::type>(rhs));}
-//inline ENUMTYPE  operator- (ENUMTYPE& lhs, ENUMTYPE rhs){return ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) & ~static_cast<std::underlying_type<ENUMTYPE>::type>(rhs));}
-//inline ENUMTYPE& operator+=(ENUMTYPE& lhs, ENUMTYPE rhs){return ENUMTYPE(static_cast<std::underlying_type<ENUMTYPE>::type>(lhs) & static_cast<std::underlying_type<ENUMTYPE>::type>(rhs));}
+inline ENUMTYPE  operator~ (               ENUMTYPE rhs){return ENUMTYPE(                                                         ~static_cast<std::underlying_type<ENUMTYPE>::type>(rhs));}

@@ -324,7 +324,7 @@ namespace glCompact {
     ) {
         this->triangleFrontIsClockwiseRotation = clockwise;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::triangleFace;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::triangleFace;
     }
 
     /**
@@ -336,7 +336,7 @@ namespace glCompact {
     ) {
         this->faceToDraw = faceSelection;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::triangleFace;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::triangleFace;
     }
 
     /** \brief Sets if writing is enabled for all RGBA slots
@@ -358,7 +358,7 @@ namespace glCompact {
         rgbaWriteMask[0].a = a;
         singleRgbaWriteMaskState = true;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::rgbaMask;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::rgbaMask;
     }
 
     //core since 3.0
@@ -390,7 +390,7 @@ namespace glCompact {
         rgbaWriteMask[slot].a = a;
         singleRgbaWriteMaskState = false;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::rgbaMask;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::rgbaMask;
     }
 
     /*
@@ -407,7 +407,7 @@ namespace glCompact {
     ) {
         depthCompareOperator = compareOperator;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::depth;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
     }
 
     /*
@@ -418,7 +418,7 @@ namespace glCompact {
     ) {
         depthWriteEnabled = enabled;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::depth;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
     }
 
     //TODO: add GL_EXT_polygon_offset_clamp support?
@@ -447,7 +447,7 @@ namespace glCompact {
         this->depthBiasClamp          = depthBiasClamp;
         this->depthBiasSlopeFactor    = depthBiasSlopeFactor;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::depth;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
     }
 
     /*
@@ -466,7 +466,7 @@ namespace glCompact {
     ) {
         depthNearMapping = near;
         depthFarMapping  = far;
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::depth;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
     }
 
     /*
@@ -480,7 +480,7 @@ namespace glCompact {
         bool enabled
     ) {
         depthClippingToClamping = enabled;
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::depth;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
     }
 
     /*
@@ -498,7 +498,7 @@ namespace glCompact {
         if (faceSelection == FaceSelection::frontAndBack || faceSelection == FaceSelection::back) {
             stencilTestBack.refValue        = refValue;
         }
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::stencil;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::stencil;
     }
 
     /*
@@ -523,7 +523,7 @@ namespace glCompact {
             stencilTestBack.compareOperator = compareOperator;
             stencilTestBack.readMask        = readMask;
         }
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::stencil;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::stencil;
     }
 
     /*
@@ -550,7 +550,7 @@ namespace glCompact {
             stencilWriteBack.stencilPassDepthFailOperator         = stencilPassDepthFailOperator;
             stencilWriteBack.stencilPassDepthPassOrAbsentOperator = stencilPassDepthPassOrAbsentOperator;
         }
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::stencil;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::stencil;
     }
 
     /*
@@ -596,7 +596,7 @@ namespace glCompact {
         glm::vec4 rgba
     ) {
         blendConstRgba = rgba;
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::blend;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
     }
 
     /** \brief Setup a single blend mode and enable it for all Rgba targets that have a normalized or floatingpoint format
@@ -630,7 +630,7 @@ namespace glCompact {
             blendEquations[i].a      = equationA;
         }
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::blend;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
     }
 
     /** \brief Set a single blend mode for all rgba slots
@@ -673,7 +673,7 @@ namespace glCompact {
         blendEquations[rgbaSlot].rgb    = equationRgb;
         blendEquations[rgbaSlot].a      = equationA;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::blend;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
     }
 
     /** \brief disables rgba blend for a specific rgba slot (Rgba blend is disabled for all slots by default)
@@ -686,7 +686,7 @@ namespace glCompact {
         blendEnabledAll = false;
         blendEnabled[rgbaSlot] = false;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::blend;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
     }
 
     /** \brief disables rgba blend for all rgba slots (Rgba blend is disabled for all slots by default)
@@ -696,7 +696,7 @@ namespace glCompact {
         blendEnabledAll = false;
         LOOPI(Config::MAX_RGBA_ATTACHMENTS) blendEnabled[i] = false;
 
-        pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::blend;
+        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
     }
 
     //LOGIC OPERATION

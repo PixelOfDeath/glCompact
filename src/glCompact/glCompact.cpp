@@ -55,7 +55,7 @@ namespace glCompact {
         UNLIKELY_IF (frame.id == 0 && &frame != &threadContext->frameWindow)
             throw std::runtime_error("Trying to set empty Frame as drawFrame!");
         threadContext->pending_frame = &frame;
-        threadContext->pipelineRasterizationStateChangePending += PipelineRasterizationStateChange::viewportScissor;
+        threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
     Frame& getDrawFrame() {
