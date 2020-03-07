@@ -144,6 +144,29 @@ using namespace std;
 
 namespace glCompact
 {
+    /**
+        \ingroup API
+        \class glCompact::Frame
+        \brief Container object to be used as target for off-screen rasterization
+
+        \details This object is a collection of texture and/or render buffers to be used as a target for rasterization operations by PipelineRasterization.
+
+        It can contain a single depth or stencil or depthStencil target. And up to 8 RGBA targets.
+
+        - Targets must be either all layered or all unlayered. Layer counts can be arbitrary mixed.
+
+        - Targets must all have the same sample count.
+
+        - Targets must all be either SRGB or non-SRGB
+
+        The smallest target size defines the rasterization size of the Frame. Therefor the Frame also needs at last one target.
+
+        With GL_ARB_framebuffer_no_attachments (Core since 4.3), it is possible to create a "virtual" Frame without any attachments.
+        The size, layer count and sample count are set via parameters. It is intended to be used for e.g. rasterization with SSBO image store.
+
+
+        Note that this object can not be accessed by any other OpenGL context and only exist in the creator context!
+    */
     /*
         TODO check max attachment count (throw is better then gl error!)
 
