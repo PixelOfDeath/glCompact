@@ -18,6 +18,10 @@
 */
 #pragma once
 
+/**
+    \defgroup API API
+*/
+
 namespace glCompact {
     namespace Config {
         //If enabled this will use a thread_local pointer for the context state tracking information.
