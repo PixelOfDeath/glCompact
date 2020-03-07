@@ -23,6 +23,13 @@
 using namespace glCompact::gl;
 
 namespace glCompact {
+    /**
+        \ingroup API
+        \class glCompact::AttributeFormat
+        \brief enum class for all formats that can by used as attribute input
+        \details bla...
+    */
+
     const AttributeFormatDetail AttributeFormat::attributeFormatDetail[] = {
     //TODO: Component count could also be GL_BGRA if shaderType is GL_FLOAT? Does that make a difference to 4??
     //   baseType                         componentCount/BGRA

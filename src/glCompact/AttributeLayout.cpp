@@ -105,6 +105,13 @@ ARB_vertex_attrib_binding (Core since 4.3)
 using namespace std;
 
 namespace glCompact {
+    /**
+     * \ingroup API
+     * \class glCompact::AttributeLayout
+     * \brief Attribute data input layout class to be used with PipelineRasterization
+     * \details bla...
+     */
+
     AttributeLayout::AttributeLayout() {
     }
 
