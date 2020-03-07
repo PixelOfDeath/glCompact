@@ -6,7 +6,7 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "glCompact"
 PROJECT_NUMBER         =
-PROJECT_BRIEF          =
+PROJECT_BRIEF          = "A multi platform, minimal dependency, low level but very simple C++11 Graphics API to interface OpenGL 3.3+"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@
 CREATE_SUBDIRS         = NO
@@ -61,7 +61,7 @@ LOOKUP_CACHE_SIZE      = 0
 #---------------------------------------------------------------------------
 # Build related configuration options
 #---------------------------------------------------------------------------
-EXTRACT_ALL            = NO
+EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = NO
 EXTRACT_PACKAGE        = NO
 EXTRACT_STATIC         = NO
@@ -102,7 +102,7 @@ CITE_BIB_FILES         =
 # Configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
 QUIET                  = NO
-WARNINGS               = YES
+WARNINGS               = NO
 WARN_IF_UNDOCUMENTED   = NO
 WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = NO
