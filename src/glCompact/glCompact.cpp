@@ -35,11 +35,11 @@ namespace glCompact {
         @param oqoId
         @param waitMode Can be GL_QUERY_WAIT, GL_QUERY_NO_WAIT, GL_QUERY_BY_REGION_WAIT​, GL_QUERY_BY_REGION_NO_WAIT
     */
-    /*void drawConditionBegin(GLuint oqoId, GLenum waitMode) {
+    /*void setCondition(GLuint oqoId, GLenum waitMode) {
         threadContext->glBeginConditionalRender(oqoId, waitMode);
     }
 
-    void drawConditionEnd() {
+    void setCondition() {
         threadContext->glEndConditionalRender();
     }*/
 
@@ -118,11 +118,4 @@ namespace glCompact {
     Frame& getWindowFrame() {
         return threadContext->frameWindow;
     }
-
-    /*void setVao(const VAO* vao) {
-        threadContext->pending_vaoId = vao ? vao->vaoId : threadContext->default_vaoId;
-    }*/
-
-
-
 }
