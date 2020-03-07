@@ -303,15 +303,15 @@ namespace glCompact {
         //GL_FRAMEBUFFER_DEFAULT_FIXED_SAMPLE_LOCATIONS (atm I guess this is a boolean values. TODO test)
 
         UNLIKELY_IF (!threadContextGroup->extensions.GL_ARB_framebuffer_no_attachments)
-            throw runtime_error("Missing ARB_framebuffer_no_attachments");
+            crash("Missing ARB_framebuffer_no_attachments");
         UNLIKELY_IF (sizeX   > uint32_t(threadContextGroup->values.GL_MAX_FRAMEBUFFER_WIDTH))
-            throw runtime_error("sizeX ("   + to_string(sizeX)   + ") can't be larger then GL_MAX_FRAMEBUFFER_WIDTH ("   + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_WIDTH)   + ")!");
+            crash("sizeX ("   + to_string(sizeX)   + ") can't be larger then GL_MAX_FRAMEBUFFER_WIDTH ("   + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_WIDTH)   + ")!");
         UNLIKELY_IF (sizeY   > uint32_t(threadContextGroup->values.GL_MAX_FRAMEBUFFER_HEIGHT))
-            throw runtime_error("sizeY ("   + to_string(sizeY)   + ") can't be larger then GL_MAX_FRAMEBUFFER_HEIGHT ("  + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_HEIGHT)  + ")!");
+            crash("sizeY ("   + to_string(sizeY)   + ") can't be larger then GL_MAX_FRAMEBUFFER_HEIGHT ("  + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_HEIGHT)  + ")!");
         UNLIKELY_IF (layers  > uint32_t(threadContextGroup->values.GL_MAX_FRAMEBUFFER_LAYERS))
-            throw runtime_error("layers ("  + to_string(layers)  + ") can't be larger then GL_MAX_FRAMEBUFFER_LAYERS ("  + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_LAYERS)  + ")!");
+            crash("layers ("  + to_string(layers)  + ") can't be larger then GL_MAX_FRAMEBUFFER_LAYERS ("  + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_LAYERS)  + ")!");
         UNLIKELY_IF (samples > uint32_t(threadContextGroup->values.GL_MAX_FRAMEBUFFER_SAMPLES))
-            throw runtime_error("samples (" + to_string(samples) + ") can't be larger then GL_MAX_FRAMEBUFFER_SAMPLES (" + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_SAMPLES) + ")!");
+            crash("samples (" + to_string(samples) + ") can't be larger then GL_MAX_FRAMEBUFFER_SAMPLES (" + to_string(threadContextGroup->values.GL_MAX_FRAMEBUFFER_SAMPLES) + ")!");
 
         if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
             threadContextGroup->functions.glCreateFramebuffers(1, &id);
