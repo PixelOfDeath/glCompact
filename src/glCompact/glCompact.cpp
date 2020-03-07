@@ -53,6 +53,16 @@ namespace glCompact {
         threadContextGroup->functions.glFinish();
     }
 
+    /**
+        \ingroup API
+        \brief Set target Frame object for PiepelineRasterization draw calls and blit operations
+
+        \details
+
+        To set the windows frame, use:
+
+            setDrawFrame(getWindowFrame());
+    */
     void setDrawFrame(
         Frame& frame
     ) {
@@ -62,11 +72,29 @@ namespace glCompact {
         threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
+    /**
+        \ingroup API
+        \brief Get the current draw Frame of this context
+
+        \details This is especially useful for code that draws on arbitary frames.
+
+        E.g. to clear all RGBA targets of the current draw frame, use:
+
+            getDrawFrame().clearRgba();
+    */
     Frame& getDrawFrame() {
         return *threadContext->pending_frame;
     }
 
-    //This function also will reset the viewportOffset and viewportSize to {0, 0} and {x, y}
+    /**
+        \ingroup API
+        \brief Set the size of the window/displayed frame.
+
+        \details The size of the Windows frame is controlled by the underlaying window/widget library.
+        They only way to get this information is via the specific callback or quere and feed the information back to glCompact so that viewport and/or scissor can bet set correctly.
+
+        This function will set the viewportOffset and viewportSize to {0, 0} and {x, y}
+    */
     void setWindowFrameSize(
         uint32_t x,
         uint32_t y
@@ -77,6 +105,16 @@ namespace glCompact {
         threadContext->frameWindow.viewportSize   = {x, y};
     }
 
+    /**
+        \ingroup API
+        \brief Get the window/displayed frame.
+
+        \details This gets a Frame object that represents the output window/display of OpenGL.
+
+        It can be used to set it as the PiepelineRasterization target:
+
+            getDrawFrame(getWindowFrame());
+    */
     Frame& getWindowFrame() {
         return threadContext->frameWindow;
     }
