@@ -23,6 +23,10 @@
 #include "glCompact/ToolsInternal.hpp"
 #include <glm/glm.hpp>
 
+/**
+    \defgroup API API
+*/
+
 using namespace glCompact::gl;
 
 namespace glCompact {
