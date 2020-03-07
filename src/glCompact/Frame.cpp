@@ -196,9 +196,9 @@ namespace glCompact {
         //bool isLayered;
         if (depthAndOrStencilSurface.surface) {
             UNLIKELY_IF (depthAndOrStencilSurface.surface->surfaceFormat->isCompressed)
-                throw std::runtime_error("depthAndOrStencilSurface must be a uncompressed format!");
+                crash("depthAndOrStencilSurface must be a uncompressed format!");
             UNLIKELY_IF (!(depthAndOrStencilSurface.surface->surfaceFormat->isDepth || depthAndOrStencilSurface.surface->surfaceFormat->isStencil))
-                throw std::runtime_error("depthAndOrStencilSurface must have depth and/or stencil format!");
+                crash("depthAndOrStencilSurface must have depth and/or stencil format!");
 
             foundSingleLayer = isSingleLayer(depthAndOrStencilSurface);
             foundMultiLayer  = isMultiLayer (depthAndOrStencilSurface);
@@ -211,10 +211,10 @@ namespace glCompact {
         for (auto surfaceSelector : rgbaSurfaceList) {
             if (surfaceSelector.surface) {
                 UNLIKELY_IF (surfaceSelector.surface->surfaceFormat->isCompressed)
-                    throw std::runtime_error("Rgba format must be a uncompressed format!");
+                    crash("Rgba format must be a uncompressed format!");
                 UNLIKELY_IF (    !surfaceSelector.surface->surfaceFormat->isRenderable
                              ||  !(surfaceSelector.surface->surfaceFormat->isRgbaNormalizedIntegerOrFloat || surfaceSelector.surface->surfaceFormat->isRgbaInteger))
-                    throw std::runtime_error(string("Not a rgba renderable format: ") + surfaceSelector.surface->surfaceFormat->name);
+                    crash(string("Not a rgba renderable format: ") + surfaceSelector.surface->surfaceFormat->name);
                 foundSingleLayer = foundSingleLayer || isSingleLayer(surfaceSelector);
                 foundMultiLayer  = foundMultiLayer  || isMultiLayer (surfaceSelector);
                 foundSRGB        = foundSRGB        ||  surfaceSelector.surface->surfaceFormat->isSrgb;
@@ -229,14 +229,14 @@ namespace glCompact {
             }
         }
         UNLIKELY_IF (foundSingleLayer && foundMultiLayer)
-            throw std::runtime_error("Can not mix single layer with multi layer surfaces!");
+            crash("Can not mix single layer with multi layer surfaces!");
         UNLIKELY_IF (foundDifferentSamples)
-            throw std::runtime_error("Can not mix surfaces with different sample count!");
+            crash("Can not mix surfaces with different sample count!");
         UNLIKELY_IF (foundSRGB && foundNonSRGB)
-            throw std::runtime_error("Can not mix SRGB and non-SRGB formats!");
+            crash("Can not mix SRGB and non-SRGB formats!");
         //Check for zero surfaces! Incomplite without (except if GL_ARB_framebuffer_no_attachments (core since 4.3) is supportet)
         UNLIKELY_IF (!foundSingleLayer && !foundMultiLayer)
-            throw std::runtime_error("This constructor can not create a Frame without any attachments!");
+            crash("This constructor can not create a Frame without any attachments!");
         //TODO: Check for max surfaces!
         //LOTS OF Framebuffer Completeness RULES HERE: https://www.khronos.org/opengl/wiki/Framebuffer_Object#Framebuffer_Completeness
 
@@ -274,15 +274,15 @@ namespace glCompact {
         if (fboStatus == GL_FRAMEBUFFER_COMPLETE) return;
         free();
         switch (fboStatus) {
-            case GL_FRAMEBUFFER_UNDEFINED:                     throw std::runtime_error("Framebuffer undefined");
-            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         throw std::runtime_error("Incomplete attachment");
-            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: throw std::runtime_error("Missing attachment");
-            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:        throw std::runtime_error("Incomplete draw buffer");
-            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:        throw std::runtime_error("Incomplete read buffer");
-            case GL_FRAMEBUFFER_UNSUPPORTED:                   throw std::runtime_error("Framebuffer unsupported");
-            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:        throw std::runtime_error("Incomplete multisample");
-            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      throw std::runtime_error("Incomplete layer targets");
-            default:                                           throw std::runtime_error("Unknown framebuffer status (" + to_string(int32_t(fboStatus)) + ")");
+            case GL_FRAMEBUFFER_UNDEFINED:                     crash("Framebuffer undefined");
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         crash("Incomplete attachment");
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: crash("Missing attachment");
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:        crash("Incomplete draw buffer");
+            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:        crash("Incomplete read buffer");
+            case GL_FRAMEBUFFER_UNSUPPORTED:                   crash("Framebuffer unsupported");
+            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:        crash("Incomplete multisample");
+            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      crash("Incomplete layer targets");
+            default:                                           crash("Unknown framebuffer status (" + to_string(int32_t(fboStatus)) + ")");
         }
     }
 
