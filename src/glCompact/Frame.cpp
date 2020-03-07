@@ -29,7 +29,6 @@
 
 #include <iostream>
 #include <algorithm>
-
 #include <array>
 
 using namespace glCompact::gl;
@@ -142,8 +141,7 @@ using namespace std;
  */
 
 
-namespace glCompact
-{
+namespace glCompact {
     /**
         \ingroup API
         \class glCompact::Frame
@@ -183,7 +181,7 @@ namespace glCompact
         SurfaceSelector rgba6,
         SurfaceSelector rgba7
     ) noexcept(false) {
-        std::array<SurfaceSelector, 8> rgbaSurfaceList = {rgba0, rgba1, rgba2, rgba3, rgba4, rgba5, rgba6, rgba7};
+        array<SurfaceSelector, 8> rgbaSurfaceList = {rgba0, rgba1, rgba2, rgba3, rgba4, rgba5, rgba6, rgba7};
 
         bool foundSingleLayer      = false;
         bool foundMultiLayer       = false;
