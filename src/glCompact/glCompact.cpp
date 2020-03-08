@@ -21,17 +21,29 @@
 #include "glCompact/ThreadContextGroup.hpp"
 #include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
 #include "glCompact/ToolsInternal.hpp"
+
 #include <glm/glm.hpp>
 
 /**
     \defgroup API API
+    \brief This is user facing API of the library
 */
 
 using namespace glCompact::gl;
 
 namespace glCompact {
     //control/flush commands
-    /**
+    void flush() {
+        //TODO: set all pending changes
+        threadContextGroup->functions.glFlush();
+    }
+
+    void finish() {
+        //TODO: set all pending changes
+        threadContextGroup->functions.glFinish();
+    }
+
+    /*
         @param oqoId
         @param waitMode Can be GL_QUERY_WAIT, GL_QUERY_NO_WAIT, GL_QUERY_BY_REGION_WAIT​, GL_QUERY_BY_REGION_NO_WAIT
     */
@@ -42,16 +54,6 @@ namespace glCompact {
     void setCondition() {
         threadContext->glEndConditionalRender();
     }*/
-
-    void flush() {
-        //TODO: set all pending changes
-        threadContextGroup->functions.glFlush();
-    }
-
-    void finish() {
-        //TODO: set all pending changes
-        threadContextGroup->functions.glFinish();
-    }
 
     /**
         \ingroup API
@@ -118,4 +120,9 @@ namespace glCompact {
     Frame& getWindowFrame() {
         return threadContext->frameWindow;
     }
+
+    //transform feedback
+    //If I implement this it maybe will be part of PipelineRasterization or its own object.
+    //void setTransformFeedbackLayout(const TransformFeedbackLayout& layout);
+    //void setTransformFeedbackBuffer(uint32_t slot, BufferInterface& buffer);
 }

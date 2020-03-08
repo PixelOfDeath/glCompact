@@ -43,23 +43,11 @@
 #include "glCompact/MemoryBarrier.hpp"
 
 namespace glCompact {
-    //control/flush commands
     extern void flush();
     extern void finish();
 
-    //Maybe make setCondition a part of objects, like PipelineInterface. Or make it an optional parameter for e.g. the frame clear functions.
-    //This also would give a clean overview of what commands can be conditional.
-    //extern void setCondition(GLuint oqoId, GLenum waitMode);
-    //extern void setCondition();
-
-    //global bindings...
     extern void   setDrawFrame      (Frame& frame);
     extern Frame& getDrawFrame      ();
     extern void   setWindowFrameSize(uint32_t x, uint32_t y);
     extern Frame& getWindowFrame    ();
-
-    //transform feedback
-    //If I implement this it maybe will be part of PipelineRasterization or its own object.
-    //extern void setTransformFeedbackLayout(const TransformFeedbackLayout& layout);
-    //extern void setTransformFeedbackBuffer(uint32_t slot, BufferInterface& buffer);
 }
