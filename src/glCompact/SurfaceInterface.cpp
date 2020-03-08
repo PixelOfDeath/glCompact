@@ -88,10 +88,10 @@ namespace glCompact {
         if (!id) return;
         detachFromThreadContext();
         //If this texture/renderBuffer is part of the currently bound FBO then it would be unbound by OpenGL.
-        //To prevent this we always set the default FBO. So FBOs act as a hard link (like a texture view) to the underlaying surface memory.
-        //TODO read fbo relevant?
+        //To prevent this we always set the default FBO. Still being bound to any FBO will act like a hard link (like a texture view) to the underlaying surface memory.
+        //This gives a consistend behavior for FBOs and also prevents them from being changed and possibly made incomplete!
         threadContext->cachedBindDrawFbo(0);
-        threadContext->cachedBindReadFbo(0);
+        threadContext->cachedBindReadFbo(0); //TODO read fbo relevant? I guess yes.
         if (target == GL_RENDERBUFFER) {
             threadContextGroup->functions.glDeleteRenderbuffers(1, &id);
         } else {

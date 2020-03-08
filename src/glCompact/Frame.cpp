@@ -35,13 +35,6 @@ using namespace glCompact::gl;
 using namespace std;
 
 /*
-    TODO: Still have to find this exact spec in the reference!
-        "If the textureId parameter is set to 0, then, the texture image will be detached from the FBO. If a texture object is deleted while it is still attached to a FBO,
-        then, the texture image will be automatically detached from the currently bound FBO.
-        However, if it is attached to multiple FBOs and deleted, then it will be detached from only the bound FBO, but will not be detached from any other un-bound FBOs."
-
-        -> Probably always force unbind of FBO when deleting texture/renderBuffer, to keep the FBO as a hard link object with all its attached targets!
-
     This can be lower min. values without the arb extension!
         values.GL_MAX_COLOR_ATTACHMENTS (min. 4)
         values.GL_MAX_DRAW_BUFFERS (min. 4)
@@ -145,9 +138,9 @@ namespace glCompact {
     /**
         \ingroup API
         \class glCompact::Frame
-        \brief Container object to be used as target for off-screen rasterization
+        \brief Texture and render-buffer container to be used for off-screen rasterization
 
-        \details This object is a collection of texture and/or render buffers to be used as a target for rasterization operations by PipelineRasterization.
+        \details This object is a collection of texture and/or render-buffers to be used as a target for rasterization operations by PipelineRasterization.
 
         It can contain a single depth or stencil or depthStencil target. And up to 8 RGBA targets.
 
@@ -162,8 +155,9 @@ namespace glCompact {
         With GL_ARB_framebuffer_no_attachments (Core since 4.3), it is possible to create a "virtual" Frame without any attachments.
         The size, layer count and sample count are set via parameters. It is intended to be used for e.g. rasterization with SSBO image store.
 
-
         Note that this object can not be accessed by any other OpenGL context and only exist in the creator context!
+
+        The underlaying memory of all attached textures and render-buffers is not deleted until all Frame objects targeting them are also deleted.
     */
     /*
         TODO check max attachment count (throw is better then gl error!)
