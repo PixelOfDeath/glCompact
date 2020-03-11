@@ -26,8 +26,6 @@
 namespace glCompact {
     class PipelineCompute;
     class PipelineCompute : public PipelineInterface {
-            friend class PipelineComputeFromString;
-            friend class PipelineComputeFromFile;
         public:
             PipelineCompute(const std::string& shaderString);
             PipelineCompute(const std::string& path, const std::string& fileName);
