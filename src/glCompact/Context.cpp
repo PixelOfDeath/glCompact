@@ -33,25 +33,8 @@ using namespace glCompact::gl;
 
 namespace glCompact {
     static atomic<int> nextContextId;
-
-    //Needs the current thread to have an OpenGL context!
-    Context::Context() {
-        frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
-        contextId = nextContextId.fetch_add(1);
-        init();
-    }
-
-    Context::~Context() {
-        if (defaultVaoId) threadContextGroup->functions.glDeleteVertexArrays(1, &defaultVaoId);
-        if (frameBufferIdForSubImageRead) threadContextGroup->functions.glDeleteFramebuffers(1, &frameBufferIdForSubImageRead);
-        threadContextGroup->functions.glFinish(); //TODO: not sure if I need this here
-    }
-
-    int Context::getContextId() const {
-        return contextId;
-    }
     /*
-        Minimum required OpenGL version is 3.3!
+        Needs the current thread to have an OpenGL context with minimum 3.3!
 
         3.1
             restartIndex support (I really really want to have this! This is a minimum dependency!)
@@ -68,10 +51,11 @@ namespace glCompact {
         DONE!
             GL_ARB_shading_language_420pack (core in 4.2)
             DONE: replaced need for this extension via naming postfix: NAME_bindingX;
-
-
     */
-    void Context::init() {
+    Context::Context() {
+        frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
+        contextId = nextContextId.fetch_add(1);
+
         //DISABELING EXTENSIONS TO TEST DIFFERENT PATHS
         //*const_cast<bool*>(&extensions.GL_ARB_texture_storage)       = false; //NOTE: MAY CRASH IF TEXTURE VIEWS ARE USED! (Because they only can be created from texStorage objects!)
         //*const_cast<bool*>(&extensions.GL_ARB_multi_bind)            = false;
@@ -82,9 +66,8 @@ namespace glCompact {
 
         //*const_cast<bool*>(&extensions.GL_ARB_ES3_compatibility)     = false;
 
-        if (!threadContextGroup->version.equalOrGreater(3, 3)) {
-            throw runtime_error("glCompact requires Opengl 3.3 or higher!");
-        }
+        if (!threadContextGroup->version.equalOrGreater(3, 3))
+            crash("glCompact requires Opengl 3.3 or higher!");
 
         //TODO
         /*if (version.debug) {
@@ -99,7 +82,7 @@ namespace glCompact {
         */
 
         defaultVaoId = 0;
-        //Since OpenGL 3.0 the default VAO is depricated and only exist if the extension GL_ARB_compatibility (Not core) is present!
+        //Since OpenGL 3.0 (Core and Non-Core!) the default VAO is depricated! It only exist if the extension GL_ARB_compatibility (Not core) is present!
         //Without default VAO we just make our own "default VAO" per context via a single permanently bound one.
         if (!threadContextGroup->extensions.GL_ARB_compatibility) {
             threadContextGroup->functions.glGenVertexArrays(1, &defaultVaoId); //GL_ARB_direct_state_access also has glCreateVertexArrays, but we don't need it because we always bind before changing it
@@ -129,6 +112,16 @@ namespace glCompact {
         }
 
         defaultStatesActivate();
+    }
+
+    Context::~Context() {
+        if (defaultVaoId) threadContextGroup->functions.glDeleteVertexArrays(1, &defaultVaoId);
+        if (frameBufferIdForSubImageRead) threadContextGroup->functions.glDeleteFramebuffers(1, &frameBufferIdForSubImageRead);
+        threadContextGroup->functions.glFinish(); //TODO: not sure if I need this here
+    }
+
+    int Context::getContextId() const {
+        return contextId;
     }
 
     void Context::throwIfThreadHasNoActiveContext() {
