@@ -75,7 +75,7 @@ namespace glCompact {
     }
 
     BufferSparse::~BufferSparse() {
-        //TODO...
+        free();
     }
 
     void BufferSparse::free() {

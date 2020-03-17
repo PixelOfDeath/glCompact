@@ -458,20 +458,22 @@ namespace glCompact {
 
     void BufferInterface::free() {
         //need something like this   if (std::is_static<*this>::value) return;
-        //so I can ignore static objects destructor, because application is termination anyway and driver will clean up!
+        //so I can ignore destructors from static objects, because the application is termination anyway and driver will clean up!
+        //TODO: When do static objects from a closing thread get destroyed when the application keeps running?
         if (id) {
-            //if (!SDL_GL_GetCurrentContext())
-            //  cout << "WARNING: glCompact::Buffer destructor called but no active OpenGL context in this thread to delete it! Leaking OpenGL object!" << endl;
+            UNLIKELY_IF (!threadContextGroup)
+                crash("glCompact::Buffer destructor called but thread has no reference to threadContextGroup! Leaking OpenGL object!");
+            #ifdef GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
+                UNLIKELY_IF (!threadContextGroup->functions.glGetString(GL_VERSION))
+                    crash("glCompact::Buffer destructor called but thread has no active OpenGL context! glDeleteBuffers without effect! Leaking OpenGL object!");
+            #endif
 
-            //detachFromThreadContext();
-            //threadContext->glDeleteBuffers(1, &id);
             if (threadContext) detachFromThreadContext();
-
-            if (threadContextGroup)
-                threadContextGroup->functions.glDeleteBuffers(1, &id);
+            threadContextGroup->functions.glDeleteBuffers(1, &id);
 
             id    = 0;
             size_ = 0;
+            clientMemoryCopyable = false;
         }
     }
 }

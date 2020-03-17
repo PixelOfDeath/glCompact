@@ -107,6 +107,10 @@ namespace glCompact {
         return *this;
     }
 
+    Buffer::~Buffer() {
+        free();
+    }
+
     void Buffer::free() {
         BufferInterface::free();
     }

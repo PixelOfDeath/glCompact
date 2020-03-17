@@ -127,7 +127,7 @@ namespace glCompact {
     }
 
     BufferStaging::~BufferStaging() {
-        mem_ = 0;
+        free();
     }
 
     void BufferStaging::free() {
