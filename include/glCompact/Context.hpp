@@ -110,9 +110,7 @@ namespace glCompact {
             void defaultStatesActivate();
             void defaultStatesDeactivate();
         private:
-            //TODO: only define this stuff in debug mode?
-            //static thread_local bool threadHasContext;
-            static void throwIfThreadHasNoActiveContext();
+            static void assertThreadHasActiveGlContext();
 
             int contextId;
 

@@ -129,5 +129,9 @@ namespace glCompact {
 
         //to make debuging easy
         constexpr bool PRINT_PIPELINE_INFO_AFTER_LOAD = 0;
+
+        //The OpenGL Standard defines that function without an active context on the calling thread have no effect.
+        //This enables an assert check to catch this in glCompact functions.
+        #define GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
     }
 }

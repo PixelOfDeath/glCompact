@@ -124,10 +124,11 @@ namespace glCompact {
         return contextId;
     }
 
-    void Context::throwIfThreadHasNoActiveContext() {
-        //TODO: make this a debug version only check?
-        UNLIKELY_IF (threadContext == nullptr)
-            throw std::runtime_error("Trying to use functions that needs active glCompact::Context");
+    void Context::assertThreadHasActiveGlContext() {
+        #ifdef GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
+            UNLIKELY_IF (!threadContextGroup->functions.glGetString(GL_VERSION))
+                crash("Trying to use OpenGL functions in a thread without active context!");
+        #endif
     }
 
     //TODO: maybe also use a bool that enables brute force setting all values to known, just in case any other libs fuck up?!
