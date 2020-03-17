@@ -37,7 +37,7 @@ using namespace glCompact::gl;
 
 namespace glCompact {
     /**
-     * \brief Copy data from another buffer object.
+       \brief Copy data from another buffer object.
 
         GL_ARB_copy_buffer (Core since 3.1)
     */
@@ -76,7 +76,7 @@ namespace glCompact {
     /**
         Most drivers will copy the memory block to OpenGL managed system memory and then return from this functions.
         Then the transfer between this OpenGL managed system memory and the final memory (vram in most cases) will happen.
-        Unlike copyFromBuffer this function will limit the copying so it runs in paralel/in chunks and does not completely block the system.
+        Unlike copyFromBuffer this function might limit the copying to the GPU VRam, so it runs in paralel/in chunks and does not completely block Rasterization/Compute shaders.
     */
     void BufferInterface::copyFromMemory(
         const void* srcMem,
@@ -132,10 +132,13 @@ namespace glCompact {
         }
     }
 
-    //NOTE: glClearBufferData -> If data is NULL , then the pointer is ignored and the sub-range of the buffer is filled with zeros.
+    /**
+        \brief Set the whole buffer content to the value 0
+    */
     void BufferInterface::clear() {
         Context::assertThreadHasActiveGlContext();
-        //not sure if standard needs parameters when pointer is 0, but some drivers may fuck around otherwise!
+        //glClearBufferData -> If data is NULL , then the pointer is ignored and the sub-range of the buffer is filled with zeros.
+        //Not sure if standard needs parameters when pointer is 0, but some drivers may fuck around otherwise!
         //GL_R8UI is core since 3.0.
         if (threadContextGroup->extensions.GL_ARB_clear_buffer_object) {
             if (threadContextGroup->extensions.GL_ARB_direct_state_access)
@@ -151,6 +154,9 @@ namespace glCompact {
         }
     }
 
+    /**
+        \brief Set the buffer content in the range offset and size to the value 0
+    */
     void BufferInterface::clear(
         uintptr_t offset,
         uintptr_t size
@@ -160,6 +166,10 @@ namespace glCompact {
     }
 
     /*
+        Interface fits GL_ARB_clear_buffer_object (Core since 4.3), so it can automaticaly be used if present.
+
+        This will also work without the extension via copy commands, but might be significantly slower. Therefor it should not be used in a hot loop without the extension being present.
+
         TODO: Will there be issues with big-endian/little-endian here? (AKA will this lib ever be used on non x86?)
 
         Only core since 3.0
@@ -239,11 +249,22 @@ namespace glCompact {
                 }
             }
         } else {
-            //TODO: missing limiter check for size = 1, 2, 4, 8, 12, 16
+            //GL_ARB_sparse_buffer (Not core) depends on OpenGL 4.4. Therefor GL_ARB_clear_buffer_object (Core since 4.3) will be garantied to be present,
+            //and we can ignore sparse buffers in this path!
 
-            //upload data and then repeat copy in buffer until the whole size range is filled
-            //Q: This needs a special implementation for sparse buffers?
-            //A: Probably no sparse support anyway without the real clear function being present!
+            switch (fillValueSize) {
+                case 1:
+                case 2:
+                case 4:
+                case 8:
+                case 12:
+                case 16:
+                    break;
+                default:
+                    throw std::runtime_error("fillValueSize must be 1, 2, 4, 8, 12 or 16!");
+            }
+
+            //upload data to buffer and then repeat copy with doubling size until the whole range is filled
             char nullValue = 0;
             if (fillValue == 0) {
                 fillValue     = &nullValue;

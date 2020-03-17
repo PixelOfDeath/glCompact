@@ -34,6 +34,10 @@ namespace glCompact {
 
             void clear();
             void clear(uintptr_t offset, uintptr_t size);
+            /**
+                \brief Set the buffer content in the range offset and size to the value of fillValue.
+                fillValue must have a size of 1, 2, 4, 8, 12 or 16 bytes!
+            */
             template <typename T>
             void clear(uintptr_t offset, uintptr_t size, T fillValue) {
                 static_assert(
