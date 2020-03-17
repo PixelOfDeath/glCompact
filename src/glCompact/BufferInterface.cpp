@@ -250,7 +250,7 @@ namespace glCompact {
                 fillValueSize = 1;
             }
             if (clientMemoryCopyable) {
-                copyFromMemory(fillValue, offset, fillValueSize); //ignore check for clientMemoryCopyable
+                copyFromMemory(fillValue, offset, fillValueSize);
             } else {
                 //TODO make one buffer per context? Lazy init?
                 Buffer buffer(false, fillValueSize, fillValue);
