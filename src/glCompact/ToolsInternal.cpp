@@ -48,6 +48,6 @@ namespace glCompact {
 
     void crash(std::string s){
         std::cout << s << std::endl;
-        exit(-1);
+        abort();
     }
 }
