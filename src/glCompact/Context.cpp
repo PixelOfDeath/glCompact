@@ -32,7 +32,7 @@ using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
-    static atomic<int> nextContextId;
+    static atomic<uint32_t> nextContextId;
     /*
         Needs the current thread to have an OpenGL context with minimum 3.3!
 
@@ -120,7 +120,7 @@ namespace glCompact {
         threadContextGroup->functions.glFinish(); //TODO: not sure if I need this here
     }
 
-    int Context::getContextId() const {
+    uint32_t Context::getContextId() const {
         return contextId;
     }
 
