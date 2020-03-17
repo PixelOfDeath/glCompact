@@ -22,17 +22,22 @@
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Frame.hpp"
+
 #include <exception>
 #include <stdexcept>
 #include <algorithm> //msvc for max / min
+#include <atomic>
 
 using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
+    static atomic<int> nextContextId;
+
     //Needs the current thread to have an OpenGL context!
     Context::Context() {
         frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
+        contextId = nextContextId.fetch_add(1);
         init();
     }
 
@@ -42,6 +47,9 @@ namespace glCompact {
         threadContextGroup->functions.glFinish(); //TODO: not sure if I need this here
     }
 
+    int Context::getContextId() const {
+        return contextId;
+    }
     /*
         Minimum required OpenGL version is 3.3!
 

@@ -105,6 +105,7 @@ namespace glCompact {
             Context& operator=(Context&&)      = delete;
             ~Context();
 
+            int getContextId() const;
             //if an external gl library is used this functions will set some GL states back to default
             void defaultStatesActivate();
             void defaultStatesDeactivate();
@@ -114,6 +115,8 @@ namespace glCompact {
             //TODO: only define this stuff in debug mode?
             //static thread_local bool threadHasContext;
             static void throwIfThreadHasNoActiveContext();
+
+            int contextId;
 
             //FRAME
             Frame frameWindow;
