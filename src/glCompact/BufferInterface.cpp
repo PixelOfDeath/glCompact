@@ -327,7 +327,7 @@ namespace glCompact {
     }
 
     //TODO: we need two different functions for this, one that just removes the ID from the context states and another one that unbinds them actively!
-    void BufferInterface::detachFromThreadContext() {
+    void BufferInterface::detachFromThreadContext() const {
         Context::assertThreadHasActiveGlContext();
         /*
             TODO
