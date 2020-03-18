@@ -3,8 +3,6 @@
 #include "glCompact/GlTools.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Buffer.hpp"
-#include "glCompact/BufferStaging.hpp"
-#include "glCompact/BufferSparse.hpp"
 #include "glCompact/RenderBuffer2d.hpp"
 #include "glCompact/RenderBuffer2dMultisample.hpp"
 #include "glCompact/TextureInterface.hpp"
