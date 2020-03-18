@@ -21,7 +21,7 @@
 #include "glCompact/PipelineRasterization.hpp"
 #include "glCompact/PipelineCompute.hpp"
 #include "glCompact/Frame.hpp"
-#include "glCompact/Sync.hpp"
+#include "glCompact/Fence.hpp"
 #include "glCompact/MemoryBarrier.hpp"
 
 namespace glCompact {
