@@ -31,9 +31,6 @@ namespace glCompact {
                     ||  sizeof(T) == 16,
                     "fillValue type must have a size of 1, 2, 4, 8, 12 or 16 bytes!"
                 );
-                //static_assert(offset % sizeof(T) == 0, "offset must be aligned to the size of fillValue");
-                //GCC should support opportunistic static asserts
-
                 clear_(offset, size, sizeof(T), &fillValue);
             }
 
