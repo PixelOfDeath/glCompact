@@ -56,4 +56,4 @@ The examples contain a comment with workaround.
 
 ## License
 
-The whole project is under LGPL 3.0 license!
+The whole project is under MIT license!
