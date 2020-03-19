@@ -21,7 +21,6 @@ DONE - blending
 - SFML example
 - find that specific g++ constructor inherence bug and detect it in CMake to warn about it (Bug only visible in usage of library, not during building)
 - enforce enabeling of all used extensions (and GL version), to create easily testable version dependency like in Vulkan
-- maybe switch to something else then a C++/tinyxml2 glFileGenerator with less dependency? Also would remove the DLL issue in windoes with the default build of tinyxml2.
 
 PROBABLY NOT
 - descriptor like binding lists? (Could be used to transparently support bindless, but that would force always usage of memory barriers to have a consistend API)
