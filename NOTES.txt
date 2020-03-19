@@ -10,6 +10,7 @@ DONE - getters for read only members instad of const ref
 DONE - add LIKELY_IF/UNLIKELY_IF for compiler optimisation hints (Better cache locality by "putting away" error check hits)
 DONE - blending
 
+- remove atomic counter buffers? They seem to be a historic artefact whos limitations performance adventages have vanished from hardware.
 - rename memoryFormat to transferFormat?!
 - add debug test if any pipeline is used with undefined (deleted but still set buffer/surface) source object
 - Occlusion culling (atomic counters?)
