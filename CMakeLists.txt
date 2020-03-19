@@ -9,6 +9,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake_modules)
 
 #FIND_PACKAGE(OpenGL REQUIRED)
 FIND_PACKAGE(GLM REQUIRED)
+FIND_PACKAGE(PythonInterp REQUIRED)
 if (MSVC)
     FIND_PACKAGE(DbgHelp)
 endif()
@@ -44,34 +45,79 @@ endif()
 SET(CMAKE_RELEASE_POSTFIX "${POSTFIX}")
 SET(CMAKE_DEBUG_POSTFIX   "${POSTFIX}_d")
 
-ADD_SUBDIRECTORY(glFileGenerator)
-
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/include/glCompact/gl")
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src/glCompact/gl")
 
+SET(GL_XLM "${PROJECT_SOURCE_DIR}/gl.xml")
+
+ADD_CUSTOM_TARGET(Constants_hpp DEPENDS "include/glCompact/gl/Constants.hpp")
 ADD_CUSTOM_COMMAND(
+    PRE_BUILD
     DEPENDS
-        glFileGenerator
-
-        "${PROJECT_SOURCE_DIR}/glFileGeneratorRescources/xml/gl.xml"
-        "${PROJECT_SOURCE_DIR}/glFileGeneratorRescources/coreExtensionList.txt"
-        "${PROJECT_SOURCE_DIR}/glFileGeneratorRescources/featureInfoList.txt"
-
-        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Constants.hppToGenerate"
-        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Extensions.hppToGenerate"
-        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Functions.hppToGenerate"
-        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/FunctionsTypedef.hppToGenerate"
-        "${PROJECT_SOURCE_DIR}/src/glCompact/gl/Extensions.cppToGenerate"
-        "${PROJECT_SOURCE_DIR}/src/glCompact/gl/Functions.cppToGenerate"
+        ${GL_XLM}
+        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Constants.hppToGenerate.pyt"
     COMMAND
-        "glFileGenerator" "${PROJECT_SOURCE_DIR}"
+        "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Constants.hppToGenerate.pyt" "${GL_XLM}" "${PROJECT_BINARY_DIR}/include/glCompact/gl/Constants.hpp"
     OUTPUT
         "include/glCompact/gl/Constants.hpp"
-        "include/glCompact/gl/Extensions.hpp"
-        "include/glCompact/gl/Functions.hpp"
+)
+
+ADD_CUSTOM_TARGET(FunctionsTypedef_hpp DEPENDS "include/glCompact/gl/FunctionsTypedef.hpp")
+ADD_CUSTOM_COMMAND(
+    PRE_BUILD
+    DEPENDS
+        "${GL_XLM}"
+        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/FunctionsTypedef.hppToGenerate.pyt"
+    COMMAND
+        "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/include/glCompact/gl/FunctionsTypedef.hppToGenerate.pyt" "${GL_XLM}" "${PROJECT_BINARY_DIR}/include/glCompact/gl/FunctionsTypedef.hpp"
+    OUTPUT
         "include/glCompact/gl/FunctionsTypedef.hpp"
-        "src/glCompact/gl/Extensions.cpp"
+)
+
+ADD_CUSTOM_TARGET(Functions_hpp DEPENDS "include/glCompact/gl/Functions.hpp")
+ADD_CUSTOM_COMMAND(
+    PRE_BUILD
+    DEPENDS
+        "${GL_XLM}"
+        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Functions.hppToGenerate.pyt"
+    COMMAND
+        "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Functions.hppToGenerate.pyt" "${GL_XLM}" "${PROJECT_BINARY_DIR}/include/glCompact/gl/Functions.hpp"
+    OUTPUT
+        "include/glCompact/gl/Functions.hpp"
+)
+
+ADD_CUSTOM_TARGET(Extensions_hpp DEPENDS "include/glCompact/gl/Extensions.hpp")
+ADD_CUSTOM_COMMAND(
+    PRE_BUILD
+    DEPENDS
+        "${GL_XLM}"
+        "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Extensions.hppToGenerate.pyt"
+    COMMAND
+        "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/include/glCompact/gl/Extensions.hppToGenerate.pyt" "${GL_XLM}" "${PROJECT_BINARY_DIR}/include/glCompact/gl/Extensions.hpp"
+    OUTPUT
+        "include/glCompact/gl/Extensions.hpp"
+)
+
+ADD_CUSTOM_COMMAND(
+    PRE_LINK
+    DEPENDS
+        "${GL_XLM}"
+        "${PROJECT_SOURCE_DIR}/src/glCompact/gl/Functions.cppToGenerate.pyt"
+    COMMAND
+        "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/src/glCompact/gl/Functions.cppToGenerate.pyt" "${GL_XLM}" "${PROJECT_BINARY_DIR}/src/glCompact/gl/Functions.cpp"
+    OUTPUT
         "src/glCompact/gl/Functions.cpp"
+)
+
+ADD_CUSTOM_COMMAND(
+    PRE_LINK
+    DEPENDS
+        "${GL_XLM}"
+        "${PROJECT_SOURCE_DIR}/src/glCompact/gl/Extensions.cppToGenerate.pyt"
+    COMMAND
+        "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/src/glCompact/gl/Extensions.cppToGenerate.pyt" "${GL_XLM}" "${PROJECT_BINARY_DIR}/src/glCompact/gl/Extensions.cpp"
+    OUTPUT
+        "src/glCompact/gl/Extensions.cpp"
 )
 
 file(GLOB SOURCE_FILES
@@ -88,6 +134,13 @@ file(GLOB INCLUDE_FILES
     #"${PROJECT_SOURCE_DIR}/include/glCompact/gl/*.hpp"
 )
 ADD_LIBRARY(${PROJECT_NAME} STATIC ${SOURCE_FILES} ${INCLUDE_FILES})
+ADD_DEPENDENCIES(
+    ${PROJECT_NAME}
+    Constants_hpp
+    FunctionsTypedef_hpp
+    Functions_hpp
+    Extensions_hpp
+)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 11

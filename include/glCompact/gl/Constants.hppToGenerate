@@ -1,9 +1,0 @@
-#pragma once
-#include "glCompact/gl/Types.hpp"
-
-namespace glCompact {
-    namespace gl {
-        //constexpr TYPE NAME = VALUE;
-        ///CONSTAND_LIST
-    }
-}

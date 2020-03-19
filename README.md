@@ -7,14 +7,14 @@ It borrows some concepts, names and calling conventions from Vulkan.
 
 ## Prerequisites
 
-To BUILD this library you need [GLM](https://github.com/g-truc/glm), [tinyxml2](https://github.com/leethomason/tinyxml2), CMake and a C++ build system.
+To BUILD this library you need [GLM](https://github.com/g-truc/glm), [python](https://www.python.org), CMake and a C++ build system.
 
-Note that tinyxml2 is only used to generate internal files. It is not part of the dependency when using glCompact.
+Note that python is only used to generate internal files. It is not part of the dependency when using glCompact.
 
 Ubuntu:
 
 ```
-sudo apt install libglm-dev libtinyxml2-dev cmake g++
+sudo apt install libglm-dev python cmake g++
 ```
 
 To also generate the documentation:
