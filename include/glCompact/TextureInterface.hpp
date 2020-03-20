@@ -16,10 +16,10 @@ namespace glCompact {
             TextureInterface(TextureInterface&& images);
             TextureInterface& operator=(TextureInterface&& images);*/
 
-            void copyFromMemory(                                         const void* mem, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
-            void copyToMemory  (                                               void* mem, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
-            void copyFromBuffer(const BufferInterface& bufferInterface, uintptr_t offset, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
-            void copyToBuffer  (      BufferInterface& bufferInterface, uintptr_t offset, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
+            void copyFromMemory(                                         const void* mem, uintptr_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
+            void copyToMemory  (                                               void* mem, uintptr_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
+            void copyFromBuffer(const BufferInterface& bufferInterface, uintptr_t offset, uintptr_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
+            void copyToBuffer  (      BufferInterface& bufferInterface, uintptr_t offset, uintptr_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
 
             void setMipmapBaseLevel(uint32_t level);
             void generateMipmaps();
@@ -40,8 +40,8 @@ namespace glCompact {
             void create(int32_t target, SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t z, bool mipmap, uint8_t samples);
             void createView(TextureInterface& srcImages, int32_t target, SurfaceFormat surfaceFormat, uint32_t firstMipmap, bool mipmap, uint32_t firstLayer, uint32_t layerCount);
         private:
-            void copyFrom(const BufferInterface* bufferInterface, const void* offsetPointer, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
-            void copyTo  (      BufferInterface* bufferInterface,       void* offsetPointer, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
+            void copyFrom(const BufferInterface* bufferInterface, const void* offsetPointer, uintptr_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
+            void copyTo  (      BufferInterface* bufferInterface,       void* offsetPointer, uintptr_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
 
             void setTextureParameter(int32_t pname, int32_t param);
             void setTextureParameter(int32_t pname, float param);

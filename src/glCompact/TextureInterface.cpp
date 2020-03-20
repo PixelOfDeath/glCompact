@@ -506,7 +506,7 @@ namespace glCompact {
 
     /**
         @param mem
-        @param bufSize
+        @param maxCopySizeGuard
         @param memorySurfaceFormat
         @param dstMipmapLevel
         @param dstOffset
@@ -514,48 +514,48 @@ namespace glCompact {
     */
     void TextureInterface::copyFromMemory(
         const void*         mem,
-        uintptr_t           bufSize,
+        uintptr_t           maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
         uint32_t            dstMipmapLevel,
         glm::ivec3          dstOffset,
         glm::ivec3          size
     ) {
-        copyFrom(0, mem, bufSize, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyFrom(0, mem, maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
     }
 
     void TextureInterface::copyToMemory(
         void*               mem,
-        uintptr_t           bufSize,
+        uintptr_t           maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
         uint32_t            dstMipmapLevel,
         glm::ivec3          dstOffset,
         glm::ivec3          size
     ) {
-        copyTo(0, mem, bufSize, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyTo(0, mem, maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
     }
 
     void TextureInterface::copyFromBuffer(
         const BufferInterface& bufferInterface,
         uintptr_t              offset,
-        uintptr_t              bufSize,
+        uintptr_t              maxCopySizeGuard,
         MemorySurfaceFormat    memorySurfaceFormat,
         uint32_t               dstMipmapLevel,
         glm::ivec3             dstOffset,
         glm::ivec3             size
     ) {
-        copyFrom(&bufferInterface, reinterpret_cast<void*>(offset), bufSize, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyFrom(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
     }
 
     void TextureInterface::copyToBuffer(
         BufferInterface&    bufferInterface,
         uintptr_t           offset,
-        uintptr_t           bufSize,
+        uintptr_t           maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
         uint32_t            dstMipmapLevel,
         glm::ivec3          dstOffset,
         glm::ivec3          size
     ) {
-        copyTo(&bufferInterface, reinterpret_cast<void*>(offset), bufSize, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyTo(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
     }
 
     /**
@@ -640,7 +640,7 @@ namespace glCompact {
     void TextureInterface::copyFrom(
         const BufferInterface* bufferInterface,
         const void*            offsetPointer,
-        uintptr_t              bufSize,
+        uintptr_t              maxCopySizeGuard,
         MemorySurfaceFormat    memorySurfaceFormat,
         uint32_t               dstMipmapLevel,
         glm::ivec3             dstOffset,
@@ -689,8 +689,8 @@ namespace glCompact {
             UNLIKELY_IF (bufferInterface->size_ - dataOffset < requiredBufferSize)
                 throw runtime_error("Buffer size to small");
         }
-        UNLIKELY_IF (bufSize < requiredBufferSize)
-            throw runtime_error("Buffer size (" + to_string(bufSize) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer!");
+        UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
+            throw runtime_error("maxCopySizeGuard size (" + to_string(maxCopySizeGuard) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer size!");
 
         UNLIKELY_IF (dstOffset.x + size.x > mipmapLevelSize.x || dstOffset.y + size.y > mipmapLevelSize.y || dstOffset.z + size.z > mipmapLevelSize.z)
             throw runtime_error("Coordinates outside of texture limit");
@@ -768,60 +768,60 @@ namespace glCompact {
                 }
             }
         } else {
-            uint32_t bufSize32 = bufSize; //TODO: test for values that do not fit in 32bit?
+            uint32_t maxCopySizeGuard32 = maxCopySizeGuard; //TODO: test for values that do not fit in 32bit?
             int32_t sizedFormat = surfaceFormat->sizedFormat;
             if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glCompressedTextureSubImage1D(id, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage1D(id, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glCompressedTextureSubImage2D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage2D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
                     case GL_TEXTURE_CUBE_MAP:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glCompressedTextureSubImage3D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage3D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                 }
             } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
                 //TODO:how to handle GL_TEXTURE_CUBE_MAP/GL_TEXTURE_CUBE_MAP_ARRAY here
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glCompressedTextureSubImage1DEXT(id, target, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage1DEXT(id, target, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glCompressedTextureSubImage2DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage2DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
                     case GL_TEXTURE_CUBE_MAP:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glCompressedTextureSubImage3DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage3DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                 }
             } else {
                 bindTemporal();
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glCompressedTexSubImage1D(target, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage1D(target, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glCompressedTexSubImage2D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage2D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
-                        threadContextGroup->functions.glCompressedTexSubImage3D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage3D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
                         uintptr_t cubeMapSideSize = surfaceFormat->bitsPerPixelOrBlock * 8 * align(mipmapLevelSize.x, blockSizeX) * align(mipmapLevelSize.y, blockSizeY);
@@ -830,7 +830,7 @@ namespace glCompact {
                         break;
                     }
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glCompressedTexSubImage3D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage3D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
                         break;
                 }
             }
@@ -851,7 +851,7 @@ namespace glCompact {
         @param buffer 0 or a pointer to glCompact::Buffer object
         @param offsetPointer if buffer is set to 0, then this is a pointer to memory. Otherwise this is a offset into the buffer memory.
             NOTE: ALWAYS USE BUFFER OBJECTS. USING UNMANAGED MEMORY POINTERS CAUSES A SYNC POINT AND DESTROYS PERFROMANCE. ONLY USE FOR TESTING/DEBUGING/PROTOTYPING!
-        @param bufSize
+        @param maxCopySizeGuard maximum size of writable memory after offset! This function will throw if the data to copy is larger!
         @param memorySurfaceFormat
         @param dstMipmapLevel
         @param dstOffset
@@ -860,7 +860,7 @@ namespace glCompact {
     void TextureInterface::copyTo(
         BufferInterface*    bufferInterface,
         void*               offsetPointer,
-        uintptr_t           bufSize,
+        uintptr_t           maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
         uint32_t            dstMipmapLevel,
         glm::ivec3          dstOffset,
@@ -902,18 +902,22 @@ namespace glCompact {
                 throw runtime_error("For compressed textures dstOffset.xy(" + to_string(dstOffset.x) + ", " + to_string(dstOffset.y) + ") and size.xy(" +
                 to_string(size.x) + ", " + to_string(size.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
-        uintptr_t requiredBufferSize;
-        if (memorySurfaceFormat->isCompressed) {
-            requiredBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (std::max(blockSizeX, size.x) / blockSizeX) * (std::max(blockSizeY, size.y) / blockSizeY) * std::max(1, size.z);
-        } else {
-            requiredBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * std::max(1, size.x) * std::max(1, size.y) * std::max(1, size.z);
-        }
+        const uintptr_t requiredBufferSize =
+            memorySurfaceFormat->isCompressed
+            ?
+            (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (std::max(blockSizeX, size.x) / blockSizeX) * (std::max(blockSizeY, size.y) / blockSizeY) * std::max(1, size.z)
+            :
+            (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * std::max(1, size.x) * std::max(1, size.y) * std::max(1, size.z);
 
-        bool fullTextureRead;
-        if (target == GL_TEXTURE_CUBE_MAP)
-            fullTextureRead = dstOffset.x == 0 && dstOffset.y == 0 &&                     size.x == mipmapLevelSize.x && size.y == mipmapLevelSize.y;
-        else
-            fullTextureRead = dstOffset.x == 0 && dstOffset.y == 0 && dstOffset.z == 0 && size.x == mipmapLevelSize.x && size.y == mipmapLevelSize.y && size.z == mipmapLevelSize.z;
+        UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
+            throw runtime_error("maxCopySizeGuard size (" + to_string(maxCopySizeGuard) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer size!");
+
+        const bool fullTextureRead =
+            target == GL_TEXTURE_CUBE_MAP
+            ?
+            dstOffset.x == 0 && dstOffset.y == 0 &&                     size.x == mipmapLevelSize.x && size.y == mipmapLevelSize.y
+            :
+            dstOffset.x == 0 && dstOffset.y == 0 && dstOffset.z == 0 && size.x == mipmapLevelSize.x && size.y == mipmapLevelSize.y && size.z == mipmapLevelSize.z;
 
         bool fullTextureReadCubeMapLayersSelected = fullTextureRead && (target == GL_TEXTURE_CUBE_MAP && (dstOffset.z != 0 && size.z != 6));
 
@@ -921,18 +925,18 @@ namespace glCompact {
         threadContext->cachedBindPixelPackBuffer(bufferInterface ? bufferInterface->id : 0);
 
         GLenum componentsTypes = memorySurfaceFormat->componentsTypes;
-        uint32_t bufSize32 = bufSize; //TODO: test for values that do not fit in 32bit?
+        uint32_t maxCopySizeGuard32 = maxCopySizeGuard; //TODO: test for values that do not fit in 32bit?
 
         if (!memorySurfaceFormat->isCompressed) {
             if (threadContextGroup->extensions.GL_ARB_get_texture_sub_image) {
-                threadContextGroup->functions.glGetTextureSubImage(id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, componentsAndArrangement, componentsTypes, bufSize32, offsetPointer);
+                threadContextGroup->functions.glGetTextureSubImage(id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, componentsAndArrangement, componentsTypes, maxCopySizeGuard32, offsetPointer);
             //} else if (threadContextGroup->extensions.GL_ARB_texture_view) {
             // TODO
             } else {
                 //if this read is on the full size of the texture we use glGetTextureImage, otherwise we fall back to use a fbo to read sub sections
                 if (fullTextureRead) {
                     if (threadContextGroup->extensions.GL_ARB_direct_state_access && !fullTextureReadCubeMapLayersSelected) {
-                        threadContextGroup->functions.glGetTextureImage(id, dstMipmapLevel, componentsAndArrangement, componentsTypes, bufSize32, offsetPointer);
+                        threadContextGroup->functions.glGetTextureImage(id, dstMipmapLevel, componentsAndArrangement, componentsTypes, maxCopySizeGuard32, offsetPointer);
                     } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
                         //TODO: does this function take GL_TEXTURE_CUBE_MAP as parameter or not? For now I guess it does not!
                         if (target == GL_TEXTURE_CUBE_MAP) {
@@ -987,11 +991,11 @@ namespace glCompact {
             }
         } else {
             if (threadContextGroup->extensions.GL_ARB_get_texture_sub_image) {
-                threadContextGroup->functions.glGetCompressedTextureSubImage(this->id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, bufSize32, offsetPointer);
+                threadContextGroup->functions.glGetCompressedTextureSubImage(this->id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, maxCopySizeGuard32, offsetPointer);
             //} else if (threadContextGroup->extensions.GL_ARB_texture_view) {
             // TODO
             } else if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-                threadContextGroup->functions.glGetCompressedTextureImage(id, dstMipmapLevel, bufSize32, offsetPointer);
+                threadContextGroup->functions.glGetCompressedTextureImage(id, dstMipmapLevel, maxCopySizeGuard32, offsetPointer);
             } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
                 //TODO: does this function take GL_TEXTURE_CUBE_MAP as parameter?
                 threadContextGroup->functions.glGetCompressedTextureImageEXT(id, target, dstMipmapLevel, offsetPointer);
