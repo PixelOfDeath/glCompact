@@ -23,6 +23,20 @@ To also generate the documentation:
 sudo apt install doxygen
 ```
 
+To be able to build the examples, install one of the supported framework libraries:
+
+```
+sudo apt install libglfw3-dev
+```
+
+```
+sudo apt install libsdl2-dev
+```
+
+```
+sudo apt install libsfml-dev
+```
+
 ## Installation
 
 Ubuntu:
