@@ -8,8 +8,6 @@ using namespace glCompact;
 class MyPipeline : public PipelineRasterization {
     public:
         using PipelineRasterization::PipelineRasterization;
-        //In case of old g++ version where constructor inherence is broken, replace upper line with this:
-        //MyPipeline(const string& s1, const string& s2, const string& s3, const string& s4, const string& s5):PipelineRasterization(s1, s2, s3, s4, s5){}
         UniformSetter<vec4> rgba{this, "rgba"};
 };
 

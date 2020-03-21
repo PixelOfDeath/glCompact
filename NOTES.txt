@@ -1,32 +1,14 @@
 NOTES:
- - g++ on Debian stable does not support inheritance of base class constructors via using BaseClass::BaseClass; syntax. Added comment and workaround in the examples.
- - minimalSDL2 example does not work in virtualbox. OpenGL context creation fails! Probably an SDL2 issue, because GLFW works fine.
-
-TODO:
-
-DONE - implementing _bindingXX  <BINDING_NUMBER>_<NAME>
-DONE - remove SDL2 dependency
-DONE - getters for read only members instad of const ref
-DONE - add LIKELY_IF/UNLIKELY_IF for compiler optimisation hints (Better cache locality by "putting away" error check hits)
-DONE - blending
-
+- find that specific g++ constructor inherence bug and detect it in CMake to warn about it (Bug only visible in usage of library, not during building)
 - remove atomic counter buffers? They seem to be a historic artefact whos limitations performance adventages have vanished from hardware.
-- rename memoryFormat to transferFormat?!
 - add debug test if any pipeline is used with undefined (deleted but still set buffer/surface) source object
-- Occlusion culling (atomic counters?)
+- Occlusion culling
 - conditional rendering
 - transform feedback
 - remove any internal catch, so anyone can switch throw into instand crash without breaking the library internals
 - change all "undefined" integers to int32_t/uint32_t... etc.
 - clean up shader information structs
-- SFML example
-- find that specific g++ constructor inherence bug and detect it in CMake to warn about it (Bug only visible in usage of library, not during building)
 - enforce enabeling of all used extensions (and GL version), to create easily testable version dependency like in Vulkan
-
-PROBABLY NOT
-- descriptor like binding lists? (Could be used to transparently support bindless, but that would force always usage of memory barriers to have a consistend API)
-  Also performance delta to non bindless would be very large and creates a "performance trap" for hardware/drivers not supporting bindless.
-  Better to refer to Vulkan if that level of performance is desired.
 
 Maybe way later:
 - GLES (at last GLES2) does not support any surface memory conversion when up-/downloading data to/from textures?
@@ -36,6 +18,3 @@ Maybe way later:
 - __restrict optimisation
 - make gl pointer getter function __attribute__ ((pure)) on compilers that support it
 - remove const from classes because of hidden move/copy issues.
-- VAO per GraphicsPipeline. Problem is that each binding to an VAO keeps buffer objects "alive counter" up.
-  Without removing the buffer reference from every single VAO, the buffers do not get deleted. Tracking to do this by ourself could be to expensive!
-  No VAO per GraphicsPipeline for now! Maybe test way way later if this could help performance on some drivers. Can be implementet transparently with a lot of work.
