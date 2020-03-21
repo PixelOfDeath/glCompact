@@ -922,7 +922,7 @@ namespace glCompact {
                     bindTemporal();
                     for (uint32_t i = z; i < z + texSize.z; ++i)
                         threadContextGroup->functions.glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, componentsAndArrangement, componentsTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
-                } /*else if (entireXY && threadContextGroup->extensions.GL_ARB_texture_view) {
+                /*} else if (entireXY && threadContextGroup->extensions.GL_ARB_texture_view) {
                     //GL_ARB_texture_storage is garantied to be present!
                     //GL_ARB_texture_storage_multisample ?!
                     uint32_t tempTexId = 0;
