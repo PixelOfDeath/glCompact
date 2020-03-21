@@ -76,29 +76,11 @@ namespace glCompact {
             for (int i = 0; i < threadContextGroup->values.GL_MAX_VERTEX_ATTRIBS; ++i) threadContextGroup->functions.glVertexAttribBinding(i, 0);
         }
 
-        //if (!extensions.GL_ARB_get_texture_sub_image /*&& !extensions.GL_ARB_texture_view*/) {
-        {
-            if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-                threadContextGroup->functions.glCreateFramebuffers(1, &frameBufferIdForSubImageRead);
-                threadContextGroup->functions.glNamedFramebufferReadBuffer(frameBufferIdForSubImageRead, GL_COLOR_ATTACHMENT0);
-            } else {
-                threadContextGroup->functions.glGenFramebuffers(1, &frameBufferIdForSubImageRead);
-                threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferIdForSubImageRead);
-                threadContextGroup->functions.glReadBuffer(GL_COLOR_ATTACHMENT0);
-
-                //BUG: In MESA if a incomplete fbo is bound to the GL_READ_FRAMEBUFFER,
-                //commands cause "FBO incomplete: no attachments [-1]" even when this state has nothing to do with the called functions.
-                //current_frameBuffer_readId = frameBufferIdForSubImageRead;
-                threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-            }
-        }
-
         defaultStatesActivate();
     }
 
     Context::~Context() {
         if (defaultVaoId) threadContextGroup->functions.glDeleteVertexArrays(1, &defaultVaoId);
-        if (frameBufferIdForSubImageRead) threadContextGroup->functions.glDeleteFramebuffers(1, &frameBufferIdForSubImageRead);
         threadContextGroup->functions.glFinish(); //TODO: not sure if I need this here
     }
 

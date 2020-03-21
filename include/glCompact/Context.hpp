@@ -283,8 +283,6 @@ namespace glCompact {
             float current_addMinimumDepthUnits = 0.0f;
 
             //helper
-            uint32_t frameBufferIdForSubImageRead = 0;
-
             void cachedBindShader      (uint32_t shaderId);
             void cachedBindArrayBuffer (uint32_t bufferId);
             void cachedSetActiveTexture(uint32_t slot);

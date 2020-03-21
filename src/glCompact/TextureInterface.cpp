@@ -254,7 +254,6 @@ namespace glCompact {
         uint8_t       samples
     ) {
         const bool fixedSampleLocations = true;
-        using namespace std;
         free();
         int mipmapCount = 1;
         if (mipmap) switch (target) {
@@ -509,53 +508,53 @@ namespace glCompact {
         @param maxCopySizeGuard
         @param memorySurfaceFormat
         @param dstMipmapLevel
-        @param dstOffset
-        @param size
+        @param texOffset
+        @param texSize
     */
     void TextureInterface::copyFromMemory(
         const void*         mem,
-        uintptr_t           maxCopySizeGuard,
+        uint32_t            maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
-        uint32_t            dstMipmapLevel,
-        glm::ivec3          dstOffset,
-        glm::ivec3          size
+        uint32_t            mipmapLevel,
+        glm::ivec3          texOffset,
+        glm::ivec3          texSize
     ) {
-        copyFrom(0, mem, maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyFrom(0, mem, maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
     void TextureInterface::copyToMemory(
         void*               mem,
-        uintptr_t           maxCopySizeGuard,
+        uint32_t            maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
-        uint32_t            dstMipmapLevel,
-        glm::ivec3          dstOffset,
-        glm::ivec3          size
+        uint32_t            mipmapLevel,
+        glm::ivec3          texOffset,
+        glm::ivec3          texSize
     ) {
-        copyTo(0, mem, maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyTo(0, mem, maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
     void TextureInterface::copyFromBuffer(
         const BufferInterface& bufferInterface,
         uintptr_t              offset,
-        uintptr_t              maxCopySizeGuard,
+        uint32_t               maxCopySizeGuard,
         MemorySurfaceFormat    memorySurfaceFormat,
-        uint32_t               dstMipmapLevel,
-        glm::ivec3             dstOffset,
-        glm::ivec3             size
+        uint32_t               mipmapLevel,
+        glm::ivec3             texOffset,
+        glm::ivec3             texSize
     ) {
-        copyFrom(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyFrom(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
     void TextureInterface::copyToBuffer(
         BufferInterface&    bufferInterface,
         uintptr_t           offset,
-        uintptr_t           maxCopySizeGuard,
+        uint32_t            maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
-        uint32_t            dstMipmapLevel,
-        glm::ivec3          dstOffset,
-        glm::ivec3          size
+        uint32_t            mipmapLevel,
+        glm::ivec3          texOffset,
+        glm::ivec3          texSize
     ) {
-        copyTo(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, dstMipmapLevel, dstOffset, size);
+        copyTo(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
     /**
@@ -640,46 +639,41 @@ namespace glCompact {
     void TextureInterface::copyFrom(
         const BufferInterface* bufferInterface,
         const void*            offsetPointer,
-        uintptr_t              maxCopySizeGuard,
+        uint32_t               maxCopySizeGuard,
         MemorySurfaceFormat    memorySurfaceFormat,
-        uint32_t               dstMipmapLevel,
-        glm::ivec3             dstOffset,
-        glm::ivec3             size
+        uint32_t               mipmapLevel,
+        glm::ivec3             texOffset,
+        glm::ivec3             texSize
     ) {
         checkSurfaceFormatCompatibleToMemorySurfaceFormat(surfaceFormat, memorySurfaceFormat);
-        const int32_t componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
-
-        uintptr_t dataOffset = reinterpret_cast<uintptr_t>(offsetPointer);
+        const uintptr_t dataOffset = reinterpret_cast<uintptr_t>(offsetPointer);
 
         //validate parameters, etc...
-        UNLIKELY_IF (dstMipmapLevel > this->mipmapCount)
+        UNLIKELY_IF (mipmapLevel > this->mipmapCount)
             throw runtime_error("Mipmap level outside of texture limit");
 
-        glm::ivec3 mipmapLevelSize = getMipmapLevelSize(dstMipmapLevel);
+        const glm::ivec3 mipmapLevelSize = getMipmapLevelSize(mipmapLevel);
 
         UNLIKELY_IF (!id)
             throw std::runtime_error("Trying to copy to textureInterface Object without created texture!");
-        UNLIKELY_IF (dstOffset.x < 0 || dstOffset.y < 0 || dstOffset.z < 0)
+        UNLIKELY_IF (texOffset.x < 0 || texOffset.y < 0 || texOffset.z < 0)
             throw runtime_error("x, y and z must be positive");
 
-        UNLIKELY_IF (size.x < 1 || size.y < 1 || size.z < 1) return; //TODO: can negative size be used for inverting images vertically/horizontally?
-        UNLIKELY_IF (dstOffset.x + size.x > mipmapLevelSize.x || dstOffset.y + size.y > mipmapLevelSize.y || dstOffset.z + size.z > mipmapLevelSize.z)
-            throw runtime_error("Trying to access bayond image size");
+        UNLIKELY_IF (texSize.x < 1 || texSize.y < 1 || texSize.z < 1) return; //TODO: can negative texSize be used for inverting images vertically/horizontally?
+        UNLIKELY_IF (texOffset.x + texSize.x > mipmapLevelSize.x || texOffset.y + texSize.y > mipmapLevelSize.y || texOffset.z + texSize.z > mipmapLevelSize.z)
+            throw runtime_error("Trying to access bayond texture size");
 
         //TODO: also check the memory pointer for the alignment? Throw error if it is of? One some platforms just performance relevant? On others a hard crash?
         const int blockSizeX = surfaceFormat->blockSizeX;
         const int blockSizeY = surfaceFormat->blockSizeY;
         if (surfaceFormat->isCompressed) {
-            UNLIKELY_IF (dstOffset.x % blockSizeX || dstOffset.y % blockSizeY || size.x % blockSizeX || size.y % blockSizeY)
-                throw runtime_error("For compressed textures dstOffset.xy(" + to_string(dstOffset.x) + ", " + to_string(dstOffset.y) + ") and size.xy(" +
-                to_string(size.x) + ", " + to_string(size.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
+            UNLIKELY_IF (texOffset.x % blockSizeX || texOffset.y % blockSizeY || texSize.x % blockSizeX || texSize.y % blockSizeY)
+                throw runtime_error("For compressed textures texOffset.xy(" + to_string(texOffset.x) + ", " + to_string(texOffset.y) + ") and texSize.xy(" +
+                to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
-        uintptr_t requiredBufferSize;
-        if (memorySurfaceFormat->isCompressed) {
-            requiredBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (std::max(blockSizeX, size.x) / blockSizeX) * (std::max(blockSizeY, size.y) / blockSizeY) * std::max(1, size.z);
-        } else {
-            requiredBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * std::max(1, size.x) * std::max(1, size.y) * std::max(1, size.z);
-        }
+        const uintptr_t requiredBufferSize = memorySurfaceFormat->isCompressed
+            ? (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (std::max(blockSizeX, texSize.x) / blockSizeX) * (std::max(blockSizeY, texSize.y) / blockSizeY) * std::max(1, texSize.z)
+            : (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * std::max(1, texSize.x) * std::max(1, texSize.y) * std::max(1, texSize.z);
 
         if (bufferInterface) {
             UNLIKELY_IF (bufferInterface->size_ == 0)
@@ -692,320 +686,290 @@ namespace glCompact {
         UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
             throw runtime_error("maxCopySizeGuard size (" + to_string(maxCopySizeGuard) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer size!");
 
-        UNLIKELY_IF (dstOffset.x + size.x > mipmapLevelSize.x || dstOffset.y + size.y > mipmapLevelSize.y || dstOffset.z + size.z > mipmapLevelSize.z)
+        UNLIKELY_IF (texOffset.x + texSize.x > mipmapLevelSize.x || texOffset.y + texSize.y > mipmapLevelSize.y || texOffset.z + texSize.z > mipmapLevelSize.z)
             throw runtime_error("Coordinates outside of texture limit");
 
         //now we actually do something
         threadContext->cachedBindPixelUnpackBuffer(bufferInterface ? bufferInterface->id : 0);
 
-        const int32_t componentsTypes = memorySurfaceFormat->componentsTypes;
+        const int32_t componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
+        const int32_t componentsTypes          = memorySurfaceFormat->componentsTypes;
 
         if (!memorySurfaceFormat->isCompressed) {
             if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glTextureSubImage1D(id, dstMipmapLevel, dstOffset.x, size.x, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTextureSubImage1D(id, mipmapLevel, texOffset.x, texSize.x, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glTextureSubImage2D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTextureSubImage2D(id, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
                     case GL_TEXTURE_CUBE_MAP:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glTextureSubImage3D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTextureSubImage3D(id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                 }
             } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
                 //does this work correctly with GL_TEXTURE_CUBE_MAP_ARRAY/GL_TEXTURE_CUBE_MAP?
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glTextureSubImage1DEXT(id, target, dstMipmapLevel, dstOffset.x, size.x, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTextureSubImage1DEXT(id, target, mipmapLevel, texOffset.x, texSize.x, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glTextureSubImage2DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTextureSubImage2DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glTextureSubImage3DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTextureSubImage3DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP:
-                        uintptr_t cubeSideBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * size.x * size.y;
-                        for (unsigned int i = z; i < z + size.z; ++i)
-                            threadContextGroup->functions.glTextureSubImage2DEXT(id, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
+                        uintptr_t cubeSideBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * texSize.x * texSize.y;
+                        for (unsigned int i = z; i < z + texSize.z; ++i)
+                            threadContextGroup->functions.glTextureSubImage2DEXT(id, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
                         break;
                 }
             } else {
                 bindTemporal();
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glTexSubImage1D(target, dstMipmapLevel, dstOffset.x, size.x, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTexSubImage1D(target, mipmapLevel, texOffset.x, texSize.x, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glTexSubImage2D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTexSubImage2D(target, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glTexSubImage3D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glTexSubImage3D(target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
-                        uintptr_t cubeSideBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * size.x * size.y;
-                        for (unsigned int i = z; i < z + size.z; ++i)
-                            threadContextGroup->functions.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
+                        uintptr_t cubeSideBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * texSize.x * texSize.y;
+                        for (unsigned int i = z; i < z + texSize.z; ++i)
+                            threadContextGroup->functions.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
                         break;
                     }
                 }
             }
         } else {
-            uint32_t maxCopySizeGuard32 = maxCopySizeGuard; //TODO: test for values that do not fit in 32bit?
             int32_t sizedFormat = surfaceFormat->sizedFormat;
             if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glCompressedTextureSubImage1D(id, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage1D(id, mipmapLevel, texOffset.x, texSize.x, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glCompressedTextureSubImage2D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage2D(id, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
                     case GL_TEXTURE_CUBE_MAP:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glCompressedTextureSubImage3D(id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage3D(id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                 }
             } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
                 //TODO:how to handle GL_TEXTURE_CUBE_MAP/GL_TEXTURE_CUBE_MAP_ARRAY here
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glCompressedTextureSubImage1DEXT(id, target, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage1DEXT(id, target, mipmapLevel, texOffset.x, texSize.x, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glCompressedTextureSubImage2DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage2DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
                     case GL_TEXTURE_CUBE_MAP:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glCompressedTextureSubImage3DEXT(id, target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTextureSubImage3DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                 }
             } else {
                 bindTemporal();
                 switch (target) {
                     case GL_TEXTURE_1D:
-                        threadContextGroup->functions.glCompressedTexSubImage1D(target, dstMipmapLevel, dstOffset.x, size.x, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage1D(target, mipmapLevel, texOffset.x, texSize.x, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_2D:
                     case GL_TEXTURE_1D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup->functions.glCompressedTexSubImage2D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, size.x, size.y, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage2D(target, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_3D:
                     case GL_TEXTURE_2D_ARRAY:
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
-                        threadContextGroup->functions.glCompressedTexSubImage3D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage3D(target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
                         uintptr_t cubeMapSideSize = surfaceFormat->bitsPerPixelOrBlock * 8 * align(mipmapLevelSize.x, blockSizeX) * align(mipmapLevelSize.y, blockSizeY);
-                        for (unsigned i = z; i < z + size.z; ++i)
-                            threadContextGroup->functions.glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dstMipmapLevel, x, y, size.x, size.y, sizedFormat, uint32_t(cubeMapSideSize), reinterpret_cast<const void*>(dataOffset + cubeMapSideSize * i));
+                        for (unsigned i = z; i < z + texSize.z; ++i)
+                            threadContextGroup->functions.glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, x, y, texSize.x, texSize.y, sizedFormat, uint32_t(cubeMapSideSize), reinterpret_cast<const void*>(dataOffset + cubeMapSideSize * i));
                         break;
                     }
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup->functions.glCompressedTexSubImage3D(target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, sizedFormat, maxCopySizeGuard32, offsetPointer);
+                        threadContextGroup->functions.glCompressedTexSubImage3D(target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                 }
             }
         }
     }
 
-    /**
+    /*
         LIMITATIONS:
-        For copying sub regions of compressed formats you need GL_ARB_get_texture_sub_image (Core in 4.5?) or GL_ARB_texture_view (Core in 4.2?).<br>
-        Otherwise x, y, z must be 0 and xSize, ySize, zSize must be the size of the texture.<br>
-        One special case is GL_TEXTURE_CUBE_MAP, where you always can freely select z and zSize.<br>
-        <br>
+        For copying sub regions of textures you need GL_ARB_get_texture_sub_image (Core since 4.5)
+        Otherwise x, y, z must be 0 and xSize, ySize, zSize must be the size of the texture.
+        One special case is GL_TEXTURE_CUBE_MAP, where you always can freely select z and zSize.
 
-        Reading to system ram is always blocking and causes sync, so we NEVER want to use that! For that reason we only make a buffer+offset function for reading!
+        - With GL_ARB_texture_view (Core since 4.3) this could be implemented for other layered textures!
+        - For non compressed formats an FBO to buffer copy could be used? Unsure about the possible performance impact. Also no garanties what formats/size can be bound to FBO.
 
         TODO: the main reason why reading from a multi sample texture makes no sense is that the pattern is not known to the application?!
-
+    */
+    /**
         @param buffer 0 or a pointer to glCompact::Buffer object
         @param offsetPointer if buffer is set to 0, then this is a pointer to memory. Otherwise this is a offset into the buffer memory.
             NOTE: ALWAYS USE BUFFER OBJECTS. USING UNMANAGED MEMORY POINTERS CAUSES A SYNC POINT AND DESTROYS PERFROMANCE. ONLY USE FOR TESTING/DEBUGING/PROTOTYPING!
         @param maxCopySizeGuard maximum size of writable memory after offset! This function will throw if the data to copy is larger!
         @param memorySurfaceFormat
-        @param dstMipmapLevel
-        @param dstOffset
-        @param size
+        @param mipmapLevel
+        @param texOffset
+        @param texSize
     */
     void TextureInterface::copyTo(
         BufferInterface*    bufferInterface,
         void*               offsetPointer,
-        uintptr_t           maxCopySizeGuard,
+        uint32_t            maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
-        uint32_t            dstMipmapLevel,
-        glm::ivec3          dstOffset,
-        glm::ivec3          size
+        uint32_t            mipmapLevel,
+        glm::ivec3          texOffset,
+        glm::ivec3          texSize
     ) {
-        using namespace std;
         checkSurfaceFormatCompatibleToMemorySurfaceFormat(surfaceFormat, memorySurfaceFormat);
-        const GLenum componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
 
-        uintptr_t dataOffset = reinterpret_cast<uintptr_t>(offsetPointer);
+        const uintptr_t dataOffset = reinterpret_cast<uintptr_t>(offsetPointer);
 
-        UNLIKELY_IF (dstMipmapLevel > this->mipmapCount)
+        UNLIKELY_IF (mipmapLevel > this->mipmapCount)
             throw runtime_error("Mipmap level outside of texture limit");
-        glm::ivec3 mipmapLevelSize = getMipmapLevelSize(dstMipmapLevel);
+        const glm::ivec3 mipmapLevelSize = getMipmapLevelSize(mipmapLevel);
 
         //TODO negative numbers possible to invert image?
-        if (size.x < 1 || size.y < 1 || size.z < 1) return;
-        //UNLIKELY_IF (!id)
-        //    throw runtime_error("TextureInterface object is empty");
+        if (texSize.x < 1 || texSize.y < 1 || texSize.z < 1) return;
+        UNLIKELY_IF (!id)
+            throw runtime_error("TextureInterface object contains no texture/renderBuffer");
         UNLIKELY_IF (    this->target == GL_TEXTURE_2D_MULTISAMPLE
                      ||  this->target == GL_TEXTURE_2D_MULTISAMPLE_ARRAY)
             throw runtime_error("Can not read texels from multi sample texture");
-
 
         if (bufferInterface) {
             UNLIKELY_IF (!bufferInterface->id)
                 throw runtime_error("Buffer has no allocated memory");
             UNLIKELY_IF (dataOffset >= bufferInterface->size_)
                 throw runtime_error("Buffer offset outside of buffer size");
-        } else {
-            //TODO maybe disallow this?
-            //threadContext->feedbackHandler(FEEDBACK_TYPE_WARNING, "Directly reading texture data to unmanaged memory causes a sync point! EXTREME PERFROMANCE PENALTY!");
         }
 
         const int blockSizeX = surfaceFormat->blockSizeX;
         const int blockSizeY = surfaceFormat->blockSizeY;
         if (surfaceFormat->isCompressed) {
-            UNLIKELY_IF (dstOffset.x % blockSizeX || dstOffset.y % blockSizeY || size.x % blockSizeX || size.y % blockSizeY)
-                throw runtime_error("For compressed textures dstOffset.xy(" + to_string(dstOffset.x) + ", " + to_string(dstOffset.y) + ") and size.xy(" +
-                to_string(size.x) + ", " + to_string(size.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
+            UNLIKELY_IF (texOffset.x % blockSizeX || texOffset.y % blockSizeY || texSize.x % blockSizeX || texSize.y % blockSizeY)
+                throw runtime_error("For compressed textures texOffset.xy(" + to_string(texOffset.x) + ", " + to_string(texOffset.y) + ") and texSize.xy(" +
+                to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
-        const uintptr_t requiredBufferSize =
-            memorySurfaceFormat->isCompressed
-            ?
-            (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (std::max(blockSizeX, size.x) / blockSizeX) * (std::max(blockSizeY, size.y) / blockSizeY) * std::max(1, size.z)
-            :
-            (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * std::max(1, size.x) * std::max(1, size.y) * std::max(1, size.z);
+        const uint32_t requiredBufferSize = memorySurfaceFormat->isCompressed
+            ? (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (max(blockSizeX, texSize.x) / blockSizeX) * (max(blockSizeY, texSize.y) / blockSizeY) * max(1, texSize.z)
+            : (memorySurfaceFormat->bitsPerPixelOrBlock / 8) *  max(1, texSize.x) * max(1, texSize.y) * max(1, texSize.z);
 
         UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
             throw runtime_error("maxCopySizeGuard size (" + to_string(maxCopySizeGuard) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer size!");
 
-        const bool fullTextureRead =
-            target == GL_TEXTURE_CUBE_MAP
-            ?
-            dstOffset.x == 0 && dstOffset.y == 0 &&                     size.x == mipmapLevelSize.x && size.y == mipmapLevelSize.y
-            :
-            dstOffset.x == 0 && dstOffset.y == 0 && dstOffset.z == 0 && size.x == mipmapLevelSize.x && size.y == mipmapLevelSize.y && size.z == mipmapLevelSize.z;
+        const bool entireXY = texOffset.x == 0 && texOffset.y == 0 && texSize.x == mipmapLevelSize.x && texSize.y == mipmapLevelSize.y;
+        const bool entireZ  = texOffset.z == 0                     && texSize.z == mipmapLevelSize.z;
+        const bool entireXYZ = entireXY && entireZ;
 
-        bool fullTextureReadCubeMapLayersSelected = fullTextureRead && (target == GL_TEXTURE_CUBE_MAP && (dstOffset.z != 0 && size.z != 6));
+        const int32_t componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
+        const int32_t componentsTypes          = memorySurfaceFormat->componentsTypes;
 
-        //now we actually do stuff...
         threadContext->cachedBindPixelPackBuffer(bufferInterface ? bufferInterface->id : 0);
-
-        GLenum componentsTypes = memorySurfaceFormat->componentsTypes;
-        uint32_t maxCopySizeGuard32 = maxCopySizeGuard; //TODO: test for values that do not fit in 32bit?
-
         if (!memorySurfaceFormat->isCompressed) {
-            if (threadContextGroup->extensions.GL_ARB_get_texture_sub_image) {
-                threadContextGroup->functions.glGetTextureSubImage(id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, componentsAndArrangement, componentsTypes, maxCopySizeGuard32, offsetPointer);
-            //} else if (threadContextGroup->extensions.GL_ARB_texture_view) {
-            // TODO
-            } else {
-                //if this read is on the full size of the texture we use glGetTextureImage, otherwise we fall back to use a fbo to read sub sections
-                if (fullTextureRead) {
-                    if (threadContextGroup->extensions.GL_ARB_direct_state_access && !fullTextureReadCubeMapLayersSelected) {
-                        threadContextGroup->functions.glGetTextureImage(id, dstMipmapLevel, componentsAndArrangement, componentsTypes, maxCopySizeGuard32, offsetPointer);
-                    } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
-                        //TODO: does this function take GL_TEXTURE_CUBE_MAP as parameter or not? For now I guess it does not!
-                        if (target == GL_TEXTURE_CUBE_MAP) {
-                            /*uintptr_t cubeMapSideSize = pixelSize(componentArrangement, componentTypes, alignment) * mipmapLevelSize.x * mipmapLevelSize.y;
-                            for (int i = z; i < z + size.z; ++i)
-                                threadContextGroup->functions.glGetTextureImageEXT(id, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dstMipmapLevel, componentArrangement, componentTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));*/
-                        } else {
-                            threadContextGroup->functions.glGetTextureImageEXT(id, target, dstMipmapLevel, componentsAndArrangement, componentsTypes, offsetPointer);
-                        }
-                    } else {
-                        bindTemporal();
-                        if (target == GL_TEXTURE_CUBE_MAP) {
-                            /*uintptr_t cubeMapSideSize = pixelSize(componentArrangement, componentTypes, alignment) * mipmapLevelSize.x * mipmapLevelSize.y;
-                            for (int i = z; i < z + size.z; ++i)
-                                threadContextGroup->functions.glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dstMipmapLevel, componentArrangement, componentTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));*/
-                        } else {
-                            threadContextGroup->functions.glGetTexImage(target, dstMipmapLevel, componentsAndArrangement, componentsTypes, offsetPointer);
-                        }
-                    }
+            if (entireXYZ) {
+                if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
+                    threadContextGroup->functions.glGetTextureImage(id, mipmapLevel, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
                 } else {
+                    bindTemporal();
+                    threadContextGroup->functions.glGetTexImage(target, mipmapLevel, componentsAndArrangement, componentsTypes, offsetPointer);
+                }
+            } else {
+                if (threadContextGroup->extensions.GL_ARB_get_texture_sub_image) {
+                    threadContextGroup->functions.glGetTextureSubImage(id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
+                } else if (entireXY && target == GL_TEXTURE_CUBE_MAP) {
+                    uint32_t cubeMapSideSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * mipmapLevelSize.x * mipmapLevelSize.y;
+                    bindTemporal();
+                    for (uint32_t i = z; i < z + texSize.z; ++i)
+                        threadContextGroup->functions.glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, componentsAndArrangement, componentsTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
+                } else {
+                    throw runtime_error("Missing GL_ARB_get_texture_sub_image, can not copy sub image to memory/buffer!");
+
+                    /*
                     //fbo(texture0) -> buffer
                     //TODO: do FBOs may have size limits smaller then supported texture sizes?
-                    //TODO: can glReadPixels only read colours? A: No: componentArrangement decides if it reads colour, depth, stencil or depth-stencil
+                    //TODO: can glReadPixels only read colours? A: No: componentsAndArrangement decides if it reads colour, depth, stencil or depth-stencil
                     //TODO: test how terrible the performance of this is :B
 
-                    GLuint fboId = threadContext->frameBufferIdForSubImageRead;
-
-                    //BUG: In MESA if a incomplete fbo is bound to the GL_READ_FRAMEBUFFER,
-                    //commands cause "FBO incomplete: no attachments [-1]" even when they have nothing to do with it.
-                    //workaround: we only bind the fbo for the duration of usage and then rebind the last one again.
+                    uint32_t fboId;
+                    threadContextGroup->functions.glGenFramebuffers(1, &fboId);
                     threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, fboId);
-                    /*if (threadContext->current_frameBuffer_readId != fboId) {
-                        threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, fboId);
-                        threadContext->current_frameBuffer_readId = fboId;
-                    }*/
 
                     if (this->z > 1) {
-                        /*uintptr_t sizeOfLayer = pixelSize(componentArrangement, componentTypes, alignment) * mipmapLevelSize.x * mipmapLevelSize.y;
-                        LOOPI(size.z) {
-                            threadContextGroup->functions.glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, surfaceFormat->getAttachmentType(), id, dstMipmapLevel, dstOffset.z + i); //Core in 3.0 or 3.2? ARB_geometry_shader4?
-                            threadContextGroup->functions.glReadPixels(dstOffset.x, dstOffset.y, size.x, size.y, componentArrangement, componentTypes, reinterpret_cast<GLvoid*>(dataOffset + sizeOfLayer * i));
-                        }*/
+                        uintptr_t sizeOfLayer = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * mipmapLevelSize.x * mipmapLevelSize.y;
+                        LOOPI(texSize.z) {
+                            threadContextGroup->functions.glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, surfaceFormat->getAttachmentType(), id, mipmapLevel, texOffset.z + i); //Core in 3.0 or 3.2? ARB_geometry_shader4?
+                            threadContextGroup->functions.glReadPixels(texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<GLvoid*>(dataOffset + sizeOfLayer * i));
+                        }
                     } else {
-                        threadContextGroup->functions.glFramebufferTexture(GL_READ_FRAMEBUFFER, surfaceFormat->attachmentType, id, dstMipmapLevel);
-                        threadContextGroup->functions.glReadPixels(dstOffset.x, dstOffset.y, size.x, size.y, componentsAndArrangement, componentsTypes, offsetPointer);
+                        threadContextGroup->functions.glFramebufferTexture(GL_READ_FRAMEBUFFER, surfaceFormat->attachmentType, id, mipmapLevel);
+                        threadContextGroup->functions.glReadPixels(texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, offsetPointer);
                     }
-                    //for now we always detach, so we don't end up with a FBO that has several attachments (colour, depth, stencil) and may be invalid
-                    threadContextGroup->functions.glFramebufferTexture(GL_READ_FRAMEBUFFER, surfaceFormat->attachmentType, 0, 0);
 
-                    threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, threadContext->current_frame_readId);
+                    //Some drivers have issues removing the FBO from the context binding when it gets deleted, so we do it ourself
+                    threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+                    threadContext->current_frame_readId = 0;
+                    threadContextGroup->functions.glDeleteFramebuffers(1, &fboId);
+                    */
                 }
             }
         } else {
-            if (threadContextGroup->extensions.GL_ARB_get_texture_sub_image) {
-                threadContextGroup->functions.glGetCompressedTextureSubImage(this->id, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z, maxCopySizeGuard32, offsetPointer);
-            //} else if (threadContextGroup->extensions.GL_ARB_texture_view) {
-            // TODO
-            } else if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-                threadContextGroup->functions.glGetCompressedTextureImage(id, dstMipmapLevel, maxCopySizeGuard32, offsetPointer);
-            } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
-                //TODO: does this function take GL_TEXTURE_CUBE_MAP as parameter?
-                threadContextGroup->functions.glGetCompressedTextureImageEXT(id, target, dstMipmapLevel, offsetPointer);
-            } else {
-                bindTemporal();
-                if (target == GL_TEXTURE_CUBE_MAP) {
-                    uintptr_t cubeMapSideSize = surfaceFormat->bitsPerPixelOrBlock * 8 * align(mipmapLevelSize.x, blockSizeX) * align(mipmapLevelSize.y, blockSizeY);
-                    LOOPI(6) threadContextGroup->functions.glGetCompressedTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dstMipmapLevel, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
+            if (entireXYZ) {
+                if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
+                    threadContextGroup->functions.glGetCompressedTextureImage(id, mipmapLevel, maxCopySizeGuard, offsetPointer);
                 } else {
-                    threadContextGroup->functions.glGetCompressedTexImage(target, dstMipmapLevel, offsetPointer);
+                    bindTemporal();
+                    threadContextGroup->functions.glGetCompressedTexImage(target, mipmapLevel, offsetPointer);
+                }
+            } else {
+                if (threadContextGroup->extensions.GL_ARB_get_texture_sub_image) {
+                     threadContextGroup->functions.glGetCompressedTextureSubImage(this->id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, maxCopySizeGuard, offsetPointer);
+                } else if (entireXY && target == GL_TEXTURE_CUBE_MAP) {
+                    bindTemporal();
+                    uint32_t cubeMapSideSize = (surfaceFormat->bitsPerPixelOrBlock / 8) * align(mipmapLevelSize.x, blockSizeX) * align(mipmapLevelSize.y, blockSizeY);
+                    LOOPI(6) threadContextGroup->functions.glGetCompressedTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
+                } else {
+                    throw runtime_error("Missing GL_ARB_get_texture_sub_image, can not copy sub image to memory/buffer!");
                 }
             }
         }
