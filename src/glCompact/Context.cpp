@@ -206,48 +206,52 @@ namespace glCompact {
     }
 
     /**
+        This makes the texture active at unit 0 for changes with non-DSA functions.
+
         In classical OpenGL, multiple targets can be bound to a single texture unit at the same time.
         Modern binding functions will take care of only having one target per binding unit active.
         To not overcomplicate our state tracker, we unbind any previous target type before we bind a different target type, when using this old-style functions.
 
-        Only ARB DSA functions can create texture or buffer objects without binding the ID at last once.
-        This is why we may also need to use this old stile binding for new textures.
+        Only ARB DSA/storage functions can create texture or buffer objects without binding the ID at last once.
+        This is why we may also need to use this old stile binding for new textures if we create them without ARB DSA/storage functions
 
         This SurfaceInterface members must be set before calling this function:
         id
         target
     */
     void Context::cachedBindTextureCompatibleOrFirstTime(
-        const SurfaceInterface* tex
+        uint32_t texId,
+         int32_t texTarget
     ) {
-        bool targetChange    = texture_target[0] != tex->target;
-        bool textureChange   = texture_id    [0] != tex->id;
+        bool targetChange    = texture_target[0] != texTarget;
+        bool textureChange   = texture_id    [0] != texId;
         bool unbindOldTarget = targetChange  && texture_id[0];
-        bool bindNewTexture  = textureChange && tex->id;
+        bool bindNewTexture  = textureChange && texId;
         if (unbindOldTarget || bindNewTexture) {
-            cachedSetActiveTexture(0);
+            cachedSetActiveTextureUnit(0);
             texture_markSlotChange(0);
         }
         if (unbindOldTarget) threadContextGroup->functions.glBindTexture(texture_target[0], 0);
-        if (bindNewTexture)  threadContextGroup->functions.glBindTexture(tex->target, tex->id);
-        if (targetChange)    texture_target[0] = tex->target;
-        if (textureChange)   texture_id    [0] = tex->id;
+        if (bindNewTexture)  threadContextGroup->functions.glBindTexture(texTarget, texId);
+        if (targetChange)    texture_target[0] = texTarget;
+        if (textureChange)   texture_id    [0] = texId;
     }
 
     /**
-        this makes the texture active for changes with non-DSA functions.
+        This makes the texture active at unit 0 for changes with non-DSA functions.
     */
     void Context::cachedBindTexture(
-        const SurfaceInterface* tex
+        uint32_t texId,
+         int32_t texTarget
     ) {
         if (threadContextGroup->extensions.GL_ARB_multi_bind) {
-            if (threadContext->texture_id[0] != tex->id) {
-                threadContext->texture_id[0] = tex->id;
-                threadContext->texture_markSlotChange(0);
-                threadContextGroup->functions.glBindTextures(0, 1, &tex->id);
+            if (texture_id[0] != texId) {
+                texture_id[0] = texId;
+                texture_markSlotChange(0);
+                threadContextGroup->functions.glBindTextures(0, 1, &texId);
             }
         } else {
-            cachedBindTextureCompatibleOrFirstTime(tex);
+            cachedBindTextureCompatibleOrFirstTime(texId, texTarget);
         }
     }
 
@@ -270,7 +274,7 @@ namespace glCompact {
     }
 
     //takes i and sets GL_TEXTURE0 + i
-    void Context::cachedSetActiveTexture(
+    void Context::cachedSetActiveTextureUnit(
         uint32_t slot
     ) {
         //TODO: debug test for values over GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS-1

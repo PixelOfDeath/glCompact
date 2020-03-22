@@ -193,7 +193,7 @@ namespace glCompact {
              int32_t  texture_getHighestNonNull();
              int32_t  texture_maxHighestNonNull = -1;
             uint32_t  texture_id    [Config::MAX_SAMPLER_BINDINGS] = {};
-            uint32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
+             int32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
 
             //SAMPLER
             void      sampler_markSlotChange(int32_t slot);
@@ -287,18 +287,18 @@ namespace glCompact {
             float current_addMinimumDepthUnits = 0.0f;
 
             //helper
-            void cachedBindTextureCompatibleOrFirstTime(const SurfaceInterface* tex);
-            void cachedBindTexture                     (const SurfaceInterface* tex);
+            void cachedBindTextureCompatibleOrFirstTime(uint32_t texId, int32_t target);
+            void cachedBindTexture                     (uint32_t texId, int32_t target);
 
-            void cachedBindShader      (uint32_t shaderId);
-            void cachedBindArrayBuffer (uint32_t bufferId);
-            void cachedSetActiveTexture(uint32_t slot);
-            void cachedBindDrawFbo     (uint32_t fboId);
-            void cachedBindReadFbo     (uint32_t fboId);
-            void cachedConvertSrgb     (bool enabled);
-            void cachedViewport        (glm::uvec2 offset, glm::uvec2 size);
-            void cachedScissorEnabled  (bool enabled);
-            void cachedScissor         (glm::uvec2 offset, glm::uvec2 size);
+            void cachedBindShader          (uint32_t shaderId);
+            void cachedBindArrayBuffer     (uint32_t bufferId);
+            void cachedSetActiveTextureUnit(uint32_t slot);
+            void cachedBindDrawFbo         (uint32_t fboId);
+            void cachedBindReadFbo         (uint32_t fboId);
+            void cachedConvertSrgb         (bool enabled);
+            void cachedViewport            (glm::uvec2 offset, glm::uvec2 size);
+            void cachedScissorEnabled      (bool enabled);
+            void cachedScissor             (glm::uvec2 offset, glm::uvec2 size);
 
             void cachedBindPixelPackBuffer  (uint32_t bufferId);
             void cachedBindPixelUnpackBuffer(uint32_t bufferId);

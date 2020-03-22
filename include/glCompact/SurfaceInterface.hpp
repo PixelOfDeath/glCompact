@@ -9,7 +9,6 @@ namespace glCompact {
             friend class PipelineInterface;
             friend class SurfaceSelector;
             friend class Frame;
-            friend class Context;
         public:
             void detachFromThreadContext();
             void free();

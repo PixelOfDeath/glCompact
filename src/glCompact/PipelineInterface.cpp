@@ -1667,8 +1667,8 @@ namespace glCompact {
                     bool targetChange    = threadContext->texture_target[i] != texture_target[i];
                     bool textureChange   = threadContext->texture_id    [i] != texture_id    [i];
                     bool unbindOldTarget = targetChange  &&     threadContext->texture_id    [i];
-                    bool bindNewTexture  = textureChange &&                            texture_id    [i];
-                    if (unbindOldTarget || bindNewTexture) threadContext->cachedSetActiveTexture(i);
+                    bool bindNewTexture  = textureChange &&                    texture_id    [i];
+                    if (unbindOldTarget || bindNewTexture) threadContext->cachedSetActiveTextureUnit(i);
                     if (unbindOldTarget)                   threadContextGroup->functions.glBindTexture(threadContext->texture_target[i], 0);
                     if (bindNewTexture)                    threadContextGroup->functions.glBindTexture(                       texture_target[i], texture_id[i]);
                     if (targetChange)                      threadContext->texture_target[i] = texture_target[i];

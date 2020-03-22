@@ -280,7 +280,7 @@ namespace glCompact {
             //TEXTURE/SAMPLER
              int32_t  sampler_highestActiveBinding = -1;
             uint32_t  texture_id    [Config::MAX_SAMPLER_BINDINGS] = {};
-            uint32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
+             int32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
 
             uint32_t  sampler_id    [Config::MAX_SAMPLER_BINDINGS] = {};
 

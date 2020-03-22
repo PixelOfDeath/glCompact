@@ -445,11 +445,16 @@ namespace glCompact {
         return false;
     }
 
+    /**
+        This members must be set before calling this function:
+            id
+            target
+    */
     void SurfaceInterface::bindTemporalFirstTime() const {
-        threadContext->cachedBindTextureCompatibleOrFirstTime(this);
+        threadContext->cachedBindTextureCompatibleOrFirstTime(id, target);
     }
 
     void SurfaceInterface::bindTemporal() const {
-        threadContext->cachedBindTexture(this);
+        threadContext->cachedBindTexture(id, target);
     }
 }
