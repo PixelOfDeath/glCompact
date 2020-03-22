@@ -3,9 +3,11 @@
 #include "glCompact/gl/ConstantsCustom.hpp"
 #include "glCompact/ThreadContextGroupInfo.hpp"
 #include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ToolsInternal.hpp"
 #include <stdexcept>
 #include <string>
 
+using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
@@ -401,49 +403,30 @@ namespace glCompact {
             }
     }
 
-    void ContextGroup::checkAndOrSetFeatures() {
-        feature.drawIndirect               = Config::glEqualOrGreater(4, 0) || Config::FeatureSetting::mustBeSupported == Config::drawIndirect;
-        feature.blendModePerDrawbuffer     = Config::glEqualOrGreater(4, 0) || Config::FeatureSetting::mustBeSupported == Config::blendModePerDrawbuffer;
-        feature.drawBaseInstance           = Config::glEqualOrGreater(4, 2) || Config::FeatureSetting::mustBeSupported == Config::drawBaseInstance;
-        feature.bptc                       = Config::glEqualOrGreater(4, 2) || Config::FeatureSetting::mustBeSupported == Config::bptc;
-        feature.atomicCounter              = Config::glEqualOrGreater(4, 2) || Config::FeatureSetting::mustBeSupported == Config::atomicCounter;
-        feature.shaderStorageBufferObject  = Config::glEqualOrGreater(4, 3) || Config::FeatureSetting::mustBeSupported == Config::shaderStorageBufferObject;
-        feature.astc                       = Config::glEqualOrGreater(4, 3) || Config::FeatureSetting::mustBeSupported == Config::astc;
-        feature.textureView                = Config::glEqualOrGreater(4, 3) || Config::FeatureSetting::mustBeSupported == Config::textureView;
-        feature.drawIndirectCount          = Config::glEqualOrGreater(4, 6) || Config::FeatureSetting::mustBeSupported == Config::drawIndirectCount;
-        feature.polygonOffsetClamp         = Config::glEqualOrGreater(4, 6) || Config::FeatureSetting::mustBeSupported == Config::polygonOffsetClamp;
-        feature.anisotropicFilter          = Config::glEqualOrGreater(4, 6) || Config::FeatureSetting::mustBeSupported == Config::anisotropicFilter;
-        feature.spirv                      =                                   Config::FeatureSetting::mustBeSupported == Config::spirv;
+    template <Config::FeatureSetting featureSetting>
+    static void checkAndOrSetFeature(string featureName, bool& featureSupported, bool runtimeCondition) {
+        if (featureSetting == Config::FeatureSetting::notSupported) return;
+        if (featureSetting == Config::FeatureSetting::mustBeSupported) {
+            if (runtimeCondition) return;
+            crash("Feature Config::" + featureName + " set to mustBeSupported, but not supported!");
+        }
+        if (featureSetting == Config::FeatureSetting::runtimeDetection) {
+            featureSupported = runtimeCondition;
+        }
     }
 
-    /*template <Config::FeatureSetting featureSetting>
-        static void checkAndOrSetFeature(bool& featureSupported, bool extension1, bool extension2 = false) {
-            if (featureSetting == Config::FeatureSetting::notSupported) return;
-            bool extensionSupported = extension1 || extension2;
-            if (featureSetting == Config::FeatureSetting::mustBeSupported) {
-                if (extensionSupported) return;
-                throw std::runtime_error("Feature not supported, but set to mustBeSupported!");
-            }
-            if (featureSetting == Config::FeatureSetting::runtimeDetection) {
-                featureSupported = extensionSupported;
-            }
-        }
-
-        void Context::checkAndOrSetFeatures() {
-            checkAndOrSetFeature<Config::drawIndirect             >(features_.drawIndirect                , threadContextGroupInternal->extensions.GL_ARB_draw_indirect);
-            checkAndOrSetFeature<Config::blendModePerDrawbuffer   >(features_.blendModePerDrawbuffer      , threadContextGroupInternal->extensions.GL_ARB_draw_buffers_blend);
-
-            checkAndOrSetFeature<Config::drawBaseInstance         >(features_.drawBaseInstance            , threadContextGroupInternal->extensions.GL_ARB_base_instance);
-            checkAndOrSetFeature<Config::bptc                     >(features_.bptc                        , threadContextGroupInternal->extensions.GL_ARB_texture_compression_bptc);
-            checkAndOrSetFeature<Config::atomicCounter            >(features_.atomicCounter               , threadContextGroupInternal->extensions.GL_ARB_shader_atomic_counters);
-
-            checkAndOrSetFeature<Config::shaderStorageBufferObject>(features_.shaderStorageBufferObject   , threadContextGroupInternal->extensions.GL_ARB_shader_storage_buffer_object);
-            checkAndOrSetFeature<Config::astc                     >(features_.astc                        , threadContextGroupInternal->extensions.GL_KHR_texture_compression_astc_hdr);
-
-            checkAndOrSetFeature<Config::drawIndirectCount        >(features_.drawIndirectCount           , threadContextGroupInternal->extensions.GL_ARB_indirect_parameters);
-            checkAndOrSetFeature<Config::polygonOffsetClamp       >(features_.polygonOffsetClamp          , threadContextGroupInternal->extensions.GL_ARB_polygon_offset_clamp);
-            checkAndOrSetFeature<Config::anisotropicFilter        >(features_.anisotropicFilter           , threadContextGroupInternal->extensions.GL_ARB_texture_filter_anisotropic, threadContextGroupInternal->extensions.GL_EXT_texture_filter_anisotropic);
-
-            checkAndOrSetFeature<Config::spirv                    >(features_.spirv                       , threadContextGroupInternal->extensions.GL_ARB_gl_spirv);
-        }*/
+    void ContextGroup::checkAndOrSetFeatures() {
+        checkAndOrSetFeature<Config::drawIndirect               >("drawIndirect"                , feature.drawIndirect              , Config::glEqualOrGreater(4, 0) || threadContextGroup->extensions.GL_ARB_draw_indirect);
+        checkAndOrSetFeature<Config::blendModePerDrawbuffer     >("blendModePerDrawbuffer"      , feature.blendModePerDrawbuffer    , Config::glEqualOrGreater(4, 0) || threadContextGroup->extensions.GL_ARB_draw_buffers_blend);
+        checkAndOrSetFeature<Config::drawBaseInstance           >("drawBaseInstance"            , feature.drawBaseInstance          , Config::glEqualOrGreater(4, 2) || threadContextGroup->extensions.GL_ARB_base_instance);
+        checkAndOrSetFeature<Config::bptc                       >("bptc"                        , feature.bptc                      , Config::glEqualOrGreater(4, 2) || threadContextGroup->extensions.GL_ARB_texture_compression_bptc);
+        checkAndOrSetFeature<Config::atomicCounter              >("atomicCounter"               , feature.atomicCounter             , Config::glEqualOrGreater(4, 2) || threadContextGroup->extensions.GL_ARB_shader_atomic_counters);
+        checkAndOrSetFeature<Config::shaderStorageBufferObject  >("shaderStorageBufferObject"   , feature.shaderStorageBufferObject , Config::glEqualOrGreater(4, 3) || threadContextGroup->extensions.GL_ARB_shader_storage_buffer_object);
+        checkAndOrSetFeature<Config::astc                       >("astc"                        , feature.astc                      , Config::glEqualOrGreater(4, 3) || threadContextGroup->extensions.GL_KHR_texture_compression_astc_hdr);
+        checkAndOrSetFeature<Config::textureView                >("textureView"                 , feature.textureView               , Config::glEqualOrGreater(4, 3) || threadContextGroup->extensions.GL_ARB_texture_view);
+        checkAndOrSetFeature<Config::drawIndirectCount          >("drawIndirectCount"           , feature.drawIndirectCount         , Config::glEqualOrGreater(4, 6) || threadContextGroup->extensions.GL_ARB_indirect_parameters);
+        checkAndOrSetFeature<Config::polygonOffsetClamp         >("polygonOffsetClamp"          , feature.polygonOffsetClamp        , Config::glEqualOrGreater(4, 6) || threadContextGroup->extensions.GL_ARB_polygon_offset_clamp);
+        checkAndOrSetFeature<Config::anisotropicFilter          >("anisotropicFilter"           , feature.anisotropicFilter         , Config::glEqualOrGreater(4, 6) || threadContextGroup->extensions.GL_ARB_texture_filter_anisotropic || threadContextGroup->extensions.GL_EXT_texture_filter_anisotropic);
+        checkAndOrSetFeature<Config::spirv                      >("spirv"                       , feature.spirv                     ,                                   threadContextGroup->extensions.GL_ARB_gl_spirv);
+    }
 }
