@@ -446,10 +446,10 @@ namespace glCompact {
     }
 
     void SurfaceInterface::bindTemporalFirstTime() const {
-        threadContext->temporalCachedBindTextureCompatibleOrFirstTime(this);
+        threadContext->cachedBindTextureCompatibleOrFirstTime(this);
     }
 
     void SurfaceInterface::bindTemporal() const {
-        threadContext->temporalCachedBindTexture(this);
+        threadContext->cachedBindTexture(this);
     }
 }
