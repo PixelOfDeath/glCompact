@@ -11,6 +11,7 @@
     \brief This is user facing API of the library
 */
 
+using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
@@ -51,7 +52,7 @@ namespace glCompact {
         Frame& frame
     ) {
         UNLIKELY_IF (frame.id == 0 && &frame != &threadContext->frameWindow)
-            throw std::runtime_error("Trying to set empty Frame as drawFrame!");
+            throw runtime_error("Trying to set empty Frame as drawFrame!");
         threadContext->pending_frame = &frame;
         threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
@@ -76,7 +77,7 @@ namespace glCompact {
     */
     Frame& getDrawFrame() {
         UNLIKELY_IF (!threadContext->pending_frame)
-            throw std::runtime_error("No draw frame set!");
+            throw runtime_error("No draw frame set!");
         return *threadContext->pending_frame;
     }
 
@@ -94,7 +95,7 @@ namespace glCompact {
         uint32_t y
     ) {
         UNLIKELY_IF (!threadContext->isMainContext)
-            throw std::runtime_error("Not the main context, only the main context can access to the drawFrame!");
+            throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
         threadContext->frameWindow.x = x;
         threadContext->frameWindow.y = y;
         threadContext->frameWindow.viewportOffset = {0, 0};
@@ -113,7 +114,7 @@ namespace glCompact {
     */
     Frame& getWindowFrame() {
         UNLIKELY_IF (!threadContext->isMainContext)
-            throw std::runtime_error("Not the main context, only the main context can access to the drawFrame!");
+            throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
         return threadContext->frameWindow;
     }
 

@@ -239,7 +239,7 @@ namespace glCompact {
     ) {
         //TODO: debug test for values over GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS-1
         UNLIKELY_IF (slot >= uint32_t(threadContextGroup->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS))
-            throw std::runtime_error("Trying to set active texture bayond GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS(" + to_string(threadContextGroup->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) + ")");
+            throw runtime_error("Trying to set active texture bayond GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS(" + to_string(threadContextGroup->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) + ")");
         if (activeTextureSlot != slot) {
             activeTextureSlot = slot;
             threadContextGroup->functions.glActiveTexture(GL_TEXTURE0 + slot);
@@ -384,7 +384,7 @@ namespace glCompact {
 
     void Context::processPendingChangesDrawFrame(Frame* pendingFrame) {
         UNLIKELY_IF (!pendingFrame)
-            throw std::runtime_error("This command needs an valid Frame set via setFrame()!");
+            throw runtime_error("This command needs an valid Frame set via setFrame()!");
         if (current_frame != pendingFrame) {
             pending_frame_drawId = pendingFrame->id;
             current_frame = pendingFrame;
