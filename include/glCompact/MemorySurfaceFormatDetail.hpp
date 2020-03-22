@@ -6,7 +6,7 @@ namespace glCompact {
         const char*const name;
         int32_t componentsAndArrangement;
         int32_t componentsTypes;
-        uint16_t bitsPerPixelOrBlock;
+        uint8_t bytePerPixelOrBlock;
         uint8_t blockSizeX;
         uint8_t blockSizeY;
 

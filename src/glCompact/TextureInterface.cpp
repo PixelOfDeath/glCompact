@@ -672,8 +672,8 @@ namespace glCompact {
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
         const uintptr_t requiredBufferSize = memorySurfaceFormat->isCompressed
-            ? (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (std::max(blockSizeX, texSize.x) / blockSizeX) * (std::max(blockSizeY, texSize.y) / blockSizeY) * std::max(1, texSize.z)
-            : (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * std::max(1, texSize.x) * std::max(1, texSize.y) * std::max(1, texSize.z);
+            ? memorySurfaceFormat->bytePerPixelOrBlock * (std::max(blockSizeX, texSize.x) / blockSizeX) * (std::max(blockSizeY, texSize.y) / blockSizeY) * std::max(1, texSize.z)
+            : memorySurfaceFormat->bytePerPixelOrBlock * std::max(1, texSize.x) * std::max(1, texSize.y) * std::max(1, texSize.z);
 
         if (bufferInterface) {
             UNLIKELY_IF (bufferInterface->size_ == 0)
@@ -732,7 +732,7 @@ namespace glCompact {
                         threadContextGroup->functions.glTextureSubImage3DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP:
-                        uintptr_t cubeSideBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * texSize.x * texSize.y;
+                        uintptr_t cubeSideBufferSize = memorySurfaceFormat->bytePerPixelOrBlock * texSize.x * texSize.y;
                         for (unsigned int i = z; i < z + texSize.z; ++i)
                             threadContextGroup->functions.glTextureSubImage2DEXT(id, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
                         break;
@@ -755,7 +755,7 @@ namespace glCompact {
                         threadContextGroup->functions.glTexSubImage3D(target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
-                        uintptr_t cubeSideBufferSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * texSize.x * texSize.y;
+                        uintptr_t cubeSideBufferSize = memorySurfaceFormat->bytePerPixelOrBlock * texSize.x * texSize.y;
                         for (unsigned int i = z; i < z + texSize.z; ++i)
                             threadContextGroup->functions.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
                         break;
@@ -892,8 +892,8 @@ namespace glCompact {
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
         const uint32_t requiredBufferSize = memorySurfaceFormat->isCompressed
-            ? (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * (max(blockSizeX, texSize.x) / blockSizeX) * (max(blockSizeY, texSize.y) / blockSizeY) * max(1, texSize.z)
-            : (memorySurfaceFormat->bitsPerPixelOrBlock / 8) *  max(1, texSize.x) * max(1, texSize.y) * max(1, texSize.z);
+            ? memorySurfaceFormat->bytePerPixelOrBlock * (max(blockSizeX, texSize.x) / blockSizeX) * (max(blockSizeY, texSize.y) / blockSizeY) * max(1, texSize.z)
+            : memorySurfaceFormat->bytePerPixelOrBlock *  max(1, texSize.x) * max(1, texSize.y) * max(1, texSize.z);
 
         UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
             throw runtime_error("maxCopySizeGuard size (" + to_string(maxCopySizeGuard) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer size!");
@@ -918,7 +918,7 @@ namespace glCompact {
                 if (threadContextGroup->extensions.GL_ARB_get_texture_sub_image) {
                     threadContextGroup->functions.glGetTextureSubImage(id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
                 } else if (entireXY && target == GL_TEXTURE_CUBE_MAP) {
-                    uint32_t cubeMapSideSize = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * mipmapLevelSize.x * mipmapLevelSize.y;
+                    uint32_t cubeMapSideSize = memorySurfaceFormat->bytePerPixelOrBlock * mipmapLevelSize.x * mipmapLevelSize.y;
                     bindTemporal();
                     for (uint32_t i = z; i < z + texSize.z; ++i)
                         threadContextGroup->functions.glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, componentsAndArrangement, componentsTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
