@@ -58,6 +58,9 @@ namespace glCompact {
             //GL_KHR_texture_compression_astc_hdr (Core since 4.3)
             constexpr FeatureSetting astc                         = FeatureSetting::notSupported;
 
+            //GL_ARB_texture_view (Core since 4.3)
+            constexpr FeatureSetting textureView                  = FeatureSetting::notSupported;
+
         //Core since 4.6
             //GL_ARB_indirect_parameters (Core since 4.6 with non ARB functions)
             constexpr FeatureSetting drawIndirectCount            = FeatureSetting::notSupported;

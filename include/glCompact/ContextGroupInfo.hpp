@@ -29,6 +29,7 @@ namespace glCompact {
                 bool atomicCounter              = Config::glEqualOrGreater(4, 2) || Config::FeatureSetting::mustBeSupported == Config::atomicCounter;
                 bool shaderStorageBufferObject  = Config::glEqualOrGreater(4, 3) || Config::FeatureSetting::mustBeSupported == Config::shaderStorageBufferObject;
                 bool astc                       = Config::glEqualOrGreater(4, 3) || Config::FeatureSetting::mustBeSupported == Config::astc;
+                bool textureView                = Config::glEqualOrGreater(4, 3) || Config::FeatureSetting::mustBeSupported == Config::textureView;
                 bool drawIndirectCount          = Config::glEqualOrGreater(4, 6) || Config::FeatureSetting::mustBeSupported == Config::drawIndirectCount;
                 bool polygonOffsetClamp         = Config::glEqualOrGreater(4, 6) || Config::FeatureSetting::mustBeSupported == Config::polygonOffsetClamp;
                 bool anisotropicFilter          = Config::glEqualOrGreater(4, 6) || Config::FeatureSetting::mustBeSupported == Config::anisotropicFilter;
