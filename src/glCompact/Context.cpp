@@ -220,8 +220,8 @@ namespace glCompact {
         target
     */
     void Context::cachedBindTextureCompatibleOrFirstTime(
-        uint32_t texId,
-         int32_t texTarget
+         int32_t texTarget,
+        uint32_t texId
     ) {
         bool targetChange    = texture_target[0] != texTarget;
         bool textureChange   = texture_id    [0] != texId;
@@ -241,8 +241,8 @@ namespace glCompact {
         This makes the texture active at unit 0 for changes with non-DSA functions.
     */
     void Context::cachedBindTexture(
-        uint32_t texId,
-         int32_t texTarget
+         int32_t texTarget,
+        uint32_t texId
     ) {
         if (threadContextGroup->extensions.GL_ARB_multi_bind) {
             if (texture_id[0] != texId) {
@@ -251,7 +251,7 @@ namespace glCompact {
                 threadContextGroup->functions.glBindTextures(0, 1, &texId);
             }
         } else {
-            cachedBindTextureCompatibleOrFirstTime(texId, texTarget);
+            cachedBindTextureCompatibleOrFirstTime(texTarget, texId);
         }
     }
 
