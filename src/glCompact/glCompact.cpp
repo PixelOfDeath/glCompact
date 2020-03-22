@@ -50,12 +50,18 @@ namespace glCompact {
     void setDrawFrame(
         Frame& frame
     ) {
-        UNLIKELY_IF (threadContext->isMainContext)
-            throw std::runtime_error("Not the main context, only the main context can access to the drawFrame!");
         UNLIKELY_IF (frame.id == 0 && &frame != &threadContext->frameWindow)
             throw std::runtime_error("Trying to set empty Frame as drawFrame!");
         threadContext->pending_frame = &frame;
         threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+    }
+
+    /**
+        \ingroup API
+        \brief Set target Frame object for PiepelineRasterization draw calls and blit operations to NULL
+    */
+    void setDrawFrame() {
+        threadContext->pending_frame = NULL;
     }
 
     /**
@@ -69,8 +75,8 @@ namespace glCompact {
             getDrawFrame().clearRgba();
     */
     Frame& getDrawFrame() {
-        UNLIKELY_IF (threadContext->isMainContext)
-            throw std::runtime_error("Not the main context, only the main context can access to the drawFrame!");
+        UNLIKELY_IF (!threadContext->pending_frame)
+            throw std::runtime_error("No draw frame set!");
         return *threadContext->pending_frame;
     }
 
@@ -87,7 +93,7 @@ namespace glCompact {
         uint32_t x,
         uint32_t y
     ) {
-        UNLIKELY_IF (threadContext->isMainContext)
+        UNLIKELY_IF (!threadContext->isMainContext)
             throw std::runtime_error("Not the main context, only the main context can access to the drawFrame!");
         threadContext->frameWindow.x = x;
         threadContext->frameWindow.y = y;
@@ -106,7 +112,7 @@ namespace glCompact {
             getDrawFrame(getWindowFrame());
     */
     Frame& getWindowFrame() {
-        UNLIKELY_IF (threadContext->isMainContext)
+        UNLIKELY_IF (!threadContext->isMainContext)
             throw std::runtime_error("Not the main context, only the main context can access to the drawFrame!");
         return threadContext->frameWindow;
     }

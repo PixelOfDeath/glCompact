@@ -48,6 +48,7 @@ namespace glCompact {
             friend void finish();
 
             friend void   setDrawFrame(Frame& frame);
+            friend void   setDrawFrame();
             friend Frame& getDrawFrame();
             friend void   setWindowFrameSize(uint32_t x, uint32_t y);
             friend Frame& getWindowFrame();

@@ -377,6 +377,8 @@ namespace glCompact {
     }
 
     void Context::processPendingChangesDrawFrame() {
+        UNLIKELY_IF(!pending_frame)
+            throw runtime_error("No draw frame is set!");
         processPendingChangesDrawFrame(pending_frame);
     }
 

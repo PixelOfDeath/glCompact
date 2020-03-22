@@ -27,6 +27,7 @@ namespace glCompact {
     extern void finish();
 
     extern void   setDrawFrame      (Frame& frame);
+    extern void   setDrawFrame      ();
     extern Frame& getDrawFrame      ();
     extern void   setWindowFrameSize(uint32_t x, uint32_t y);
     extern Frame& getWindowFrame    ();
