@@ -9,6 +9,7 @@ namespace glCompact {
             friend class PipelineInterface;
             friend class SurfaceSelector;
             friend class Frame;
+            friend class Context;
         public:
             void detachFromThreadContext();
             void free();
@@ -40,8 +41,7 @@ namespace glCompact {
             uint32_t samples     = 0; //Using 0 for NON-multisample targets. Anything else (including 1) means this is a multisample target!
             SurfaceFormat surfaceFormat;
 
-            void bindTemporalNonMultiBind() const;
-            void bindTemporalFirstTime()    const;
-            void bindTemporal()             const;
+            void bindTemporalFirstTime() const;
+            void bindTemporal() const;
     };
 }

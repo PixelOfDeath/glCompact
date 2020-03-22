@@ -922,18 +922,20 @@ namespace glCompact {
                     bindTemporal();
                     for (uint32_t i = z; i < z + texSize.z; ++i)
                         threadContextGroup->functions.glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, componentsAndArrangement, componentsTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
-                /*} else if (entireXY && threadContextGroup->extensions.GL_ARB_texture_view) {
-                    //GL_ARB_texture_storage is garantied to be present!
-                    //GL_ARB_texture_storage_multisample ?!
-                    uint32_t tempTexId = 0;
-                    threadContextGroup->functions.glCreateTextures(target, 1, &tempTexId);
-                    //void glTextureView(GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers)
-                    threadContextGroup->functions.glTextureView(tempTexId, target, id, surfaceFormat->sizedFormat, mipmapLevel, 1, texOffset.z, texSize.z);
-                    threadContextGroup->functions.glBindTexture(target, tempTexId);
+                } else if (entireXY && threadContextGroup->extensions.GL_ARB_texture_view) {
+                    //GL_ARB_texture_storage is guaranteed to be present! GL_ARB_texture_storage_multisample is not relevant here.
+                    for (uint32_t i = z; i < z + texSize.z; ++i) {
+                        uint32_t tempTexId = 0;
+                        threadContextGroup->functions.glCreateTextures(target, 1, &tempTexId);
+                        //void glTextureView(GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers)
+                        threadContextGroup->functions.glTextureView(tempTexId, target, id, surfaceFormat->sizedFormat, mipmapLevel, 1, texOffset.z, texSize.z);
+                        threadContextGroup->functions.glBindTexture(target, tempTexId);
 
-                    threadContextGroup->functions.glDeleteTextures(1, &tempTexId);
+                        threadContextGroup->functions.glDeleteTextures(1, &tempTexId);
+                    }
+                    threadContextGroup->functions.glBindTexture(target, 0);
 
-                    //TODO set state cache!*/
+                    //TODO set state cache!
                 } else {
                     throw runtime_error("Missing GL_ARB_get_texture_sub_image, can not copy sub image to memory/buffer!");
 

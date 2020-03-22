@@ -445,50 +445,11 @@ namespace glCompact {
         return false;
     }
 
-    /**
-        In OpenGL multiple targets can be bound per texture unit. But only for state edit purpose. It is not allowed to have multiple targets active per unit when making a draw call.
-        This function unbinds a different target texture if one currently is binded befor binding this texture to its target. So there never is more then one target bound per unit!
-
-        This variables must be set before calling this function:
-        this->id_
-        this->target_
-    */
-    void SurfaceInterface::bindTemporalNonMultiBind() const {
-        bool targetChange    = threadContext->texture_target[0] != target;
-        bool textureChange   = threadContext->texture_id    [0] != id;
-        bool unbindOldTarget = targetChange  && threadContext->texture_id[0];
-        bool bindNewTexture  = textureChange && id;
-        if (unbindOldTarget || bindNewTexture) {
-            threadContext->cachedSetActiveTexture(0);
-            //threadContext->pending_texture_markSlotChange(0);
-            threadContext->texture_markSlotChange(0);
-        }
-        if (unbindOldTarget) threadContextGroup->functions.glBindTexture(threadContext->texture_target[0], 0);
-        if (bindNewTexture)  threadContextGroup->functions.glBindTexture(target, id);
-        if (targetChange)    threadContext->texture_target[0] = target;
-        if (textureChange)   threadContext->texture_id    [0] = id;
-    }
-
-    /**
-        Only ARB DSA functions can create texture or buffer objects without binding the ID at last once.
-        This is why we need to use old stile binding if ARB DSA is not available.
-    */
     void SurfaceInterface::bindTemporalFirstTime() const {
-        bindTemporalNonMultiBind();
+        threadContext->temporalCachedBindTextureCompatibleOrFirstTime(this);
     }
 
-    /**
-        this makes the texture active for changes with non-DSA functions.
-    */
     void SurfaceInterface::bindTemporal() const {
-        if (threadContextGroup->extensions.GL_ARB_multi_bind) {
-            if (threadContext->texture_id[0] != id) {
-                threadContext->texture_id[0] = id;
-                threadContext->texture_markSlotChange(0);
-                threadContextGroup->functions.glBindTextures(0, 1, &id);
-            }
-        } else {
-            bindTemporalNonMultiBind();
-        }
+        threadContext->temporalCachedBindTexture(this);
     }
 }
