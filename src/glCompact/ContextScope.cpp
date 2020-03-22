@@ -92,6 +92,7 @@ namespace glCompact {
             new (threadContext)Context;
             threadContextConstructed = true;
         #endif
+        threadContext->isMainContext = true;
     }
 
     /**

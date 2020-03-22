@@ -30,6 +30,7 @@ namespace glCompact {
 
     class Context;
     class Context {
+            friend class ContextScope;
             friend class Debug;
             friend class PipelineInterface;
             friend class PipelineRasterization;
@@ -95,6 +96,8 @@ namespace glCompact {
             static void assertThreadHasActiveGlContext();
 
             uint32_t contextId;
+            //Relevant for e.g. access to the frameWindow
+            bool isMainContext = false;
 
             //FRAME
             Frame frameWindow;
