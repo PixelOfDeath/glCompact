@@ -105,22 +105,19 @@ S
 */
 
 #include "glCompact/TextureInterface.hpp"
-
+#include "glCompact/BufferInterface.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ThreadContextGroup.hpp"
 #include "glCompact/GlTools.hpp"
-#include "glCompact/BufferInterface.hpp"
 #include "glCompact/Frame.hpp"
-
 #include "glCompact/Sampler.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 #include "glCompact/MemorySurfaceFormatDetail.hpp"
 
-#include <stdexcept>
-
 #include <glm/glm.hpp>
 
+#include <stdexcept>
 #include <algorithm> //for min/max in msvc
 #include <string>
 
@@ -493,7 +490,7 @@ namespace glCompact {
     //TODO: shall this always return 1 (what it does right now!) for the "not existing" dimensions? So it can be used in multiplications without checking?
     glm::ivec3 TextureInterface::getMipmapLevelSize(
         uint32_t mipmapLevel
-    ) {
+    ) const {
         glm::ivec3 size(0);
         if (mipmapLevel >= mipmapCount) return size; //error or just return 0, 0, 0?
         uint32_t mipmapScale = pow(2, mipmapLevel); //integerPowerOf(2, mipmapLevel);
@@ -529,7 +526,7 @@ namespace glCompact {
         uint32_t            mipmapLevel,
         glm::ivec3          texOffset,
         glm::ivec3          texSize
-    ) {
+    ) const {
         copyTo(0, mem, maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
@@ -553,7 +550,7 @@ namespace glCompact {
         uint32_t            mipmapLevel,
         glm::ivec3          texOffset,
         glm::ivec3          texSize
-    ) {
+    ) const {
         copyTo(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
@@ -860,7 +857,7 @@ namespace glCompact {
         uint32_t            mipmapLevel,
         glm::ivec3          texOffset,
         glm::ivec3          texSize
-    ) {
+    ) const {
         checkSurfaceFormatCompatibleToMemorySurfaceFormat(surfaceFormat, memorySurfaceFormat);
 
         const uintptr_t dataOffset = reinterpret_cast<uintptr_t>(offsetPointer);
