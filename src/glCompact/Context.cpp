@@ -38,16 +38,6 @@ namespace glCompact {
         frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
         contextId = nextContextId.fetch_add(1);
 
-        //DISABELING EXTENSIONS TO TEST DIFFERENT PATHS
-        //*const_cast<bool*>(&extensions.GL_ARB_texture_storage)       = false; //NOTE: MAY CRASH IF TEXTURE VIEWS ARE USED! (Because they only can be created from texStorage objects!)
-        //*const_cast<bool*>(&extensions.GL_ARB_multi_bind)            = false;
-        //*const_cast<bool*>(&extensions.GL_ARB_vertex_attrib_binding) = false;
-
-        //*const_cast<bool*>(&extensions.GL_ARB_direct_state_access)   = false;
-        //*const_cast<bool*>(&extensions.GL_EXT_direct_state_access)   = false;
-
-        //*const_cast<bool*>(&extensions.GL_ARB_ES3_compatibility)     = false;
-
         if (!threadContextGroup->version.equalOrGreater(3, 3))
             crash("glCompact requires Opengl 3.3 or higher!");
 

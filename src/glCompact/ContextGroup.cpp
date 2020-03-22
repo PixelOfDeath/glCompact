@@ -45,6 +45,16 @@ namespace glCompact {
         setAllCoreExtensionTrue();
         getAllValue();
         checkAndOrSetFeatures();
+
+        //DISABELING EXTENSIONS TO TEST DIFFERENT PATHS
+        //*const_cast<bool*>(&extensions.GL_ARB_texture_storage)       = false; //NOTE: MAY CRASH IF TEXTURE VIEWS ARE USED! (Because they only can be created from texStorage objects!)
+        //*const_cast<bool*>(&extensions.GL_ARB_multi_bind)            = false;
+        //*const_cast<bool*>(&extensions.GL_ARB_vertex_attrib_binding) = false;
+
+        //*const_cast<bool*>(&extensions.GL_ARB_direct_state_access)   = false;
+        //*const_cast<bool*>(&extensions.GL_EXT_direct_state_access)   = false;
+
+        //*const_cast<bool*>(&extensions.GL_ARB_ES3_compatibility)     = false;
     }
 
     /**
