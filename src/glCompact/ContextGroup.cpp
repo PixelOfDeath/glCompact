@@ -4,7 +4,6 @@
 #include "glCompact/ThreadContextGroupInfo.hpp"
 #include "glCompact/ThreadContextGroup.hpp"
 #include "glCompact/ToolsInternal.hpp"
-#include <stdexcept>
 #include <string>
 
 using namespace std;
@@ -18,7 +17,7 @@ namespace glCompact {
 
         const char* versionString = reinterpret_cast<const char*>(functions.glGetString(GL_VERSION));
         if (!versionString)
-            throw std::runtime_error("No active OpenGL context in this thread! Can not initalize without one!");
+            crash("No active OpenGL context in this thread! Can not initalize without one!");
 
         //TODO make this a regex in case anyone returns the version with more then one digit per major/minor
         //raw ascii to integer
@@ -31,7 +30,7 @@ namespace glCompact {
         || (major == Config::MIN_MAJOR && minor >= Config::MIN_MINOR)) {
             //all okey dokey!
         } else {
-            throw std::runtime_error("glCompact needs at last OpenGL " + std::to_string(Config::MIN_MAJOR) + "." + std::to_string(Config::MIN_MINOR) + " but only detected " + std::to_string(version.major) + "." + std::to_string(version.minor) + "!");
+            crash("glCompact needs at last OpenGL " + std::to_string(Config::MIN_MAJOR) + "." + std::to_string(Config::MIN_MINOR) + " but only detected " + std::to_string(version.major) + "." + std::to_string(version.minor) + "!");
         }
         version.major = major;
         version.minor = minor;
