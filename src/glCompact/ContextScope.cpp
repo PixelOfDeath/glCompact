@@ -136,7 +136,8 @@ namespace glCompact {
             threadContextConstructed = false;
         #endif
 
-        if (--threadContextGroup->contextCount == 0) {
+        threadContextGroup->contextCount--;
+        if (threadContextGroup->contextCount == 0) {
             #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
                 delete threadContextGroup;
                 threadContextGroup = 0;

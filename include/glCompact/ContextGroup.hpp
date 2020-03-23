@@ -4,6 +4,8 @@
 #include "glCompact/gl/Values.hpp"
 #include "glCompact/gl/Extensions.hpp"
 
+#include <atomic>
+
 namespace glCompact {
     class ContextGroup : public ContextGroupInfo {
         public:
@@ -17,6 +19,6 @@ namespace glCompact {
             void getAllValue();
             void checkAndOrSetFeatures();
 
-            int contextCount = 1;
+            std::atomic<int> contextCount = {1};
     };
 }
