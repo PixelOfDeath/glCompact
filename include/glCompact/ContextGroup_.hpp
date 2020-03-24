@@ -1,5 +1,5 @@
 #pragma once
-#include "glCompact/ContextGroupInfo.hpp"
+#include "glCompact/ContextGroup.hpp"
 #include "glCompact/gl/Functions.hpp"
 #include "glCompact/gl/Values.hpp"
 #include "glCompact/gl/Extensions.hpp"
@@ -7,7 +7,7 @@
 #include <atomic>
 
 namespace glCompact {
-    class ContextGroup_ : public ContextGroupInfo {
+    class ContextGroup_ : public ContextGroup {
         public:
             ContextGroup_(void*(*getGlFunctionPointer)(const char* glFunctionName));
 

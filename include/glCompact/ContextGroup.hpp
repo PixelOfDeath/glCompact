@@ -3,7 +3,7 @@
 #include "glCompact/Config.hpp"
 
 namespace glCompact {
-    class ContextGroupInfo {
+    class ContextGroup {
         public:
             struct {
                 int32_t major             = 0;
