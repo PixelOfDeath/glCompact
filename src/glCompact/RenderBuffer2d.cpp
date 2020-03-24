@@ -1,6 +1,6 @@
 #include "glCompact/RenderBuffer2d.hpp"
 //#include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include <stdexcept>
@@ -19,15 +19,15 @@ namespace glCompact {
         UNLIKELY_IF (!surfaceFormat->isRenderable)
             throw runtime_error("SurfaceFormat for RenderBuffer must be renderable!");
         UNLIKELY_IF (x > getMaxXY() || y > getMaxXY())
-            throw runtime_error("Trying to create RenderBuffer2d with size(x = " + to_string(x) + ", y = " + to_string(y) + "), but that is bayond getMaxXY(GL_MAX_RENDERBUFFER_SIZE = " + to_string(threadContextGroup->values.GL_MAX_RENDERBUFFER_SIZE) + ")");
+            throw runtime_error("Trying to create RenderBuffer2d with size(x = " + to_string(x) + ", y = " + to_string(y) + "), but that is bayond getMaxXY(GL_MAX_RENDERBUFFER_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_RENDERBUFFER_SIZE) + ")");
 
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-            threadContextGroup->functions.glCreateRenderbuffers(1, &id);
-            threadContextGroup->functions.glNamedRenderbufferStorage(id, surfaceFormat->sizedFormat, x, y);
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+            threadContextGroup_->functions.glCreateRenderbuffers(1, &id);
+            threadContextGroup_->functions.glNamedRenderbufferStorage(id, surfaceFormat->sizedFormat, x, y);
         } else {
-            threadContextGroup->functions.glGenRenderbuffers(1, &id);
-            threadContextGroup->functions.glBindRenderbuffer(GL_RENDERBUFFER, id); //TODO use caching?
-            threadContextGroup->functions.glRenderbufferStorage(GL_RENDERBUFFER, surfaceFormat->sizedFormat, x, y);
+            threadContextGroup_->functions.glGenRenderbuffers(1, &id);
+            threadContextGroup_->functions.glBindRenderbuffer(GL_RENDERBUFFER, id); //TODO use caching?
+            threadContextGroup_->functions.glRenderbufferStorage(GL_RENDERBUFFER, surfaceFormat->sizedFormat, x, y);
         }
 
         this->target        = GL_RENDERBUFFER;
@@ -43,6 +43,6 @@ namespace glCompact {
         Returns maximum supported x and y size. Minimum supported value is 64.
     */
     uint32_t RenderBuffer2d::getMaxXY() {
-        return threadContextGroup->values.GL_MAX_RENDERBUFFER_SIZE;
+        return threadContextGroup_->values.GL_MAX_RENDERBUFFER_SIZE;
     }
 }

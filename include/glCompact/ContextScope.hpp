@@ -1,7 +1,7 @@
 #pragma once
 
 namespace glCompact {
-    class ContextGroup;
+    class ContextGroup_;
     class ContextScope {
         public:
             ContextScope(void *(*getGlFunctionPointer)(const char*));
@@ -9,6 +9,6 @@ namespace glCompact {
             ContextScope(const ContextScope* contextGroupSource);
             ~ContextScope();
         private:
-            ContextGroup* contextGroup;
+            ContextGroup_* contextGroup_;
     };
 }

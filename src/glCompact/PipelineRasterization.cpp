@@ -1,6 +1,6 @@
 #include "glCompact/PipelineRasterization.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/Config.hpp"
 #include "glCompact/Buffer.hpp"
 #include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
@@ -149,7 +149,7 @@ namespace glCompact {
             GLenum shaderLocationBaseType = gl::typeToBaseType(attributeLocationInfo[i].type);
 
             if (attributeFormat == AttributeFormat::B10G11R11_UFLOAT) {
-                UNLIKELY_IF (!threadContextGroup->version.equalOrGreater(4,4))
+                UNLIKELY_IF (!threadContextGroup_->version.equalOrGreater(4,4))
                     setAttributeLayoutThrow("AttributeFormat::B10G11R11_UFLOAT (GL_UNSIGNED_INT_10F_11F_11F_REV) is only supported with OpenGL 4.4 or higher");
             }
             switch (shaderLocationBaseType) {
@@ -216,7 +216,7 @@ namespace glCompact {
         //attributeLayoutStates.uppermostActiveLocation is set by what locations are actually used in the shader. All other can be ingnored and do not have to be disabled for this shader.
         //Only need to disable Attribute locations if the shader uses them and layout does not define them, to prevent error if the current still active layout setting would cause GL error.
 
-        if (threadContextGroup->extensions.GL_ARB_vertex_attrib_binding) {
+        if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
             LOOPI(uppermostActiveBufferIndex + 1)
                 attributeLayoutStates.instancing[i] = attributeLayout.bufferIndex[i].instancing;
         } else {
@@ -422,7 +422,7 @@ namespace glCompact {
         float depthBiasSlopeFactor
     ) {
         UNLIKELY_IF (    depthBiasClamp != 0.0f
-                     &&  !threadContextGroup->extensions.GL_ARB_polygon_offset_clamp)
+                     &&  !threadContextGroup_->extensions.GL_ARB_polygon_offset_clamp)
             throw std::runtime_error("depthBiasClamp must be 0.0f without GL_ARB_polygon_offset_clamp (Core since 4.6)");
 
         this->depthBiasConstantFactor = depthBiasConstantFactor;
@@ -724,20 +724,20 @@ namespace glCompact {
         IndexType indexType
     ) {
         if (threadContext->buffer_attribute_index_id != buffer_attribute_index_id) {
-            threadContextGroup->functions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_attribute_index_id);
+            threadContextGroup_->functions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_attribute_index_id);
             threadContext->buffer_attribute_index_id = buffer_attribute_index_id;
         }
-        if (threadContextGroup->extensions.GL_ARB_ES3_compatibility) return;
+        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) return;
         if (threadContext->buffer_attribute_index_type != indexType) {
             switch (indexType) {
-                case IndexType::UINT16: threadContextGroup->functions.glPrimitiveRestartIndex(    0xFFFF); break;
-                case IndexType::UINT32: threadContextGroup->functions.glPrimitiveRestartIndex(0xFFFFFFFF); break;
-              //case IndexType::UINT8 : threadContextGroup->functions.glPrimitiveRestartIndex(      0xFF); break;
+                case IndexType::UINT16: threadContextGroup_->functions.glPrimitiveRestartIndex(    0xFFFF); break;
+                case IndexType::UINT32: threadContextGroup_->functions.glPrimitiveRestartIndex(0xFFFFFFFF); break;
+              //case IndexType::UINT8 : threadContextGroup_->functions.glPrimitiveRestartIndex(      0xFF); break;
             }
             threadContext->buffer_attribute_index_type = indexType;
         }
         if (!threadContext->buffer_attribute_index_enabled) {
-            threadContextGroup->functions.glEnable(GL_PRIMITIVE_RESTART);
+            threadContextGroup_->functions.glEnable(GL_PRIMITIVE_RESTART);
             threadContext->buffer_attribute_index_enabled = true;
         }
     }
@@ -760,9 +760,9 @@ namespace glCompact {
         Because we already test for GL_ARB_ES3_compatibility (Core since 4.3), we do not have to check for GL 4.5
     */
     void PipelineRasterization::deactivateAttributeIndex() {
-        if (threadContextGroup->extensions.GL_ARB_ES3_compatibility) return;
+        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) return;
         if (threadContext->buffer_attribute_index_enabled) {
-            threadContextGroup->functions.glDisable(GL_PRIMITIVE_RESTART);
+            threadContextGroup_->functions.glDisable(GL_PRIMITIVE_RESTART);
             threadContext->buffer_attribute_index_enabled = false;
         }
     }
@@ -790,45 +790,45 @@ namespace glCompact {
         };
         GLuint shaderId[5] = {0};
         LOOPI(5) if (!shaderSrc[i]->empty()) {
-            GLuint shaderPartId = threadContextGroup->functions.glCreateShader(shaderType[i]);
+            GLuint shaderPartId = threadContextGroup_->functions.glCreateShader(shaderType[i]);
             const char* pCString = shaderSrc[i]->c_str();
-            threadContextGroup->functions.glShaderSource(shaderPartId, 1, reinterpret_cast<const GLchar**>(&pCString), NULL);
-            threadContextGroup->functions.glCompileShader(shaderPartId);
+            threadContextGroup_->functions.glShaderSource(shaderPartId, 1, reinterpret_cast<const GLchar**>(&pCString), NULL);
+            threadContextGroup_->functions.glCompileShader(shaderPartId);
             GLint compileSuccessful;
-            threadContextGroup->functions.glGetShaderiv(shaderPartId, GL_COMPILE_STATUS, &compileSuccessful);
+            threadContextGroup_->functions.glGetShaderiv(shaderPartId, GL_COMPILE_STATUS, &compileSuccessful);
             string shaderLog = getShaderInfoLog(shaderPartId);
             if (!shaderLog.empty())
                 infoLog_ += shaderTypeString[i] + " LOG:\n" + shaderLog + "\n";
             shaderId[i] = shaderPartId;
             if (!compileSuccessful) {
-                LOOPI(5) if (shaderId[i]) threadContextGroup->functions.glDeleteShader(shaderId[i]);
+                LOOPI(5) if (shaderId[i]) threadContextGroup_->functions.glDeleteShader(shaderId[i]);
                 //throw std::runtime_error("Error loading shader:\n" + infoLog_);
                 infoLog_ = "Error loading shader:\n" + infoLog_;
                 return false;
             }
         }
-        id = threadContextGroup->functions.glCreateProgram();
-        //if (binaryRetrievableHint && threadContextGroup->extensions.GL_ARB_get_program_binary)
-        //    threadContextGroup->functions.glProgramParameteri(id, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+        id = threadContextGroup_->functions.glCreateProgram();
+        //if (binaryRetrievableHint && threadContextGroup_->extensions.GL_ARB_get_program_binary)
+        //    threadContextGroup_->functions.glProgramParameteri(id, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
         //else
         //    glProgramParameteri(id, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_FALSE);
 
-        LOOPI(5) if (shaderId[i]) threadContextGroup->functions.glAttachShader(id, shaderId[i]);
-        threadContextGroup->functions.glLinkProgram(id);
+        LOOPI(5) if (shaderId[i]) threadContextGroup_->functions.glAttachShader(id, shaderId[i]);
+        threadContextGroup_->functions.glLinkProgram(id);
 
         GLint linkStatus;
-        threadContextGroup->functions.glGetProgramiv(id, GL_LINK_STATUS, &linkStatus);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_LINK_STATUS, &linkStatus);
         string programLog = getProgramInfoLog(id);
         if (!programLog.empty())
             infoLog_ += "PROGRAM LINK STATUS:\n" + getProgramInfoLog(id) + "\n";
 
         LOOPI(5) if (shaderId[i]) {
-            threadContextGroup->functions.glDetachShader(id, shaderId[i]);
-            threadContextGroup->functions.glDeleteShader(shaderId[i]);
+            threadContextGroup_->functions.glDetachShader(id, shaderId[i]);
+            threadContextGroup_->functions.glDeleteShader(shaderId[i]);
         }
 
         if (!linkStatus) {
-            threadContextGroup->functions.glDeleteProgram(id);
+            threadContextGroup_->functions.glDeleteProgram(id);
             id = 0;
             //throw std::runtime_error("Error linking shader:\n" + infoLog_);
             infoLog_ = "Error linking shader:\n" + infoLog_;
@@ -860,8 +860,8 @@ namespace glCompact {
         int32_t activeattributeNameLengthMax = 0;
         std::vector<char> nameBuffer;
 
-        threadContextGroup->functions.glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES,           &activeAttributeCount);
-        threadContextGroup->functions.glGetProgramiv(id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &activeattributeNameLengthMax);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES,           &activeAttributeCount);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &activeattributeNameLengthMax);
         nameBuffer.resize(activeattributeNameLengthMax);
 
         //int nextEntry = 0;
@@ -872,7 +872,7 @@ namespace glCompact {
             GLenum  type         = 0;
 
             //core since 2.0
-            threadContextGroup->functions.glGetActiveAttrib(id, GLuint(i), activeattributeNameLengthMax, &stringLenght, &typeCount, &type, &nameBuffer[0]);
+            threadContextGroup_->functions.glGetActiveAttrib(id, GLuint(i), activeattributeNameLengthMax, &stringLenght, &typeCount, &type, &nameBuffer[0]);
 
             //On r290 (win10 blop/mesa) typeCount always is 1 even with all vec3/vec4 double types!
             //For older hardware dvec3/dvec4 or dmat could use up two times the location! They probably give out a typeCount higher then 1?! (TODO: Test on rusty hardware!)
@@ -892,14 +892,14 @@ namespace glCompact {
                 }
             }*/
 
-            /*newEntry.location = threadContextGroup->functions.glGetAttribLocation(id, &nameBuffer[0]);
+            /*newEntry.location = threadContextGroup_->functions.glGetAttribLocation(id, &nameBuffer[0]);
             newEntry.type     = type;
             newEntry.name     = std::string(&nameBuffer[0], stringLenght);
             //for some reason on r290, GL_ACTIVE_ATTRIBUTES always return 1 if no vertex attributes exist (on Win10 blob and also mesa!)
             //So we just filter out attribute entries with location == -1
             if (newEntry.location != -1) attributeList[nextEntry++] = newEntry;*/
 
-            int8_t location = threadContextGroup->functions.glGetAttribLocation(id, &nameBuffer[0]);
+            int8_t location = threadContextGroup_->functions.glGetAttribLocation(id, &nameBuffer[0]);
             string name  = std::string(&nameBuffer[0], stringLenght);
             //for some reason on r290, GL_ACTIVE_ATTRIBUTES always return 1 if no vertex attributes exist (on Win10 blob and also mesa!)
             //So we just filter out attribute entries with location == -1
@@ -929,9 +929,9 @@ namespace glCompact {
 
         //Core since 3.2
         if (hasGeometryStage()) {
-            threadContextGroup->functions.glGetProgramiv(id, GL_GEOMETRY_VERTICES_OUT, &geometryMaxPrimitveOutput);
-            threadContextGroup->functions.glGetProgramiv(id, GL_GEOMETRY_INPUT_TYPE,   &geometryInputType);  //=POINTS, LINES, LINES_ADJACENCY, TRIANGLES, TRIANGLES_ADJACENCY
-            threadContextGroup->functions.glGetProgramiv(id, GL_GEOMETRY_OUTPUT_TYPE,  &geometryOutputType); //=POINTS, LINE_STRIP, TRIANGLE_STRIP
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_VERTICES_OUT, &geometryMaxPrimitveOutput);
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_INPUT_TYPE,   &geometryInputType);  //=POINTS, LINES, LINES_ADJACENCY, TRIANGLES, TRIANGLES_ADJACENCY
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_OUTPUT_TYPE,  &geometryOutputType); //=POINTS, LINE_STRIP, TRIANGLE_STRIP
 
             //GEOMETRY_SHADER_INVOCATIONS
         }
@@ -939,9 +939,9 @@ namespace glCompact {
         //int32_t transformFeedbackVaryingCount         = 0;
         //int32_t transformFeedbackVaryingNameLengthMax = 0;
         //int32_t transformFeedbackBufferMode;
-        //threadContextGroup->functions.glGetProgramiv(id, GL_TRANSFORM_FEEDBACK_VARYINGS,           &transformFeedbackVaryingCount);
-        //threadContextGroup->functions.glGetProgramiv(id, GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH, &transformFeedbackVaryingNameLengthMax);
-        //threadContextGroup->functions.glGetProgramiv(id, GL_TRANSFORM_FEEDBACK_BUFFER_MODE,        &transformFeedbackBufferMode); //= GL_SEPARATE_ATTRIBS or GL_INTERLEAVED_ATTRIBS.
+        //threadContextGroup_->functions.glGetProgramiv(id, GL_TRANSFORM_FEEDBACK_VARYINGS,           &transformFeedbackVaryingCount);
+        //threadContextGroup_->functions.glGetProgramiv(id, GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH, &transformFeedbackVaryingNameLengthMax);
+        //threadContextGroup_->functions.glGetProgramiv(id, GL_TRANSFORM_FEEDBACK_BUFFER_MODE,        &transformFeedbackBufferMode); //= GL_SEPARATE_ATTRIBS or GL_INTERLEAVED_ATTRIBS.
     }
 
     /*
@@ -964,7 +964,7 @@ namespace glCompact {
     ) {
         processPendingChanges();
         deactivateAttributeIndex();
-        threadContextGroup->functions.glDrawArrays(static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount);
+        threadContextGroup_->functions.glDrawArrays(static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount);
     }*/
 
     //depends on GL_ARB_draw_instanced (Core since 3.1)
@@ -983,17 +983,17 @@ namespace glCompact {
         uint32_t  firstVertex,
         uint32_t  firstInstance
     ) {
-        UNLIKELY_IF (firstInstance > 0 && !threadContextGroup->extensions.GL_ARB_base_instance)
+        UNLIKELY_IF (firstInstance > 0 && !threadContextGroup_->extensions.GL_ARB_base_instance)
             throw std::runtime_error("firstInstance must be 0 without support for GL_ARB_base_instance (Core since 4.2)!");
 
         processPendingChanges();
         deactivateAttributeIndex();
         if (firstInstance) {
-            UNLIKELY_IF (!threadContextGroup->extensions.GL_ARB_base_instance)
+            UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_base_instance)
                 throw std::runtime_error("GL_ARB_base_instance not supportet in driver, firstInstance must be 0!");
-            threadContextGroup->functions.glDrawArraysInstancedBaseInstance(static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount, instanceCount, firstInstance);
+            threadContextGroup_->functions.glDrawArraysInstancedBaseInstance(static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount, instanceCount, firstInstance);
         } else {
-            threadContextGroup->functions.glDrawArraysInstanced            (static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount, instanceCount);
+            threadContextGroup_->functions.glDrawArraysInstanced            (static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount, instanceCount);
         }
     }
 
@@ -1008,7 +1008,7 @@ namespace glCompact {
         processPendingChanges();
         activateAttributeIndex(indexType);
         uintptr_t indexBufferByteOffset = this->buffer_attribute_index_offset + (firstIndex * (indexType == IndexType::UINT16 ? 2 : 4)); //assuming we never support UINT8 index
-        threadContextGroup->functions.glDrawElementsBaseVertex(static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), vertexOffset);
+        threadContextGroup_->functions.glDrawElementsBaseVertex(static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), vertexOffset);
     }*/
 
     //Needs ARB_draw_elements_base_vertex (Core since 3.2)
@@ -1028,17 +1028,17 @@ namespace glCompact {
         int32_t  vertexOffset,
         uint32_t firstInstance
     ) {
-        UNLIKELY_IF (firstInstance > 0 && !threadContextGroup->extensions.GL_ARB_base_instance)
+        UNLIKELY_IF (firstInstance > 0 && !threadContextGroup_->extensions.GL_ARB_base_instance)
             throw std::runtime_error("firstInstance must be 0 without support for GL_ARB_base_instance (Core since 4.2)!");
 
         processPendingChanges();
         activateAttributeIndex(indexType);
         uintptr_t indexBufferByteOffset = this->buffer_attribute_index_offset + (firstIndex * (indexType == IndexType::UINT16 ? 2 : 4)); //assuming we never support UINT8 index
         if (firstInstance) {
-            //debug test for threadContextGroup->extensions.GL_ARB_base_instance
-            threadContextGroup->functions.glDrawElementsInstancedBaseVertexBaseInstance(static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset, firstInstance);
+            //debug test for threadContextGroup_->extensions.GL_ARB_base_instance
+            threadContextGroup_->functions.glDrawElementsInstancedBaseVertexBaseInstance(static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset, firstInstance);
         } else {
-            threadContextGroup->functions.glDrawElementsInstancedBaseVertex            (static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset);
+            threadContextGroup_->functions.glDrawElementsInstancedBaseVertex            (static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset);
         }
     }
 
@@ -1065,7 +1065,7 @@ namespace glCompact {
         uint32_t               count,
         uint32_t               stride
     ) {
-        UNLIKELY_IF (!threadContextGroup->extensions.GL_ARB_draw_indirect)
+        UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_draw_indirect)
             throw std::runtime_error("missing support for GL_ARB_draw_indirect (Core since 4.0)!");
         UNLIKELY_IF (!parameterBuffer.id)
             throw std::runtime_error("does not take empty indirect parameterBuffer!");
@@ -1078,11 +1078,11 @@ namespace glCompact {
         //threadContext->cachedBindDrawIndirectBuffer(buffer_parameter_id);
         threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
 
-        if (threadContextGroup->extensions.GL_ARB_multi_draw_indirect) {
-            threadContextGroup->functions.glMultiDrawArraysIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
+        if (threadContextGroup_->extensions.GL_ARB_multi_draw_indirect) {
+            threadContextGroup_->functions.glMultiDrawArraysIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
         } else {
             for (unsigned i = 0; i < count; i++) {
-                threadContextGroup->functions.glDrawArraysIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset));
+                threadContextGroup_->functions.glDrawArraysIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset));
                 parameterBufferOffset += stride;
             }
         }
@@ -1113,7 +1113,7 @@ namespace glCompact {
         uint32_t               stride
     ) {
         //NOTE: Can't test for GL_ARB_base_instance != 0 here, except if we read buffer content manually! (Could be done as a really slow debug assert!)
-        UNLIKELY_IF (!threadContextGroup->extensions.GL_ARB_draw_indirect)
+        UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_draw_indirect)
             throw std::runtime_error("missing support for GL_ARB_draw_indirect (Core since 4.0)!");
         UNLIKELY_IF (!parameterBuffer.id)
             throw std::runtime_error("does not take empty draw indirect parameterBuffer!");
@@ -1124,11 +1124,11 @@ namespace glCompact {
         activateAttributeIndex(indexType);
         threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
 
-        if (threadContextGroup->extensions.GL_ARB_multi_draw_indirect) {
-            threadContextGroup->functions.glMultiDrawElementsIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
+        if (threadContextGroup_->extensions.GL_ARB_multi_draw_indirect) {
+            threadContextGroup_->functions.glMultiDrawElementsIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
         } else {
             for (unsigned i = 0; i < count; i++) {
-                threadContextGroup->functions.glDrawElementsIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset));
+                threadContextGroup_->functions.glDrawElementsIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset));
                 parameterBufferOffset += stride;
             }
         }
@@ -1165,8 +1165,8 @@ namespace glCompact {
         intptr_t               maxDrawCount,
         uint32_t               stride
     ) {
-        UNLIKELY_IF (    !threadContextGroup->version.equalOrGreater(4, 6)
-                     &&  !threadContextGroup->extensions.GL_ARB_indirect_parameters)
+        UNLIKELY_IF (    !threadContextGroup_->version.equalOrGreater(4, 6)
+                     &&  !threadContextGroup_->extensions.GL_ARB_indirect_parameters)
             throw std::runtime_error("Missing GL_ARB_indirect_parameters (Core since 4.6)");
         UNLIKELY_IF (!parameterBuffer.id)
             throw std::runtime_error("does not take empty draw indirect parameterBuffer!");
@@ -1180,10 +1180,10 @@ namespace glCompact {
         threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
         threadContext->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
-        if (threadContextGroup->version.equalOrGreater(4, 6)) {
-            threadContextGroup->functions.glMultiDrawArraysIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+        if (threadContextGroup_->version.equalOrGreater(4, 6)) {
+            threadContextGroup_->functions.glMultiDrawArraysIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         } else {
-            threadContextGroup->functions.glMultiDrawArraysIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+            threadContextGroup_->functions.glMultiDrawArraysIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         }
     }
 
@@ -1198,8 +1198,8 @@ namespace glCompact {
         intptr_t               maxDrawCount,
         uint32_t               stride
     ) {
-        UNLIKELY_IF (    !threadContextGroup->version.equalOrGreater(4, 6)
-                     &&  !threadContextGroup->extensions.GL_ARB_indirect_parameters)
+        UNLIKELY_IF (    !threadContextGroup_->version.equalOrGreater(4, 6)
+                     &&  !threadContextGroup_->extensions.GL_ARB_indirect_parameters)
             throw std::runtime_error("Missing GL_ARB_indirect_parameters (Core since 4.6)");
         UNLIKELY_IF (!parameterBuffer.id)
             throw std::runtime_error("does not take empty draw indirect parameterBuffer!");
@@ -1213,10 +1213,10 @@ namespace glCompact {
         threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
         threadContext->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
-        if (threadContextGroup->version.equalOrGreater(4, 6)) {
-            threadContextGroup->functions.glMultiDrawElementsIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+        if (threadContextGroup_->version.equalOrGreater(4, 6)) {
+            threadContextGroup_->functions.glMultiDrawElementsIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         } else {
-            threadContextGroup->functions.glMultiDrawElementsIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+            threadContextGroup_->functions.glMultiDrawElementsIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         }
     }
 
@@ -1317,18 +1317,18 @@ namespace glCompact {
 
         //FACE FRONT AND CULLING
         if (threadContext->triangleFrontIsClockwiseRotation != triangleFrontIsClockwiseRotation) {
-            threadContextGroup->functions.glFrontFace(triangleFrontIsClockwiseRotation ? GL_CW : GL_CCW);
+            threadContextGroup_->functions.glFrontFace(triangleFrontIsClockwiseRotation ? GL_CW : GL_CCW);
             threadContext->triangleFrontIsClockwiseRotation = triangleFrontIsClockwiseRotation;
         }
         if (threadContext->faceToDraw != faceToDraw) {
             if (faceToDraw == FaceSelection::frontAndBack) {
-                threadContextGroup->functions.glDisable(GL_CULL_FACE);
+                threadContextGroup_->functions.glDisable(GL_CULL_FACE);
             } else {
-                threadContextGroup->functions.glEnable(GL_CULL_FACE);
+                threadContextGroup_->functions.glEnable(GL_CULL_FACE);
                 if (faceToDraw == FaceSelection::front) {
-                    threadContextGroup->functions.glCullFace(GL_BACK);
+                    threadContextGroup_->functions.glCullFace(GL_BACK);
                 } else {
-                    threadContextGroup->functions.glCullFace(GL_FRONT);
+                    threadContextGroup_->functions.glCullFace(GL_FRONT);
                 }
             }
             threadContext->faceToDraw = faceToDraw;
@@ -1340,21 +1340,21 @@ namespace glCompact {
 
             if (threadContext->depthEnabled != depthEnabled) {
                 if (depthEnabled) {
-                    threadContextGroup->functions.glEnable(GL_DEPTH_TEST);
+                    threadContextGroup_->functions.glEnable(GL_DEPTH_TEST);
                     threadContext->depthEnabled = true;
                 } else {
-                    threadContextGroup->functions.glDisable(GL_DEPTH_TEST);
+                    threadContextGroup_->functions.glDisable(GL_DEPTH_TEST);
                     threadContext->depthEnabled = false;
                 }
             }
 
             if (depthEnabled) {
                 if (threadContext->depthCompareOperator != depthCompareOperator) {
-                    threadContextGroup->functions.glDepthFunc(static_cast<GLenum>(depthCompareOperator));
+                    threadContextGroup_->functions.glDepthFunc(static_cast<GLenum>(depthCompareOperator));
                     threadContext->depthCompareOperator = depthCompareOperator;
                 }
                 if (threadContext->depthWriteEnabled != depthWriteEnabled) {
-                    threadContextGroup->functions.glDepthMask(depthWriteEnabled);
+                    threadContextGroup_->functions.glDepthMask(depthWriteEnabled);
                     threadContext->depthWriteEnabled = depthWriteEnabled;
                 }
 
@@ -1374,21 +1374,21 @@ namespace glCompact {
                         ||  depthBiasSlopeFactor    != 0;
 
                     if (pending_usingDepthOffset) {
-                        if (threadContextGroup->extensions.GL_ARB_polygon_offset_clamp) {
-                            threadContextGroup->functions.glPolygonOffsetClamp(depthBiasSlopeFactor, depthBiasConstantFactor, depthBiasClamp);
+                        if (threadContextGroup_->extensions.GL_ARB_polygon_offset_clamp) {
+                            threadContextGroup_->functions.glPolygonOffsetClamp(depthBiasSlopeFactor, depthBiasConstantFactor, depthBiasClamp);
                         } else {
-                            threadContextGroup->functions.glPolygonOffset     (depthBiasSlopeFactor, depthBiasConstantFactor);
+                            threadContextGroup_->functions.glPolygonOffset     (depthBiasSlopeFactor, depthBiasConstantFactor);
                         }
                     }
                     if (current_usingDepthOffset != pending_usingDepthOffset) {
                         if (pending_usingDepthOffset) {
-                            threadContextGroup->functions.glEnable(GL_POLYGON_OFFSET_FILL);
-                            threadContextGroup->functions.glEnable(GL_POLYGON_OFFSET_LINE);
-                            threadContextGroup->functions.glEnable(GL_POLYGON_OFFSET_POINT);
+                            threadContextGroup_->functions.glEnable(GL_POLYGON_OFFSET_FILL);
+                            threadContextGroup_->functions.glEnable(GL_POLYGON_OFFSET_LINE);
+                            threadContextGroup_->functions.glEnable(GL_POLYGON_OFFSET_POINT);
                         } else {
-                            threadContextGroup->functions.glDisable(GL_POLYGON_OFFSET_FILL);
-                            threadContextGroup->functions.glDisable(GL_POLYGON_OFFSET_LINE);
-                            threadContextGroup->functions.glDisable(GL_POLYGON_OFFSET_POINT);
+                            threadContextGroup_->functions.glDisable(GL_POLYGON_OFFSET_FILL);
+                            threadContextGroup_->functions.glDisable(GL_POLYGON_OFFSET_LINE);
+                            threadContextGroup_->functions.glDisable(GL_POLYGON_OFFSET_POINT);
                         }
                     }
                     threadContext->depthBiasConstantFactor = depthBiasConstantFactor;
@@ -1400,16 +1400,16 @@ namespace glCompact {
                 ||  threadContext->depthFarMapping  != depthFarMapping
                 ) {
                     //There also is glDepthRangef, Core since 4.1
-                    threadContextGroup->functions.glDepthRange(depthNearMapping, depthFarMapping);
+                    threadContextGroup_->functions.glDepthRange(depthNearMapping, depthFarMapping);
                     threadContext->depthNearMapping = depthNearMapping;
                     threadContext->depthFarMapping  = depthFarMapping;
                 }
 
                 if (threadContext->depthClippingToClamping != depthClippingToClamping) {
                     if (depthClippingToClamping) {
-                        threadContextGroup->functions.glDisable(GL_DEPTH_CLAMP);
+                        threadContextGroup_->functions.glDisable(GL_DEPTH_CLAMP);
                     } else {
-                        threadContextGroup->functions.glEnable(GL_DEPTH_CLAMP);
+                        threadContextGroup_->functions.glEnable(GL_DEPTH_CLAMP);
                     }
                     threadContext->depthClippingToClamping = depthClippingToClamping;
                 }
@@ -1466,7 +1466,7 @@ namespace glCompact {
 
             if (stencilEnabled) {
                 if (!threadContext->stencilEnabled) {
-                    threadContextGroup->functions.glEnable(GL_STENCIL_TEST);
+                    threadContextGroup_->functions.glEnable(GL_STENCIL_TEST);
                     threadContext->stencilEnabled = true;
                 }
                 if (faceToDraw == FaceSelection::frontAndBack || faceToDraw == FaceSelection::front) {
@@ -1474,7 +1474,7 @@ namespace glCompact {
                         ||  threadContext->stencilTestFront.compareOperator != stencilTestFront.compareOperator
                         ||  threadContext->stencilTestFront.readMask        != stencilTestFront.readMask
                     ) {
-                        threadContextGroup->functions.glStencilFuncSeparate(
+                        threadContextGroup_->functions.glStencilFuncSeparate(
                             GL_FRONT,
                             static_cast<GLenum>(stencilTestFront.compareOperator),
                             stencilTestFront.refValue,
@@ -1484,14 +1484,14 @@ namespace glCompact {
                         threadContext->stencilTestFront.readMask        = stencilTestFront.readMask;
                     }
                     if (threadContext->stencilWriteFront.writeMask != stencilWriteFront.writeMask) {
-                        threadContextGroup->functions.glStencilMaskSeparate(GL_FRONT, stencilWriteFront.writeMask);
+                        threadContextGroup_->functions.glStencilMaskSeparate(GL_FRONT, stencilWriteFront.writeMask);
                         threadContext->stencilWriteFront.writeMask = stencilWriteFront.writeMask;
                     }
                     if (    threadContext->stencilWriteFront.stencilFailOperator                  != stencilWriteFront.stencilFailOperator
                         ||  threadContext->stencilWriteFront.stencilPassDepthFailOperator         != stencilWriteFront.stencilPassDepthFailOperator
                         ||  threadContext->stencilWriteFront.stencilPassDepthPassOrAbsentOperator != stencilWriteFront.stencilPassDepthPassOrAbsentOperator
                     ) {
-                        threadContextGroup->functions.glStencilOpSeparate(
+                        threadContextGroup_->functions.glStencilOpSeparate(
                             GL_FRONT,
                             static_cast<GLenum>(stencilWriteFront.stencilFailOperator),
                             static_cast<GLenum>(stencilWriteFront.stencilPassDepthFailOperator),
@@ -1506,7 +1506,7 @@ namespace glCompact {
                         ||  threadContext->stencilTestBack.compareOperator != stencilTestBack.compareOperator
                         ||  threadContext->stencilTestBack.readMask        != stencilTestBack.readMask
                     ) {
-                        threadContextGroup->functions.glStencilFuncSeparate(
+                        threadContextGroup_->functions.glStencilFuncSeparate(
                             GL_BACK,
                             static_cast<GLenum>(stencilTestBack.compareOperator),
                             stencilTestBack.refValue,
@@ -1516,14 +1516,14 @@ namespace glCompact {
                         threadContext->stencilTestBack.readMask        = stencilTestBack.readMask;
                     }
                     if (threadContext->stencilWriteBack.writeMask != stencilWriteBack.writeMask) {
-                        threadContextGroup->functions.glStencilMaskSeparate(GL_BACK, stencilWriteBack.writeMask);
+                        threadContextGroup_->functions.glStencilMaskSeparate(GL_BACK, stencilWriteBack.writeMask);
                         threadContext->stencilWriteBack.writeMask = stencilWriteBack.writeMask;
                     }
                     if (    threadContext->stencilWriteBack.stencilFailOperator                  != stencilWriteBack.stencilFailOperator
                         ||  threadContext->stencilWriteBack.stencilPassDepthFailOperator         != stencilWriteBack.stencilPassDepthFailOperator
                         ||  threadContext->stencilWriteBack.stencilPassDepthPassOrAbsentOperator != stencilWriteBack.stencilPassDepthPassOrAbsentOperator
                     ) {
-                        threadContextGroup->functions.glStencilOpSeparate(
+                        threadContextGroup_->functions.glStencilOpSeparate(
                             GL_BACK,
                             static_cast<GLenum>(stencilWriteBack.stencilFailOperator),
                             static_cast<GLenum>(stencilWriteBack.stencilPassDepthFailOperator),
@@ -1535,7 +1535,7 @@ namespace glCompact {
                 }
             } else {
                 if (threadContext->stencilEnabled) {
-                    threadContextGroup->functions.glDisable(GL_STENCIL_TEST);
+                    threadContextGroup_->functions.glDisable(GL_STENCIL_TEST);
                     threadContext->stencilEnabled = false;
                 }
             }
@@ -1546,14 +1546,14 @@ namespace glCompact {
         //glColorMaski core since 3.0
         if (singleRgbaWriteMaskState) {
             if (!threadContext->singleRgbaWriteMaskState || threadContext->rgbaWriteMask[0].value != rgbaWriteMask[0].value) {
-                threadContextGroup->functions.glColorMask(rgbaWriteMask[0].r, rgbaWriteMask[0].g, rgbaWriteMask[0].b, rgbaWriteMask[0].a);
+                threadContextGroup_->functions.glColorMask(rgbaWriteMask[0].r, rgbaWriteMask[0].g, rgbaWriteMask[0].b, rgbaWriteMask[0].a);
                 LOOPI(Config::MAX_RGBA_ATTACHMENTS) {
                     threadContext->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
                 }
             }
         } else {
             LOOPI(Config::MAX_RGBA_ATTACHMENTS) if (threadContext->rgbaWriteMask[i].value != rgbaWriteMask[i].value) {
-                threadContextGroup->functions.glColorMaski(i, rgbaWriteMask[i].r, rgbaWriteMask[i].g, rgbaWriteMask[i].b, rgbaWriteMask[i].a);
+                threadContextGroup_->functions.glColorMaski(i, rgbaWriteMask[i].r, rgbaWriteMask[i].g, rgbaWriteMask[i].b, rgbaWriteMask[i].a);
                 threadContext->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
             }
         }
@@ -1579,21 +1579,21 @@ namespace glCompact {
                     blendEnabledAll = all_of(begin(blendEnabled), end(blendEnabled), [](bool b){return b;});
                 if (blendEnabledAll.isTrue()) {
                     for (bool& e : threadContext->blendEnabled) e = true;
-                    threadContextGroup->functions.glEnable(GL_BLEND);
+                    threadContextGroup_->functions.glEnable(GL_BLEND);
                 } else {
                     LOOPI(Config::MAX_RGBA_ATTACHMENTS) {
                         if (threadContext->blendEnabled[i] != blendEnabled[i]) {
                             threadContext->blendEnabled[i] = blendEnabled[i];
                             if (blendEnabled[i])
-                                threadContextGroup->functions.glEnablei(GL_BLEND, i);
+                                threadContextGroup_->functions.glEnablei(GL_BLEND, i);
                             else
-                                threadContextGroup->functions.glDisablei(GL_BLEND, i);
+                                threadContextGroup_->functions.glDisablei(GL_BLEND, i);
                         }
                     }
                 }
                 if (threadContext->blendConstRgba != blendConstRgba) {
                     threadContext->blendConstRgba = blendConstRgba;
-                    threadContextGroup->functions.glBlendColor(blendConstRgba.r, blendConstRgba.g, blendConstRgba.b, blendConstRgba.a);
+                    threadContextGroup_->functions.glBlendColor(blendConstRgba.r, blendConstRgba.g, blendConstRgba.b, blendConstRgba.a);
                 }
                 int firstActiveIndex = 0;
                 for (;firstActiveIndex < Config::MAX_RGBA_ATTACHMENTS; firstActiveIndex++) {
@@ -1622,7 +1622,7 @@ namespace glCompact {
                     if (blendFactorsChanged) {
                         LOOPI(Config::MAX_RGBA_ATTACHMENTS)
                             threadContext->blendFactors[i] = blendFactors[i];
-                        threadContextGroup->functions.glBlendFuncSeparate(
+                        threadContextGroup_->functions.glBlendFuncSeparate(
                             static_cast<GLenum>(blendFactors[firstActiveIndex].srcRgb),
                             static_cast<GLenum>(blendFactors[firstActiveIndex].srcA),
                             static_cast<GLenum>(blendFactors[firstActiveIndex].dstRgb),
@@ -1632,7 +1632,7 @@ namespace glCompact {
                     if (blendEquationsChanged) {
                         LOOPI(Config::MAX_RGBA_ATTACHMENTS)
                             threadContext->blendEquations[i] = blendEquations[i];
-                        threadContextGroup->functions.glBlendEquationSeparate(
+                        threadContextGroup_->functions.glBlendEquationSeparate(
                             static_cast<GLenum>(blendEquations[firstActiveIndex].rgb),
                             static_cast<GLenum>(blendEquations[firstActiveIndex].a)
                         );
@@ -1640,14 +1640,14 @@ namespace glCompact {
                     threadContext->blendModesUniform = true;
                 } else {
                     //TODO: implement ARB version, too
-                    //UNLIKELY_IF (!threadContextGroup->extensions.GL_ARB_draw_buffers_blend)
+                    //UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_draw_buffers_blend)
                     //    throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing GL_ARB_draw_buffers_blend (Core since 4.0))");
-                    UNLIKELY_IF (!threadContextGroup->version.equalOrGreater(4, 0))
+                    UNLIKELY_IF (!threadContextGroup_->version.equalOrGreater(4, 0))
                         throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing OpenGL 4.0 or higher)");
                     for (int i = firstActiveIndex; i < Config::MAX_RGBA_ATTACHMENTS; i++) {
                         if (threadContext->blendFactors[i] != blendFactors[i]) {
                             threadContext->blendFactors[i] = blendFactors[i];
-                            threadContextGroup->functions.glBlendFuncSeparatei(
+                            threadContextGroup_->functions.glBlendFuncSeparatei(
                                 i,
                                 static_cast<GLenum>(blendFactors[i].srcRgb),
                                 static_cast<GLenum>(blendFactors[i].srcA),
@@ -1657,7 +1657,7 @@ namespace glCompact {
                         }
                         if (threadContext->blendEquations[i] != blendEquations[i]) {
                             threadContext->blendEquations[i] = blendEquations[i];
-                            threadContextGroup->functions.glBlendEquationSeparatei(
+                            threadContextGroup_->functions.glBlendEquationSeparatei(
                                 i,
                                 static_cast<GLenum>(blendEquations[i].rgb),
                                 static_cast<GLenum>(blendEquations[i].a)
@@ -1671,7 +1671,7 @@ namespace glCompact {
                     threadContext->blendEnabledAny = false;
                     LOOPI(Config::MAX_RGBA_ATTACHMENTS)
                         threadContext->blendEnabled[i] = false;
-                    threadContextGroup->functions.glDisable(GL_BLEND);
+                    threadContextGroup_->functions.glDisable(GL_BLEND);
                 }
             }
         }
@@ -1680,9 +1680,9 @@ namespace glCompact {
         if (threadContext->multiSample != multiSample) {
             threadContext->multiSample = multiSample;
             if (multiSample)
-                threadContextGroup->functions.glEnable(GL_MULTISAMPLE);
+                threadContextGroup_->functions.glEnable(GL_MULTISAMPLE);
             else
-                threadContextGroup->functions.glDisable(GL_MULTISAMPLE);
+                threadContextGroup_->functions.glDisable(GL_MULTISAMPLE);
         }
     }
 
@@ -1706,7 +1706,7 @@ namespace glCompact {
             glVertexBindingDivisor sets instance divisor for a buffer index (ARB_vertex_attrib_binding Core since 4.3)
     */
     void PipelineRasterization::processPendingChangesAttributeLayoutAndBuffers() {
-        if (threadContextGroup->extensions.GL_ARB_vertex_attrib_binding) {
+        if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
             if (threadContext->attributeLayoutChanged) {
               //int uppermostActiveBufferIndex = max(threadContext->attributeLayoutStates.uppermostActiveBufferIndex, attributeLayoutStates.uppermostActiveBufferIndex);
                 int uppermostActiveBufferIndex = attributeLayoutStates.uppermostActiveBufferIndex;
@@ -1714,7 +1714,7 @@ namespace glCompact {
                     auto& currentInstancing = threadContext->attributeLayoutStates.instancing[i];
                     auto& pendingInstancing =                        attributeLayoutStates.instancing[i];
                     if (currentInstancing != pendingInstancing) {
-                        threadContextGroup->functions.glVertexBindingDivisor(i, pendingInstancing);
+                        threadContextGroup_->functions.glVertexBindingDivisor(i, pendingInstancing);
                         currentInstancing = pendingInstancing;
                     }
                 }
@@ -1725,11 +1725,11 @@ namespace glCompact {
                     auto& pendingLoc =                        attributeLayoutStates.location[i];
                     if (pendingLoc.usage == AttributeLayoutStates::Usage::enabled) {
                         if (currentLoc.usage != AttributeLayoutStates::Usage::enabled) {
-                            threadContextGroup->functions.glEnableVertexAttribArray(i);
+                            threadContextGroup_->functions.glEnableVertexAttribArray(i);
                             currentLoc.usage = AttributeLayoutStates::Usage::enabled;
                         }
                         if (currentLoc.bufferIndex != pendingLoc.bufferIndex) {
-                            threadContextGroup->functions.glVertexAttribBinding(i, pendingLoc.bufferIndex);
+                            threadContextGroup_->functions.glVertexAttribBinding(i, pendingLoc.bufferIndex);
                             currentLoc.bufferIndex = pendingLoc.bufferIndex;
                         }
                         if (currentLoc.attributeFormat != pendingLoc.attributeFormat
@@ -1738,9 +1738,9 @@ namespace glCompact {
                         {
                             auto& af = pendingLoc.attributeFormat;
                             switch (pendingLoc.gpuType) {
-                                case AttributeLayoutStates::GpuType::f32: threadContextGroup->functions.glVertexAttribFormat (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingLoc.offset); break;
-                                case AttributeLayoutStates::GpuType::i32: threadContextGroup->functions.glVertexAttribIFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pendingLoc.offset); break;
-                                case AttributeLayoutStates::GpuType::f64: threadContextGroup->functions.glVertexAttribLFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pendingLoc.offset); break;
+                                case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribFormat (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingLoc.offset); break;
+                                case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pendingLoc.offset); break;
+                                case AttributeLayoutStates::GpuType::f64: threadContextGroup_->functions.glVertexAttribLFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pendingLoc.offset); break;
                                 case AttributeLayoutStates::GpuType::unknown: break;
                             }
                             currentLoc.attributeFormat = pendingLoc.attributeFormat;
@@ -1749,7 +1749,7 @@ namespace glCompact {
                         }
                     } else if (pendingLoc.usage == AttributeLayoutStates::Usage::disabled) {
                         if (currentLoc.usage != AttributeLayoutStates::Usage::disabled) {
-                            threadContextGroup->functions.glDisableVertexAttribArray(i);
+                            threadContextGroup_->functions.glDisableVertexAttribArray(i);
                             currentLoc.usage = AttributeLayoutStates::Usage::disabled;
                         }
                     } else {
@@ -1767,7 +1767,7 @@ namespace glCompact {
             changedSlotMax = std::min(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
 
             if (changedSlotMin <= changedSlotMax) {
-                if (threadContextGroup->extensions.GL_ARB_multi_bind) {
+                if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                     int first = changedSlotMin;
                     int last  = changedSlotMax;
 
@@ -1807,7 +1807,7 @@ namespace glCompact {
                         const uint32_t* bufferIdList =                                   &buffer_attribute_id                    [first];
                         const GLintptr* offsetList   = reinterpret_cast<const GLintptr*>(&buffer_attribute_offset                [first]);
                         const GLsizei*  strideList   = reinterpret_cast<const GLsizei* >(&attributeLayoutStates.bufferIndexStride[first]);
-                        threadContextGroup->functions.glBindVertexBuffers(first, count, bufferIdList, offsetList, strideList);
+                        threadContextGroup_->functions.glBindVertexBuffers(first, count, bufferIdList, offsetList, strideList);
 
                         for (int i = first; i <= last; ++i) {
                             threadContext->buffer_attribute_id    [i] = buffer_attribute_id    [i];
@@ -1819,7 +1819,7 @@ namespace glCompact {
                         if (threadContext->buffer_attribute_id                    [i] != buffer_attribute_id                    [i]
                         ||  threadContext->buffer_attribute_offset                [i] != buffer_attribute_offset                [i]
                         ||  threadContext->attributeLayoutStates.bufferIndexStride[i] != attributeLayoutStates.bufferIndexStride[i]) {
-                            threadContextGroup->functions.glBindVertexBuffer(i, buffer_attribute_id[i], buffer_attribute_offset[i], attributeLayoutStates.bufferIndexStride[i]);
+                            threadContextGroup_->functions.glBindVertexBuffer(i, buffer_attribute_id[i], buffer_attribute_offset[i], attributeLayoutStates.bufferIndexStride[i]);
                             threadContext->buffer_attribute_id                    [i] = buffer_attribute_id                     [i];
                             threadContext->buffer_attribute_offset                [i] = buffer_attribute_offset                 [i];
                             threadContext->attributeLayoutStates.bufferIndexStride[i] = attributeLayoutStates.bufferIndexStride [i];
@@ -1846,7 +1846,7 @@ namespace glCompact {
 
                     if (pendingLoc.usage == AttributeLayoutStates::Usage::enabled) {
                         if (currentLoc.usage != AttributeLayoutStates::Usage::enabled) {
-                            threadContextGroup->functions.glEnableVertexAttribArray(i);
+                            threadContextGroup_->functions.glEnableVertexAttribArray(i);
                             currentLoc.usage = AttributeLayoutStates::Usage::enabled;
                         }
                         const uint32_t pendingBufferId =                        buffer_attribute_id                    [pendingLoc.bufferIndex];
@@ -1864,9 +1864,9 @@ namespace glCompact {
                             const auto& af = pendingLoc.attributeFormat;
                             threadContext->cachedBindArrayBuffer(pendingBufferId);
                             switch (pendingLoc.gpuType) {
-                                case AttributeLayoutStates::GpuType::f32: threadContextGroup->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                                case AttributeLayoutStates::GpuType::i32: threadContextGroup->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                                case AttributeLayoutStates::GpuType::f64: threadContextGroup->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayoutStates::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
                                 case AttributeLayoutStates::GpuType::unknown: break;
                             }
                             currentLoc = pendingLoc;
@@ -1877,12 +1877,12 @@ namespace glCompact {
                               auto& currentInstancing = threadContext->attributeLayoutStates.instancing[i];
                         const auto& pendingInstancing =                        attributeLayoutStates.instancing[i];
                         if (currentInstancing != pendingInstancing) {
-                            threadContextGroup->functions.glVertexAttribDivisor(i, pendingInstancing);
+                            threadContextGroup_->functions.glVertexAttribDivisor(i, pendingInstancing);
                             currentInstancing = pendingInstancing;
                         }
                     } else if (pendingLoc.usage == AttributeLayoutStates::Usage::disabled) {
                         if (currentLoc.usage != AttributeLayoutStates::Usage::disabled) {
-                            threadContextGroup->functions.glDisableVertexAttribArray(i);
+                            threadContextGroup_->functions.glDisableVertexAttribArray(i);
                             currentLoc.usage = AttributeLayoutStates::Usage::disabled;
                         }
                     } else {
@@ -1913,9 +1913,9 @@ namespace glCompact {
                         const auto& af = pendingLoc.attributeFormat;
                         threadContext->cachedBindArrayBuffer(pendingBufferId);
                         switch (currentLoc.gpuType) {
-                            case AttributeLayoutStates::GpuType::f32: threadContextGroup->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                            case AttributeLayoutStates::GpuType::i32: threadContextGroup->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                            case AttributeLayoutStates::GpuType::f64: threadContextGroup->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayoutStates::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
                             case AttributeLayoutStates::GpuType::unknown: break;
                         }
                     }

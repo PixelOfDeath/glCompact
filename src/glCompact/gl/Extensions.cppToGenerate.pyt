@@ -27,20 +27,20 @@ for extension in extensionNameList:
     getExtensionList.append(getExtensionString)
 
 outputTemplate = """#include "glCompact/gl/Extensions.hpp"
-#include "glCompact/ContextGroup.hpp"
+#include "glCompact/ContextGroup_.hpp"
 #include <cstring>
 
 namespace glCompact {
     namespace gl {
         void Extensions::init(
-            const ContextGroup* contextGroup
+            const ContextGroup_* contextGroup_
         ) {
             //Needs at last 3.0! But unlike glGetString(GL_EXTENSIONS), this also works in core.
             int32_t extensionCount = 0;
-            contextGroup->functions.glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
+            contextGroup_->functions.glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
             auto extensionSupported = [&](const char* extensionName) -> bool {
                 for (int32_t i = 0; i < extensionCount; ++i)
-                    if (std::strcmp(extensionName, reinterpret_cast<const char*>(contextGroup->functions.glGetStringi(GL_EXTENSIONS, i))) == 0) return true;
+                    if (std::strcmp(extensionName, reinterpret_cast<const char*>(contextGroup_->functions.glGetStringi(GL_EXTENSIONS, i))) == 0) return true;
                 return false;
             };
 

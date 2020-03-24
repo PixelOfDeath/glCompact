@@ -2,7 +2,7 @@
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/Buffer.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include <algorithm> //min/max
 
@@ -44,14 +44,14 @@ namespace glCompact {
         UNLIKELY_IF (dstOffset + copySize > this->size_)
             throw std::runtime_error("Offset and size is bayond target buffer size");
 
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access)
-            threadContextGroup->functions.glCopyNamedBufferSubData(srcBuffer.id, id, srcOffset, dstOffset, copySize);
-        else if (threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glNamedCopyBufferSubDataEXT(srcBuffer.id, id, srcOffset, dstOffset, copySize);
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
+            threadContextGroup_->functions.glCopyNamedBufferSubData(srcBuffer.id, id, srcOffset, dstOffset, copySize);
+        else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glNamedCopyBufferSubDataEXT(srcBuffer.id, id, srcOffset, dstOffset, copySize);
         else {
             threadContext->cachedBindCopyReadBuffer(srcBuffer.id);
             threadContext->cachedBindCopyWriteBuffer(id);
-            threadContextGroup->functions.glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, srcOffset, dstOffset, copySize);
+            threadContextGroup_->functions.glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, srcOffset, dstOffset, copySize);
         }
     }
 
@@ -77,13 +77,13 @@ namespace glCompact {
         UNLIKELY_IF (!clientMemoryCopyable)
             throw std::runtime_error("Buffer is not clientMemoryCopyable!");
 
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access)
-            threadContextGroup->functions.glNamedBufferSubData(id, thisOffset, copySize, srcMem);
-        else if (threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glNamedBufferSubDataEXT(id, thisOffset, copySize, srcMem);
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
+            threadContextGroup_->functions.glNamedBufferSubData(id, thisOffset, copySize, srcMem);
+        else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glNamedBufferSubDataEXT(id, thisOffset, copySize, srcMem);
         else {
             threadContext->cachedBindCopyWriteBuffer(id);
-            threadContextGroup->functions.glBufferSubData(GL_COPY_WRITE_BUFFER, thisOffset, copySize, srcMem);
+            threadContextGroup_->functions.glBufferSubData(GL_COPY_WRITE_BUFFER, thisOffset, copySize, srcMem);
         }
     }
 
@@ -104,13 +104,13 @@ namespace glCompact {
         UNLIKELY_IF (!clientMemoryCopyable)
             throw std::runtime_error("Buffer is not clientMemoryCopyable!");
 
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access)
-            threadContextGroup->functions.glGetNamedBufferSubData(id, thisOffset, copySize, destMem);
-        else if (threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glGetNamedBufferSubDataEXT(id, thisOffset, copySize, destMem);
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
+            threadContextGroup_->functions.glGetNamedBufferSubData(id, thisOffset, copySize, destMem);
+        else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glGetNamedBufferSubDataEXT(id, thisOffset, copySize, destMem);
         else {
             threadContext->cachedBindCopyReadBuffer(this->id);
-            threadContextGroup->functions.glGetBufferSubData(GL_COPY_READ_BUFFER, thisOffset, copySize, destMem);
+            threadContextGroup_->functions.glGetBufferSubData(GL_COPY_READ_BUFFER, thisOffset, copySize, destMem);
         }
     }
 
@@ -122,14 +122,14 @@ namespace glCompact {
         //glClearBufferData -> If data is NULL , then the pointer is ignored and the sub-range of the buffer is filled with zeros.
         //Not sure if standard needs parameters when pointer is 0, but some drivers may fuck around otherwise!
         //GL_R8UI is core since 3.0.
-        if (threadContextGroup->extensions.GL_ARB_clear_buffer_object) {
-            if (threadContextGroup->extensions.GL_ARB_direct_state_access)
-                threadContextGroup->functions.glClearNamedBufferData       (this->id, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
-            else if (threadContextGroup->extensions.GL_EXT_direct_state_access)
-                threadContextGroup->functions.glClearNamedBufferDataEXT    (this->id, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
+        if (threadContextGroup_->extensions.GL_ARB_clear_buffer_object) {
+            if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
+                threadContextGroup_->functions.glClearNamedBufferData       (this->id, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
+            else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
+                threadContextGroup_->functions.glClearNamedBufferDataEXT    (this->id, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
             else {
                 threadContext->cachedBindCopyWriteBuffer(this->id);
-                threadContextGroup->functions.glClearBufferData(GL_COPY_WRITE_BUFFER, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
+                threadContextGroup_->functions.glClearBufferData(GL_COPY_WRITE_BUFFER, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
             }
         } else {
             clear(0, this->size_);
@@ -182,7 +182,7 @@ namespace glCompact {
         UNLIKELY_IF (offset + clearSize > this->size_)
             throw std::runtime_error("Trying to clear bayond buffer size");
 
-        if (threadContextGroup->extensions.GL_ARB_clear_buffer_object) {
+        if (threadContextGroup_->extensions.GL_ARB_clear_buffer_object) {
             GLenum internalFormat;
             GLenum componentArrangement;
             GLenum componentTypes;
@@ -220,14 +220,14 @@ namespace glCompact {
                 default:
                     throw std::runtime_error("fillValueSize must be 1, 2, 4, 8, 12 or 16!");
             }
-            if (threadContextGroup->extensions.GL_ARB_clear_buffer_object) {
-                if (threadContextGroup->extensions.GL_ARB_direct_state_access)
-                    threadContextGroup->functions.glClearNamedBufferSubData       (this->id, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
-                else if (threadContextGroup->extensions.GL_EXT_direct_state_access)
-                    threadContextGroup->functions.glClearNamedBufferSubDataEXT    (this->id, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
+            if (threadContextGroup_->extensions.GL_ARB_clear_buffer_object) {
+                if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
+                    threadContextGroup_->functions.glClearNamedBufferSubData       (this->id, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
+                else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
+                    threadContextGroup_->functions.glClearNamedBufferSubDataEXT    (this->id, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
                 else {
                     threadContext->cachedBindCopyWriteBuffer(this->id);
-                    threadContextGroup->functions.glClearBufferSubData(GL_COPY_WRITE_BUFFER, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
+                    threadContextGroup_->functions.glClearBufferSubData(GL_COPY_WRITE_BUFFER, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
                 }
             }
         } else {
@@ -277,19 +277,19 @@ namespace glCompact {
     //and/or allocate new memory to start new rendering commands when the old target still is in use (indirect sync)
     void BufferInterface::invalidate() {
         Context::assertThreadHasActiveGlContext();
-        if (threadContextGroup->extensions.GL_ARB_invalidate_subdata) {
-            threadContextGroup->functions.glInvalidateBufferData(id);
-        } else if (!threadContextGroup->extensions.GL_ARB_buffer_storage) {
+        if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
+            threadContextGroup_->functions.glInvalidateBufferData(id);
+        } else if (!threadContextGroup_->extensions.GL_ARB_buffer_storage) {
             //For buffer objects with non-immutable storage, a buffer can be invalidated by calling glBufferData with the exact same size and usage hint as before,
             //and with a NULL data​ parameter. This is an older method (hack) of invalidation, and it should only be used when the others are not available.
             GLenum usageHint = GL_DYNAMIC_DRAW;
-            if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-                threadContextGroup->functions.glNamedBufferData(id, size_, 0, usageHint);
-            } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
-                threadContextGroup->functions.glNamedBufferDataEXT(id, size_, 0, usageHint);
+            if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+                threadContextGroup_->functions.glNamedBufferData(id, size_, 0, usageHint);
+            } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
+                threadContextGroup_->functions.glNamedBufferDataEXT(id, size_, 0, usageHint);
             } else {
                 threadContext->cachedBindCopyWriteBuffer(id);
-                threadContextGroup->functions.glBufferData(GL_COPY_WRITE_BUFFER, size_, 0, usageHint);
+                threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size_, 0, usageHint);
             }
         } else {
             //just ignore call, it is just a hind anyway...
@@ -301,8 +301,8 @@ namespace glCompact {
         uintptr_t invalidateSize
     ) {
         Context::assertThreadHasActiveGlContext();
-        if (threadContextGroup->extensions.GL_ARB_invalidate_subdata) {
-            threadContextGroup->functions.glInvalidateBufferSubData(id, offset, invalidateSize);
+        if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
+            threadContextGroup_->functions.glInvalidateBufferSubData(id, offset, invalidateSize);
         } else {
             //just ignore call, it is just a hind anyway...
         }
@@ -357,10 +357,10 @@ namespace glCompact {
 
     /*void BufferInterface::setDebugLabel(const std::string& label) {
         Context::assertThreadHasActiveGlContext();
-        if (threadContextGroup->extensions.GL_KHR_debug) {
-            GLsizei lenght = std::min(GLsizei(label.size()), GLsizei(threadContextGroup->values.GL_MAX_LABEL_LENGTH));
-            threadContextGroup->functions.glObjectLabel(GL_BUFFER, id, lenght, label.c_str());
-            //int maxSize = threadContextGroup->values.GL_MAX_LABEL_LENGTH;
+        if (threadContextGroup_->extensions.GL_KHR_debug) {
+            GLsizei lenght = std::min(GLsizei(label.size()), GLsizei(threadContextGroup_->values.GL_MAX_LABEL_LENGTH));
+            threadContextGroup_->functions.glObjectLabel(GL_BUFFER, id, lenght, label.c_str());
+            //int maxSize = threadContextGroup_->values.GL_MAX_LABEL_LENGTH;
             //if (label.size() > maxSize) label.resize(maxSize);
             //threadContext->glObjectLabel(GL_BUFFER, id, -1, label.c_str());
         } else {
@@ -376,9 +376,9 @@ namespace glCompact {
         const void* data
     ) {
         Context::assertThreadHasActiveGlContext();
-        UNLIKELY_IF (stagingBuffer && !threadContextGroup->extensions.GL_ARB_buffer_storage)
+        UNLIKELY_IF (stagingBuffer && !threadContextGroup_->extensions.GL_ARB_buffer_storage)
             throw std::runtime_error("Staging buffer not supported (missing GL_ARB_buffer_storage)");
-        UNLIKELY_IF (sparseBuffer  && !threadContextGroup->extensions.GL_ARB_sparse_buffer )
+        UNLIKELY_IF (sparseBuffer  && !threadContextGroup_->extensions.GL_ARB_sparse_buffer )
             throw std::runtime_error("Sparse buffer is not supported (missing GL_ARB_sparse_buffer)");
         //UNLIKELY_IF (stagingBuffer && sparseBuffer)
         //    throw std::runtime_error("Sparse buffer and staging buffer functionality can not be mixed");
@@ -426,31 +426,31 @@ namespace glCompact {
         if ( writeAccess || !clientStorageHint) usageHint = GL_DYNAMIC_DRAW;
         if (!writeAccess || !clientStorageHint) usageHint = GL_STATIC_DRAW;*/
 
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-            threadContextGroup->functions.glCreateBuffers(1, &id);
-            if (threadContextGroup->extensions.GL_ARB_buffer_storage) {
-                threadContextGroup->functions.glNamedBufferStorage(id, size, data, flags);
-                if (stagingBuffer) return threadContextGroup->functions.glMapNamedBufferRange(id, 0, size, stagingBufferAccessFlags);
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+            threadContextGroup_->functions.glCreateBuffers(1, &id);
+            if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
+                threadContextGroup_->functions.glNamedBufferStorage(id, size, data, flags);
+                if (stagingBuffer) return threadContextGroup_->functions.glMapNamedBufferRange(id, 0, size, stagingBufferAccessFlags);
             } else {
-                threadContextGroup->functions.glNamedBufferData(id, size, data, usageHint);
+                threadContextGroup_->functions.glNamedBufferData(id, size, data, usageHint);
             }
         } else {
-            threadContextGroup->functions.glGenBuffers(1, &id);
+            threadContextGroup_->functions.glGenBuffers(1, &id);
             //Unlike for textures, the DSA EXT buffer functions can create buffers without having to bind them after glGenBuffers
-            if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
-                if (threadContextGroup->extensions.GL_ARB_buffer_storage) {
-                    threadContextGroup->functions.glNamedBufferStorageEXT(id, size, data, flags);
-                    if (stagingBuffer) return threadContextGroup->functions.glMapNamedBufferRangeEXT(id, 0, size, stagingBufferAccessFlags);
+            if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
+                if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
+                    threadContextGroup_->functions.glNamedBufferStorageEXT(id, size, data, flags);
+                    if (stagingBuffer) return threadContextGroup_->functions.glMapNamedBufferRangeEXT(id, 0, size, stagingBufferAccessFlags);
                 } else {
-                    threadContextGroup->functions.glNamedBufferDataEXT(id, size, data, usageHint);
+                    threadContextGroup_->functions.glNamedBufferDataEXT(id, size, data, usageHint);
                 }
             } else {
                 threadContext->cachedBindCopyWriteBuffer(id);
-                if (threadContextGroup->extensions.GL_ARB_buffer_storage) {
-                    threadContextGroup->functions.glBufferStorage(GL_COPY_WRITE_BUFFER, size, data, flags);
-                    if (stagingBuffer) return threadContextGroup->functions.glMapBufferRange(GL_COPY_WRITE_BUFFER, 0, size, stagingBufferAccessFlags);
+                if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
+                    threadContextGroup_->functions.glBufferStorage(GL_COPY_WRITE_BUFFER, size, data, flags);
+                    if (stagingBuffer) return threadContextGroup_->functions.glMapBufferRange(GL_COPY_WRITE_BUFFER, 0, size, stagingBufferAccessFlags);
                 } else {
-                    threadContextGroup->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, data, usageHint);
+                    threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, data, usageHint);
                 }
             }
         }
@@ -464,15 +464,15 @@ namespace glCompact {
         //so I can ignore destructors from static objects, because the application is termination anyway and driver will clean up!
         //TODO: When do static objects from a closing thread get destroyed when the application keeps running?
         if (id) {
-            UNLIKELY_IF (!threadContextGroup)
-                crash("glCompact::Buffer destructor called but thread has no reference to threadContextGroup! Leaking OpenGL object!");
+            UNLIKELY_IF (!threadContextGroup_)
+                crash("glCompact::Buffer destructor called but thread has no reference to threadContextGroup_! Leaking OpenGL object!");
             #ifdef GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
-                UNLIKELY_IF (!threadContextGroup->functions.glGetString(GL_VERSION))
+                UNLIKELY_IF (!threadContextGroup_->functions.glGetString(GL_VERSION))
                     crash("glCompact::Buffer destructor called but thread has no active OpenGL context! glDeleteBuffers without effect! Leaking OpenGL object!");
             #endif
 
             if (threadContext) detachFromThreadContext();
-            threadContextGroup->functions.glDeleteBuffers(1, &id);
+            threadContextGroup_->functions.glDeleteBuffers(1, &id);
 
             id    = 0;
             size_ = 0;

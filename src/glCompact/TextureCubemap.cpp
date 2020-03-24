@@ -1,7 +1,7 @@
 #include "glCompact/TextureCubemap.hpp"
 #include "glCompact/gl/Constants.hpp"
 //#include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include <stdexcept>
 
@@ -15,7 +15,7 @@ namespace glCompact {
         bool          mipmaps
     ) {
         UNLIKELY_IF (xy > getMaxXY())
-            throw runtime_error("Trying to create TextureCubemap with size(xy = " + to_string(xy) + "), but that is bayond getMaxXY(GL_MAX_CUBE_MAP_TEXTURE_SIZE = " + to_string(threadContextGroup->values.GL_MAX_CUBE_MAP_TEXTURE_SIZE) + ")");
+            throw runtime_error("Trying to create TextureCubemap with size(xy = " + to_string(xy) + "), but that is bayond getMaxXY(GL_MAX_CUBE_MAP_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_CUBE_MAP_TEXTURE_SIZE) + ")");
         create(GL_TEXTURE_CUBE_MAP, surfaceFormat, xy, xy, 1, mipmaps, 0);
     }
 
@@ -23,7 +23,7 @@ namespace glCompact {
         Returns maximum supported xy size for a cubemap texture. Minimum supported value is 1024.
     */
     uint32_t TextureCubemap::getMaxXY() {
-        return threadContextGroup->values.GL_MAX_CUBE_MAP_TEXTURE_SIZE;
+        return threadContextGroup_->values.GL_MAX_CUBE_MAP_TEXTURE_SIZE;
     }
 }
 

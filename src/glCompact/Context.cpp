@@ -1,6 +1,6 @@
 #include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Frame.hpp"
@@ -38,7 +38,7 @@ namespace glCompact {
         frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
         contextId = nextContextId.fetch_add(1);
 
-        if (!threadContextGroup->version.equalOrGreater(3, 3))
+        if (!threadContextGroup_->version.equalOrGreater(3, 3))
             crash("glCompact requires Opengl 3.3 or higher!");
 
         //TODO
@@ -56,22 +56,22 @@ namespace glCompact {
         defaultVaoId = 0;
         //Since OpenGL 3.0 (Core and Non-Core!) the default VAO is depricated! It only exist if the extension GL_ARB_compatibility (Not core) is present!
         //Without default VAO we just make our own "default VAO" per context via a single permanently bound one.
-        if (!threadContextGroup->extensions.GL_ARB_compatibility) {
-            threadContextGroup->functions.glGenVertexArrays(1, &defaultVaoId); //GL_ARB_direct_state_access also has glCreateVertexArrays, but we don't need it because we always bind before changing it
-            threadContextGroup->functions.glBindVertexArray(defaultVaoId);
+        if (!threadContextGroup_->extensions.GL_ARB_compatibility) {
+            threadContextGroup_->functions.glGenVertexArrays(1, &defaultVaoId); //GL_ARB_direct_state_access also has glCreateVertexArrays, but we don't need it because we always bind before changing it
+            threadContextGroup_->functions.glBindVertexArray(defaultVaoId);
         }
-        if (threadContextGroup->extensions.GL_ARB_vertex_attrib_binding) {
+        if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
             //Default value for mapping vertex layout attributes to buffer indexes seems to be something invalid.
             //This sets all vertex attributes to the buffer index 0. This is easier then to hold a "invalid" status value in the state tracker!
-            for (int i = 0; i < threadContextGroup->values.GL_MAX_VERTEX_ATTRIBS; ++i) threadContextGroup->functions.glVertexAttribBinding(i, 0);
+            for (int i = 0; i < threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS; ++i) threadContextGroup_->functions.glVertexAttribBinding(i, 0);
         }
 
         defaultStatesActivate();
     }
 
     Context::~Context() {
-        if (defaultVaoId) threadContextGroup->functions.glDeleteVertexArrays(1, &defaultVaoId);
-        threadContextGroup->functions.glFinish(); //TODO: not sure if I need this here
+        if (defaultVaoId) threadContextGroup_->functions.glDeleteVertexArrays(1, &defaultVaoId);
+        threadContextGroup_->functions.glFinish(); //TODO: not sure if I need this here
     }
 
     uint32_t Context::getContextId() const {
@@ -80,40 +80,40 @@ namespace glCompact {
 
     void Context::assertThreadHasActiveGlContext() {
         #ifdef GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
-            UNLIKELY_IF (!threadContextGroup->functions.glGetString(GL_VERSION))
+            UNLIKELY_IF (!threadContextGroup_->functions.glGetString(GL_VERSION))
                 crash("Trying to use OpenGL functions in a thread without active context!");
         #endif
     }
 
     //TODO: maybe also use a bool that enables brute force setting all values to known, just in case any other libs fuck up?!
     void Context::defaultStatesActivate() {
-        threadContextGroup->functions.glBindVertexArray(defaultVaoId);
-        if (threadContextGroup->extensions.GL_ARB_compatibility) {
+        threadContextGroup_->functions.glBindVertexArray(defaultVaoId);
+        if (threadContextGroup_->extensions.GL_ARB_compatibility) {
             //TODO: set everything to default, or set the state tracker to all unknown for the default VAO states
-            if (threadContextGroup->extensions.GL_ARB_vertex_attrib_binding) {
+            if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
                 //This sets all vertex attributes to the buffer index 0.
-                for(int i = 0; i < threadContextGroup->values.GL_MAX_VERTEX_ATTRIBS; ++i) threadContextGroup->functions.glVertexAttribBinding(i, 0);
+                for(int i = 0; i < threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS; ++i) threadContextGroup_->functions.glVertexAttribBinding(i, 0);
             }
         }
 
-        if (threadContextGroup->extensions.GL_ARB_ES3_compatibility) threadContextGroup->functions.glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
+        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) threadContextGroup_->functions.glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
     }
 
     void Context::defaultStatesDeactivate() {
-        if (threadContextGroup->extensions.GL_ARB_compatibility) {
+        if (threadContextGroup_->extensions.GL_ARB_compatibility) {
             //TODO: set all attribute values to default? Maybe just disable them?
         } else {
-            threadContextGroup->functions.glBindVertexArray(0);
+            threadContextGroup_->functions.glBindVertexArray(0);
         }
 
-        if (threadContextGroup->extensions.GL_ARB_ES3_compatibility) threadContextGroup->functions.glDisable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
+        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) threadContextGroup_->functions.glDisable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
         cachedScissorEnabled(false);
 
         //we may have changed this values and therefore we set them back to default
-        threadContextGroup->functions.glBindBuffer (GL_PIXEL_PACK_BUFFER,   0);
-        threadContextGroup->functions.glBindBuffer (GL_PIXEL_UNPACK_BUFFER, 0);
-        threadContextGroup->functions.glPixelStorei(GL_UNPACK_SKIP_IMAGES,  0);
-        threadContextGroup->functions.glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+        threadContextGroup_->functions.glBindBuffer (GL_PIXEL_PACK_BUFFER,   0);
+        threadContextGroup_->functions.glBindBuffer (GL_PIXEL_UNPACK_BUFFER, 0);
+        threadContextGroup_->functions.glPixelStorei(GL_UNPACK_SKIP_IMAGES,  0);
+        threadContextGroup_->functions.glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
         buffer_pixelPackId   = 0;
         buffer_pixelUnpackId = 0;
         buffer_copyReadId    = 0;
@@ -231,8 +231,8 @@ namespace glCompact {
             cachedSetActiveTextureUnit(0);
             texture_markSlotChange(0);
         }
-        if (unbindOldTarget) threadContextGroup->functions.glBindTexture(texture_target[0], 0);
-        if (bindNewTexture)  threadContextGroup->functions.glBindTexture(texTarget, texId);
+        if (unbindOldTarget) threadContextGroup_->functions.glBindTexture(texture_target[0], 0);
+        if (bindNewTexture)  threadContextGroup_->functions.glBindTexture(texTarget, texId);
         if (targetChange)    texture_target[0] = texTarget;
         if (textureChange)   texture_id    [0] = texId;
     }
@@ -244,11 +244,11 @@ namespace glCompact {
          int32_t texTarget,
         uint32_t texId
     ) {
-        if (threadContextGroup->extensions.GL_ARB_multi_bind) {
+        if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
             if (texture_id[0] != texId) {
                 texture_id[0] = texId;
                 texture_markSlotChange(0);
-                threadContextGroup->functions.glBindTextures(0, 1, &texId);
+                threadContextGroup_->functions.glBindTextures(0, 1, &texId);
             }
         } else {
             cachedBindTextureCompatibleOrFirstTime(texTarget, texId);
@@ -259,7 +259,7 @@ namespace glCompact {
         uint32_t newShaderId
     ) {
         if (shaderId != newShaderId) {
-            threadContextGroup->functions.glUseProgram(newShaderId);
+            threadContextGroup_->functions.glUseProgram(newShaderId);
             shaderId = newShaderId;
         }
     }
@@ -268,7 +268,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (boundArrayBuffer != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+            threadContextGroup_->functions.glBindBuffer(GL_ARRAY_BUFFER, bufferId);
             boundArrayBuffer = bufferId;
         }
     }
@@ -278,11 +278,11 @@ namespace glCompact {
         uint32_t slot
     ) {
         //TODO: debug test for values over GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS-1
-        UNLIKELY_IF (slot >= uint32_t(threadContextGroup->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS))
-            throw runtime_error("Trying to set active texture bayond GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS(" + to_string(threadContextGroup->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) + ")");
+        UNLIKELY_IF (slot >= uint32_t(threadContextGroup_->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS))
+            throw runtime_error("Trying to set active texture bayond GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS(" + to_string(threadContextGroup_->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) + ")");
         if (activeTextureSlot != slot) {
             activeTextureSlot = slot;
-            threadContextGroup->functions.glActiveTexture(GL_TEXTURE0 + slot);
+            threadContextGroup_->functions.glActiveTexture(GL_TEXTURE0 + slot);
         }
     }
 
@@ -291,7 +291,7 @@ namespace glCompact {
     ) {
         if (current_frame_drawId != fboId) {
             current_frame_drawId = fboId;
-            threadContextGroup->functions.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboId);
+            threadContextGroup_->functions.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboId);
         }
     }
 
@@ -300,14 +300,14 @@ namespace glCompact {
     ) {
         if (current_frame_readId != fboId) {
             current_frame_readId = fboId;
-            threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, fboId);
+            threadContextGroup_->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, fboId);
         }
     }
 
     void Context::cachedConvertSrgb(bool enabled) {
         if (current_convertSrgb != enabled) {
-            if ( enabled) threadContextGroup->functions.glEnable (GL_FRAMEBUFFER_SRGB);
-            if (!enabled) threadContextGroup->functions.glDisable(GL_FRAMEBUFFER_SRGB);
+            if ( enabled) threadContextGroup_->functions.glEnable (GL_FRAMEBUFFER_SRGB);
+            if (!enabled) threadContextGroup_->functions.glDisable(GL_FRAMEBUFFER_SRGB);
             current_convertSrgb = enabled;
         }
     }
@@ -321,7 +321,7 @@ namespace glCompact {
         ) {
             current_viewportOffset = offset;
             current_viewportSize   = size;
-            threadContextGroup->functions.glViewport(offset.x, offset.y, size.x, size.y);
+            threadContextGroup_->functions.glViewport(offset.x, offset.y, size.x, size.y);
         }
     }
 
@@ -331,9 +331,9 @@ namespace glCompact {
         if (current_scissor_enabled != enabled) {
             current_scissor_enabled = enabled;
             if (enabled)
-                threadContextGroup->functions.glEnable(GL_SCISSOR_TEST);
+                threadContextGroup_->functions.glEnable(GL_SCISSOR_TEST);
             else
-                threadContextGroup->functions.glDisable(GL_SCISSOR_TEST);
+                threadContextGroup_->functions.glDisable(GL_SCISSOR_TEST);
         }
     }
 
@@ -346,7 +346,7 @@ namespace glCompact {
         ) {
             current_scissorOffset = offset;
             current_scissorSize   = size;
-            threadContextGroup->functions.glScissor(offset.x, offset.y, size.x, size.y);
+            threadContextGroup_->functions.glScissor(offset.x, offset.y, size.x, size.y);
         }
     }
 
@@ -354,7 +354,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (buffer_pixelPackId != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_PIXEL_PACK_BUFFER, bufferId);
+            threadContextGroup_->functions.glBindBuffer(GL_PIXEL_PACK_BUFFER, bufferId);
             buffer_pixelPackId = bufferId;
         }
     }
@@ -363,7 +363,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (buffer_pixelUnpackId != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferId);
+            threadContextGroup_->functions.glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferId);
             buffer_pixelUnpackId = bufferId;
         }
     }
@@ -372,7 +372,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (buffer_copyReadId != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_COPY_READ_BUFFER, bufferId);
+            threadContextGroup_->functions.glBindBuffer(GL_COPY_READ_BUFFER, bufferId);
             buffer_copyReadId = bufferId;
         }
     }
@@ -381,7 +381,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (buffer_copyWriteId != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_COPY_WRITE_BUFFER, bufferId);
+            threadContextGroup_->functions.glBindBuffer(GL_COPY_WRITE_BUFFER, bufferId);
             buffer_copyWriteId = bufferId;
         }
     }
@@ -392,7 +392,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (buffer_draw_indirect_id != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_DRAW_INDIRECT_BUFFER, buffer_draw_indirect_id);
+            threadContextGroup_->functions.glBindBuffer(GL_DRAW_INDIRECT_BUFFER, buffer_draw_indirect_id);
             buffer_draw_indirect_id = bufferId;
         }
     }
@@ -401,7 +401,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (buffer_dispatch_indirect_id != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, buffer_dispatch_indirect_id);
+            threadContextGroup_->functions.glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, buffer_dispatch_indirect_id);
             buffer_dispatch_indirect_id = bufferId;
         }
     }
@@ -411,7 +411,7 @@ namespace glCompact {
         uint32_t bufferId
     ) {
         if (buffer_parameter_id != bufferId) {
-            threadContextGroup->functions.glBindBuffer(GL_PARAMETER_BUFFER, buffer_parameter_id);
+            threadContextGroup_->functions.glBindBuffer(GL_PARAMETER_BUFFER, buffer_parameter_id);
             buffer_parameter_id = bufferId;
         }
     }
@@ -443,14 +443,14 @@ namespace glCompact {
 
     void Context::processPendingChangesBarriers() {
         if (memoryBarrierMask) {
-            threadContextGroup->functions.glMemoryBarrier(memoryBarrierMask);
+            threadContextGroup_->functions.glMemoryBarrier(memoryBarrierMask);
             memoryBarrierMask = 0;
         }
     }
 
     void Context::processPendingChangesBarriersFragmentShaderOnly() {
         if (memoryBarrierMaskFragemtShaderOnly) {
-            threadContextGroup->functions.glMemoryBarrierByRegion(memoryBarrierMaskFragemtShaderOnly);
+            threadContextGroup_->functions.glMemoryBarrierByRegion(memoryBarrierMaskFragemtShaderOnly);
             memoryBarrierMaskFragemtShaderOnly = 0;
         }
     }

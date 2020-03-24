@@ -1,6 +1,6 @@
 #include "glCompact/AttributeLayout.hpp"
 //#include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 
 #include <algorithm> //win for std::max / min
 
@@ -132,8 +132,8 @@ namespace glCompact {
             throw runtime_error("Trying to define already defined attribute location (" + to_string(location) + ")");
         UNLIKELY_IF (location >  Config::MAX_ATTRIBUTES)
             throw runtime_error("Trying to define location (" + to_string(location) + ") beyond Config::MAX_ATTRIBUTES (" + to_string(Config::MAX_ATTRIBUTES) + ")");
-        UNLIKELY_IF (location >= threadContextGroup->values.GL_MAX_VERTEX_ATTRIBS)
-            throw runtime_error("Trying to set AttributeLayout that has attribute location (" + to_string(location) + ") that goes beyond implementation limit. GL_MAX_VERTEX_ATTRIBS(" + to_string(threadContextGroup->values.GL_MAX_VERTEX_ATTRIBS) + " = 0.." + to_string(threadContextGroup->values.GL_MAX_VERTEX_ATTRIBS - 1));
+        UNLIKELY_IF (location >= threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS)
+            throw runtime_error("Trying to set AttributeLayout that has attribute location (" + to_string(location) + ") that goes beyond implementation limit. GL_MAX_VERTEX_ATTRIBS(" + to_string(threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS) + " = 0.." + to_string(threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS - 1));
 
         Location &loc           =  this->location[location];
         loc.attributeFormat     =  attributeFormat;

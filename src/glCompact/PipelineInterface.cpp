@@ -2,7 +2,7 @@
 #include "glCompact/Config.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/TextureInterface.hpp"
 #include "glCompact/Sampler.hpp"
 #include "glCompact/Buffer.hpp"
@@ -97,8 +97,8 @@ namespace glCompact {
             if (threadContext) {
                 detachFromThreadContext();
             }
-            if (threadContextGroup) {
-                threadContextGroup->functions.glDeleteProgram(id);
+            if (threadContextGroup_) {
+                threadContextGroup_->functions.glDeleteProgram(id);
             }
             id = 0;
         }
@@ -365,10 +365,10 @@ namespace glCompact {
         uint32_t maxLength;
         std::vector<char> bytes;
 
-        threadContextGroup->functions.glGetShaderiv(objId, GL_INFO_LOG_LENGTH, &maxLengthReturn);
+        threadContextGroup_->functions.glGetShaderiv(objId, GL_INFO_LOG_LENGTH, &maxLengthReturn);
         maxLength = maxLengthReturn;
         bytes.resize(maxLength + 1);
-        threadContextGroup->functions.glGetShaderInfoLog(objId, maxLength, &infologLength, &bytes[0]);
+        threadContextGroup_->functions.glGetShaderInfoLog(objId, maxLength, &infologLength, &bytes[0]);
 
         if (infologLength > 0)
             return std::string(&bytes[0], infologLength);
@@ -384,10 +384,10 @@ namespace glCompact {
         uint32_t maxLength;
         std::vector<char> bytes;
 
-        threadContextGroup->functions.glGetProgramiv(objId, GL_INFO_LOG_LENGTH, &maxLengthReturn);
+        threadContextGroup_->functions.glGetProgramiv(objId, GL_INFO_LOG_LENGTH, &maxLengthReturn);
         maxLength = maxLengthReturn;
         bytes.resize(maxLength + 1);
-        threadContextGroup->functions.glGetProgramInfoLog(objId, maxLength, &infologLength, &bytes[0]);
+        threadContextGroup_->functions.glGetProgramInfoLog(objId, maxLength, &infologLength, &bytes[0]);
 
         if (infologLength > 0)
             return std::string(&bytes[0], infologLength);
@@ -403,7 +403,7 @@ namespace glCompact {
         if (!threadContext->extensions.GL_ARB_get_program_binary) return false;
         if (!binarySize || bufSize < binarySize) return false;
         GLsizei bufSizeReturn;
-        threadContextGroup->functions.glGetProgramBinary(id, binarySize, &bufSizeReturn, &binaryFormat, mem);
+        threadContextGroup_->functions.glGetProgramBinary(id, binarySize, &bufSizeReturn, &binaryFormat, mem);
         return true;
     }
 
@@ -414,10 +414,10 @@ namespace glCompact {
     ) {
         free();
         if (!threadContext->extensions.GL_ARB_get_program_binary) return false;
-        id_ = threadContextGroup->functions.glCreateProgram();
-        threadContextGroup->functions.glProgramBinary(id, binaryFormat, mem, bufSize);
+        id_ = threadContextGroup_->functions.glCreateProgram();
+        threadContextGroup_->functions.glProgramBinary(id, binaryFormat, mem, bufSize);
         GLint linkStatus = 0;
-        threadContextGroup->functions.glGetProgramiv(id, GL_LINK_STATUS, &linkStatus);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_LINK_STATUS, &linkStatus);
         if (!linkStatus) {
             free();
             return false;
@@ -541,7 +541,7 @@ namespace glCompact {
     int32_t PipelineInterface::getUniformLocation(
         const std::string& uniformName
     ) {
-        //return threadContextGroup->functions.glGetUniformLocation(id, uniformName.c_str());
+        //return threadContextGroup_->functions.glGetUniformLocation(id, uniformName.c_str());
         for (auto& uniform : uniformList)
             if (uniform.name == uniformName) return uniform.location;
         return -1;
@@ -549,453 +549,453 @@ namespace glCompact {
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLfloat& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform1f(uniformLocation, value);
+        threadContextGroup_->functions.glUniform1f(uniformLocation, value);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec2& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform2f(uniformLocation, value[0], value[1]);
+        threadContextGroup_->functions.glUniform2f(uniformLocation, value[0], value[1]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec3& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform3f(uniformLocation, value[0], value[1], value[2]);
+        threadContextGroup_->functions.glUniform3f(uniformLocation, value[0], value[1], value[2]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec4& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform4f(uniformLocation, value[0], value[1], value[2], value[3]);
+        threadContextGroup_->functions.glUniform4f(uniformLocation, value[0], value[1], value[2], value[3]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLdouble& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform1d(uniformLocation, value);
+        threadContextGroup_->functions.glUniform1d(uniformLocation, value);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec2& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform2d(uniformLocation, value[0], value[1]);
+        threadContextGroup_->functions.glUniform2d(uniformLocation, value[0], value[1]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec3& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform3d(uniformLocation, value[0], value[1], value[2]);
+        threadContextGroup_->functions.glUniform3d(uniformLocation, value[0], value[1], value[2]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec4& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform4d(uniformLocation, value[0], value[1], value[2], value[3]);
+        threadContextGroup_->functions.glUniform4d(uniformLocation, value[0], value[1], value[2], value[3]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const int32_t& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform1i(uniformLocation, value);
+        threadContextGroup_->functions.glUniform1i(uniformLocation, value);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec2& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform2i(uniformLocation, value[0], value[1]);
+        threadContextGroup_->functions.glUniform2i(uniformLocation, value[0], value[1]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec3& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform3i(uniformLocation, value[0], value[1], value[2]);
+        threadContextGroup_->functions.glUniform3i(uniformLocation, value[0], value[1], value[2]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec4& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform4i(uniformLocation, value[0], value[1], value[2], value[3]);
+        threadContextGroup_->functions.glUniform4i(uniformLocation, value[0], value[1], value[2], value[3]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLuint& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform1ui(uniformLocation, value);
+        threadContextGroup_->functions.glUniform1ui(uniformLocation, value);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec2& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform2ui(uniformLocation, value[0], value[1]);
+        threadContextGroup_->functions.glUniform2ui(uniformLocation, value[0], value[1]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec3& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform3ui(uniformLocation, value[0], value[1], value[2]);
+        threadContextGroup_->functions.glUniform3ui(uniformLocation, value[0], value[1], value[2]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec4& value) {
         threadContext->cachedBindShader(shaderId);
-        threadContextGroup->functions.glUniform4ui(uniformLocation, value[0], value[1], value[2], value[3]);
+        threadContextGroup_->functions.glUniform4ui(uniformLocation, value[0], value[1], value[2], value[3]);
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLfloat& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform1fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform1fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform1fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform1fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform1fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniform1fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform2fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform2fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform2fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform2fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform2fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniform2fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform3fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform3fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform3fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform3fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform3fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniform3fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec4& value, int count) {
-        if (threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform4fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform4fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        if (threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform4fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+        else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform4fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform4fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniform4fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     //NOTE: There are no EXT DSA functions for setting double uniforms
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLdouble& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform1dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform1dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform1dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniform1dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform2dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform2dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform2dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniform2dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec3 &value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform3dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform3dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform3dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniform3dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform4dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform4dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform4dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniform4dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const int32_t& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform1iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform1ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform1iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform1ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform1iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+            threadContextGroup_->functions.glUniform1iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform2iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform2ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform2iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform2ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform2iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+            threadContextGroup_->functions.glUniform2iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform3iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform3ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform3iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform3ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform3iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+            threadContextGroup_->functions.glUniform3iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform4iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform4ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform4iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform4ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform4iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
+            threadContextGroup_->functions.glUniform4iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLuint& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform1uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform1uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform1uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform1uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform1uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+            threadContextGroup_->functions.glUniform1uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform2uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform2uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform2uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform2uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform2uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+            threadContextGroup_->functions.glUniform2uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform3uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform3uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform3uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform3uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform3uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+            threadContextGroup_->functions.glUniform3uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniform4uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniform4uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniform4uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniform4uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniform4uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
+            threadContextGroup_->functions.glUniform4uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
 
     //NOTE: transpose can be done with glm, therefor we ignore the transpose value for the gl function
     //TODO: row-major order. or column-major the default?
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat2x2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat2x3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix2x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix2x3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix2x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix2x3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix2x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix2x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat2x4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix2x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix2x4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix2x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix2x4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix2x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix2x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat3x2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix3x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix3x2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix3x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix3x2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix3x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix3x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat3x3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat3x4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix3x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix3x4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix3x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix3x4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix3x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix3x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat4x2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix4x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix4x2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix4x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix4x2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix4x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix4x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat4x3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix4x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix4x3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix4x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix4x3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix4x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix4x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat4x4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_EXT_direct_state_access)
-            threadContextGroup->functions.glProgramUniformMatrix4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
+            threadContextGroup_->functions.glProgramUniformMatrix4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
+            threadContextGroup_->functions.glUniformMatrix4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
 
     //NOTE: There are no EXT DSA functions for setting double uniforms
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat2x2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat2x3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix2x3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix2x3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix2x3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix2x3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat2x4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix2x4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix2x4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix2x4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix2x4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat3x2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix3x2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix3x2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix3x2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix3x2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat3x3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat3x4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix3x4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix3x4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix3x4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix3x4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat4x2& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix4x2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix4x2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix4x2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix4x2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat4x3& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix4x3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix4x3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix4x3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix4x3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dmat4x4& value, int count) {
-        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup->extensions.GL_ARB_separate_shader_objects)
-            threadContextGroup->functions.glProgramUniformMatrix4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+            threadContextGroup_->functions.glProgramUniformMatrix4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformMatrix4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
+            threadContextGroup_->functions.glUniformMatrix4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
 
     //GL_ARB_bindless_texture (not core)
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const uint64_t& value) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS) {
-            threadContextGroup->functions.glProgramUniformHandleui64ARB(shaderId, uniformLocation, value);
+            threadContextGroup_->functions.glProgramUniformHandleui64ARB(shaderId, uniformLocation, value);
         } else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformHandleui64ARB(uniformLocation, value);
+            threadContextGroup_->functions.glUniformHandleui64ARB(uniformLocation, value);
         }
     }
 
     //GL_ARB_bindless_texture (not core)
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const uint64_t& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS) {
-            threadContextGroup->functions.glProgramUniformHandleui64vARB(shaderId, uniformLocation, count, reinterpret_cast<const GLuint64*>(&value));
+            threadContextGroup_->functions.glProgramUniformHandleui64vARB(shaderId, uniformLocation, count, reinterpret_cast<const GLuint64*>(&value));
         } else {
             threadContext->cachedBindShader(shaderId);
-            threadContextGroup->functions.glUniformHandleui64vARB(uniformLocation, count, reinterpret_cast<const GLuint64*>(&value));
+            threadContextGroup_->functions.glUniformHandleui64vARB(uniformLocation, count, reinterpret_cast<const GLuint64*>(&value));
         }
     }
 
@@ -1050,35 +1050,35 @@ namespace glCompact {
     */
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, float& value) {
-        threadContextGroup->functions.glGetUniformfv(shaderId, uniformLocation, &value);
+        threadContextGroup_->functions.glGetUniformfv(shaderId, uniformLocation, &value);
     }
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, int32_t& value) {
-        threadContextGroup->functions.glGetUniformiv(shaderId, uniformLocation, &value);
+        threadContextGroup_->functions.glGetUniformiv(shaderId, uniformLocation, &value);
     }
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, uint32_t& value) {
-        threadContextGroup->functions.glGetUniformuiv(shaderId, uniformLocation, &value);
+        threadContextGroup_->functions.glGetUniformuiv(shaderId, uniformLocation, &value);
     }
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, double& value) {
-        threadContextGroup->functions.glGetUniformdv(shaderId, uniformLocation, &value);
+        threadContextGroup_->functions.glGetUniformdv(shaderId, uniformLocation, &value);
     }
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, float& value, int count) {
-        threadContextGroup->functions.glGetnUniformfv(shaderId, uniformLocation, count, &value);
+        threadContextGroup_->functions.glGetnUniformfv(shaderId, uniformLocation, count, &value);
     }
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, int32_t& value, int count) {
-        threadContextGroup->functions.glGetnUniformiv(shaderId, uniformLocation, count, &value);
+        threadContextGroup_->functions.glGetnUniformiv(shaderId, uniformLocation, count, &value);
     }
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, uint32_t& value, int count) {
-        threadContextGroup->functions.glGetnUniformuiv(shaderId, uniformLocation, count, &value);
+        threadContextGroup_->functions.glGetnUniformuiv(shaderId, uniformLocation, count, &value);
     }
 
     void PipelineInterface::getUniform(uint32_t shaderId, int32_t uniformLocation, double& value, int count) {
-        threadContextGroup->functions.glGetnUniformdv(shaderId, uniformLocation, count, &value);
+        threadContextGroup_->functions.glGetnUniformdv(shaderId, uniformLocation, count, &value);
     }
 
     /*
@@ -1224,15 +1224,15 @@ namespace glCompact {
 
         int32_t activeUniformCount         = 0;
         int32_t activeUniformNameLengthMax = 0;
-        threadContextGroup->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORMS,           &activeUniformCount);
-        threadContextGroup->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &activeUniformNameLengthMax);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORMS,           &activeUniformCount);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &activeUniformNameLengthMax);
         rawUniformList.resize(activeUniformCount);
         nameBuffer.resize(activeUniformNameLengthMax);
         LOOPI(activeUniformCount) {
             auto& ru = rawUniformList[i];
             uint32_t stringLenght = 0;
-            threadContextGroup->functions.glGetActiveUniform(id, uint32_t(i), activeUniformNameLengthMax, &stringLenght, &ru.arraySize, &ru.type, &nameBuffer[0]);
-            ru.location = threadContextGroup->functions.glGetUniformLocation(id, &nameBuffer[0]);
+            threadContextGroup_->functions.glGetActiveUniform(id, uint32_t(i), activeUniformNameLengthMax, &stringLenght, &ru.arraySize, &ru.type, &nameBuffer[0]);
+            ru.location = threadContextGroup_->functions.glGetUniformLocation(id, &nameBuffer[0]);
             string name(&nameBuffer[0], stringLenght);
             ru.nameIsArray = ifStringHasArrayBracketsRemoveThemAndReturnTrue(name);
             ru.name = name;
@@ -1301,11 +1301,11 @@ namespace glCompact {
 
         //Uniform Buffer Object (UBO) (Core since 3.1)
         //Note: explicitly allowes different uniform blocks to use the same binding!
-        if (threadContextGroup->extensions.GL_ARB_uniform_buffer_object) {
+        if (threadContextGroup_->extensions.GL_ARB_uniform_buffer_object) {
             int32_t activeUniformBlockCount         = 0;
             int32_t activeUniformBlockNameLengthMax = 0;
-            threadContextGroup->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORM_BLOCKS,                &activeUniformBlockCount);
-            threadContextGroup->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &activeUniformBlockNameLengthMax);
+            threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORM_BLOCKS,                &activeUniformBlockCount);
+            threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &activeUniformBlockNameLengthMax);
             nameBuffer.resize(activeUniformBlockNameLengthMax);
             uniformBlockList.resize(activeUniformBlockCount);
 
@@ -1313,7 +1313,7 @@ namespace glCompact {
                 auto& uniformBlock = uniformBlockList[i];
                 uint32_t stringLenght = 0;
                 int32_t uniformCount;
-                threadContextGroup->functions.glGetActiveUniformBlockName(id, uint32_t(i), activeUniformBlockNameLengthMax, &stringLenght, &nameBuffer[0]);
+                threadContextGroup_->functions.glGetActiveUniformBlockName(id, uint32_t(i), activeUniformBlockNameLengthMax, &stringLenght, &nameBuffer[0]);
                 uniformBlock.name = string(&nameBuffer[0], stringLenght);
                 int32_t binding = getBindingFromString(uniformBlock.name);
                 if (binding >= Config::MAX_UNIFORM_BUFFER_BINDINGS)
@@ -1321,28 +1321,28 @@ namespace glCompact {
                         + "Trying to use uniform block binding outisde of valid range of Config::MAX_UNIFORM_BUFFER_BINDINGS(" + to_string(Config::MAX_UNIFORM_BUFFER_BINDINGS) + " = 0.." + to_string(Config::MAX_UNIFORM_BUFFER_BINDINGS - 1) + ")\n"
                         + " -> " + uniformBlock.name
                     );
-                int32_t blockIndex = threadContextGroup->functions.glGetUniformBlockIndex(id, &nameBuffer[0]);
+                int32_t blockIndex = threadContextGroup_->functions.glGetUniformBlockIndex(id, &nameBuffer[0]);
                 int32_t layoutQualifierBinding;
-                threadContextGroup->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_BINDING, &layoutQualifierBinding);
+                threadContextGroup_->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_BINDING, &layoutQualifierBinding);
                 if (layoutQualifierBinding && layoutQualifierBinding != binding)
                     error(string("")
                         + "Uniform block uses different GLSL layout qualifier binding values then glCompact NAME_bindingX binding! But must be the same!"
                         + " -> layout(binding = " + to_string(layoutQualifierBinding) + ") " + uniformBlock.name
                     );
-                threadContextGroup->functions.glUniformBlockBinding(id, blockIndex, binding);
-                threadContextGroup->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &uniformBlock.blockSize);
-                threadContextGroup->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &uniformCount);
+                threadContextGroup_->functions.glUniformBlockBinding(id, blockIndex, binding);
+                threadContextGroup_->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &uniformBlock.blockSize);
+                threadContextGroup_->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &uniformCount);
                 vector<uint32_t> uniformIndexList(uniformCount); //index into raw uniform list
-                threadContextGroup->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, reinterpret_cast< int32_t*>(&uniformIndexList[0]));
+                threadContextGroup_->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, reinterpret_cast< int32_t*>(&uniformIndexList[0]));
 
                 vector< int32_t> uniformOffsetList          (uniformCount);
                 vector< int32_t> uniformArrayStrideList     (uniformCount); //?
                 vector< int32_t> uniformMatrixStrideList    (uniformCount); //?
                 vector< int32_t> uniformMatricIsRowMajorList(uniformCount); // 0 = column-major matrix, 1 = row-major matrix
-                threadContextGroup->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_OFFSET,          &uniformOffsetList          [0]);
-                threadContextGroup->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_ARRAY_STRIDE,    &uniformArrayStrideList     [0]);
-                threadContextGroup->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_MATRIX_STRIDE,   &uniformMatrixStrideList    [0]);
-                threadContextGroup->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_IS_ROW_MAJOR,    &uniformMatricIsRowMajorList[0]);
+                threadContextGroup_->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_OFFSET,          &uniformOffsetList          [0]);
+                threadContextGroup_->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_ARRAY_STRIDE,    &uniformArrayStrideList     [0]);
+                threadContextGroup_->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_MATRIX_STRIDE,   &uniformMatrixStrideList    [0]);
+                threadContextGroup_->functions.glGetActiveUniformsiv(id, uniformCount, &uniformIndexList[0], GL_UNIFORM_IS_ROW_MAJOR,    &uniformMatricIsRowMajorList[0]);
 
                 uniformBlock.uniform.resize(uniformCount);
                 LOOPJ(uniformCount) {
@@ -1359,25 +1359,25 @@ namespace glCompact {
         }
 
         //Atomic Counter Buffer Bindings - GL_ARB_shader_atomic_counters (Core since 4.2)
-        if (threadContextGroup->extensions.GL_ARB_shader_atomic_counters) {
+        if (threadContextGroup_->extensions.GL_ARB_shader_atomic_counters) {
             //glGetActiveUniformsiv UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX
             //glGetActiveAtomicCounterBufferiv( GLuint program, GLuint bufferIndex, GLenum pname, GLint *params);
             int32_t activeAtomicCounter = 0;
-            threadContextGroup->functions.glGetProgramiv(id, GL_ACTIVE_ATOMIC_COUNTER_BUFFERS, &activeAtomicCounter);
+            threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_ATOMIC_COUNTER_BUFFERS, &activeAtomicCounter);
             atomicCounterBindingList.resize(activeAtomicCounter);
             LOOPI(activeAtomicCounter) {
                 int32_t binding;
-                threadContextGroup->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_BINDING, &binding);
+                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_BINDING, &binding);
                 if (atomicCounterBindingList.size() < uint32_t(binding) + 1) atomicCounterBindingList.resize(binding + 1);
                 auto& acbb = atomicCounterBindingList[binding];
 
-                threadContextGroup->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_DATA_SIZE, reinterpret_cast<int32_t*>(&acbb.dataSize));
+                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_DATA_SIZE, reinterpret_cast<int32_t*>(&acbb.dataSize));
                 int32_t atomicCountersCount = 0;
-                threadContextGroup->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTERS, &atomicCountersCount);
+                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTERS, &atomicCountersCount);
                 vector<int32_t> atomicCounterIndexList(atomicCountersCount);
                 vector<int32_t> uniformOffsetList     (atomicCountersCount);
-                threadContextGroup->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTER_INDICES, &atomicCounterIndexList[0]);
-                threadContextGroup->functions.glGetActiveUniformsiv(id, atomicCountersCount, reinterpret_cast<uint32_t*>(&atomicCounterIndexList[0]), GL_UNIFORM_OFFSET, &uniformOffsetList[0]);
+                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTER_INDICES, &atomicCounterIndexList[0]);
+                threadContextGroup_->functions.glGetActiveUniformsiv(id, atomicCountersCount, reinterpret_cast<uint32_t*>(&atomicCounterIndexList[0]), GL_UNIFORM_OFFSET, &uniformOffsetList[0]);
                 acbb.uniformList.resize(atomicCountersCount);
                 LOOPI(atomicCountersCount) {
                     auto& ac = acbb.uniformList[i];
@@ -1412,11 +1412,11 @@ namespace glCompact {
             std::vector<RawStorageBlockVariable> variable;
         };
         vector<RawStorageBlock> rawStorageBlockList;
-        if (threadContextGroup->extensions.GL_ARB_shader_storage_buffer_object) {
+        if (threadContextGroup_->extensions.GL_ARB_shader_storage_buffer_object) {
             int32_t activeSSBCount;
             int32_t activeSSBMaxNameLength;
-            threadContextGroup->functions.glGetProgramInterfaceiv(id, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &activeSSBCount);
-            threadContextGroup->functions.glGetProgramInterfaceiv(id, GL_SHADER_STORAGE_BLOCK, GL_MAX_NAME_LENGTH,  &activeSSBMaxNameLength);
+            threadContextGroup_->functions.glGetProgramInterfaceiv(id, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &activeSSBCount);
+            threadContextGroup_->functions.glGetProgramInterfaceiv(id, GL_SHADER_STORAGE_BLOCK, GL_MAX_NAME_LENGTH,  &activeSSBMaxNameLength);
             nameBuffer.resize(activeSSBMaxNameLength);
             //rawStorageBlockList.resize(activeSSBCount);
             //if (activeSSBCount) cout << " RAW SSB (" << to_string(activeSSBCount) << "):" << endl;
@@ -1424,7 +1424,7 @@ namespace glCompact {
             LOOPI(activeSSBCount) {
                 StorageBlock sb;
                 uint32_t nameLength = 0;
-                threadContextGroup->functions.glGetProgramResourceName(id, GL_SHADER_STORAGE_BLOCK, i, activeSSBMaxNameLength, &nameLength, &nameBuffer[0]);
+                threadContextGroup_->functions.glGetProgramResourceName(id, GL_SHADER_STORAGE_BLOCK, i, activeSSBMaxNameLength, &nameLength, &nameBuffer[0]);
                 string name(&nameBuffer[0], nameLength);
                 sb.name = name;
 
@@ -1438,19 +1438,19 @@ namespace glCompact {
                     GL_BUFFER_BINDING
                 };
                 int32_t queryCount = sizeof(activeVariableCountQuery) / 4;
-                threadContextGroup->functions.glGetProgramResourceiv(id, GL_SHADER_STORAGE_BLOCK, i, queryCount, activeVariableCountQuery, queryCount, nullptr, reinterpret_cast<int32_t*>(&query));
+                threadContextGroup_->functions.glGetProgramResourceiv(id, GL_SHADER_STORAGE_BLOCK, i, queryCount, activeVariableCountQuery, queryCount, nullptr, reinterpret_cast<int32_t*>(&query));
                 sb.variable.resize(query.activeVariableCount);
                 vector<int32_t> activeVariableIndexList(query.activeVariableCount);
                 int32_t activeVariableIndexListQuery[] = {GL_ACTIVE_VARIABLES};
-                threadContextGroup->functions.glGetProgramResourceiv(id, GL_SHADER_STORAGE_BLOCK, i, 1, activeVariableIndexListQuery, query.activeVariableCount, nullptr, &activeVariableIndexList[0]);
+                threadContextGroup_->functions.glGetProgramResourceiv(id, GL_SHADER_STORAGE_BLOCK, i, 1, activeVariableIndexListQuery, query.activeVariableCount, nullptr, &activeVariableIndexList[0]);
                 LOOPJ(query.activeVariableCount) {
                     auto& variable = sb.variable[j];
 
                     int32_t bufferVariableNameLengthWithNullTerminator = 0;
                     int32_t nameLengthQuery[] = {GL_NAME_LENGTH};
-                    threadContextGroup->functions.glGetProgramResourceiv(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], 1, nameLengthQuery, 1, nullptr, &bufferVariableNameLengthWithNullTerminator);
+                    threadContextGroup_->functions.glGetProgramResourceiv(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], 1, nameLengthQuery, 1, nullptr, &bufferVariableNameLengthWithNullTerminator);
                     if (nameBuffer.size() < uint32_t(bufferVariableNameLengthWithNullTerminator)) nameBuffer.resize(bufferVariableNameLengthWithNullTerminator);
-                    threadContextGroup->functions.glGetProgramResourceName(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], bufferVariableNameLengthWithNullTerminator, nullptr, &nameBuffer[0]);
+                    threadContextGroup_->functions.glGetProgramResourceName(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], bufferVariableNameLengthWithNullTerminator, nullptr, &nameBuffer[0]);
                     variable.name = string(&nameBuffer[0], bufferVariableNameLengthWithNullTerminator - 1);
 
                     struct {
@@ -1465,7 +1465,7 @@ namespace glCompact {
                     } queryData;
                     int32_t bufferVariableDataQuery[] = {GL_TYPE, GL_ARRAY_SIZE, GL_OFFSET, GL_ARRAY_STRIDE, GL_MATRIX_STRIDE, GL_IS_ROW_MAJOR, GL_TOP_LEVEL_ARRAY_SIZE, GL_TOP_LEVEL_ARRAY_STRIDE};
                     int32_t queryCount = sizeof(bufferVariableDataQuery) / 4;
-                    threadContextGroup->functions.glGetProgramResourceiv(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], queryCount, bufferVariableDataQuery, queryCount, nullptr, reinterpret_cast<int32_t*>(&queryData));
+                    threadContextGroup_->functions.glGetProgramResourceiv(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], queryCount, bufferVariableDataQuery, queryCount, nullptr, reinterpret_cast<int32_t*>(&queryData));
 
                     variable.type                = queryData.type;
                     variable.arraySize           = queryData.arraySize;
@@ -1502,7 +1502,7 @@ namespace glCompact {
         auto changedSlotMax = threadContext->buffer_uniform_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
-            if (threadContextGroup->extensions.GL_ARB_multi_bind) {
+            if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
                     if (threadContext->buffer_uniform_id    [changedSlotMin] != buffer_uniform_id    [changedSlotMin]
@@ -1522,14 +1522,14 @@ namespace glCompact {
                     const uint32_t*   bufferIdList =                                     &buffer_uniform_id    [changedSlotMin];
                     const GLintptr*   offsetList   = reinterpret_cast<const GLintptr*>  (&buffer_uniform_offset[changedSlotMin]);
                     const GLsizeiptr* sizeList     = reinterpret_cast<const GLsizeiptr*>(&buffer_uniform_size  [changedSlotMin]);
-                    threadContextGroup->functions.glBindBuffersRange(GL_UNIFORM_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
+                    threadContextGroup_->functions.glBindBuffersRange(GL_UNIFORM_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
                     if (threadContext->buffer_uniform_id    [i] != buffer_uniform_id    [i]
                     ||  threadContext->buffer_uniform_offset[i] != buffer_uniform_offset[i]
                     ||  threadContext->buffer_uniform_size  [i] != buffer_uniform_size  [i])
-                        threadContextGroup->functions.glBindBufferRange(GL_UNIFORM_BUFFER, i, buffer_uniform_id[i], buffer_uniform_offset[i], buffer_uniform_size[i]);
+                        threadContextGroup_->functions.glBindBufferRange(GL_UNIFORM_BUFFER, i, buffer_uniform_id[i], buffer_uniform_offset[i], buffer_uniform_size[i]);
                 }
             }
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
@@ -1547,7 +1547,7 @@ namespace glCompact {
         auto changedSlotMax = threadContext->buffer_atomicCounter_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
-            if (threadContextGroup->extensions.GL_ARB_multi_bind) {
+            if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
                     if (threadContext->buffer_atomicCounter_id    [changedSlotMin] != buffer_atomicCounter_id    [changedSlotMin]
@@ -1567,14 +1567,14 @@ namespace glCompact {
                     const uint32_t*   bufferIdList =                                     &buffer_atomicCounter_id    [changedSlotMin];
                     const GLintptr*   offsetList   = reinterpret_cast<const GLintptr*>  (&buffer_atomicCounter_offset[changedSlotMin]);
                     const GLsizeiptr* sizeList     = reinterpret_cast<const GLsizeiptr*>(&buffer_atomicCounter_size  [changedSlotMin]);
-                    threadContextGroup->functions.glBindBuffersRange(GL_ATOMIC_COUNTER_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
+                    threadContextGroup_->functions.glBindBuffersRange(GL_ATOMIC_COUNTER_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
                     if (threadContext->buffer_atomicCounter_id    [i] != buffer_atomicCounter_id    [i]
                     ||  threadContext->buffer_atomicCounter_offset[i] != buffer_atomicCounter_offset[i]
                     ||  threadContext->buffer_atomicCounter_size  [i] != buffer_atomicCounter_size  [i])
-                        threadContextGroup->functions.glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, i, buffer_atomicCounter_id[i], buffer_atomicCounter_offset[i], buffer_atomicCounter_size[i]);
+                        threadContextGroup_->functions.glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, i, buffer_atomicCounter_id[i], buffer_atomicCounter_offset[i], buffer_atomicCounter_size[i]);
                 }
             }
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
@@ -1602,18 +1602,18 @@ namespace glCompact {
         auto changedSlotMax = threadContext->buffer_shaderStorage_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
-            if (threadContextGroup->extensions.GL_ARB_multi_bind) {
+            if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 const uint32_t    count        = changedSlotMax - changedSlotMin + 1;
                 const uint32_t*   bufferIdList =                                     &buffer_shaderStorage_id    [changedSlotMin];
                 const GLintptr*   offsetList   = reinterpret_cast<const GLintptr*>  (&buffer_shaderStorage_offset[changedSlotMin]);
                 const GLsizeiptr* sizeList     = reinterpret_cast<const GLsizeiptr*>(&buffer_shaderStorage_size  [changedSlotMin]);
-                threadContextGroup->functions.glBindBuffersRange(GL_SHADER_STORAGE_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
+                threadContextGroup_->functions.glBindBuffersRange(GL_SHADER_STORAGE_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
                     if (threadContext->buffer_shaderStorage_id    [i] != buffer_shaderStorage_id    [i]
                     ||  threadContext->buffer_shaderStorage_offset[i] != buffer_shaderStorage_offset[i]
                     ||  threadContext->buffer_shaderStorage_size  [i] != buffer_shaderStorage_size  [i])
-                        threadContextGroup->functions.glBindBufferRange(GL_SHADER_STORAGE_BUFFER, i, buffer_shaderStorage_id[i], buffer_shaderStorage_offset[i], buffer_shaderStorage_size[i]);
+                        threadContextGroup_->functions.glBindBufferRange(GL_SHADER_STORAGE_BUFFER, i, buffer_shaderStorage_id[i], buffer_shaderStorage_offset[i], buffer_shaderStorage_size[i]);
                 }
             }
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
@@ -1634,7 +1634,7 @@ namespace glCompact {
         auto changedSlotMax = threadContext->texture_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
-            if (threadContextGroup->extensions.GL_ARB_multi_bind) {
+            if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
                     if (threadContext->texture_id[changedSlotMin] != texture_id[changedSlotMin]) break;
@@ -1648,7 +1648,7 @@ namespace glCompact {
                 if (changedSlotMin <= changedSlotMax) {
                           uint32_t  count       = changedSlotMax - changedSlotMin + 1;
                     const uint32_t* textureList = &texture_id[changedSlotMin];
-                    threadContextGroup->functions.glBindTextures(changedSlotMin, count, textureList);
+                    threadContextGroup_->functions.glBindTextures(changedSlotMin, count, textureList);
                     for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
                         threadContext->texture_id[i] = texture_id[i];
                     }
@@ -1669,8 +1669,8 @@ namespace glCompact {
                     bool unbindOldTarget = targetChange  &&     threadContext->texture_id    [i];
                     bool bindNewTexture  = textureChange &&                    texture_id    [i];
                     if (unbindOldTarget || bindNewTexture) threadContext->cachedSetActiveTextureUnit(i);
-                    if (unbindOldTarget)                   threadContextGroup->functions.glBindTexture(threadContext->texture_target[i], 0);
-                    if (bindNewTexture)                    threadContextGroup->functions.glBindTexture(                       texture_target[i], texture_id[i]);
+                    if (unbindOldTarget)                   threadContextGroup_->functions.glBindTexture(threadContext->texture_target[i], 0);
+                    if (bindNewTexture)                    threadContextGroup_->functions.glBindTexture(                       texture_target[i], texture_id[i]);
                     if (targetChange)                      threadContext->texture_target[i] = texture_target[i];
                     if (textureChange)                     threadContext->texture_id    [i] = texture_id    [i];
                 }
@@ -1685,7 +1685,7 @@ namespace glCompact {
         auto changedSlotMax = threadContext->sampler_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
-            if (threadContextGroup->extensions.GL_ARB_multi_bind) {
+            if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
                     if (threadContext->sampler_id[changedSlotMin] != sampler_id[changedSlotMin]) break;
@@ -1699,14 +1699,14 @@ namespace glCompact {
                 if (changedSlotMin <= changedSlotMax) {
                     GLsizei count = changedSlotMax - changedSlotMin + 1;
                     const uint32_t* samplerList = &sampler_id[changedSlotMin];
-                    threadContextGroup->functions.glBindSamplers(changedSlotMin, count, samplerList);
+                    threadContextGroup_->functions.glBindSamplers(changedSlotMin, count, samplerList);
                     for (int i = changedSlotMin; i <= changedSlotMax; ++i)
                         threadContext->sampler_id[i] = sampler_id[i];
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
                     if (threadContext->sampler_id[i] != sampler_id[i]) {
-                        threadContextGroup->functions.glBindSampler(i, sampler_id[i]);
+                        threadContextGroup_->functions.glBindSampler(i, sampler_id[i]);
                         threadContext->sampler_id[i] = sampler_id[i];
                     }
                 }
@@ -1739,12 +1739,12 @@ namespace glCompact {
                 ||  threadContext->image_layer      [i] != image_layer      [i]) {
                     if (image_id[i]) {
                         if (image_layer[i] == -1) {
-                            threadContextGroup->functions.glBindImageTexture(i, image_id[i], image_mipmapLevel[i], 0,              0, GL_READ_WRITE, image_format[i]);
+                            threadContextGroup_->functions.glBindImageTexture(i, image_id[i], image_mipmapLevel[i], 0,              0, GL_READ_WRITE, image_format[i]);
                         } else {
-                            threadContextGroup->functions.glBindImageTexture(i, image_id[i], image_mipmapLevel[i], 1, image_layer[i], GL_READ_WRITE, image_format[i]);
+                            threadContextGroup_->functions.glBindImageTexture(i, image_id[i], image_mipmapLevel[i], 1, image_layer[i], GL_READ_WRITE, image_format[i]);
                         }
                     } else {
-                        threadContextGroup->functions.glBindImageTexture(i, 0, 0, GL_FALSE, 0, GL_READ_ONLY, 0); //GL_R8);
+                        threadContextGroup_->functions.glBindImageTexture(i, 0, 0, GL_FALSE, 0, GL_READ_ONLY, 0); //GL_R8);
                     }
                     threadContext->image_id         [i] = image_id         [i];
                     threadContext->image_format     [i] = image_format     [i];

@@ -1,6 +1,6 @@
 #include "glCompact/glCompact.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
@@ -18,12 +18,12 @@ namespace glCompact {
     //control/flush commands
     void flush() {
         //TODO: set all pending changes
-        threadContextGroup->functions.glFlush();
+        threadContextGroup_->functions.glFlush();
     }
 
     void finish() {
         //TODO: set all pending changes
-        threadContextGroup->functions.glFinish();
+        threadContextGroup_->functions.glFinish();
     }
 
     /*

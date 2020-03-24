@@ -1,5 +1,5 @@
 #include "glCompact/Fence.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
 /*
@@ -35,12 +35,12 @@ namespace glCompact {
 
     void Fence::insert() {
         free();
-        fenceObj = threadContextGroup->functions.glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        fenceObj = threadContextGroup_->functions.glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     }
 
     void Fence::free() {
         if (fenceObj) {
-            threadContextGroup->functions.glDeleteSync(fenceObj);
+            threadContextGroup_->functions.glDeleteSync(fenceObj);
             fenceObj = 0;
             glClientWaitSyncDidFlush = false;
         }
@@ -72,7 +72,7 @@ namespace glCompact {
             TODO:
             Does GL_SYNC_FLUSH_COMMANDS_BIT have any effect if the fence was created by another context? How exactly did OpenGL 4.5 change fences?
         */
-        int32_t result = threadContextGroup->functions.glClientWaitSync(fenceObj, glClientWaitSyncDidFlush ? 0 : GL_SYNC_FLUSH_COMMANDS_BIT, timeoutInNanoseconds);
+        int32_t result = threadContextGroup_->functions.glClientWaitSync(fenceObj, glClientWaitSyncDidFlush ? 0 : GL_SYNC_FLUSH_COMMANDS_BIT, timeoutInNanoseconds);
         glClientWaitSyncDidFlush = true;
         return (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED);
     }
@@ -91,6 +91,6 @@ namespace glCompact {
             OpenGL/OpenCL will make sure that the GL/CL commands from thread2 won't actually be issued until the sync object is reached.
     */
     void Fence::isSignaledOrStallCommandStream() {
-        threadContextGroup->functions.glWaitSync(fenceObj, 0, GL_TIMEOUT_IGNORED);
+        threadContextGroup_->functions.glWaitSync(fenceObj, 0, GL_TIMEOUT_IGNORED);
     }
 }

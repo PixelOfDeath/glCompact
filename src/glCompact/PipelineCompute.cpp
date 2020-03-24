@@ -1,6 +1,6 @@
 #include "glCompact/PipelineCompute.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/Config.hpp"
 
     #include "glCompact/ToolsInternal.hpp"
@@ -86,41 +86,41 @@ namespace glCompact {
     void PipelineCompute::loadString_(
         const std::string& computeShaderString
     ) {
-        GLuint shaderId = threadContextGroup->functions.glCreateShader(GL_COMPUTE_SHADER);
+        GLuint shaderId = threadContextGroup_->functions.glCreateShader(GL_COMPUTE_SHADER);
         const char *pCString = computeShaderString.c_str();
-        threadContextGroup->functions.glShaderSource(shaderId, 1, reinterpret_cast<const GLchar**>(&pCString), NULL);
-        threadContextGroup->functions.glCompileShader(shaderId);
+        threadContextGroup_->functions.glShaderSource(shaderId, 1, reinterpret_cast<const GLchar**>(&pCString), NULL);
+        threadContextGroup_->functions.glCompileShader(shaderId);
         GLint status;
-        threadContextGroup->functions.glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
+        threadContextGroup_->functions.glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
         bool compileSuccessful = status == GL_TRUE;
         string shaderLog = getShaderInfoLog(shaderId);
         if (!shaderLog.empty())
             infoLog_ += "COMPUTE SHADER LOG:\n" + shaderLog + "\n";
         UNLIKELY_IF (!compileSuccessful) {
-            if (shaderId) threadContextGroup->functions.glDeleteShader(shaderId);
+            if (shaderId) threadContextGroup_->functions.glDeleteShader(shaderId);
             throw std::runtime_error("Error loading shader:\n" + infoLog_);
         }
 
-        id = threadContextGroup->functions.glCreateProgram();
+        id = threadContextGroup_->functions.glCreateProgram();
         //if (binaryRetrievableHint && threadContext->extensions.GL_ARB_get_program_binary)
-        //    threadContextGroup->functions.glProgramParameteri(id, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+        //    threadContextGroup_->functions.glProgramParameteri(id, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
         //else
         //    glProgramParameteri(id, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_FALSE);
 
-        threadContextGroup->functions.glAttachShader(id, shaderId);
-        threadContextGroup->functions.glLinkProgram(id);
+        threadContextGroup_->functions.glAttachShader(id, shaderId);
+        threadContextGroup_->functions.glLinkProgram(id);
 
         GLint linkStatus;
-        threadContextGroup->functions.glGetProgramiv(id, GL_LINK_STATUS, &linkStatus);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_LINK_STATUS, &linkStatus);
         string programLog = getProgramInfoLog(id);
         if (!programLog.empty())
             infoLog_ += "PROGRAM LINK STATUS:\n" + getProgramInfoLog(id) + "\n";
 
-        threadContextGroup->functions.glDetachShader(id, shaderId);
-        threadContextGroup->functions.glDeleteShader(shaderId);
+        threadContextGroup_->functions.glDetachShader(id, shaderId);
+        threadContextGroup_->functions.glDeleteShader(shaderId);
 
         UNLIKELY_IF (!linkStatus) {
-            threadContextGroup->functions.glDeleteProgram(id);
+            threadContextGroup_->functions.glDeleteProgram(id);
             id = 0;
             throw std::runtime_error("Error linking shader:\n" + infoLog_);
         }
@@ -130,7 +130,7 @@ namespace glCompact {
 
     void PipelineCompute::collectInformation() {
         PipelineInterface::collectInformation();
-        threadContextGroup->functions.glGetProgramiv(id, GL_COMPUTE_WORK_GROUP_SIZE, &workGroupSize[0]);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_COMPUTE_WORK_GROUP_SIZE, &workGroupSize[0]);
     }
 
     /** \brief dispatch compute shader
@@ -144,11 +144,11 @@ namespace glCompact {
         uint32_t groupCountY,
         uint32_t groupCountZ
     ) {
-        UNLIKELY_IF (!threadContextGroup->extensions.GL_ARB_compute_shader)
+        UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_compute_shader)
             throw std::runtime_error("missing support for GL_ARB_compute_shader (Core since 4.3)!");
         activate();
         processPendingChanges();
-        threadContextGroup->functions.glDispatchCompute(groupCountX, groupCountY, groupCountZ);
+        threadContextGroup_->functions.glDispatchCompute(groupCountX, groupCountY, groupCountZ);
     }
 
     /** \brief dispatch compute shader, getting group count parameters from a buffer
@@ -167,14 +167,14 @@ namespace glCompact {
         const BufferInterface& buffer,
         uintptr_t              offset
     ) {
-        UNLIKELY_IF (!threadContextGroup->extensions.GL_ARB_compute_shader)
+        UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_compute_shader)
             throw std::runtime_error("missing support for GL_ARB_compute_shader (Core since 4.3)!");
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty buffer!");
         activate();
         processPendingChanges();
         threadContext->cachedBindDispatchIndirectBuffer(buffer.id);
-        threadContextGroup->functions.glDispatchComputeIndirect(offset);
+        threadContextGroup_->functions.glDispatchComputeIndirect(offset);
     }
 
     void PipelineCompute::activate() {

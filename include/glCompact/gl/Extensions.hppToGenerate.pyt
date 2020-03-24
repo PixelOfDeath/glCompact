@@ -27,11 +27,11 @@ outputTemplate = """#pragma once
 #include "glCompact/gl/Types.hpp"
 
 namespace glCompact {
-    class ContextGroup;
+    class ContextGroup_;
     namespace gl {
             class Extensions {
                 public:
-                    void init(const ContextGroup* contextGroup);
+                    void init(const ContextGroup_* contextGroup_);
 
                     //bool name = false;
                     ///EXTENSION_LIST

@@ -1,7 +1,7 @@
 #include "glCompact/Texture2dArray.hpp"
 #include "glCompact/gl/Constants.hpp"
 //#include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include <stdexcept>
 
@@ -17,9 +17,9 @@ namespace glCompact {
         bool          mipmaps
     ) {
         UNLIKELY_IF (x > getMaxXY() || y > getMaxXY())
-            throw runtime_error("Trying to create Texture2dArray with size(x = " + to_string(x) + ", y = " + to_string(y) + "), but that is bayond getMaxXY(GL_MAX_TEXTURE_SIZE = " + to_string(threadContextGroup->values.GL_MAX_TEXTURE_SIZE) + ")");
+            throw runtime_error("Trying to create Texture2dArray with size(x = " + to_string(x) + ", y = " + to_string(y) + "), but that is bayond getMaxXY(GL_MAX_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_TEXTURE_SIZE) + ")");
         UNLIKELY_IF (layers > getMaxLayers())
-            throw runtime_error("Trying to create Texture2dArray with size(layers = " + to_string(layers) + "), but that is bayond getMaxLayers(GL_MAX_ARRAY_TEXTURE_LAYERS = " + to_string(threadContextGroup->values.GL_MAX_ARRAY_TEXTURE_LAYERS) + ")");
+            throw runtime_error("Trying to create Texture2dArray with size(layers = " + to_string(layers) + "), but that is bayond getMaxLayers(GL_MAX_ARRAY_TEXTURE_LAYERS = " + to_string(threadContextGroup_->values.GL_MAX_ARRAY_TEXTURE_LAYERS) + ")");
         create(GL_TEXTURE_2D_ARRAY, surfaceFormat, x, y, layers, mipmaps, 0);
     }
 
@@ -27,14 +27,14 @@ namespace glCompact {
         Returns maximum supported x and y size. Minimum supported value is 1024.
     */
     uint32_t Texture2dArray::getMaxXY() {
-        return threadContextGroup->values.GL_MAX_TEXTURE_SIZE;
+        return threadContextGroup_->values.GL_MAX_TEXTURE_SIZE;
     }
 
     /*
         Returns maximum supported layer count. Minimum supported value is 256.
     */
     uint32_t Texture2dArray::getMaxLayers() {
-        return threadContextGroup->values.GL_MAX_ARRAY_TEXTURE_LAYERS;
+        return threadContextGroup_->values.GL_MAX_ARRAY_TEXTURE_LAYERS;
     }
 }
 

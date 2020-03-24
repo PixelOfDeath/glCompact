@@ -1,5 +1,5 @@
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/Sampler.hpp"
 //#include "glCompact/ShaderInterface.hpp"
 
@@ -40,12 +40,12 @@ using namespace glCompact::gl;
 
 namespace glCompact {
     Sampler::Sampler() {
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-            threadContextGroup->functions.glCreateSamplers(1, &id);
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+            threadContextGroup_->functions.glCreateSamplers(1, &id);
         } else {
-            threadContextGroup->functions.glGenSamplers(1, &id);
+            threadContextGroup_->functions.glGenSamplers(1, &id);
             //this needs to be bound once before OpenGL creates the sampler for real, and before we can use operations on it like setting parameters
-            threadContextGroup->functions.glBindSampler(0, id);
+            threadContextGroup_->functions.glBindSampler(0, id);
             threadContext->sampler_id[0] = id;
             threadContext->sampler_markSlotChange(0);
         }
@@ -53,7 +53,7 @@ namespace glCompact {
 
     Sampler::~Sampler() {
         detachFromThreadContext();
-        threadContextGroup->functions.glDeleteSamplers(1, &id);
+        threadContextGroup_->functions.glDeleteSamplers(1, &id);
     }
 
     /** \brief set magnification filter (default is MagnificationFilter::nearest)
@@ -80,7 +80,7 @@ namespace glCompact {
     void Sampler::setMaxAnisotropy(
         float maxAnisotropy
     ) {
-        //if (!threadContextGroup->extensions.GL_ARB_texture_filter_anisotropic && !threadContextGroup->extensions.GL_EXT_texture_filter_anisotropic)
+        //if (!threadContextGroup_->extensions.GL_ARB_texture_filter_anisotropic && !threadContextGroup_->extensions.GL_EXT_texture_filter_anisotropic)
         //    throw std::runtime_error("blabla...");
 
         //NOTE: GL_TEXTURE_MAX_ANISOTROPY_EXT is the same constant! So this works for both, the EXT and the ARB version!
@@ -180,14 +180,14 @@ namespace glCompact {
         GLenum pname,
         float  value
     ) {
-        threadContextGroup->functions.glSamplerParameterf(id, pname, value);
+        threadContextGroup_->functions.glSamplerParameterf(id, pname, value);
     }
 
     void Sampler::setParameter(
         GLenum  pname,
         int32_t value
     ) {
-        threadContextGroup->functions.glSamplerParameteri(id, pname, value);
+        threadContextGroup_->functions.glSamplerParameteri(id, pname, value);
     }
 
     void Sampler::detachFromThreadContext() {

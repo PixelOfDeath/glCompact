@@ -1,7 +1,7 @@
 #include "glCompact/Texture1d.hpp"
 #include "glCompact/gl/Constants.hpp"
 //#include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include <stdexcept>
 
@@ -15,7 +15,7 @@ namespace glCompact {
         bool          mipmaps
     ) {
         UNLIKELY_IF (x > getMaxX())
-            throw runtime_error("Trying to create Texture1d with size(x = " + to_string(x) + "), but that is bayond getMaxX(GL_MAX_TEXTURE_SIZE = " + to_string(threadContextGroup->values.GL_MAX_TEXTURE_SIZE) + ")");
+            throw runtime_error("Trying to create Texture1d with size(x = " + to_string(x) + "), but that is bayond getMaxX(GL_MAX_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_TEXTURE_SIZE) + ")");
         create(GL_TEXTURE_1D, surfaceFormat, x, 1, 1, mipmaps, 0);
     }
 
@@ -23,7 +23,7 @@ namespace glCompact {
         returns the maximum supported X size for a 1d texture. The minimum supported value is 1024.
     */
     uint32_t Texture1d::getMaxX() {
-        return threadContextGroup->values.GL_MAX_TEXTURE_SIZE;
+        return threadContextGroup_->values.GL_MAX_TEXTURE_SIZE;
     }
 }
 

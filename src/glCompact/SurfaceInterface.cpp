@@ -2,7 +2,7 @@
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 
 #include <glm/glm.hpp>
@@ -75,9 +75,9 @@ namespace glCompact {
         threadContext->cachedBindDrawFbo(0);
         threadContext->cachedBindReadFbo(0); //TODO read fbo relevant? I guess yes.
         if (target == GL_RENDERBUFFER) {
-            threadContextGroup->functions.glDeleteRenderbuffers(1, &id);
+            threadContextGroup_->functions.glDeleteRenderbuffers(1, &id);
         } else {
-            threadContextGroup->functions.glDeleteTextures(1, &id);
+            threadContextGroup_->functions.glDeleteTextures(1, &id);
         }
         id            = 0;
         target        = 0;
@@ -112,11 +112,11 @@ namespace glCompact {
         //TODO: test for format compatibility
         //TODO: do GL_EXT_copy_image/GL_NV_copy_image have the same limits then GL_ARB_copy_image?
 
-        if (threadContextGroup->extensions.GL_ARB_copy_image) {
-            threadContextGroup->functions.glCopyImageSubData(srcSurface.id, srcSurface.target, srcMipmapLevel, srcOffset.x, srcOffset.y, srcOffset.z, this->id, this->target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z);
-        } else if (threadContextGroup->extensions.GL_EXT_copy_image) {
-            threadContextGroup->functions.glCopyImageSubDataEXT(srcSurface.id, srcSurface.target, srcMipmapLevel, srcOffset.x, srcOffset.y, srcOffset.z, this->id, this->target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z);
-        //} else if (threadContextGroup->extensions.GL_NV_copy_image) {
+        if (threadContextGroup_->extensions.GL_ARB_copy_image) {
+            threadContextGroup_->functions.glCopyImageSubData(srcSurface.id, srcSurface.target, srcMipmapLevel, srcOffset.x, srcOffset.y, srcOffset.z, this->id, this->target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z);
+        } else if (threadContextGroup_->extensions.GL_EXT_copy_image) {
+            threadContextGroup_->functions.glCopyImageSubDataEXT(srcSurface.id, srcSurface.target, srcMipmapLevel, srcOffset.x, srcOffset.y, srcOffset.z, this->id, this->target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z);
+        //} else if (threadContextGroup_->extensions.GL_NV_copy_image) {
         //    threadContext->glCopyImageSubDataNV(srcSurface.id, srcSurface.target, srcMipmapLevel, srcOffset.x, srcOffset.y, srcOffset.z, this->id, this->target, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z, size.x, size.y, size.z);
         } else {
             throw runtime_error("Non GL_ARB_copy_image/GL_EXT_copy_image path not implemented");
@@ -298,12 +298,12 @@ namespace glCompact {
         //GLuint srcFboId       = threadContext->frameBufferIdForSubImageRead;
         //threadContext->bindReadFbo(srcFboId);
         GLuint srcFboId;
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-            threadContextGroup->functions.glCreateFramebuffers(1, &srcFboId); //TODO do I even need this here? I instandly bind it anyway.
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+            threadContextGroup_->functions.glCreateFramebuffers(1, &srcFboId); //TODO do I even need this here? I instandly bind it anyway.
         } else {
-            threadContextGroup->functions.glGenFramebuffers(1, &srcFboId);
+            threadContextGroup_->functions.glGenFramebuffers(1, &srcFboId);
         }
-        threadContextGroup->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFboId);
+        threadContextGroup_->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFboId);
 
         GLuint targetFboId;
 
@@ -322,23 +322,23 @@ namespace glCompact {
             //not using any DSA here? FBO has to be bound anyway.
             switch (srcTarget) {
                 case GL_TEXTURE_1D: {
-                    threadContextGroup->functions.glFramebufferTexture1D(GL_READ_FRAMEBUFFER, srcAttachmentType, GL_TEXTURE_1D, srcId, srcMipmapLevel);
+                    threadContextGroup_->functions.glFramebufferTexture1D(GL_READ_FRAMEBUFFER, srcAttachmentType, GL_TEXTURE_1D, srcId, srcMipmapLevel);
                     break;
                 }
                 //case GL_TEXTURE_RECTANGLE:
                 //case GL_TEXTURE_1D_ARRAY: //no way to bind to fbo???
                 case GL_TEXTURE_2D:
                 case GL_TEXTURE_2D_MULTISAMPLE: {
-                    threadContextGroup->functions.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, srcAttachmentType, srcTarget, srcId, srcMipmapLevel);
+                    threadContextGroup_->functions.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, srcAttachmentType, srcTarget, srcId, srcMipmapLevel);
                     break;
                 }
                 case GL_TEXTURE_CUBE_MAP: {
                     GLenum srcCubeMapTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + srcOffset.z + loopLayerOffset;
-                    threadContextGroup->functions.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, srcAttachmentType, srcCubeMapTarget, srcId, srcMipmapLevel);
+                    threadContextGroup_->functions.glFramebufferTexture2D(GL_READ_FRAMEBUFFER, srcAttachmentType, srcCubeMapTarget, srcId, srcMipmapLevel);
                     break;
                 }
                 case GL_TEXTURE_3D: {
-                    threadContextGroup->functions.glFramebufferTexture3D(GL_READ_FRAMEBUFFER, srcAttachmentType, srcTarget, srcId, srcMipmapLevel, srcOffset.z + loopLayerOffset);
+                    threadContextGroup_->functions.glFramebufferTexture3D(GL_READ_FRAMEBUFFER, srcAttachmentType, srcTarget, srcId, srcMipmapLevel, srcOffset.z + loopLayerOffset);
                     break;
                 }
                 case GL_TEXTURE_CUBE_MAP_ARRAY:
@@ -346,11 +346,11 @@ namespace glCompact {
                 case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: {
                     //this only attaches one single layer
                     //Similar to glFramebufferTexture3D. Used for 3d, 2d-array or 1d-array texture. Does not need a texture type parameter.
-                    threadContextGroup->functions.glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, srcAttachmentType, srcId, srcMipmapLevel, srcOffset.z + loopLayerOffset);
+                    threadContextGroup_->functions.glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, srcAttachmentType, srcId, srcMipmapLevel, srcOffset.z + loopLayerOffset);
                     break;
                 }
                 case GL_RENDERBUFFER: { //both non-multisample and multisample
-                    threadContextGroup->functions.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, srcAttachmentType, GL_RENDERBUFFER, srcId);
+                    threadContextGroup_->functions.glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, srcAttachmentType, GL_RENDERBUFFER, srcId);
                 }
             }
 
@@ -358,44 +358,44 @@ namespace glCompact {
             //The non-dsa and dsa functions have significant differences in what target they are used for. Only use non-DSA here for now?
             switch (dstTarget) {
                 case GL_TEXTURE_1D: {
-                    if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-                        threadContextGroup->functions.glCopyTextureSubImage1D(dstId, dstMipmapLevel, dstOffset.x, srcOffset.x, srcOffset.y, size.x);
+                    if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+                        threadContextGroup_->functions.glCopyTextureSubImage1D(dstId, dstMipmapLevel, dstOffset.x, srcOffset.x, srcOffset.y, size.x);
                     } else {
                         bindTemporal();
-                        threadContextGroup->functions.glCopyTexSubImage1D(GL_TEXTURE_1D, dstMipmapLevel, dstOffset.x, srcOffset.x, srcOffset.y, size.x);
+                        threadContextGroup_->functions.glCopyTexSubImage1D(GL_TEXTURE_1D, dstMipmapLevel, dstOffset.x, srcOffset.x, srcOffset.y, size.x);
                     }
                     break;
                 }
                 //GL_TEXTURE_RECTANGLE:
                 case GL_TEXTURE_1D_ARRAY:
                 case GL_TEXTURE_2D: {
-                    if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-                        threadContextGroup->functions.glCopyTextureSubImage2D(dstId, dstMipmapLevel, dstOffset.x, dstOffset.y, srcOffset.x, srcOffset.y, size.x, size.y);
+                    if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+                        threadContextGroup_->functions.glCopyTextureSubImage2D(dstId, dstMipmapLevel, dstOffset.x, dstOffset.y, srcOffset.x, srcOffset.y, size.x, size.y);
                     } else {
                         bindTemporal();
-                        threadContextGroup->functions.glCopyTexSubImage2D(GL_TEXTURE_2D, dstMipmapLevel, dstOffset.x, dstOffset.y, srcOffset.x, srcOffset.y, size.x, size.y);
+                        threadContextGroup_->functions.glCopyTexSubImage2D(GL_TEXTURE_2D, dstMipmapLevel, dstOffset.x, dstOffset.y, srcOffset.x, srcOffset.y, size.x, size.y);
                     }
                     break;
                 }
                 case GL_TEXTURE_CUBE_MAP: {
                     GLenum dstCubeMapTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + dstOffset.z + loopLayerOffset;
-                    if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
+                    if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                         //threadContext->glCopyTextureSubImage3D();
                     } else {
                         bindTemporal(); //TODO: different target needed here?? Have to test!
-                        threadContextGroup->functions.glCopyTexSubImage2D(dstCubeMapTarget, dstMipmapLevel, dstOffset.x, dstOffset.y, srcOffset.x, srcOffset.y, size.x, size.y);
+                        threadContextGroup_->functions.glCopyTexSubImage2D(dstCubeMapTarget, dstMipmapLevel, dstOffset.x, dstOffset.y, srcOffset.x, srcOffset.y, size.x, size.y);
                     }
                     break;
                 }
                 case GL_TEXTURE_2D_ARRAY:
                 case GL_TEXTURE_3D:
                 case GL_TEXTURE_CUBE_MAP_ARRAY: {
-                    if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
+                    if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
 
                     } else {
                         //NOTE: this function can only copy the first 2d layer from the fbo to any layers of a 3d or 2d array texture!
                         bindTemporal();
-                        threadContextGroup->functions.glCopyTexSubImage3D(GL_TEXTURE_3D, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z + loopLayerOffset, srcOffset.x, srcOffset.y, size.x, size.y);
+                        threadContextGroup_->functions.glCopyTexSubImage3D(GL_TEXTURE_3D, dstMipmapLevel, dstOffset.x, dstOffset.y, dstOffset.z + loopLayerOffset, srcOffset.x, srcOffset.y, size.x, size.y);
                     }
                     break;
                 }
@@ -404,20 +404,20 @@ namespace glCompact {
                     //TODO: setup raster states correctly that may influence blitting (scissor test, etc...)
                     //TODO: move once-stuff out of the loop
                     if (!targetFboId) {
-                        threadContextGroup->functions.glCreateFramebuffers(1, &targetFboId);
-                        threadContextGroup->functions.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFboId);
+                        threadContextGroup_->functions.glCreateFramebuffers(1, &targetFboId);
+                        threadContextGroup_->functions.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFboId);
                     }
                     //...
                     break;
                 }
                 case GL_RENDERBUFFER: { //this is non-multisample and multisample renderBuffer
                     if (!targetFboId) {
-                        threadContextGroup->functions.glCreateFramebuffers(1, &targetFboId);
-                        threadContextGroup->functions.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFboId);
+                        threadContextGroup_->functions.glCreateFramebuffers(1, &targetFboId);
+                        threadContextGroup_->functions.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFboId);
                     }
-                    threadContextGroup->functions.glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, srcAttachmentType, GL_RENDERBUFFER, srcId);
+                    threadContextGroup_->functions.glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, srcAttachmentType, GL_RENDERBUFFER, srcId);
                     //not sure if I have to +1 on the size value?
-                    threadContextGroup->functions.glBlitFramebuffer(srcOffset.x, srcOffset.y, size.x, size.y, dstOffset.x, dstOffset.y, size.x, size.y, blitMask, GL_NEAREST);
+                    threadContextGroup_->functions.glBlitFramebuffer(srcOffset.x, srcOffset.y, size.x, size.y, dstOffset.x, dstOffset.y, size.x, size.y, blitMask, GL_NEAREST);
                     break;
                 }
             }
@@ -425,11 +425,11 @@ namespace glCompact {
 
         if (targetFboId) {
             int setCurrentDrawId = Config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO ? -1 : 0;
-            threadContextGroup->functions.glDeleteFramebuffers(1, &targetFboId);
+            threadContextGroup_->functions.glDeleteFramebuffers(1, &targetFboId);
             threadContext->current_frame_drawId = setCurrentDrawId;
         }
 
-        threadContextGroup->functions.glDeleteFramebuffers(1, &srcFboId);
+        threadContextGroup_->functions.glDeleteFramebuffers(1, &srcFboId);
         threadContext->current_frame_readId = -1; //TODO: Do some drivers also fuck around with setting the readFbo to 0 when deleting the current fbo? Or can I set this one to 0?
     }
 

@@ -7,9 +7,9 @@
 #include <atomic>
 
 namespace glCompact {
-    class ContextGroup : public ContextGroupInfo {
+    class ContextGroup_ : public ContextGroupInfo {
         public:
-            ContextGroup(void*(*getGlFunctionPointer)(const char* glFunctionName));
+            ContextGroup_(void*(*getGlFunctionPointer)(const char* glFunctionName));
 
             gl::Functions  functions;
             gl::Values     values;

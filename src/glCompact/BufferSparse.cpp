@@ -1,7 +1,7 @@
 #include "glCompact/BufferSparse.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/ThreadContextGroup_.hpp"
 
 #include <stdexcept>
 
@@ -67,7 +67,7 @@ namespace glCompact {
     //Max size is 64 KiB. Also what AMD drivers use on 290.
     uintptr_t BufferSparse::getPageSize() {
         Context::assertThreadHasActiveGlContext();
-        return threadContextGroup->values.GL_SPARSE_BUFFER_PAGE_SIZE_ARB;
+        return threadContextGroup_->values.GL_SPARSE_BUFFER_PAGE_SIZE_ARB;
     }
 
     void BufferSparse::commitment(
@@ -76,13 +76,13 @@ namespace glCompact {
         bool      commit
     ) {
         Context::assertThreadHasActiveGlContext();
-        if (threadContextGroup->extensions.GL_ARB_direct_state_access) {
-            threadContextGroup->functions.glNamedBufferPageCommitmentARB(id, offset, size, commit);
-        } else if (threadContextGroup->extensions.GL_EXT_direct_state_access) {
-            threadContextGroup->functions.glNamedBufferPageCommitmentEXT(id, offset, size, commit);
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+            threadContextGroup_->functions.glNamedBufferPageCommitmentARB(id, offset, size, commit);
+        } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
+            threadContextGroup_->functions.glNamedBufferPageCommitmentEXT(id, offset, size, commit);
         } else {
             threadContext->cachedBindCopyWriteBuffer(id);
-            threadContextGroup->functions.glBufferPageCommitmentARB(GL_COPY_WRITE_BUFFER, offset, size, commit);
+            threadContextGroup_->functions.glBufferPageCommitmentARB(GL_COPY_WRITE_BUFFER, offset, size, commit);
         }
     }
 
