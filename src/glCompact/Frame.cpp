@@ -1006,8 +1006,6 @@ namespace glCompact {
         if (!id) return;
         if (threadContext->extensions.GL_ARB_direct_state_access) {
             threadContext->glNamedFramebufferTexture(id, attachment, 0, 0);
-        } else if (threadContext->extensions.GL_EXT_direct_state_access) {
-            threadContext->glNamedFramebufferTextureEXT(id, attachment, 0, 0);
         } else {
             threadContext->cachedBindDrawFbo(id);
             threadContext->glFramebufferTexture(GL_DRAW_FRAMEBUFFER, attachment, 0, 0);
@@ -1023,8 +1021,6 @@ namespace glCompact {
         if (!id && !defaultFrameBuffer) return;
         if (threadContext->extensions.GL_ARB_direct_state_access) {
             threadContext->glNamedFramebufferDrawBuffer(id, target);
-        } else if (threadContext->extensions.GL_EXT_direct_state_access) {
-            threadContext->glFramebufferDrawBufferEXT(id, target);
         } else {
             threadContext->cachedBindDrawFbo(id);
             threadContext->glDrawBuffer(target);
@@ -1090,8 +1086,6 @@ namespace glCompact {
 
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glNamedFramebufferDrawBuffers(id, highestMapping, &mappingList[0]);
-        } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
-            threadContextGroup_->functions.glFramebufferDrawBuffersEXT(id, highestMapping, &mappingList[0]);
         } else {
             threadContext->cachedBindDrawFbo(id);
             threadContextGroup_->functions.glDrawBuffers(highestMapping, &mappingList[0]);
@@ -1101,8 +1095,6 @@ namespace glCompact {
         //    //TODO
         //    if (threadContext->extensions.GL_ARB_direct_state_access) {
         //        threadContext->glNamedFramebufferDrawBuffer(id, targets[0]);
-        //    } else if (threadContext->extensions.GL_EXT_direct_state_access) {
-        //        threadContext->glFramebufferDrawBufferEXT(id, targets[0]);
         //    } else {
         //        threadContext->cachedBindDrawFbo(id);
         //        threadContext->glDrawBuffer(targets[0]);
@@ -1115,8 +1107,6 @@ namespace glCompact {
         if (!id) return;
         if (threadContext->extensions.GL_ARB_direct_state_access) {
             threadContext->glNamedFramebufferReadBuffer(id, target);
-        } else if (threadContext->extensions.GL_EXT_direct_state_access) {
-            threadContext->glFramebufferReadBufferEXT(id, target);
         } else {
             threadContext->cachedBindReadFbo();
             threadContext->glReadBuffer(target);
