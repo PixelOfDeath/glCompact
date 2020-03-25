@@ -632,8 +632,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLfloat& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform1fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform1fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
@@ -643,8 +641,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec2& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform2fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform2fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
@@ -654,8 +650,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec3& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform3fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform3fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
@@ -665,8 +659,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec4& value, int count) {
         if (threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
-        else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform4fvEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
@@ -713,8 +705,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const int32_t& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform1iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform1ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
@@ -724,8 +714,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec2& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform2iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform2ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
@@ -735,8 +723,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec3& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform3iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform3ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
@@ -746,8 +732,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec4& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform4ivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
@@ -757,8 +741,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLuint& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform1uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform1uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
@@ -768,8 +750,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec2& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform2uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform2uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
@@ -779,8 +759,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec3& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform3uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform3uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
@@ -790,8 +768,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec4& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniform4uivEXT(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
@@ -803,8 +779,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat2x2& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -814,8 +788,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat2x3& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix2x3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -825,8 +797,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat2x4& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix2x4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -836,8 +806,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat3x2& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix3x2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -847,8 +815,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat3x3& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -858,8 +824,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat3x4& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix3x4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -869,8 +833,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat4x2& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix4x2fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -880,8 +842,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat4x3& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix4x3fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
@@ -891,8 +851,6 @@ namespace glCompact {
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::mat4x4& value, int count) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
-        else if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glProgramUniformMatrix4fvEXT(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));

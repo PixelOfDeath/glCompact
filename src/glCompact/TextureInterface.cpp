@@ -568,26 +568,18 @@ namespace glCompact {
             Using defined pixel data to fill any kind of texture (compressed or uncompressed)
                 GL_ARB_direct_state_access
                     glTextureSubImage*D
-                GL_EXT_direct_state_access
-                    glTextureSubImage*DEXT
                 old style with binding
                     glTexSubImage*D
 
             Copying already compressed data directly to a compressed texture:
                 GL_ARB_direct_state_access
                     glCompressedTextureSubImage*D
-                GL_EXT_direct_state_access
-                    glCompressedTextureSubImage*DEXT
                 old style with binding
                     glCompressedTexSubImage*D
 
             Core since eons:
                 void glGetTexImage                 (GLenum target, int32_t level, GLenum format, GLenum type, void* pixels)
                 void glGetCompressedTexImage       (GLenum target, int32_t level, void *pixels )
-
-            GL_EXT_direct_state_access (Not core)
-                void glGetTextureImageEXT          (uint32_t texture, GLenum target, int32_t level, GLenum format, GLenum type, void *pixels);
-                void glGetCompressedTextureImageEXT(uint32_t texture, GLenum target, int32_t level, void* img);
 
             this two functions come with GL4.5 (not sure if they come in with a extension or just core4.5, they are not part of ARB DSA)
                 void glGetnTexImage                (GLenum tex, int32_t level, GLenum format, GLenum type, uint32_t bufSize, void* pixels)
@@ -713,29 +705,6 @@ namespace glCompact {
                         threadContextGroup_->functions.glTextureSubImage3D(id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                 }
-            } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
-                //does this work correctly with GL_TEXTURE_CUBE_MAP_ARRAY/GL_TEXTURE_CUBE_MAP?
-                switch (target) {
-                    case GL_TEXTURE_1D:
-                        threadContextGroup_->functions.glTextureSubImage1DEXT(id, target, mipmapLevel, texOffset.x, texSize.x, componentsAndArrangement, componentsTypes, offsetPointer);
-                        break;
-                    case GL_TEXTURE_2D:
-                    case GL_TEXTURE_1D_ARRAY:
-                    case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup_->functions.glTextureSubImage2DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, offsetPointer);
-                        break;
-                    case GL_TEXTURE_3D:
-                    case GL_TEXTURE_2D_ARRAY:
-                    case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
-                    case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup_->functions.glTextureSubImage3DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
-                        break;
-                    case GL_TEXTURE_CUBE_MAP:
-                        uintptr_t cubeSideBufferSize = memorySurfaceFormat->bytePerPixelOrBlock * texSize.x * texSize.y;
-                        for (unsigned int i = z; i < z + texSize.z; ++i)
-                            threadContextGroup_->functions.glTextureSubImage2DEXT(id, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
-                        break;
-                }
             } else {
                 bindTemporal();
                 switch (target) {
@@ -779,25 +748,6 @@ namespace glCompact {
                     case GL_TEXTURE_CUBE_MAP:
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
                         threadContextGroup_->functions.glCompressedTextureSubImage3D(id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
-                        break;
-                }
-            } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
-                //TODO:how to handle GL_TEXTURE_CUBE_MAP/GL_TEXTURE_CUBE_MAP_ARRAY here
-                switch (target) {
-                    case GL_TEXTURE_1D:
-                        threadContextGroup_->functions.glCompressedTextureSubImage1DEXT(id, target, mipmapLevel, texOffset.x, texSize.x, sizedFormat, maxCopySizeGuard, offsetPointer);
-                        break;
-                    case GL_TEXTURE_2D:
-                    case GL_TEXTURE_1D_ARRAY:
-                    case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup_->functions.glCompressedTextureSubImage2DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, sizedFormat, maxCopySizeGuard, offsetPointer);
-                        break;
-                    case GL_TEXTURE_3D:
-                    case GL_TEXTURE_2D_ARRAY:
-                    case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
-                    case GL_TEXTURE_CUBE_MAP:
-                    case GL_TEXTURE_CUBE_MAP_ARRAY:
-                        threadContextGroup_->functions.glCompressedTextureSubImage3DEXT(id, target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                 }
             } else {
@@ -1026,8 +976,6 @@ namespace glCompact {
             throw runtime_error("Invalid usage of generateMipmaps(), can't be used on compressed texture format!");
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glGenerateTextureMipmap(id);
-        else if (threadContextGroup_->extensions.GL_EXT_direct_state_access)
-            threadContextGroup_->functions.glGenerateTextureMipmapEXT(id, target);
         else {
             bindTemporal();
             threadContextGroup_->functions.glGenerateMipmap(target);
@@ -1174,8 +1122,6 @@ namespace glCompact {
             throw runtime_error("Can't set texture parameter of empty texture object!");
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glTextureParameteri(id, pname, param);
-        } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
-            threadContextGroup_->functions.glTextureParameteriEXT(id, target, pname, param);
         } else {
             bindTemporal();
             threadContextGroup_->functions.glTexParameteri(target, pname, param);
@@ -1190,8 +1136,6 @@ namespace glCompact {
             throw runtime_error("Can't set texture parameter of empty texture object!");
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glTextureParameterf(id, pname, param);
-        } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
-            threadContextGroup_->functions.glTextureParameterfEXT(id, target, pname, param);
         } else {
             bindTemporal();
             threadContextGroup_->functions.glTexParameterf(target, pname, param);

@@ -80,8 +80,6 @@ namespace glCompact {
         Context::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glNamedBufferPageCommitmentARB(id, offset, size, commit);
-        } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
-            threadContextGroup_->functions.glNamedBufferPageCommitmentEXT(id, offset, size, commit);
         } else {
             threadContext->cachedBindCopyWriteBuffer(id);
             threadContextGroup_->functions.glBufferPageCommitmentARB(GL_COPY_WRITE_BUFFER, offset, size, commit);
