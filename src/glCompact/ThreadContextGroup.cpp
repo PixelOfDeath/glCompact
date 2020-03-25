@@ -1,10 +1,10 @@
 #include "glCompact/ThreadContextGroup.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
 
 namespace glCompact {
     #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
-        thread_local const ContextGroup*const& threadContextGroup = threadContextGroup_;
+        thread_local ContextGroup*      __restrict threadContextGroup;
     #else
-                     const ContextGroup*const& threadContextGroup = threadContextGroup_;
+        static       char                          contextGroupMem[sizeof(ContextGroup)] alignas(ContextGroup);
+                     ContextGroup*const __restrict threadContextGroup = reinterpret_cast<ContextGroup*>(&contextGroupMem);
     #endif
 }

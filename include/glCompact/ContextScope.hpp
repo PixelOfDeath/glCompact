@@ -2,6 +2,7 @@
 
 namespace glCompact {
     class ContextGroup_;
+    class ContextGroup;
     class ContextScope {
         public:
             ContextScope(void *(*getGlFunctionPointer)(const char*));
@@ -10,5 +11,6 @@ namespace glCompact {
             ~ContextScope();
         private:
             ContextGroup_* contextGroup_;
+            ContextGroup*  contextGroup;
     };
 }

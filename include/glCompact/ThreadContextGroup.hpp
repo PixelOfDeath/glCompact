@@ -4,8 +4,8 @@
 
 namespace glCompact {
     #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
-        extern thread_local const ContextGroup*const& threadContextGroup;
+        extern thread_local ContextGroup*      __restrict threadContextGroup;
     #else
-        extern              const ContextGroup*const& threadContextGroup;
+        extern              ContextGroup*const __restrict threadContextGroup;
     #endif
 }

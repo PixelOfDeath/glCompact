@@ -25,8 +25,7 @@ functionNameMaxLen = max(len(x) for x in functionNameList)
 functionDefinitionList = []
 for functionName in functionNameList:
     functionNameProc = (functionName.upper() + "PROC").ljust(functionNameMaxLen + 4)
-    functionNameLong = functionName.ljust(functionNameMaxLen)
-    queryFunctionString = "                " + functionNameProc + " " + functionNameLong + " = reinterpret_cast<" + functionNameProc + ">(0);"
+    queryFunctionString = "                " + functionNameProc + " " + functionName + ";"
     functionDefinitionList.append(queryFunctionString)
 
 outputTemplate = """#pragma once
@@ -40,7 +39,7 @@ namespace glCompact {
             public:
                 void init(void*(*getGlFunctionPointer)(const char* glFunctionName));
 
-                //glNamePROC name = reinterpret_cast<glNamePROC>(0);
+                //glNamePROC name;
                 ///FUNCTION_DEFINITION_LIST
         };
     }

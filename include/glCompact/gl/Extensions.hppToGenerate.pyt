@@ -20,8 +20,7 @@ for extension in root.find("extensions").findall("extension"):
 extensionNameMaxLen = max(len(x) for x in extensionNameList)
 extensionList = []
 for extensionName in extensionNameList:
-    extensionNameLong = extensionName.ljust(extensionNameMaxLen)
-    extensionList.append("                    bool " + extensionNameLong + " = false;")
+    extensionList.append("                    bool " + extensionName + ";")
 
 outputTemplate = """#pragma once
 #include "glCompact/gl/Types.hpp"
@@ -33,7 +32,7 @@ namespace glCompact {
                 public:
                     void init(const ContextGroup_* contextGroup_);
 
-                    //bool name = false;
+                    //bool name;
                     ///EXTENSION_LIST
             };
     }

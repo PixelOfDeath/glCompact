@@ -5,6 +5,7 @@
 #include "glCompact/Config.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/ThreadContextGroup.hpp"
 
 namespace glCompact {
     /**
@@ -79,12 +80,13 @@ namespace glCompact {
         checkContextGroup();
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
-            threadContextGroup_ = new ContextGroup(getGlFunctionPointer);
+            contextGroup_ = threadContextGroup_ = new ContextGroup_(getGlFunctionPointer);
+            contextGroup  = threadContextGroup  = new ContextGroup (contextGroup_);
         #else
-            new (threadContextGroup_)ContextGroup_(getGlFunctionPointer);
+            contextGroup_ = new (threadContextGroup_)ContextGroup_(getGlFunctionPointer);
+            contextGroup  = new (threadContextGroup )ContextGroup (contextGroup_);
             threadContextGroupConstructed_ = true;
         #endif
-        contextGroup_ = threadContextGroup_;
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             threadContext = new Context;
@@ -115,8 +117,8 @@ namespace glCompact {
         checkContext();
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
-            contextGroup_ = contextScope->contextGroup_;
-            threadContextGroup_ = contextGroup_;
+            contextGroup_ = threadContextGroup_ = contextScope->contextGroup_;
+            contextGroup  = threadContextGroup  = contextScope->contextGroup;
         #endif
         threadContextGroup_->contextCount++;
 
@@ -141,6 +143,8 @@ namespace glCompact {
             #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
                 delete threadContextGroup_;
                 threadContextGroup_ = 0;
+                delete threadContextGroup;
+                threadContextGroup  = 0;
             #else
                 threadContextGroupConstructed_ = false;
             #endif
