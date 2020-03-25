@@ -26,18 +26,22 @@ getFunctionPointerList = []
 for functionName in functionNameList:
     functionNameLong = functionName.ljust(functionNameMaxLen)
     functionNameProc = (functionName.upper() + "PROC").ljust(functionNameMaxLen + 4)
-    getFunctionPointerString = "            " + functionNameLong + " = reinterpret_cast<" + functionNameProc + '>(getGlFunctionPointer("' + functionName + '"));'
+    getFunctionPointerString = "            " + functionNameLong + " = reinterpret_cast<" + functionNameProc + '>(getGlFunctionPointerPure("' + functionName + '"));'
     getFunctionPointerList.append(getFunctionPointerString)
 
 outputTemplate = """#include "glCompact/gl/Functions.hpp"
 #include "glCompact/gl/FunctionsTypedef.hpp"
+#include "glCompact/ToolsInternal.hpp"
 
 namespace glCompact {
     namespace gl {
         void Functions::init(
             void*(*getGlFunctionPointer)(const char* glFunctionName)
         ) {
-            //glName = reinterpret_cast<glNamePROC>(getGlFunctionPointer("glName"));
+            auto getGlFunctionPointerPure = [&](const char* functionName) PURE_FUNCTION -> void* {
+                return getGlFunctionPointer(functionName);
+            };
+            //glName = reinterpret_cast<glNamePROC>(getGlFunctionPointerPure("glName"));
             ///GET_FUNCTION_POINTER_LIST
         }
     }
