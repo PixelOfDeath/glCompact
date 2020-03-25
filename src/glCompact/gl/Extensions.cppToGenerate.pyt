@@ -38,9 +38,10 @@ namespace glCompact {
             //Needs at last 3.0! But unlike glGetString(GL_EXTENSIONS), this also works in core.
             int32_t extensionCount = 0;
             contextGroup_->functions.glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
-            auto extensionSupported = [&](const char* extensionName) -> bool {
+            auto glGetStringi = contextGroup_->functions.glGetStringi;
+            auto extensionSupported = [extensionCount, glGetStringi](const char* extensionName) -> bool {
                 for (int32_t i = 0; i < extensionCount; ++i)
-                    if (std::strcmp(extensionName, reinterpret_cast<const char*>(contextGroup_->functions.glGetStringi(GL_EXTENSIONS, i))) == 0) return true;
+                    if (std::strcmp(extensionName, reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i))) == 0) return true;
                 return false;
             };
 
