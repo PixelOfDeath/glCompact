@@ -1,5 +1,6 @@
 #pragma once
 #include "glCompact/ContextScope.hpp"
+#include "glCompact/ThreadContextGroup.hpp"
 #include "glCompact/GlTools.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Buffer.hpp"
