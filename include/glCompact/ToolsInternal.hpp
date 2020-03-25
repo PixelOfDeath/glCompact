@@ -44,5 +44,5 @@ namespace glCompact {
         #define UNLIKELY_IF(x) if (x)
     #endif
 
-    extern void crash(std::string s);
+    [[noreturn]] extern void crash(std::string s);
 }

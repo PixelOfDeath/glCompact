@@ -28,7 +28,7 @@ namespace glCompact {
         return fileContend;
     }
 
-    void crash(std::string s){
+    [[noreturn]] void crash(std::string s){
         std::cout << s << std::endl;
         abort();
     }
