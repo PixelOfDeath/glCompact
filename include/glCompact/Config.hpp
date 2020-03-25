@@ -29,55 +29,27 @@ namespace glCompact {
         };
 
         //Core since 4.0
-            //GL_ARB_draw_indirect (core since 4.0)
-            constexpr FeatureSetting drawIndirect                 = FeatureSetting::notSupported;
-
-            //GL_ARB_draw_buffers_blend (Core as non-ARB since 4.0)
-            constexpr FeatureSetting blendModePerDrawbuffer       = FeatureSetting::notSupported;
+            constexpr FeatureSetting drawIndirect                 = FeatureSetting::notSupported; //GL_ARB_draw_indirect (core since 4.0)
+            constexpr FeatureSetting blendModePerDrawbuffer       = FeatureSetting::notSupported; //GL_ARB_draw_buffers_blend (Core as non-ARB since 4.0)
 
         //Core since 4.2
-            //GL_EXT_base_instance - ES extension! Not used in glCompact right now
-            //GL_ARB_base_instance (Core since 4.2)
-            constexpr FeatureSetting drawBaseInstance             = FeatureSetting::notSupported;
-
-            //bptc texture formats
-            //GL_ARB_texture_compression_bptc (Core since 4.2)
-            constexpr FeatureSetting bptc                         = FeatureSetting::notSupported;
-
-            //GL_ARB_shader_atomic_counters (Core since 4.2)
-            constexpr FeatureSetting atomicCounter                = FeatureSetting::notSupported;
+            constexpr FeatureSetting drawBaseInstance             = FeatureSetting::notSupported; //GL_ARB_base_instance (Core since 4.2); GL_EXT_base_instance - ES extension! Not used in glCompact right now
+            constexpr FeatureSetting bptc                         = FeatureSetting::notSupported; //GL_ARB_texture_compression_bptc (Core since 4.2); bptc texture formats
+            constexpr FeatureSetting atomicCounter                = FeatureSetting::notSupported; //GL_ARB_shader_atomic_counters (Core since 4.2)
 
         //Core since 4.3
-            //GL_ARB_compute_shader (Core since 4.3)
-            constexpr FeatureSetting computeShader                = FeatureSetting::notSupported;
-
-            //GL_ARB_shader_storage_buffer_object (Core since 4.3)
-            constexpr FeatureSetting shaderStorageBufferObject    = FeatureSetting::notSupported;
-
-            //astc texture formats
-            //GL_KHR_texture_compression_astc_hdr (Core since 4.3)
-            constexpr FeatureSetting astc                         = FeatureSetting::notSupported;
-
-            //GL_ARB_texture_view (Core since 4.3)
-            constexpr FeatureSetting textureView                  = FeatureSetting::notSupported;
+            constexpr FeatureSetting computeShader                = FeatureSetting::notSupported; //GL_ARB_compute_shader (Core since 4.3)
+            constexpr FeatureSetting shaderStorageBufferObject    = FeatureSetting::notSupported; //GL_ARB_shader_storage_buffer_object (Core since 4.3)
+            constexpr FeatureSetting astc                         = FeatureSetting::notSupported; //GL_KHR_texture_compression_astc_hdr (Core since 4.3); astc texture formats
+            constexpr FeatureSetting textureView                  = FeatureSetting::notSupported; //GL_ARB_texture_view (Core since 4.3)
 
         //Core since 4.6
-            //GL_ARB_indirect_parameters (Core since 4.6 with non ARB functions)
-            constexpr FeatureSetting drawIndirectCount            = FeatureSetting::notSupported;
-
-            //GL_EXT_polygon_offset_clamp
-            //GL_ARB_polygon_offset_clamp (Core since 4.6)
-            constexpr FeatureSetting polygonOffsetClamp           = FeatureSetting::notSupported;
-
-            //Anisotropic texture filtering
-            //GL_EXT_texture_filter_anisotropic (This is a ubiquitous extension, even tho it is not core, you can expect it to be present on all drivers not made out of wood)
-            //GL_ARB_texture_filter_anisotropic (Core since 4.6)
-            constexpr FeatureSetting anisotropicFilter            = FeatureSetting::mustBeSupported;
+            constexpr FeatureSetting drawIndirectCount            = FeatureSetting::notSupported; //GL_ARB_indirect_parameters (Core since 4.6 with non ARB functions)
+            constexpr FeatureSetting polygonOffsetClamp           = FeatureSetting::notSupported; //GL_ARB_polygon_offset_clamp (Core since 4.6); GL_EXT_polygon_offset_clamp
+            constexpr FeatureSetting anisotropicFilter            = FeatureSetting::mustBeSupported; //GL_ARB_texture_filter_anisotropic (Core since 4.6); GL_EXT_texture_filter_anisotropic (This is a ubiquitous extension, even tho it is not core, you can expect it to be present on all drivers not made out of wood)
 
         //not part of Core
-            //GL_ARB_gl_spirv (spirv 1.0)
-            //GL_ARB_spirv_extensions (spirv >1.0)
-            constexpr FeatureSetting spirv                        = FeatureSetting::notSupported;
+            constexpr FeatureSetting spirv                        = FeatureSetting::notSupported; //GL_ARB_spirv_extensions (spirv >1.0); GL_ARB_gl_spirv (spirv 1.0)
 
         //DSA is mostly about making OpenGL less painful to use and not about performance!
         //So it makes sense to NOT always use them in glCompact, because uniform access is hidden behind the API anyway.
