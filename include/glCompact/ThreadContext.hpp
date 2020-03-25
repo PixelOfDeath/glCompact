@@ -1,8 +1,8 @@
 #pragma once
 #include "glCompact/Config.hpp"
-#include "glCompact/Context.hpp"
 
 namespace glCompact {
+    class Context;
     #ifdef GLCOMPACT_MULTIPLE_CONTEXT
         extern thread_local Context*      __restrict threadContext;
     #else

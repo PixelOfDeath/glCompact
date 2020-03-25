@@ -1,6 +1,8 @@
 #include "glCompact/Buffer.hpp"
 #include "glCompact/ThreadContext.hpp"
 
+#include <assert.h>
+
 namespace glCompact {
     /**
         \ingroup API

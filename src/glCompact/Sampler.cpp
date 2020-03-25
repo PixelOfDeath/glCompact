@@ -1,6 +1,7 @@
+#include "glCompact/Sampler.hpp"
+#include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
-#include "glCompact/Sampler.hpp"
 //#include "glCompact/ShaderInterface.hpp"
 
 #include "glCompact/ToolsInternal.hpp"

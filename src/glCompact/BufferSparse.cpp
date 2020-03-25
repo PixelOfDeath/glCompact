@@ -1,5 +1,6 @@
 #include "glCompact/BufferSparse.hpp"
 #include "glCompact/gl/Constants.hpp"
+#include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 

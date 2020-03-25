@@ -1,6 +1,7 @@
 #include "glCompact/PipelineInterface.hpp"
 #include "glCompact/Config.hpp"
 #include "glCompact/Debug.hpp"
+#include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/TextureInterface.hpp"

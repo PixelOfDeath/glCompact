@@ -1,5 +1,6 @@
 #pragma once
 #include "glCompact/Config.hpp"
+#include "glCompact/Context.hpp"
 #include "glCompact/ContextGroup.hpp"
 
 namespace glCompact {
