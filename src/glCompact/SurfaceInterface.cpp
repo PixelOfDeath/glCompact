@@ -2,6 +2,7 @@
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
+#include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 

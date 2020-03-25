@@ -1,4 +1,5 @@
 #include "glCompact/Fence.hpp"
+#include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 

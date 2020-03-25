@@ -1,6 +1,7 @@
 #include "glCompact/Frame.hpp"
 #include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
+#include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
 #include "glCompact/ToolsInternal.hpp"

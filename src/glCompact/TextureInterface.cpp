@@ -109,6 +109,7 @@ S
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/Context.hpp"
 #include "glCompact/ThreadContext.hpp"
+#include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/GlTools.hpp"
 #include "glCompact/Frame.hpp"

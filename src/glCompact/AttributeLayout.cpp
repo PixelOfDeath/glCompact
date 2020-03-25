@@ -1,5 +1,6 @@
 #include "glCompact/AttributeLayout.hpp"
 //#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 
 #include <algorithm> //win for std::max / min

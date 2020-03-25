@@ -1,4 +1,5 @@
 #include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/ContextGroup_.hpp"
 
 namespace glCompact {
     #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
