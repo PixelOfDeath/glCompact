@@ -44,5 +44,15 @@ namespace glCompact {
         #define UNLIKELY_IF(x) if (x)
     #endif
 
+    #if defined(__GNUC__) || defined(__clang__)
+        #define PURE_FUNCTION __attribute__((pure))
+    #elif _MSC_VER
+        //MSVC does not support defining functions as pure
+        #define PURE_FUNCTION
+    #else
+        #warning "PURE_FUNCTION not implemented for this compiler"
+        #define PURE_FUNCTION
+    #endif
+
     [[noreturn]] extern void crash(std::string s);
 }
