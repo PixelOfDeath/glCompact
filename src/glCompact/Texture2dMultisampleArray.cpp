@@ -1,6 +1,5 @@
 #include "glCompact/Texture2dMultisampleArray.hpp"
 #include "glCompact/gl/Constants.hpp"
-//#include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"

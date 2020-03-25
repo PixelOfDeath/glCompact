@@ -3,7 +3,6 @@
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
-//#include "glCompact/ShaderInterface.hpp"
 
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/GlTools.hpp"

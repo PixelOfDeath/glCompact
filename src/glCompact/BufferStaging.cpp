@@ -1,6 +1,5 @@
 #include "glCompact/BufferStaging.hpp"
 #include "glCompact/gl/Constants.hpp"
-//#include "glCompact/ThreadContext.hpp"
 
 /*
     needs GL_ARB_buffer_storage (Core since 4.4)

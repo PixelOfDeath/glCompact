@@ -1,8 +1,5 @@
 #pragma once
-//#include "glCompact/glContext.hpp"
-
 #include <cstdint> //C++11
-//#include "glCompact/Global.hpp"
 
 #include <glm/fwd.hpp>
 

@@ -1,6 +1,5 @@
 #include "glCompact/AttributeFormat.hpp"
 #include "glCompact/gl/Constants.hpp"
-//#include "glCompact/glContext.hpp"
 
 using namespace glCompact::gl;
 
