@@ -28,6 +28,7 @@ for extension in extensionNameList:
 
 outputTemplate = """#include "glCompact/gl/Extensions.hpp"
 #include "glCompact/ContextGroup_.hpp"
+#include "glCompact/ToolsInternal.hpp"
 #include <cstring>
 
 namespace glCompact {
@@ -39,7 +40,7 @@ namespace glCompact {
             int32_t extensionCount = 0;
             contextGroup_->functions.glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
             auto glGetStringi = contextGroup_->functions.glGetStringi;
-            auto extensionSupported = [extensionCount, glGetStringi](const char* extensionName) -> bool {
+            auto extensionSupported = [extensionCount, glGetStringi](const char* extensionName) PURE_FUNCTION -> bool {
                 for (int32_t i = 0; i < extensionCount; ++i)
                     if (std::strcmp(extensionName, reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i))) == 0) return true;
                 return false;
