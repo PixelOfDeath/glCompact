@@ -902,14 +902,6 @@ namespace glCompact {
                     threadContextGroup_->functions.glNamedFramebufferTexture(id, attachmentType, surfaceId, mipmapLevel);
             } else
                 threadContextGroup_->functions.glNamedFramebufferRenderbuffer(id, attachmentType, GL_RENDERBUFFER, surfaceId);
-        } else if (threadContextGroup_->extensions.GL_EXT_direct_state_access) {
-            if (isTexture) {
-                if (isLayerSelection)
-                    threadContextGroup_->functions.glNamedFramebufferTextureLayerEXT(id, attachmentType, surfaceId, mipmapLevel, layer);
-                else
-                    threadContextGroup_->functions.glNamedFramebufferTextureEXT(id, attachmentType, surfaceId, mipmapLevel);
-            } else
-                threadContextGroup_->functions.glNamedFramebufferRenderbufferEXT(id, attachmentType, GL_RENDERBUFFER, surfaceId);
         } else {
             threadContext->cachedBindDrawFbo(id);
             if (isTexture) {
