@@ -550,83 +550,147 @@ namespace glCompact {
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLfloat& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform1f(uniformLocation, value);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform1f(shaderId , uniformLocation, value);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform1f(uniformLocation, value);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec2& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform2f(uniformLocation, value[0], value[1]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform2f(shaderId , uniformLocation, value[0], value[1]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform2f(uniformLocation, value[0], value[1]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec3& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform3f(uniformLocation, value[0], value[1], value[2]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform3f(shaderId , uniformLocation, value[0], value[1], value[2]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform3f(uniformLocation, value[0], value[1], value[2]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec4& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform4f(uniformLocation, value[0], value[1], value[2], value[3]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform4f(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform4f(uniformLocation, value[0], value[1], value[2], value[3]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLdouble& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform1d(uniformLocation, value);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform1d(shaderId , uniformLocation, value);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform1d(uniformLocation, value);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec2& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform2d(uniformLocation, value[0], value[1]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform2d(shaderId , uniformLocation, value[0], value[1]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform2d(uniformLocation, value[0], value[1]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec3& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform3d(uniformLocation, value[0], value[1], value[2]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform3d(shaderId , uniformLocation, value[0], value[1], value[2]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform3d(uniformLocation, value[0], value[1], value[2]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::dvec4& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform4d(uniformLocation, value[0], value[1], value[2], value[3]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform4d(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform4d(uniformLocation, value[0], value[1], value[2], value[3]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const int32_t& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform1i(uniformLocation, value);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform1i(shaderId , uniformLocation, value);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform1i(uniformLocation, value);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec2& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform2i(uniformLocation, value[0], value[1]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform2i(shaderId , uniformLocation, value[0], value[1]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform2i(uniformLocation, value[0], value[1]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec3& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform3i(uniformLocation, value[0], value[1], value[2]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform3i(shaderId , uniformLocation, value[0], value[1], value[2]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform3i(uniformLocation, value[0], value[1], value[2]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::ivec4& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform4i(uniformLocation, value[0], value[1], value[2], value[3]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform4i(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform4i(uniformLocation, value[0], value[1], value[2], value[3]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLuint& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform1ui(uniformLocation, value);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform1ui(shaderId , uniformLocation, value);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform1ui(uniformLocation, value);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec2& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform2ui(uniformLocation, value[0], value[1]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform2ui(shaderId , uniformLocation, value[0], value[1]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform2ui(uniformLocation, value[0], value[1]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec3& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform3ui(uniformLocation, value[0], value[1], value[2]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform3ui(shaderId , uniformLocation, value[0], value[1], value[2]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform3ui(uniformLocation, value[0], value[1], value[2]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::uvec4& value) {
-        threadContext->cachedBindShader(shaderId);
-        threadContextGroup_->functions.glUniform4ui(uniformLocation, value[0], value[1], value[2], value[3]);
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
+            threadContextGroup_->functions.glProgramUniform4ui(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
+        } else {
+            threadContext->cachedBindShader(shaderId);
+            threadContextGroup_->functions.glUniform4ui(uniformLocation, value[0], value[1], value[2], value[3]);
+        }
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLfloat& value, int count) {
