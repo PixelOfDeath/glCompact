@@ -1,5 +1,5 @@
 # glCompact
-A multi platform, minimal dependency, low level but very simple C++11 Graphics API to interface OpenGL 3.3+
+A multi platform, minimal dependency, low level but very simple C++11 Graphics API to interface a subset of OpenGL 3.3+
 
 This is an ALPHA version! The API is not stable and will change in the future!
 
