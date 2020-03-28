@@ -1678,26 +1678,8 @@ namespace glCompact {
                     }
                 }
             } else {
-                //Classical texture binding in OpenGL makes it possible to bind multiple texture types (e.g. TEXTURE_2D and TEXTURE_3D) at the same slot at the same time.
-                //This works fine if you only want to edit the object states, but for rendering OpenGL only accepts one active type at each texture slot.
-                //Therefore if we bind a texture type we must make sure that other texture type bindings at the same slot are set to 0!
-                //In glCompact there is never more then one texture type set in a single texture slot!
-
-                //This does not include the case if the same texture ID changes target.
-                //But in glCompact the old style of redefining the texture type of an texture ID is not possible!
-                //And the texture deleting function will always remove the texture from the context state tracker.
-
-                for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    bool targetChange    = threadContext->texture_target[i] != texture_target[i];
-                    bool textureChange   = threadContext->texture_id    [i] != texture_id    [i];
-                    bool unbindOldTarget = targetChange  &&     threadContext->texture_id    [i];
-                    bool bindNewTexture  = textureChange &&                    texture_id    [i];
-                    if (unbindOldTarget || bindNewTexture) threadContext->cachedSetActiveTextureUnit(i);
-                    if (unbindOldTarget)                   threadContextGroup_->functions.glBindTexture(threadContext->texture_target[i], 0);
-                    if (bindNewTexture)                    threadContextGroup_->functions.glBindTexture(                       texture_target[i], texture_id[i]);
-                    if (targetChange)                      threadContext->texture_target[i] = texture_target[i];
-                    if (textureChange)                     threadContext->texture_id    [i] = texture_id    [i];
-                }
+                for (int i = changedSlotMin; i <= changedSlotMax; ++i)
+                    threadContext->cachedBindTextureCompatibleOrFirstTime(i, texture_target[i], texture_id[i]);
             }
             threadContext->texture_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
             threadContext->texture_changedSlotMax = -1;
