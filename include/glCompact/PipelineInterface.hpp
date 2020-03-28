@@ -130,6 +130,10 @@ namespace glCompact {
                         int32_t count = std::min(uniformLocationCount, int32_t(list.size()));
                         setUniform(shaderId, uniformLocation, *list.begin(), count);
                     }
+                    const T& operator=(const T& newValue) {
+                        setUniform(shaderId, uniformLocation, newValue);
+                        return newValue;
+                    }
                     //This allows to transparently use all constructors from TInput (makes working with glm types way easier!)
                     //Keep the TInput to T constructor line sepperate! So any kind of compile time type conversation error is easiert to read!
                     template<typename TInput>
