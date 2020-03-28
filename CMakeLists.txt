@@ -142,27 +142,24 @@ ADD_DEPENDENCIES(
     Extensions_hpp
 )
 
+#While this project only has a minimum dependancy on C++11. With LTO enabled for GCC you may have to set the C++ version higher to prevent linking errors for the final application.
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 11
+    #CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
 
-#LTO is still to buggy on GCC, so leave it disabled for now
-#if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
-#    include(CheckIPOSupported)
-#    check_ipo_supported(RESULT LTOAvailable OUTPUT LtoError)
-#endif()
-#NOTE LTO seems to be broken somehow for GCC. Creates same binary as without LTO. Not sure if CMake or GCC issue.
-#if(LTOAvailable)
-#    message(STATUS "IPO / LTO enabled")
-#    #set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
-#    #set_target_properties(${PROJECT_NAME} PROPERTIES
-#    #    INTERPROCEDURAL_OPTIMIZATION ON
-#    #)
-#else()
-#    message(STATUS "IPO / LTO not supported: <${LtoError}>")
-#endif()
+if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT LTOAvailable OUTPUT LtoError)
+    if(LTOAvailable)
+        message(STATUS "IPO / LTO enabled")
+        set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(STATUS "IPO / LTO not supported: <${LtoError}>")
+    endif()
+endif()
 
 message("-- Compiler is ${CMAKE_CXX_COMPILER_ID}")
 IF("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
@@ -260,7 +257,7 @@ ELSE()
 ENDIF()
 
 MESSAGE("--")
-MESSAGE("-- glCompact (${BUILDBIT}bit) ${CMAKE_BUILD_TYPE} (LTO=${LTOAvailable}) build will be INSTALLED in: ${CMAKE_INSTALL_PREFIX}")
+MESSAGE("-- glCompact (${BUILDBIT}bit) (${CMAKE_BUILD_TYPE}) (LTO=${LTOAvailable}) build will be INSTALLED in: ${CMAKE_INSTALL_PREFIX}")
 if(NOT DOXYGEN_FOUND)
 message("-- Could not find Doxygen, install doxygen to be able to use build target doc to generate documentation!")
 endif()
