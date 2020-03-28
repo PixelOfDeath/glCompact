@@ -221,38 +221,42 @@ namespace glCompact {
         target
     */
     void Context::cachedBindTextureCompatibleOrFirstTime(
+        uint32_t texSlot,
          int32_t texTarget,
         uint32_t texId
     ) {
-        bool targetChange    = texture_target[0] != texTarget;
-        bool textureChange   = texture_id    [0] != texId;
-        bool unbindOldTarget = targetChange  && texture_id[0];
-        bool bindNewTexture  = textureChange && texId;
+         int32_t texTargetOld    = texture_target[texSlot];
+        uint32_t texIdOld        = texture_id    [texSlot];
+        bool     targetChange    = texTarget != texTargetOld;
+        bool     textureChange   = texId     != texIdOld;
+        bool     unbindOldTarget = targetChange  && texIdOld;
+        bool     bindNewTexture  = textureChange && texId;
         if (unbindOldTarget || bindNewTexture) {
-            cachedSetActiveTextureUnit(0);
-            texture_markSlotChange(0);
+            cachedSetActiveTextureUnit(texSlot);
+            texture_markSlotChange(texSlot);
         }
-        if (unbindOldTarget) threadContextGroup_->functions.glBindTexture(texture_target[0], 0);
-        if (bindNewTexture)  threadContextGroup_->functions.glBindTexture(texTarget, texId);
-        if (targetChange)    texture_target[0] = texTarget;
-        if (textureChange)   texture_id    [0] = texId;
+        if (unbindOldTarget) threadContextGroup_->functions.glBindTexture(texTargetOld, 0);
+        if (bindNewTexture)  threadContextGroup_->functions.glBindTexture(texTarget   , texId);
+        if (targetChange)    texture_target[texSlot] = texTarget;
+        if (textureChange)   texture_id    [texSlot] = texId;
     }
 
     /**
         This makes the texture active at unit 0 for changes with non-DSA functions.
     */
     void Context::cachedBindTexture(
+        uint32_t texSlot,
          int32_t texTarget,
         uint32_t texId
     ) {
         if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
-            if (texture_id[0] != texId) {
-                texture_id[0] = texId;
-                texture_markSlotChange(0);
-                threadContextGroup_->functions.glBindTextures(0, 1, &texId);
+            if (texture_id[texSlot] != texId) {
+                texture_id[texSlot] = texId;
+                texture_markSlotChange(texSlot);
+                threadContextGroup_->functions.glBindTextures(texSlot, 1, &texId);
             }
         } else {
-            cachedBindTextureCompatibleOrFirstTime(texTarget, texId);
+            cachedBindTextureCompatibleOrFirstTime(texSlot, texTarget, texId);
         }
     }
 

@@ -879,9 +879,9 @@ namespace glCompact {
                     if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                         threadContextGroup_->functions.glGetTextureImage(viewTexId, mipmapLevel, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
                     } else {
-                        threadContext->cachedBindTexture(viewTarget, viewTexId);
+                        threadContext->cachedBindTexture(0, viewTarget, viewTexId);
                         threadContextGroup_->functions.glGetTexImage(viewTarget, mipmapLevel, componentsAndArrangement, componentsTypes, offsetPointer);
-                        threadContext->cachedBindTexture(viewTarget, 0);
+                        threadContext->cachedBindTexture(0, viewTarget, 0);
                     }
                     threadContextGroup_->functions.glDeleteTextures(1, &viewTexId);
                 } else {

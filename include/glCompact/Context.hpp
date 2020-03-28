@@ -287,8 +287,8 @@ namespace glCompact {
             float current_addMinimumDepthUnits = 0.0f;
 
             //helper
-            void cachedBindTextureCompatibleOrFirstTime(int32_t target, uint32_t texId);
-            void cachedBindTexture                     (int32_t target, uint32_t texId);
+            void cachedBindTextureCompatibleOrFirstTime(uint32_t texSlot, int32_t texTarget, uint32_t texId);
+            void cachedBindTexture                     (uint32_t texSlot, int32_t texTarget, uint32_t texId);
 
             void cachedBindShader          (uint32_t shaderId);
             void cachedBindArrayBuffer     (uint32_t bufferId);
