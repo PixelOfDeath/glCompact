@@ -721,7 +721,7 @@ namespace glCompact {
     }
 
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec4& value, int count) {
-        if (threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
+        if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
             threadContext->cachedBindShader(shaderId);
