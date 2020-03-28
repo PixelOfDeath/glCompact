@@ -207,18 +207,14 @@ namespace glCompact {
     }
 
     /**
-        This makes the texture active at unit 0 for changes with non-DSA functions.
+        This bind the texture on the specified unit for changes with non-DSA functions.
 
         In classical OpenGL, multiple targets can be bound to a single texture unit at the same time.
-        Modern binding functions will take care of only having one target per binding unit active.
+        Modern binding functions will take care of only having one target per unit active.
         To not overcomplicate our state tracker, we unbind any previous target type before we bind a different target type, when using this old-style functions.
 
         Only ARB DSA/storage functions can create texture or buffer objects without binding the ID at last once.
         This is why we may also need to use this old stile binding for new textures if we create them without ARB DSA/storage functions
-
-        This SurfaceInterface members must be set before calling this function:
-        id
-        target
     */
     void Context::cachedBindTextureCompatibleOrFirstTime(
         uint32_t texSlot,
@@ -242,7 +238,7 @@ namespace glCompact {
     }
 
     /**
-        This makes the texture active at unit 0 for changes with non-DSA functions.
+        This binds the texture on the specified unit for changes with non-DSA functions.
     */
     void Context::cachedBindTexture(
         uint32_t texSlot,
