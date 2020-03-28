@@ -549,6 +549,22 @@ namespace glCompact {
         return -1;
     }
 
+    int32_t PipelineInterface::getUniformArrayCount(int32_t uniformLocation) {
+        for (auto& uniform : uniformList)
+            if (uniform.location == uniformLocation) return uniform.arraySize ? uniform.arraySize : 1;
+        return 1;
+    }
+
+    int32_t PipelineInterface::getUniformArrayStep(int32_t uniformLocation) {
+        for (auto& uniform : uniformList)
+            if (uniform.location == uniformLocation) {
+                string uniformName1 = uniform.name + "[1]";
+                int32_t location1 = threadContextGroup_->functions.glGetUniformLocation(id, uniformName1.c_str());
+                return (location1 != -1) ? (location1 - uniform.location) : 0;
+            }
+        return 0;
+    }
+
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLfloat& value) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform1f(shaderId , uniformLocation, value);
@@ -1762,4 +1778,22 @@ namespace glCompact {
             threadContext->image_changedSlotMax = -1;
         }
     }
+
+    /*PipelineInterface::UniformSetterBase::UniformSetterBase(PipelineInterface* const pParent, const std::string& uniformName) {
+        shaderId        = pParent->id;
+        uniformLocation = pParent->getUniformLocation(uniformName);
+        if (uniformLocation == -1) {
+            pParent->warning("UniformSetter did not find uniform with the name \"" + uniformName + "\"\n");
+        }
+    }
+
+    PipelineInterface::UniformArraySetterBase::UniformArraySetterBase(PipelineInterface* const pParent, const std::string& uniformName) {
+        shaderId             = pParent->id;
+        uniformLocation      = pParent->getUniformLocation (uniformName);
+        uniformLocationStep  = pParent->getUniformArraySize(uniformLocation);
+        uniformLocationCount = pParent->getUniformArrayStep(uniformLocation);
+        if (uniformLocation == -1) {
+            pParent->warning("UniformArraySetter did not find uniform with the name \"" + uniformName + "\"\n");
+        }
+    }*/
 }

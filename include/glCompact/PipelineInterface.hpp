@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <initializer_list>
 
 namespace glCompact {
     class PipelineInterface {
@@ -70,40 +71,65 @@ namespace glCompact {
             */
 
             /** UniformSetter
-             * \brief class template to create an interface for a shader uniform
-             * \tparam T type must fit to the type used in the shader
-             *
-             * \details Example usage pattern:
-             * <pre>
-             * class MyGraphicsPipeline : public glCompact::GraphicsPipeline {
-             *     public:
-             *         UniformSetter<uint32_t>myUniform{this, "myUniformName"};
-             * };
-             *
-             * MyGraphicsPipeline myGraphicsPipeline(vertexShaderString, "", "", "", fragmentShaderString);
-             * myGraphicsPipeline.myUniform = 2;
-             * </pre>
-             */
+                \brief class template to create an interface for a shader uniform or uniform array
+                \tparam T type must fit to the type used in the shader
+
+                \details Example usage pattern:
+                <pre>
+                class MyPipelineRasterization : public glCompact::PipelineRasterization {
+                    public:
+                        UniformSetter<float>     myUniform1{this, "myUniformName1"};
+                        UniformSetter<glm::vec2> myUniform2{this, "myUniformName2"};
+
+                        //Initalizing the first value
+                        UniformSetter<float>     myUniform3{this, "myUniformName3", 0.5f};
+                        UniformSetter<glm::vec2> myUniform4{this, "myUniformName4", {3.0f, 4.0f}};
+
+                        //Initalizing several values
+                        UniformSetter<float>     myUniform5{this, "myUniformName5", {0.5f, 0.6f, 0.7f}};
+                        UniformSetter<glm::vec2> myUniform6{this, "myUniformName6", {{3.0f, 4.0f}, {5.0f, 6.0f}, {7.0f, 8.0f}}};
+                };
+
+                MyPipelineRasterization myPipelineRasterization(vertexShaderString, "", "", "", fragmentShaderString);
+
+                //set the first value
+                myPipelineRasterization.myUniform1    = 2.0f;
+
+                //set the second value (Index starts at 0)
+                myPipelineRasterization.myUniform1[1] = 2.0f;
+
+                //set several values
+                myPipelineRasterization.myUniform1    = {2.0f, 3.0f};
+
+                //set several values at index
+                myPipelineRasterization.myUniform1[2] = {2.0f, 3.0f};
+
+                //set several values of type with constructor that itself takes several values e.g. vec2
+                myPipelineRasterization.myUniform2    = {{2.0f, 3.0f}, {2.1f, 3.1f}, {2.2f, 3.2f}};
+                </pre>
+            */
             template<typename T>
             class UniformSetter {
-                private:
-                    const uint32_t shaderId;
-                    const  int32_t uniformLocation;
                 public:
-                    UniformSetter(PipelineInterface* const pParent, const std::string& uniformName):
-                        shaderId(pParent->id),
-                        uniformLocation(pParent->getUniformLocation(uniformName)
-                    ) {
-                        if (uniformLocation == -1) {
+                    UniformSetter(PipelineInterface* const pParent, const std::string& uniformName) {
+                        shaderId             = pParent->id;
+                        uniformLocation      = pParent->getUniformLocation(uniformName);
+                        uniformLocationCount = pParent->getUniformArrayCount(uniformLocation);
+                        uniformLocationStep  = pParent->getUniformArrayStep (uniformLocation);
+                        if (uniformLocation == -1)
                             pParent->warning("UniformSetter did not find uniform with the name \"" + uniformName + "\"\n");
-                        }
                     }
                     UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, const T& initValue):
-                        UniformSetter(pParent, uniformName
-                    ) {
+                        UniformSetter(pParent, uniformName)
+                    {
                         setUniform(shaderId, uniformLocation, initValue);
                     }
-
+                    UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, std::initializer_list<T> list):
+                        UniformSetter(pParent, uniformName)
+                    {
+                        int32_t count = std::min(uniformLocationCount, int32_t(list.size()));
+                        setUniform(shaderId, uniformLocation, *list.begin(), count);
+                    }
                     //This allows to transparently use all constructors from TInput (makes working with glm types way easier!)
                     //Keep the TInput to T constructor line sepperate! So any kind of compile time type conversation error is easiert to read!
                     template<typename TInput>
@@ -112,26 +138,25 @@ namespace glCompact {
                         setUniform(shaderId, uniformLocation, newValueConverted);
                         return newValue;
                     }
+                    std::initializer_list<T> operator=(std::initializer_list<T> list) {
+                        setUniform(shaderId, uniformLocation, *list.begin(), std::min<int32_t>(list.size(), uniformLocationCount));
+                        return list;
+                    }
+                    UniformSetter<T> operator[](int32_t i) {
+                        if (i < uniformLocationCount)
+                            return UniformSetter<T>(shaderId, uniformLocation + (uniformLocationStep * i), uniformLocationCount - i, uniformLocationStep);
+                        return UniformSetter<T>(shaderId, -1, 0, 0);
+                    }
+                private:
+                    uint32_t shaderId;
+                    int32_t  uniformLocation;
+                    int32_t  uniformLocationCount;
+                    int32_t  uniformLocationStep;
+                    UniformSetter(uint32_t shaderId, int32_t uniformLocation, int32_t uniformLocationCount, int32_t uniformLocationStep):
+                        shaderId(shaderId), uniformLocation(uniformLocation), uniformLocationCount(uniformLocationCount), uniformLocationStep(uniformLocationStep){}
             };
 
-            //TODO: need setter for uniform structures and arrays
-            /*class UniformStruct;
-            class UniformStruct
-            {
-                private:
-                    //PipelineInterface* const   parent;
-                    //UniformStruct* const parent;
-                    const std::string blockName; //make full name in constructor?
-                public:
-                    //UniformStruct(PipelineInterface* const    parent, const std::string uniformName):parent(parent), uniformName(uniformName){}
-                    //UniformStruct(UniformStruct* const parent, const std::string uniformName):parent(parent), uniformName(uniformName){}
-            };*/
-
-            /*class :UniformStruct
-            {
-
-            } myUniformStruct;*/
-
+            //TODO: need setter for uniform structures
         protected:
             PipelineInterface() = default;
             ~PipelineInterface();
@@ -147,6 +172,24 @@ namespace glCompact {
             }
 
             int32_t getUniformLocation(const std::string &uniformName);
+            int32_t getUniformArrayCount(int32_t uniformLocation);
+            int32_t getUniformArrayStep (int32_t uniformLocation);
+
+            /*int32_t getUniformArraySize(const std::string &uniformName) {
+                for (auto& uniform : uniformList)
+                    if (uniform.name == uniformName) return uniform.arraySize ? uniform.arraySize : 1;
+            }
+            int32_t getUniformArrayStep(const std::string &uniformName) {
+                for (auto& uniform : uniformList)
+                    if (uniform.name == uniformName) {
+
+                        std::string uniformName1 = uniformName + "[1]";
+                        int32_t location1 = threadContextGroup_->functions.glGetUniformLocation(id, uniformName1.c_str());
+
+                        return location1 - uniform.location;
+                    }
+                return 0;
+            }*/
 
             static void setUniform(uint32_t shaderId, int32_t uniformLocation, const float&        value);
             static void setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec2&    value);
