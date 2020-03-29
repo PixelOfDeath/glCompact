@@ -1769,4 +1769,12 @@ namespace glCompact {
             pParent->warning("UniformArraySetter did not find uniform with the name \"" + uniformName + "\"\n");
         }
     }*/
+
+    string PipelineInterface::glTypeToGlslName(int32_t type) {
+        return gl::typeToGlslAndCNameString(type);
+    }
+
+    string PipelineInterface::glTypeToCppName(int32_t type) {
+        return gl::typeToCppTypeNameString(type);
+    }
 }

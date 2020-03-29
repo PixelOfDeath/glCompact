@@ -1943,7 +1943,7 @@ namespace glCompact {
             s += " loaded from this files:\n";
             LOOPI(5) if (hasShader[i]) s += "  " + shaderTypeStringSameLenght[i] + ": \"" + fileName[i] + "\"\n";
         } else {
-            s += " loaded from strings";
+            s += " loaded from strings\n";
             //TODO: Output whole shader here? No real other way to identificate and be clear about what caused error/warning?
             //Could be an issue with spamming to much on screen/log. Or make full output a one-time event for the application runtime?
             //Also would need clear documentation for users that may not want to output glsl to the world.

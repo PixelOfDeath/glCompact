@@ -100,15 +100,63 @@ namespace glCompact {
             class UniformSetter {
                 public:
                     UniformSetter(PipelineInterface* const pParent, const std::string& uniformName) {
+                        constexpr int32_t cppType =
+                            std::is_same<T, float       >::value ? 0x1406 : //GL_FLOAT
+                            std::is_same<T, glm::vec2   >::value ? 0x8B50 : //GL_FLOAT_VEC2
+                            std::is_same<T, glm::vec3   >::value ? 0x8B51 : //GL_FLOAT_VEC3
+                            std::is_same<T, glm::vec4   >::value ? 0x8B52 : //GL_FLOAT_VEC4
+                            std::is_same<T, double      >::value ? 0x140A : //GL_DOUBLE
+                            std::is_same<T, glm::dvec2  >::value ? 0x8FFC : //GL_DOUBLE_VEC2
+                            std::is_same<T, glm::dvec3  >::value ? 0x8FFD : //GL_DOUBLE_VEC3
+                            std::is_same<T, glm::dvec4  >::value ? 0x8FFE : //GL_DOUBLE_VEC4
+                            std::is_same<T, int32_t     >::value ? 0x1404 : //GL_INT
+                            std::is_same<T, glm::ivec2  >::value ? 0x8B53 : //GL_INT_VEC2
+                            std::is_same<T, glm::ivec3  >::value ? 0x8B54 : //GL_INT_VEC3
+                            std::is_same<T, glm::ivec4  >::value ? 0x8B55 : //GL_INT_VEC4
+                            std::is_same<T, uint32_t    >::value ? 0x1405 : //GL_UNSIGNED_INT
+                            std::is_same<T, glm::uvec2  >::value ? 0x8DC6 : //GL_UNSIGNED_INT_VEC2
+                            std::is_same<T, glm::uvec3  >::value ? 0x8DC7 : //GL_UNSIGNED_INT_VEC3
+                            std::is_same<T, glm::uvec4  >::value ? 0x8DC8 : //GL_UNSIGNED_INT_VEC4
+                            std::is_same<T, bool        >::value ? 0x8B56 : //GL_BOOL
+                            std::is_same<T, glm::bvec2  >::value ? 0x8B57 : //GL_BOOL_VEC2
+                            std::is_same<T, glm::bvec3  >::value ? 0x8B58 : //GL_BOOL_VEC3
+                            std::is_same<T, glm::bvec4  >::value ? 0x8B59 : //GL_BOOL_VEC4
+                            std::is_same<T, glm::mat2x2 >::value ? 0x8B5A : //GL_FLOAT_MAT2
+                            std::is_same<T, glm::mat2x3 >::value ? 0x8B65 : //GL_FLOAT_MAT2x3
+                            std::is_same<T, glm::mat2x4 >::value ? 0x8B66 : //GL_FLOAT_MAT2x4
+                            std::is_same<T, glm::mat3x2 >::value ? 0x8B67 : //GL_FLOAT_MAT3x2
+                            std::is_same<T, glm::mat3x3 >::value ? 0x8B5B : //GL_FLOAT_MAT3
+                            std::is_same<T, glm::mat3x4 >::value ? 0x8B68 : //GL_FLOAT_MAT3x4
+                            std::is_same<T, glm::mat4x2 >::value ? 0x8B69 : //GL_FLOAT_MAT4x2
+                            std::is_same<T, glm::mat4x3 >::value ? 0x8B6A : //GL_FLOAT_MAT4x3
+                            std::is_same<T, glm::mat4x4 >::value ? 0x8B5C : //GL_FLOAT_MAT4
+                            std::is_same<T, glm::dmat2x2>::value ? 0x8F46 : //GL_DOUBLE_MAT2
+                            std::is_same<T, glm::dmat2x3>::value ? 0x8F49 : //GL_DOUBLE_MAT2x3
+                            std::is_same<T, glm::dmat2x4>::value ? 0x8F4A : //GL_DOUBLE_MAT2x4
+                            std::is_same<T, glm::dmat3x2>::value ? 0x8F4B : //GL_DOUBLE_MAT3x2
+                            std::is_same<T, glm::dmat3x3>::value ? 0x8F47 : //GL_DOUBLE_MAT3
+                            std::is_same<T, glm::dmat3x4>::value ? 0x8F4C : //GL_DOUBLE_MAT3x4
+                            std::is_same<T, glm::dmat4x2>::value ? 0x8F4D : //GL_DOUBLE_MAT4x2
+                            std::is_same<T, glm::dmat4x3>::value ? 0x8F4E : //GL_DOUBLE_MAT4x3
+                            std::is_same<T, glm::dmat4x4>::value ? 0x8F48 : //GL_DOUBLE_MAT4
+                            0;
+                        static_assert(cppType != 0, "Not a valid template type for UniformSetter");
+
                         shaderId = pParent->id;
+                        int32_t type;
                         for (auto& uniform : pParent->uniformList)
                             if (uniform.name == uniformName) {
                                 location = uniform.location;
+                                type     = uniform.type;
                                 count    = uniform.arraySize;
                                 stride   = uniform.arrayStride;
+                                break;
                             }
-                        if (location == -1)
+                        if (location == -1) {
                             pParent->warning("UniformSetter did not find uniform with the name \"" + uniformName + "\"\n");
+                        } else if (cppType != type) {
+                            pParent->warning("UniformSetter<" + glTypeToCppName(cppType) + "> mismatches GLSL type. Expected UniformSetter<" + glTypeToCppName(type)  + "> for: uniform " + glTypeToGlslName(type) + " " + uniformName);
+                        }
                     }
                     UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, const T& initValue):
                         UniformSetter(pParent, uniformName)
@@ -138,7 +186,10 @@ namespace glCompact {
                      int32_t location = -1;
                     uint16_t count    =  0; //uniforms and therefore locations should be limited to 64KiB?!
                     uint16_t stride   =  0;
-                    UniformSetter(uint32_t shaderId, int32_t location, uint16_t count, uint16_t stride): shaderId(shaderId), location(location), count(count), stride(stride){}
+                    constexpr UniformSetter(uint32_t shaderId, int32_t location, uint16_t count, uint16_t stride): shaderId(shaderId), location(location), count(count), stride(stride){}
+                    /*void warnType(PipelineInterface* const pParent, std::string cName, int32_t type) {
+                        pParent->warning("UniformSetter<" + cName + "> does not fit to glsl type: \"uniform " + gltypeToName(type) + " " + uniformName + "\"\n");
+                    }*/
             };
 
             //TODO: need setter for uniform structures
@@ -399,5 +450,8 @@ namespace glCompact {
             void processPendingChangesTextures();
             void processPendingChangesSamplers();
             void processPendingChangesImages();
+
+            static std::string glTypeToGlslName(int32_t type);
+            static std::string glTypeToCppName(int32_t type);
     };
 }
