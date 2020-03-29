@@ -134,14 +134,6 @@ namespace glCompact {
                         setUniform(shaderId, uniformLocation, newValue);
                         return newValue;
                     }
-                    //This allows to transparently use all constructors from TInput (makes working with glm types way easier!)
-                    //Keep the TInput to T constructor line sepperate! So any kind of compile time type conversation error is easiert to read!
-                    template<typename TInput>
-                    const TInput& operator=(const TInput& newValue) {
-                        T newValueConverted(newValue);
-                        setUniform(shaderId, uniformLocation, newValueConverted);
-                        return newValue;
-                    }
                     std::initializer_list<T> operator=(std::initializer_list<T> list) {
                         setUniform(shaderId, uniformLocation, *list.begin(), std::min<int32_t>(list.size(), uniformLocationCount));
                         return list;
