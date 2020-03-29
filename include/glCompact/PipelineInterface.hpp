@@ -9,7 +9,7 @@
 
 #include <string>
 #include <vector>
-#include <initializer_list>
+#include <initializer_list> //We need to use initializer_list, because GCC has broken template arrays for unsigned int types until something like GCC 8.3
 
 namespace glCompact {
     class PipelineInterface {
