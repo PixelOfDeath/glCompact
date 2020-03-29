@@ -187,9 +187,6 @@ namespace glCompact {
                     uint16_t count    =  0; //uniforms and therefore locations should be limited to 64KiB?!
                     uint16_t stride   =  0;
                     constexpr UniformSetter(uint32_t shaderId, int32_t location, uint16_t count, uint16_t stride): shaderId(shaderId), location(location), count(count), stride(stride){}
-                    /*void warnType(PipelineInterface* const pParent, std::string cName, int32_t type) {
-                        pParent->warning("UniformSetter<" + cName + "> does not fit to glsl type: \"uniform " + gltypeToName(type) + " " + uniformName + "\"\n");
-                    }*/
             };
 
             //TODO: need setter for uniform structures
