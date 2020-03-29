@@ -166,14 +166,14 @@ namespace glCompact {
                     UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, std::initializer_list<T> valueList):
                         UniformSetter(pParent, uniformName)
                     {
-                        setUniform(shaderId, location, *valueList.begin(), std::min<uint16_t>(valueList.size(), count));
+                        setUniform(shaderId, location, *valueList.begin(), std::min<int>(valueList.size(), count));
                     }
                     const T& operator=(const T& value) {
                         setUniform(shaderId, location, value);
                         return value;
                     }
                     std::initializer_list<T> operator=(std::initializer_list<T> valueList) {
-                        setUniform(shaderId, location, *valueList.begin(), std::min<uint16_t>(valueList.size(), count));
+                        setUniform(shaderId, location, *valueList.begin(), std::min<int>(valueList.size(), count));
                         return valueList;
                     }
                     UniformSetter<T> operator[](uint32_t i) {
