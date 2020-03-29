@@ -549,22 +549,6 @@ namespace glCompact {
         return -1;
     }
 
-    int32_t PipelineInterface::getUniformArrayCount(int32_t uniformLocation) {
-        for (auto& uniform : uniformList)
-            if (uniform.location == uniformLocation) return uniform.arraySize ? uniform.arraySize : 1;
-        return 1;
-    }
-
-    int32_t PipelineInterface::getUniformArrayStep(int32_t uniformLocation) {
-        for (auto& uniform : uniformList)
-            if (uniform.location == uniformLocation) {
-                string uniformName1 = uniform.name + "[1]";
-                int32_t location1 = threadContextGroup_->functions.glGetUniformLocation(id, uniformName1.c_str());
-                return (location1 != -1) ? (location1 - uniform.location) : 0;
-            }
-        return 0;
-    }
-
     void PipelineInterface::setUniform(uint32_t shaderId, int32_t uniformLocation, const GLfloat& value) {
         if (Config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform1f(shaderId , uniformLocation, value);
@@ -1209,21 +1193,6 @@ namespace glCompact {
 
     */
 
-    //if the uniform name ends in [0] it is an array. (this may not be the case on some "shaky" GLES drivers...)
-    //TODO: move the regex into static object, maybe even use one of this fancy static regex libs...
-    static bool ifStringHasArrayBracketsRemoveThemAndReturnTrue(
-        string& name
-    ) {
-        static regex expression(R"""(^(.+)\[0\]$)""");
-        smatch match;
-        if (regex_search(name, match, expression)) {
-            name = match.str(1);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     int getBindingFromString(
         const std::string& s
     ) {
@@ -1255,10 +1224,10 @@ namespace glCompact {
         //get infos about all uniforms. This includes uniforms from UBOs and SSBOs. Whose uniform location are -1.
         struct RawUniform {
             string  name;
-            bool    nameIsArray;
             int32_t location;
             int32_t type;
             int32_t arraySize;
+            int32_t arrayStride;
         };
         vector<RawUniform> rawUniformList;
 
@@ -1272,11 +1241,14 @@ namespace glCompact {
             auto& ru = rawUniformList[i];
             uint32_t stringLenght = 0;
             threadContextGroup_->functions.glGetActiveUniform(id, uint32_t(i), activeUniformNameLengthMax, &stringLenght, &ru.arraySize, &ru.type, &nameBuffer[0]);
-            ru.location = threadContextGroup_->functions.glGetUniformLocation(id, &nameBuffer[0]);
             string name(&nameBuffer[0], stringLenght);
-            ru.nameIsArray = ifStringHasArrayBracketsRemoveThemAndReturnTrue(name);
-            ru.name = name;
-            if (ru.arraySize == 1 && !ru.nameIsArray) ru.arraySize = 0;
+            //Remove any trailing "[0]"
+            if ((name.size() >= 3) && (name.substr(name.size() - 3, 3) == "[0]")) name = name.substr(0, name.size() - 3);
+            int32_t location0 = threadContextGroup_->functions.glGetUniformLocation(id, &nameBuffer[0]);
+            int32_t location1 = threadContextGroup_->functions.glGetUniformLocation(id, (name + "[1]").c_str());
+            ru.name        = name;
+            ru.location    = location0;
+            ru.arrayStride = (location0 != -1 && location1 != -1) ? (location1 - location0) : 0;
 
             if (gl::typeIsSampler(ru.type)) {
                 int32_t layoutQualifierBinding;
@@ -1331,10 +1303,11 @@ namespace glCompact {
             //} else if (ru.type == GL_UNSIGNED_INT_ATOMIC_COUNTER) {
             } else if (ru.location != -1) {
                 Uniform u;
-                u.name      = ru.name;
-                u.location  = ru.location;
-                u.type      = ru.type;
-                u.arraySize = ru.arraySize;
+                u.name        = ru.name;
+                u.location    = ru.location;
+                u.type        = ru.type;
+                u.arraySize   = ru.arraySize;
+                u.arrayStride = ru.arrayStride;
                 uniformList.push_back(u);
             }
         }

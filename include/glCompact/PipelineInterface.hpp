@@ -58,18 +58,6 @@ namespace glCompact {
             bool copyBinaryToFile    (const std::string& fileName) const;
             bool copyBinaryFromFile  (const std::string& fileName);*/
         protected:
-            /*
-                TODO:
-                 - prevent from accessing glCompact managed uniforms via this class. E.g. texture sampler, so users can't change slot number
-                 - prevent duplicated access to uniform with several of this classe?
-                 - make a specialized getUniformLocation function that limits itself for that purpose?!
-                 - warning if uniformName is not found? Only in debug mode? (OpenGL always removes unused uniforms from shaders)
-
-                TODO: Instad of the class pointer this could just store the gl shader ID. So on 64 bit systems it would only be 32bit+32bit large instad of 64bit+32bit!
-
-                TODO: Not sure how I could implement warning of uniforms that do NOT get associated UniformSetter, because UniformSetter constructors all run after loading of Pipeline class.
-            */
-
             /** UniformSetter
                 \brief class template to create an interface for a shader uniform or uniform array
                 \tparam T type must fit to the type used in the shader
@@ -112,44 +100,45 @@ namespace glCompact {
             class UniformSetter {
                 public:
                     UniformSetter(PipelineInterface* const pParent, const std::string& uniformName) {
-                        shaderId             = pParent->id;
-                        uniformLocation      = pParent->getUniformLocation(uniformName);
-                        uniformLocationCount = pParent->getUniformArrayCount(uniformLocation);
-                        uniformLocationStep  = pParent->getUniformArrayStep (uniformLocation);
-                        if (uniformLocation == -1)
+                        shaderId = pParent->id;
+                        for (auto& uniform : pParent->uniformList)
+                            if (uniform.name == uniformName) {
+                                location = uniform.location;
+                                count    = uniform.arraySize;
+                                stride   = uniform.arrayStride;
+                            }
+                        if (location == -1)
                             pParent->warning("UniformSetter did not find uniform with the name \"" + uniformName + "\"\n");
                     }
                     UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, const T& initValue):
                         UniformSetter(pParent, uniformName)
                     {
-                        setUniform(shaderId, uniformLocation, initValue);
+                        setUniform(shaderId, location, initValue);
                     }
-                    UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, std::initializer_list<T> list):
+                    UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, std::initializer_list<T> valueList):
                         UniformSetter(pParent, uniformName)
                     {
-                        int32_t count = std::min(uniformLocationCount, int32_t(list.size()));
-                        setUniform(shaderId, uniformLocation, *list.begin(), count);
+                        setUniform(shaderId, location, *valueList.begin(), std::min<uint16_t>(valueList.size(), count));
                     }
-                    const T& operator=(const T& newValue) {
-                        setUniform(shaderId, uniformLocation, newValue);
-                        return newValue;
+                    const T& operator=(const T& value) {
+                        setUniform(shaderId, location, value);
+                        return value;
                     }
-                    std::initializer_list<T> operator=(std::initializer_list<T> list) {
-                        setUniform(shaderId, uniformLocation, *list.begin(), std::min<int32_t>(list.size(), uniformLocationCount));
-                        return list;
+                    std::initializer_list<T> operator=(std::initializer_list<T> valueList) {
+                        setUniform(shaderId, location, *valueList.begin(), std::min<uint16_t>(valueList.size(), count));
+                        return valueList;
                     }
-                    UniformSetter<T> operator[](int32_t i) {
-                        if (i < uniformLocationCount)
-                            return UniformSetter<T>(shaderId, uniformLocation + (uniformLocationStep * i), uniformLocationCount - i, uniformLocationStep);
+                    UniformSetter<T> operator[](uint32_t i) {
+                        if (i < count)
+                            return UniformSetter<T>(shaderId, location + (stride * i), count - i, stride);
                         return UniformSetter<T>(shaderId, -1, 0, 0);
                     }
                 private:
                     uint32_t shaderId;
-                    int32_t  uniformLocation;
-                    int32_t  uniformLocationCount;
-                    int32_t  uniformLocationStep;
-                    UniformSetter(uint32_t shaderId, int32_t uniformLocation, int32_t uniformLocationCount, int32_t uniformLocationStep):
-                        shaderId(shaderId), uniformLocation(uniformLocation), uniformLocationCount(uniformLocationCount), uniformLocationStep(uniformLocationStep){}
+                     int32_t location = -1;
+                    uint16_t count    =  0; //uniforms and therefore locations should be limited to 64KiB?!
+                    uint16_t stride   =  0;
+                    UniformSetter(uint32_t shaderId, int32_t location, uint16_t count, uint16_t stride): shaderId(shaderId), location(location), count(count), stride(stride){}
             };
 
             //TODO: need setter for uniform structures
@@ -168,24 +157,6 @@ namespace glCompact {
             }
 
             int32_t getUniformLocation(const std::string &uniformName);
-            int32_t getUniformArrayCount(int32_t uniformLocation);
-            int32_t getUniformArrayStep (int32_t uniformLocation);
-
-            /*int32_t getUniformArraySize(const std::string &uniformName) {
-                for (auto& uniform : uniformList)
-                    if (uniform.name == uniformName) return uniform.arraySize ? uniform.arraySize : 1;
-            }
-            int32_t getUniformArrayStep(const std::string &uniformName) {
-                for (auto& uniform : uniformList)
-                    if (uniform.name == uniformName) {
-
-                        std::string uniformName1 = uniformName + "[1]";
-                        int32_t location1 = threadContextGroup_->functions.glGetUniformLocation(id, uniformName1.c_str());
-
-                        return location1 - uniform.location;
-                    }
-                return 0;
-            }*/
 
             static void setUniform(uint32_t shaderId, int32_t uniformLocation, const float&        value);
             static void setUniform(uint32_t shaderId, int32_t uniformLocation, const glm::vec2&    value);
@@ -351,9 +322,10 @@ namespace glCompact {
 
             struct Uniform {
                 std::string name;
-                int32_t location  = -1;
-                int32_t type      =  0; //sampler, image, base, vector or matrix type
-                int32_t arraySize =  0; //0 means no array, anything else is an array
+                int32_t location    = -1;
+                int32_t type        =  0; //sampler, image, base, vector or matrix type
+                int32_t arraySize   =  0; //0 means no array, anything else is an array
+                int32_t arrayStride =  0;
             };
 
             //sampler and image uniforms
