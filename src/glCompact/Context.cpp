@@ -42,6 +42,7 @@ namespace glCompact {
         if (!threadContextGroup_->version.equalOrGreater(3, 3))
             crash("glCompact requires Opengl 3.3 or higher!");
 
+        Debug::enableDebugOutput();
         //TODO
         /*if (version.debug) {
             cout << "Using gl debug context, enabling error callbacks!" << endl;
