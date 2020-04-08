@@ -442,17 +442,17 @@ namespace glCompact {
         }
     }
 
-    void Context::processPendingChangesBarriers() {
+    void Context::processPendingChangesMemoryBarriers() {
         if (memoryBarrierMask) {
             threadContextGroup_->functions.glMemoryBarrier(memoryBarrierMask);
             memoryBarrierMask = 0;
         }
     }
 
-    void Context::processPendingChangesBarriersFragmentShaderOnly() {
-        if (memoryBarrierMaskFragemtShaderOnly) {
-            threadContextGroup_->functions.glMemoryBarrierByRegion(memoryBarrierMaskFragemtShaderOnly);
-            memoryBarrierMaskFragemtShaderOnly = 0;
+    void Context::processPendingChangesMemoryBarriersRasterizationRegion() {
+        if (memoryBarrierRasterizationRegionMask) {
+            threadContextGroup_->functions.glMemoryBarrierByRegion(memoryBarrierRasterizationRegionMask);
+            memoryBarrierRasterizationRegionMask = 0;
         }
     }
 }

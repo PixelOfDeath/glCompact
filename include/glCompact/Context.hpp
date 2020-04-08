@@ -54,31 +54,7 @@ namespace glCompact {
             friend Frame& getWindowFrame();
 
             //Memory Barrier commands
-            friend void setAttributeBufferBarrier();
-            friend void setAttributeIndexBufferBarrier();
-            friend void setParameterBufferBarrier();
-            friend void setUniformBufferBarrier();
-            friend void setTextureBarrier();
-
-            friend void setImageBarrier();
-            friend void setShaderStorageBufferBarrier();
-            friend void setBufferCopyToFromImageBarrier();
-            friend void setBufferCreateClearCopyInvalidateBarrier();
-            friend void setImageUploadDownloadClearBarrier();
-            friend void setFrameBarrier();
-            friend void setTransformFeedbackBarrier();
-            friend void setQueryBarrier();
-            friend void setAtomicCounterBarrier();
-            friend void setMappedMemoryClientReadBarrier();
-            friend void setAllBarrier();
-            //friend void setTextureFrameBarrier();
-            friend void setUniformBufferBarrierFragmentShaderOnly();
-            friend void setTextureBarrierFragmentShaderOnly();
-            friend void setImageBarrierFragmentShaderOnly();
-            friend void setShaderStorageBufferBarrierFragmentShaderOnly();
-            friend void setAtomicCounterBarrierFragmentShaderOnly();
-            friend void setFrameBarrierFragmentShaderOnly();
-            friend void setAllBarrierFragmentShaderOnly();
+            friend class MemoryBarrier;
         public:
             Context();
             //prevent  copy constructor/Assignment operators
@@ -279,8 +255,8 @@ namespace glCompact {
 
 
             //BARRIER
-            uint32_t memoryBarrierMask                  = 0;
-            uint32_t memoryBarrierMaskFragemtShaderOnly = 0;
+            uint32_t memoryBarrierMask = 0;
+            uint32_t memoryBarrierRasterizationRegionMask = 0;
 
             //bool current_depthOffsetEnabled;
             float current_depthMultiplicator   = 0.0f;
@@ -314,8 +290,8 @@ namespace glCompact {
             //we need this also outside of GraphicsPipeline
             void processPendingChangesDrawFrame();
             void processPendingChangesDrawFrame(Frame* pendingFrame);
-            void processPendingChangesBarriers();
+            void processPendingChangesMemoryBarriers();
             //TODO: move this to the graphics shader?
-            void processPendingChangesBarriersFragmentShaderOnly();
+            void processPendingChangesMemoryBarriersRasterizationRegion();
     };
 }

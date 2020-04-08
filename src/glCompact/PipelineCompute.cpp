@@ -213,6 +213,6 @@ namespace glCompact {
 
     void PipelineCompute::processPendingChanges() {
         PipelineInterface::processPendingChanges();
-        threadContext->processPendingChangesBarriers();
+        threadContext->processPendingChangesMemoryBarriers();
     }
 }

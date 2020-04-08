@@ -1507,7 +1507,7 @@ namespace glCompact {
         processPendingChangesSamplers();
         processPendingChangesImages();
 
-        threadContext->processPendingChangesBarriers();
+        threadContext->processPendingChangesMemoryBarriers();
     }
 
     void PipelineInterface::processPendingChangesBuffersUniform() {

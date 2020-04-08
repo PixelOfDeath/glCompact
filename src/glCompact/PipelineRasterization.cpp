@@ -1241,7 +1241,7 @@ namespace glCompact {
         threadContext->processPendingChangesDrawFrame();
         processPendingChangesPipelineRasterization();
 
-        threadContext->processPendingChangesBarriersFragmentShaderOnly();
+        threadContext->processPendingChangesMemoryBarriersRasterizationRegion();
     }
 
     /*
