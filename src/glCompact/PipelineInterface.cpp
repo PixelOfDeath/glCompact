@@ -1739,7 +1739,8 @@ namespace glCompact {
                             threadContextGroup_->functions.glBindImageTexture(i, image_id[i], image_mipmapLevel[i], 1, image_layer[i], GL_READ_WRITE, image_format[i]);
                         }
                     } else {
-                        threadContextGroup_->functions.glBindImageTexture(i, 0, 0, GL_FALSE, 0, GL_READ_ONLY, 0); //GL_R8);
+                        //Mesa does not like the format to be 0 even when the texture is 0, so we use GL_R8!
+                        threadContextGroup_->functions.glBindImageTexture(i, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8);
                     }
                     threadContext->image_id         [i] = image_id         [i];
                     threadContext->image_format     [i] = image_format     [i];
