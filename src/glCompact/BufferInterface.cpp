@@ -155,6 +155,8 @@ namespace glCompact {
             ..._INTEGER
 
         Probably not an issue except if we extent this library to support rust blocks.
+
+        TODO: Can GL_BUFFER_UPDATE_BARRIER_BIT be used for both paths?
     */
     void BufferInterface::clear_(
         uintptr_t   offset,
