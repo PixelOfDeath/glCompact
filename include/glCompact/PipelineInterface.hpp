@@ -361,7 +361,7 @@ namespace glCompact {
              int32_t  buffer_atomicCounter_highestActiveBinding = -1;
             uint32_t  buffer_atomicCounter_id    [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
             uintptr_t buffer_atomicCounter_offset[Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_size  [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_atomicCounter_size  [Config::MAX_UNIFORM_BUFFER_BINDINGS];
 
             //BUFFER SHADER STORAGE
              int32_t  buffer_shaderStorage_highestActiveBinding = - 1;

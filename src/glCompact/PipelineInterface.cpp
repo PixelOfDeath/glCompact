@@ -92,8 +92,11 @@ using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
+    static constexpr uintptr_t DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE = Config::Workarounds::MESA_BIND_BUFFER_RANGE_NULL_ERROR_WHEN_SIZE_IS_NULL ? 1 : 0;
+
     PipelineInterface::PipelineInterface() {
-        LOOPI(Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS) buffer_shaderStorage_size[i] = Config::Workarounds::MESA_SSBO_BIND_NULL_ERRORS_WHEN_SIZE_IS_NULL ? 1 : 0;
+        LOOPI(Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS) buffer_shaderStorage_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        LOOPI(Config::MAX_UNIFORM_BUFFER_BINDINGS)       buffer_atomicCounter_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
     }
 
     PipelineInterface::~PipelineInterface() {
@@ -293,12 +296,18 @@ namespace glCompact {
     ) {
         if (int32_t(slot) > buffer_atomicCounter_highestActiveBinding) return;
 
-        buffer_atomicCounter_id[slot] = 0;
+        buffer_atomicCounter_id    [slot] = 0;
+        buffer_atomicCounter_offset[slot] = 0;
+        buffer_atomicCounter_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         if (threadContext->shader == this) threadContext->buffer_atomicCounter_markSlotChange(slot);
     }
 
     void PipelineInterface::setAtomicCounterBuffer() {
-        for (int32_t i = 0; i <= buffer_atomicCounter_highestActiveBinding; ++i) buffer_uniform_id[i] = 0;
+        for (int32_t i = 0; i <= buffer_atomicCounter_highestActiveBinding; ++i) {
+            buffer_atomicCounter_id    [i] = 0;
+            buffer_atomicCounter_offset[i] = 0;
+            buffer_atomicCounter_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        }
         if (threadContext->shader == this) {
             threadContext->buffer_atomicCounter_markSlotChange(0);
             threadContext->buffer_atomicCounter_markSlotChange(buffer_atomicCounter_highestActiveBinding);
@@ -340,7 +349,7 @@ namespace glCompact {
 
         buffer_shaderStorage_id    [slot] = 0;
         buffer_shaderStorage_offset[slot] = 0;
-        buffer_shaderStorage_size  [slot] = Config::Workarounds::MESA_SSBO_BIND_NULL_ERRORS_WHEN_SIZE_IS_NULL ? 1 : 0;
+        buffer_shaderStorage_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         if (threadContext->shader == this) threadContext->buffer_shaderStorage_markSlotChange(slot);
     }
 
@@ -348,7 +357,7 @@ namespace glCompact {
         for (int i = 0; i <= buffer_shaderStorage_highestActiveBinding; ++i) {
             buffer_shaderStorage_id    [i] = 0;
             buffer_shaderStorage_offset[i] = 0;
-            buffer_shaderStorage_size  [i] = Config::Workarounds::MESA_SSBO_BIND_NULL_ERRORS_WHEN_SIZE_IS_NULL ? 1 : 0;
+            buffer_shaderStorage_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         }
         if (threadContext->shader == this) {
             threadContext->buffer_shaderStorage_markSlotChange(0);
@@ -1040,6 +1049,8 @@ namespace glCompact {
         threadContext->image_changedSlotMin   = 0;
         threadContext->image_changedSlotMax   = max(threadContext->image_getHighestNonNull(),   image_highestActiveBinding);
 
+        threadContext->buffer_atomicCounter_changedSlotMin = 0;
+        threadContext->buffer_atomicCounter_changedSlotMax = max(threadContext->buffer_atomicCounter_getHighestNonNull(), buffer_atomicCounter_highestActiveBinding);
         threadContext->buffer_shaderStorage_changedSlotMin = 0;
         threadContext->buffer_shaderStorage_changedSlotMax = max(threadContext->buffer_shaderStorage_getHighestNonNull(), buffer_shaderStorage_highestActiveBinding);
     }
