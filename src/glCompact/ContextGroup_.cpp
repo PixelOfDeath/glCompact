@@ -364,9 +364,15 @@ namespace glCompact {
                 functions.glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS, &values.GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS);
                 functions.glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTERS, &values.GL_MAX_COMPUTE_ATOMIC_COUNTERS);
                 functions.glGetIntegerv(GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS, &values.GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS);
-                functions.glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS);
-                functions.glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_COUNT, &values.GL_MAX_COMPUTE_WORK_GROUP_COUNT);
-                functions.glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_SIZE, &values.GL_MAX_COMPUTE_WORK_GROUP_SIZE);
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, 0, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS[0]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, 1, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS[1]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, 2, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS[2]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[0]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[1]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[2]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[0]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[1]));
+                functions.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, reinterpret_cast<GLint*>(&values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[2]));
             }
             if (extensions.GL_ARB_framebuffer_no_attachments) {
                 functions.glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &values.GL_MAX_FRAMEBUFFER_WIDTH);

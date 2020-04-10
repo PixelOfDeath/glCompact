@@ -1,6 +1,8 @@
 #pragma once
 #include "glCompact/gl/Types.hpp"
 
+#include <glm/glm.hpp>
+
 namespace glCompact {
     namespace gl {
         class Values {
@@ -117,9 +119,9 @@ namespace glCompact {
                     GLint   GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS            = 0;
                     GLint   GL_MAX_COMPUTE_ATOMIC_COUNTERS                   = 0;
                     GLint   GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS       = 0;
-                    GLint   GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS            = 0;
-                    GLint   GL_MAX_COMPUTE_WORK_GROUP_COUNT                  = 0;
-                    GLint   GL_MAX_COMPUTE_WORK_GROUP_SIZE                   = 0;
+                    glm::uvec3 GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS;
+                    glm::uvec3 GL_MAX_COMPUTE_WORK_GROUP_COUNT;
+                    glm::uvec3 GL_MAX_COMPUTE_WORK_GROUP_SIZE;
 
                     //GL_ARB_framebuffer_no_attachments
                     GLint   GL_MAX_FRAMEBUFFER_WIDTH                         = 0;
