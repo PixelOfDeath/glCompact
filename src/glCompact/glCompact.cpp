@@ -20,11 +20,13 @@ namespace glCompact {
     //control/flush commands
     void flush() {
         //TODO: set all pending changes
+        threadContext->processPendingChangesMemoryBarriers();
         threadContextGroup_->functions.glFlush();
     }
 
     void finish() {
         //TODO: set all pending changes
+        threadContext->processPendingChangesMemoryBarriers();
         threadContextGroup_->functions.glFinish();
     }
 
