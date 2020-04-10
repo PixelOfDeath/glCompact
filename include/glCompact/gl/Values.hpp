@@ -119,7 +119,7 @@ namespace glCompact {
                     GLint   GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS            = 0;
                     GLint   GL_MAX_COMPUTE_ATOMIC_COUNTERS                   = 0;
                     GLint   GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS       = 0;
-                    glm::uvec3 GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS;
+                    GLint   GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS            = 0;
                     glm::uvec3 GL_MAX_COMPUTE_WORK_GROUP_COUNT;
                     glm::uvec3 GL_MAX_COMPUTE_WORK_GROUP_SIZE;
 
