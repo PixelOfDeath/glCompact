@@ -369,6 +369,12 @@ namespace glCompact {
             uintptr_t buffer_shaderStorage_offset[Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
             uintptr_t buffer_shaderStorage_size  [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS];
 
+            struct Attribute {
+                std::string name;
+                int32_t type        =  0;
+                int32_t arraySize   =  0; //?
+            };
+
             struct Uniform {
                 std::string name;
                 int32_t location    = -1;
@@ -432,6 +438,7 @@ namespace glCompact {
                 std::vector<StorageBlockVariable> variable;
             };
 
+            std::vector<Attribute>            attributeList;
             std::vector<Uniform>              uniformList; //only uniforms with location
             std::vector<BindingUniform>       samplerList;
             std::vector<BindingUniform>       imageList;

@@ -1238,6 +1238,19 @@ namespace glCompact {
     void PipelineInterface::collectInformation() {
         vector<char> nameBuffer;
 
+        //get infos about all attributes (Core since 2.0)
+        int32_t activeAttributeCount;
+        int32_t activeAttributeNameLengthMax;
+        threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES,           &activeAttributeCount);
+        threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &activeAttributeNameLengthMax);
+        nameBuffer.resize(activeAttributeNameLengthMax);
+        LOOPI(activeAttributeCount) {
+            Attribute attribute;
+            uint32_t stringLenght = 0;
+            threadContextGroup_->functions.glGetActiveAttrib(id, i, activeAttributeNameLengthMax, &stringLenght, &attribute.arraySize, &attribute.type, &nameBuffer[0]);
+            attribute.name = string(&nameBuffer[0], stringLenght);
+        }
+
         //get infos about all uniforms. This includes uniforms from UBOs and SSBOs. Whose uniform location are -1.
         struct RawUniform {
             string  name;
