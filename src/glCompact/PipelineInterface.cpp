@@ -1452,6 +1452,7 @@ namespace glCompact {
                 };
                 int32_t queryCount = sizeof(activeVariableCountQuery) / 4;
                 threadContextGroup_->functions.glGetProgramResourceiv(id, GL_SHADER_STORAGE_BLOCK, i, queryCount, activeVariableCountQuery, queryCount, nullptr, reinterpret_cast<int32_t*>(&query));
+                sb.binding = query.binding;
                 sb.variable.resize(query.activeVariableCount);
                 vector<int32_t> activeVariableIndexList(query.activeVariableCount);
                 int32_t activeVariableIndexListQuery[] = {GL_ACTIVE_VARIABLES};
