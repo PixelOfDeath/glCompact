@@ -179,6 +179,18 @@ namespace glCompact {
         threadContextGroup_->functions.glDispatchComputeIndirect(offset);
     }
 
+    glm::ivec3 PipelineCompute::getMaxWorkGroupCount() {
+        return threadContextGroup_->values.GL_MAX_COMPUTE_WORK_GROUP_COUNT;
+    }
+
+    glm::ivec3 PipelineCompute::getMaxWorkGroupSize() {
+        return threadContextGroup_->values.GL_MAX_COMPUTE_WORK_GROUP_SIZE;
+    }
+
+    uint32_t PipelineCompute::getMaxWorkGroupInvocation() {
+        return threadContextGroup_->values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS;
+    }
+
     void PipelineCompute::activate() {
         threadContext->cachedBindShader(id);
         if (threadContext->shader != this) {

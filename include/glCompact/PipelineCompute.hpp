@@ -16,6 +16,9 @@ namespace glCompact {
             void dispatchIndirect(const BufferInterface& buffer, uintptr_t offset);
 
             glm::ivec3 getWorkGroupSize()const{return workGroupSize;}
+            static glm::ivec3 getMaxWorkGroupCount();
+            static glm::ivec3 getMaxWorkGroupSize();
+            static uint32_t getMaxWorkGroupInvocation();
         protected:
             virtual std::string getPipelineIdentificationString();
             std::string getPipelineInformationQueryString();
