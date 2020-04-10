@@ -92,6 +92,10 @@ using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
+    PipelineInterface::PipelineInterface() {
+        LOOPI(Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS) buffer_shaderStorage_size[i] = Config::Workarounds::MESA_SSBO_BIND_NULL_ERRORS_WHEN_SIZE_IS_NULL ? 1 : 0;
+    }
+
     PipelineInterface::~PipelineInterface() {
         //if (!SDL_GL_GetCurrentContext())
         //    cout << "WARNING: glCompact::PipelineInterface destructor called but no active OpenGL context in this thread to delete it! Leaking OpenGL object!" << endl;
@@ -336,7 +340,7 @@ namespace glCompact {
 
         buffer_shaderStorage_id    [slot] = 0;
         buffer_shaderStorage_offset[slot] = 0;
-        buffer_shaderStorage_size  [slot] = 0;
+        buffer_shaderStorage_size  [slot] = Config::Workarounds::MESA_SSBO_BIND_NULL_ERRORS_WHEN_SIZE_IS_NULL ? 1 : 0;
         if (threadContext->shader == this) threadContext->buffer_shaderStorage_markSlotChange(slot);
     }
 
@@ -344,7 +348,7 @@ namespace glCompact {
         for (int i = 0; i <= buffer_shaderStorage_highestActiveBinding; ++i) {
             buffer_shaderStorage_id    [i] = 0;
             buffer_shaderStorage_offset[i] = 0;
-            buffer_shaderStorage_size  [i] = 0;
+            buffer_shaderStorage_size  [i] = Config::Workarounds::MESA_SSBO_BIND_NULL_ERRORS_WHEN_SIZE_IS_NULL ? 1 : 0;
         }
         if (threadContext->shader == this) {
             threadContext->buffer_shaderStorage_markSlotChange(0);
@@ -1033,9 +1037,11 @@ namespace glCompact {
         threadContext->buffer_uniform_changedSlotMin = 0;
         threadContext->buffer_uniform_changedSlotMax = max(threadContext->buffer_uniform_getHighestNonNull(), buffer_uniform_highestActiveBinding);
 
-
         threadContext->image_changedSlotMin   = 0;
         threadContext->image_changedSlotMax   = max(threadContext->image_getHighestNonNull(),   image_highestActiveBinding);
+
+        threadContext->buffer_shaderStorage_changedSlotMin = 0;
+        threadContext->buffer_shaderStorage_changedSlotMax = max(threadContext->buffer_shaderStorage_getHighestNonNull(), buffer_shaderStorage_highestActiveBinding);
     }
 
     /*
@@ -1503,7 +1509,7 @@ namespace glCompact {
     void PipelineInterface::processPendingChanges() {
         processPendingChangesBuffersUniform();
         processPendingChangesBuffersAtomicCounter();
-        processPendingChangesBuffersShaderstorage();
+        processPendingChangesBuffersShaderStorage();
         processPendingChangesTextures();
         processPendingChangesSamplers();
         processPendingChangesImages();
@@ -1611,7 +1617,7 @@ namespace glCompact {
             void glBindBuffersBase(GLenum target, GLuint first, GLsizei count, const GLuint *buffers);
             void glBindBuffersRange(GLenum target, GLuint first, GLsizei count, const GLuint *buffers, const GLintptr *offsets, const GLintptr *sizes);
     */
-    void PipelineInterface::processPendingChangesBuffersShaderstorage() {
+    void PipelineInterface::processPendingChangesBuffersShaderStorage() {
         auto changedSlotMin = threadContext->buffer_shaderStorage_changedSlotMin;
         auto changedSlotMax = threadContext->buffer_shaderStorage_changedSlotMax;
 

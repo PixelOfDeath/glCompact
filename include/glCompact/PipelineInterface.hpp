@@ -191,7 +191,7 @@ namespace glCompact {
 
             //TODO: need setter for uniform structures
         protected:
-            PipelineInterface() = default;
+            PipelineInterface();
             ~PipelineInterface();
         protected:
             template<typename T>
@@ -335,11 +335,12 @@ namespace glCompact {
             void getUniform(GLint uniformLocation, glm::dmat4x3& value, int count = 1);
             void getUniform(GLint uniformLocation, glm::dmat4x4& value, int count = 1);*/
 
-            //TEXTURE/SAMPLER
+            //TEXTURE
              int32_t  sampler_highestActiveBinding = -1;
             uint32_t  texture_id    [Config::MAX_SAMPLER_BINDINGS] = {};
              int32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
 
+            //SAMPLER
             uint32_t  sampler_id    [Config::MAX_SAMPLER_BINDINGS] = {};
 
             //BUFFER UNIFORM
@@ -366,7 +367,7 @@ namespace glCompact {
              int32_t  buffer_shaderStorage_highestActiveBinding = - 1;
             uint32_t  buffer_shaderStorage_id    [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
             uintptr_t buffer_shaderStorage_offset[Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_size  [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_shaderStorage_size  [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS];
 
             struct Uniform {
                 std::string name;
@@ -443,7 +444,7 @@ namespace glCompact {
             void processPendingChanges();
             void processPendingChangesBuffersUniform();
             void processPendingChangesBuffersAtomicCounter();
-            void processPendingChangesBuffersShaderstorage();
+            void processPendingChangesBuffersShaderStorage();
             void processPendingChangesTextures();
             void processPendingChangesSamplers();
             void processPendingChangesImages();
