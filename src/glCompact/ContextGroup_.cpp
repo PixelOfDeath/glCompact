@@ -337,72 +337,72 @@ namespace glCompact {
 
     void ContextGroup_::getAllValue() {
         //Core forever?
-            values.GL_MAX_TEXTURE_SIZE = getValue<int32_t>(GL_MAX_TEXTURE_SIZE);
+            values.GL_MAX_TEXTURE_SIZE                                  = getValue<int32_t>(GL_MAX_TEXTURE_SIZE);
 
         //Core since 1.2
             if (extensions.GL_EXT_texture3D) {
-                values.GL_MAX_3D_TEXTURE_SIZE = getValue<int32_t>(GL_MAX_3D_TEXTURE_SIZE);
+                values.GL_MAX_3D_TEXTURE_SIZE                           = getValue<int32_t>(GL_MAX_3D_TEXTURE_SIZE);
             }
         //Core since 1.3
             //GL_ARB_texture_cube_map
-            values.GL_MAX_CUBE_MAP_TEXTURE_SIZE = getValue<int32_t>(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
+            values.GL_MAX_CUBE_MAP_TEXTURE_SIZE                         = getValue<int32_t>(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
 
         //Core since 2.0
             if (version.equalOrGreater(2, 0)) {
-                values.GL_MAX_DRAW_BUFFERS = getValue<int32_t>(GL_MAX_DRAW_BUFFERS);
+                values.GL_MAX_DRAW_BUFFERS                              = getValue<int32_t>(GL_MAX_DRAW_BUFFERS);
             }
             if (extensions.GL_ARB_vertex_shader) {
-                values.GL_MAX_VERTEX_UNIFORM_COMPONENTS     = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_COMPONENTS);
-                values.GL_MAX_VARYING_FLOATS                = getValue<int32_t>(GL_MAX_VARYING_FLOATS);
-                values.GL_MAX_VERTEX_ATTRIBS                = getValue<int32_t>(GL_MAX_VERTEX_ATTRIBS);
-                values.GL_MAX_TEXTURE_IMAGE_UNITS           = getValue<int32_t>(GL_MAX_TEXTURE_IMAGE_UNITS);
-                values.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS    = getValue<int32_t>(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-                values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS  = getValue<int32_t>(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-                values.GL_MAX_TEXTURE_COORDS                = getValue<int32_t>(GL_MAX_TEXTURE_COORDS);
+                values.GL_MAX_VERTEX_UNIFORM_COMPONENTS                 = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_COMPONENTS);
+                values.GL_MAX_VARYING_FLOATS                            = getValue<int32_t>(GL_MAX_VARYING_FLOATS);
+                values.GL_MAX_VERTEX_ATTRIBS                            = getValue<int32_t>(GL_MAX_VERTEX_ATTRIBS);
+                values.GL_MAX_TEXTURE_IMAGE_UNITS                       = getValue<int32_t>(GL_MAX_TEXTURE_IMAGE_UNITS);
+                values.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS                = getValue<int32_t>(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+                values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS              = getValue<int32_t>(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+                values.GL_MAX_TEXTURE_COORDS                            = getValue<int32_t>(GL_MAX_TEXTURE_COORDS);
             }
 
         //Core since 3.0
             if (extensions.GL_ARB_framebuffer_object) {
-                values.GL_MAX_SAMPLES           = getValue<int32_t>(GL_MAX_SAMPLES);
-                values.GL_MAX_COLOR_ATTACHMENTS = getValue<int32_t>(GL_MAX_COLOR_ATTACHMENTS);
-                values.GL_MAX_RENDERBUFFER_SIZE = getValue<int32_t>(GL_MAX_RENDERBUFFER_SIZE);
+                values.GL_MAX_SAMPLES                                   = getValue<int32_t>(GL_MAX_SAMPLES);
+                values.GL_MAX_COLOR_ATTACHMENTS                         = getValue<int32_t>(GL_MAX_COLOR_ATTACHMENTS);
+                values.GL_MAX_RENDERBUFFER_SIZE                         = getValue<int32_t>(GL_MAX_RENDERBUFFER_SIZE);
             }
             if (extensions.GL_EXT_texture_array) {
-                values.GL_MAX_ARRAY_TEXTURE_LAYERS = getValue<int32_t>(GL_MAX_ARRAY_TEXTURE_LAYERS);
+                values.GL_MAX_ARRAY_TEXTURE_LAYERS                      = getValue<int32_t>(GL_MAX_ARRAY_TEXTURE_LAYERS);
             }
         //Core since 3.1
             if (extensions.GL_ARB_texture_buffer_object) {
-                values.GL_MAX_TEXTURE_BUFFER_SIZE = getValue<int32_t>(GL_MAX_TEXTURE_BUFFER_SIZE);
+                values.GL_MAX_TEXTURE_BUFFER_SIZE                       = getValue<int32_t>(GL_MAX_TEXTURE_BUFFER_SIZE);
             }
             if (extensions.GL_ARB_uniform_buffer_object) {
-                values.GL_MAX_VERTEX_UNIFORM_BLOCKS                 = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_BLOCKS);
-                values.GL_MAX_GEOMETRY_UNIFORM_BLOCKS               = getValue<int32_t>(GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
-                values.GL_MAX_FRAGMENT_UNIFORM_BLOCKS               = getValue<int32_t>(GL_MAX_FRAGMENT_UNIFORM_BLOCKS);
-                values.GL_MAX_COMBINED_UNIFORM_BLOCKS               = getValue<int32_t>(GL_MAX_COMBINED_UNIFORM_BLOCKS);
-                values.GL_MAX_UNIFORM_BUFFER_BINDINGS               = getValue<int32_t>(GL_MAX_UNIFORM_BUFFER_BINDINGS);
-                values.GL_MAX_UNIFORM_BLOCK_SIZE                    = getValue<int32_t>(GL_MAX_UNIFORM_BLOCK_SIZE);
-                values.GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS    = getValue<int32_t>(GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS);
-                values.GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS  = getValue<int32_t>(GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS);
-                values.GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS  = getValue<int32_t>(GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS);
-                values.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT           = getValue<int32_t>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+                values.GL_MAX_VERTEX_UNIFORM_BLOCKS                     = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_BLOCKS);
+                values.GL_MAX_GEOMETRY_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
+                values.GL_MAX_FRAGMENT_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_FRAGMENT_UNIFORM_BLOCKS);
+                values.GL_MAX_COMBINED_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_COMBINED_UNIFORM_BLOCKS);
+                values.GL_MAX_UNIFORM_BUFFER_BINDINGS                   = getValue<int32_t>(GL_MAX_UNIFORM_BUFFER_BINDINGS);
+                values.GL_MAX_UNIFORM_BLOCK_SIZE                        = getValue<int32_t>(GL_MAX_UNIFORM_BLOCK_SIZE);
+                values.GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS        = getValue<int32_t>(GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS);
+                values.GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS      = getValue<int32_t>(GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS);
+                values.GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS      = getValue<int32_t>(GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS);
+                values.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT               = getValue<int32_t>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
             }
         //Core since 3.2
             if (extensions.GL_ARB_texture_multisample) {
-                values.GL_MAX_COLOR_TEXTURE_SAMPLES = getValue<int32_t>(GL_MAX_COLOR_TEXTURE_SAMPLES);
-                values.GL_MAX_DEPTH_TEXTURE_SAMPLES = getValue<int32_t>(GL_MAX_DEPTH_TEXTURE_SAMPLES);
-                values.GL_MAX_INTEGER_SAMPLES       = getValue<int32_t>(GL_MAX_INTEGER_SAMPLES);
+                values.GL_MAX_COLOR_TEXTURE_SAMPLES                     = getValue<int32_t>(GL_MAX_COLOR_TEXTURE_SAMPLES);
+                values.GL_MAX_DEPTH_TEXTURE_SAMPLES                     = getValue<int32_t>(GL_MAX_DEPTH_TEXTURE_SAMPLES);
+                values.GL_MAX_INTEGER_SAMPLES                           = getValue<int32_t>(GL_MAX_INTEGER_SAMPLES);
             }
             if (extensions.GL_ARB_sync) {
-                values.GL_MAX_SERVER_WAIT_TIMEOUT = getValue<int32_t>(GL_MAX_SERVER_WAIT_TIMEOUT);
+                values.GL_MAX_SERVER_WAIT_TIMEOUT                       = getValue<int32_t>(GL_MAX_SERVER_WAIT_TIMEOUT);
             }
         //Core since 3.3
             if (extensions.GL_ARB_blend_func_extended) {
-                values.GL_MAX_DUAL_SOURCE_DRAW_BUFFERS = getValue<int32_t>(GL_MAX_DUAL_SOURCE_DRAW_BUFFERS);
+                values.GL_MAX_DUAL_SOURCE_DRAW_BUFFERS                  = getValue<int32_t>(GL_MAX_DUAL_SOURCE_DRAW_BUFFERS);
             }
         //Core since 4.0
             if (extensions.GL_ARB_transform_feedback3) {
-                values.GL_MAX_TRANSFORM_FEEDBACK_BUFFERS    = getValue<int32_t>(GL_MAX_TRANSFORM_FEEDBACK_BUFFERS);
-                values.GL_MAX_VERTEX_STREAMS                = getValue<int32_t>(GL_MAX_VERTEX_STREAMS);
+                values.GL_MAX_TRANSFORM_FEEDBACK_BUFFERS                = getValue<int32_t>(GL_MAX_TRANSFORM_FEEDBACK_BUFFERS);
+                values.GL_MAX_VERTEX_STREAMS                            = getValue<int32_t>(GL_MAX_VERTEX_STREAMS);
             }
         //Core since 4.2
             if (extensions.GL_ARB_shader_atomic_counters) {
@@ -434,59 +434,59 @@ namespace glCompact {
             }
         //Core since 4.3
             if (extensions.GL_ARB_vertex_attrib_binding) {
-                values.GL_MAX_VERTEX_ATTRIB_BINDINGS        = getValue<int32_t>(GL_MAX_VERTEX_ATTRIB_BINDINGS);
-                values.GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET = getValue<int32_t>(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET);
+                values.GL_MAX_VERTEX_ATTRIB_BINDINGS                    = getValue<int32_t>(GL_MAX_VERTEX_ATTRIB_BINDINGS);
+                values.GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET             = getValue<int32_t>(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET);
             }
             if (extensions.GL_ARB_texture_buffer_range) {
-                values.GL_TEXTURE_BUFFER_OFFSET_ALIGNMENT = getValue<int32_t>(GL_TEXTURE_BUFFER_OFFSET_ALIGNMENT);
+                values.GL_TEXTURE_BUFFER_OFFSET_ALIGNMENT               = getValue<int32_t>(GL_TEXTURE_BUFFER_OFFSET_ALIGNMENT);
             }
             if (extensions.GL_ARB_compute_shader) {
-                values.GL_MAX_COMPUTE_UNIFORM_BLOCKS                = getValue<int32_t>(GL_MAX_COMPUTE_UNIFORM_BLOCKS);
-                values.GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS           = getValue<int32_t>(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS);
-                values.GL_MAX_COMPUTE_IMAGE_UNIFORMS                = getValue<int32_t>(GL_MAX_COMPUTE_IMAGE_UNIFORMS);
-                values.GL_MAX_COMPUTE_SHARED_MEMORY_SIZE            = getValue<int32_t>(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE);
-                values.GL_MAX_COMPUTE_UNIFORM_COMPONENTS            = getValue<int32_t>(GL_MAX_COMPUTE_UNIFORM_COMPONENTS);
-                values.GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS        = getValue<int32_t>(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS);
-                values.GL_MAX_COMPUTE_ATOMIC_COUNTERS               = getValue<int32_t>(GL_MAX_COMPUTE_ATOMIC_COUNTERS);
-                values.GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS   = getValue<int32_t>(GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS);
-                values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS        = getValue<int32_t>(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS);
-                values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[0]           = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0);
-                values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[1]           = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1);
-                values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[2]           = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2);
-                values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[0]            = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0);
-                values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[1]            = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1);
-                values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[2]            = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2);
+                values.GL_MAX_COMPUTE_UNIFORM_BLOCKS                    = getValue<int32_t>(GL_MAX_COMPUTE_UNIFORM_BLOCKS);
+                values.GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS               = getValue<int32_t>(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS);
+                values.GL_MAX_COMPUTE_IMAGE_UNIFORMS                    = getValue<int32_t>(GL_MAX_COMPUTE_IMAGE_UNIFORMS);
+                values.GL_MAX_COMPUTE_SHARED_MEMORY_SIZE                = getValue<int32_t>(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE);
+                values.GL_MAX_COMPUTE_UNIFORM_COMPONENTS                = getValue<int32_t>(GL_MAX_COMPUTE_UNIFORM_COMPONENTS);
+                values.GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS            = getValue<int32_t>(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS);
+                values.GL_MAX_COMPUTE_ATOMIC_COUNTERS                   = getValue<int32_t>(GL_MAX_COMPUTE_ATOMIC_COUNTERS);
+                values.GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS       = getValue<int32_t>(GL_MAX_COMBINED_COMPUTE_UNIFORM_COMPONENTS);
+                values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS            = getValue<int32_t>(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS);
+                values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[0]               = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0);
+                values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[1]               = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1);
+                values.GL_MAX_COMPUTE_WORK_GROUP_COUNT[2]               = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2);
+                values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[0]                = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0);
+                values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[1]                = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1);
+                values.GL_MAX_COMPUTE_WORK_GROUP_SIZE[2]                = getValue<uint32_t>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2);
             }
             if (extensions.GL_ARB_framebuffer_no_attachments) {
-                values.GL_MAX_FRAMEBUFFER_WIDTH     = getValue<int32_t>(GL_MAX_FRAMEBUFFER_WIDTH);
-                values.GL_MAX_FRAMEBUFFER_HEIGHT    = getValue<int32_t>(GL_MAX_FRAMEBUFFER_HEIGHT);
-                values.GL_MAX_FRAMEBUFFER_LAYERS    = getValue<int32_t>(GL_MAX_FRAMEBUFFER_LAYERS);
-                values.GL_MAX_FRAMEBUFFER_SAMPLES   = getValue<int32_t>(GL_MAX_FRAMEBUFFER_SAMPLES);
+                values.GL_MAX_FRAMEBUFFER_WIDTH                         = getValue<int32_t>(GL_MAX_FRAMEBUFFER_WIDTH);
+                values.GL_MAX_FRAMEBUFFER_HEIGHT                        = getValue<int32_t>(GL_MAX_FRAMEBUFFER_HEIGHT);
+                values.GL_MAX_FRAMEBUFFER_LAYERS                        = getValue<int32_t>(GL_MAX_FRAMEBUFFER_LAYERS);
+                values.GL_MAX_FRAMEBUFFER_SAMPLES                       = getValue<int32_t>(GL_MAX_FRAMEBUFFER_SAMPLES);
             }
             if (extensions.GL_ARB_shader_storage_buffer_object) {
-                values.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS          = getValue<int32_t>(GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS);
-                values.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS        = getValue<int32_t>(GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS);
-                values.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS    = getValue<int32_t>(GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS);
-                values.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS = getValue<int32_t>(GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS);
-                values.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS        = getValue<int32_t>(GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS);
-                values.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS         = getValue<int32_t>(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS);
-                values.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS        = getValue<int32_t>(GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS);
-                values.GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS        = getValue<int32_t>(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS);
-                values.GL_MAX_SHADER_STORAGE_BLOCK_SIZE             = getValue<int32_t>(GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
-                values.GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT    = getValue<int32_t>(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT);
+                values.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS              = getValue<int32_t>(GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS);
+                values.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS            = getValue<int32_t>(GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS);
+                values.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS        = getValue<int32_t>(GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS);
+                values.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS     = getValue<int32_t>(GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS);
+                values.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS            = getValue<int32_t>(GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS);
+                values.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS             = getValue<int32_t>(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS);
+                values.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS            = getValue<int32_t>(GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS);
+                values.GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS            = getValue<int32_t>(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS);
+                values.GL_MAX_SHADER_STORAGE_BLOCK_SIZE                 = getValue<int32_t>(GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
+                values.GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT        = getValue<int32_t>(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT);
             }
             if (extensions.GL_KHR_debug) {
-                values.GL_MAX_DEBUG_MESSAGE_LENGTH      = getValue<int32_t>(GL_MAX_DEBUG_MESSAGE_LENGTH);
-                values.GL_MAX_DEBUG_LOGGED_MESSAGES     = getValue<int32_t>(GL_MAX_DEBUG_LOGGED_MESSAGES);
-                values.GL_MAX_DEBUG_GROUP_STACK_DEPTH   = getValue<int32_t>(GL_MAX_DEBUG_GROUP_STACK_DEPTH);
-                values.GL_MAX_LABEL_LENGTH              = getValue<int32_t>(GL_MAX_LABEL_LENGTH);
+                values.GL_MAX_DEBUG_MESSAGE_LENGTH                      = getValue<int32_t>(GL_MAX_DEBUG_MESSAGE_LENGTH);
+                values.GL_MAX_DEBUG_LOGGED_MESSAGES                     = getValue<int32_t>(GL_MAX_DEBUG_LOGGED_MESSAGES);
+                values.GL_MAX_DEBUG_GROUP_STACK_DEPTH                   = getValue<int32_t>(GL_MAX_DEBUG_GROUP_STACK_DEPTH);
+                values.GL_MAX_LABEL_LENGTH                              = getValue<int32_t>(GL_MAX_LABEL_LENGTH);
             }
         //Not core
             if (extensions.GL_ARB_sparse_buffer) {
-                values.GL_SPARSE_BUFFER_PAGE_SIZE_ARB = getValue<int32_t>(GL_SPARSE_BUFFER_PAGE_SIZE_ARB);
+                values.GL_SPARSE_BUFFER_PAGE_SIZE_ARB                   = getValue<int32_t>(GL_SPARSE_BUFFER_PAGE_SIZE_ARB);
             }
             if (extensions.GL_EXT_texture_filter_anisotropic) {
-                values.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT = getValue<int32_t>(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+                values.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT                = getValue<int32_t>(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
             }
     }
 
