@@ -24,5 +24,10 @@ namespace glCompact {
             void checkAndSetFeatures();
 
             std::atomic<int> contextCount = {1};
+        private:
+            template<typename T>
+            T getValue(int32_t pname);
+            template<typename T>
+            T getValue(int32_t pname, uint32_t index);
     };
 }
