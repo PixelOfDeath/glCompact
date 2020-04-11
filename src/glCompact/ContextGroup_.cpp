@@ -114,11 +114,11 @@ namespace glCompact {
         version.es    = (match[1] == "OpenGL ES ") ? 1 : 0;
         version.major = stoi(match[2]);
         version.minor = stoi(match[3]);
-        if (version.major >  Config::MIN_MAJOR
-        || (version.major == Config::MIN_MAJOR && version.minor >= Config::MIN_MINOR)) {
+        if (version.major >  Config::glMinMajor
+        || (version.major == Config::glMinMajor && version.minor >= Config::glMinMinor)) {
             //all okey dokey!
         } else {
-            crash("glCompact needs at last OpenGL " + to_string(Config::MIN_MAJOR) + "." + to_string(Config::MIN_MINOR) + "!");
+            crash("glCompact needs at last OpenGL " + to_string(Config::glMinMajor) + "." + to_string(Config::glMinMinor) + "!");
         }
 
         int32_t contextProfileMask = getValue<int32_t>(GL_CONTEXT_PROFILE_MASK);
