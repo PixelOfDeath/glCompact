@@ -28,8 +28,8 @@ namespace glCompact {
             void collectInformation();
             const bool loadedFromFile = false;
             std::string fileName;
-            void activate();
 
             void processPendingChanges();
+            void processPendingChangesPipeline();
     };
 }

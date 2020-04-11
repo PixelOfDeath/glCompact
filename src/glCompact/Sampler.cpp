@@ -3,6 +3,7 @@
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/PipelineInterface.hpp"
 
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/GlTools.hpp"
@@ -48,7 +49,7 @@ namespace glCompact {
             //this needs to be bound once before OpenGL creates the sampler for real, and before we can use operations on it like setting parameters
             threadContextGroup_->functions.glBindSampler(0, id);
             threadContext->sampler_id[0] = id;
-            threadContext->sampler_markSlotChange(0);
+            if (threadContext->pipeline) threadContext->pipeline->sampler_markSlotChange(0);
         }
     }
 

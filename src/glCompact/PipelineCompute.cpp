@@ -148,7 +148,6 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_compute_shader)
             throw std::runtime_error("missing support for GL_ARB_compute_shader (Core since 4.3)!");
-        activate();
         processPendingChanges();
         threadContextGroup_->functions.glDispatchCompute(groupCountX, groupCountY, groupCountZ);
     }
@@ -173,7 +172,6 @@ namespace glCompact {
             throw std::runtime_error("missing support for GL_ARB_compute_shader (Core since 4.3)!");
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty buffer!");
-        activate();
         processPendingChanges();
         threadContext->cachedBindDispatchIndirectBuffer(buffer.id);
         threadContextGroup_->functions.glDispatchComputeIndirect(offset);
@@ -189,15 +187,6 @@ namespace glCompact {
 
     uint32_t PipelineCompute::getMaxWorkGroupInvocation() {
         return threadContextGroup_->values.GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS;
-    }
-
-    void PipelineCompute::activate() {
-        threadContext->cachedBindShader(id);
-        if (threadContext->shader != this) {
-            PipelineInterface::activate();
-            //TODO...
-            threadContext->shader = this;
-        }
     }
 
     /*
@@ -225,6 +214,14 @@ namespace glCompact {
 
     void PipelineCompute::processPendingChanges() {
         PipelineInterface::processPendingChanges();
-        threadContext->processPendingChangesMemoryBarriers();
+        processPendingChangesPipeline();
+    }
+
+    void PipelineCompute::processPendingChangesPipeline() {
+        threadContext->cachedBindShader(id);
+        if (threadContext->pipeline != this) {
+            PipelineInterface::processPendingChangesPipeline();
+            threadContext->pipeline = this;
+        }
     }
 }

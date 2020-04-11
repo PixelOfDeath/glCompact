@@ -94,8 +94,8 @@ namespace glCompact {
             glm::uvec2 current_scissorSize;
 
             //SHADER
-            uint32_t           shaderId = 0;
-            PipelineInterface* shader   = 0;
+            uint32_t           pipelineShaderId = 0;
+            PipelineInterface* pipeline = 0;
             PipelineInterface* pipelineThatCausedLastWarning = 0; //using this to only print out the pipeline information/identification once until a different pipeline causes warnings
 
             uint32_t  defaultVaoId = 0;
@@ -105,9 +105,6 @@ namespace glCompact {
             AttributeLayoutStates attributeLayoutStates;
 
             //BUFFER ATTRIBUTE
-            void      buffer_attribute_markSlotChange(int8_t slot);
-             int8_t   buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
-             int8_t   buffer_attribute_changedSlotMax = -1;
              int8_t   buffer_attribute_getHighestNonNull();
              int8_t   buffer_attribute_maxHighestNonNull = -1;
             uint32_t  buffer_attribute_id    [Config::MAX_ATTRIBUTES] = {};
@@ -124,9 +121,6 @@ namespace glCompact {
             uint32_t  buffer_parameter_id         = 0;
 
             //BUFFER UNIFORM
-            void      buffer_uniform_markSlotChange(int32_t slot);
-             int32_t  buffer_uniform_changedSlotMin = Config::MAX_UNIFORM_BUFFER_BINDINGS;
-             int32_t  buffer_uniform_changedSlotMax = -1;
              int32_t  buffer_uniform_getHighestNonNull();
              int32_t  buffer_uniform_maxHighestNonNull = -1;
             uint32_t  buffer_uniform_id    [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
@@ -134,9 +128,6 @@ namespace glCompact {
             uintptr_t buffer_uniform_size  [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
 
             //BUFFER ATOMIC COUNTER
-            void      buffer_atomicCounter_markSlotChange(int32_t slot);
-             int32_t  buffer_atomicCounter_changedSlotMin = Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS;
-             int32_t  buffer_atomicCounter_changedSlotMax = -1;
              int32_t  buffer_atomicCounter_getHighestNonNull();
              int32_t  buffer_atomicCounter_maxHighestNonNull = -1;
             uint32_t  buffer_atomicCounter_id    [Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
@@ -144,9 +135,6 @@ namespace glCompact {
             uintptr_t buffer_atomicCounter_size  [Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
 
             //BUFFER SHADER STORAGE
-            void      buffer_shaderStorage_markSlotChange(int32_t slot);
-             int32_t  buffer_shaderStorage_changedSlotMin = Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS;
-             int32_t  buffer_shaderStorage_changedSlotMax = -1;
              int32_t  buffer_shaderStorage_getHighestNonNull();
              int32_t  buffer_shaderStorage_maxHighestNonNull = -1;
             uint32_t  buffer_shaderStorage_id    [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
@@ -163,26 +151,17 @@ namespace glCompact {
 
             //TEXTURE
             uint32_t  activeTextureSlot = 0; //caching of "GL_TEXTURE0 + i" value for old style binding
-            void      texture_markSlotChange(int32_t slot);
-             int32_t  texture_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
-             int32_t  texture_changedSlotMax = -1;
              int32_t  texture_getHighestNonNull();
              int32_t  texture_maxHighestNonNull = -1;
             uint32_t  texture_id    [Config::MAX_SAMPLER_BINDINGS] = {};
              int32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
 
             //SAMPLER
-            void      sampler_markSlotChange(int32_t slot);
-             int32_t  sampler_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
-             int32_t  sampler_changedSlotMax = -1;
              int32_t  sampler_getHighestNonNull();
              int32_t  sampler_maxHighestNonNull = -1;
             uint32_t  sampler_id[Config::MAX_SAMPLER_BINDINGS] = {};
 
             //IMAGE
-            void      image_markSlotChange(int32_t slot);
-             int32_t  image_changedSlotMin = Config::MAX_IMAGE_BINDINGS;
-             int32_t  image_changedSlotMax = -1;
              int32_t  image_getHighestNonNull();
              int32_t  image_maxHighestNonNull = -1;
             uint32_t  image_id         [Config::MAX_IMAGE_BINDINGS] = {};
@@ -266,7 +245,7 @@ namespace glCompact {
             void cachedBindTextureCompatibleOrFirstTime(uint32_t texSlot, int32_t texTarget, uint32_t texId);
             void cachedBindTexture                     (uint32_t texSlot, int32_t texTarget, uint32_t texId);
 
-            void cachedBindShader          (uint32_t shaderId);
+            void cachedBindShader          (uint32_t pipelineShaderId);
             void cachedBindArrayBuffer     (uint32_t bufferId);
             void cachedSetActiveTextureUnit(uint32_t slot);
             void cachedBindDrawFbo         (uint32_t fboId);

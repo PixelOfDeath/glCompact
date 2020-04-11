@@ -118,7 +118,6 @@ namespace glCompact {
                 const std::string& stringFragment
             );
             void setDefaultValues();
-
         //SHADER INFORMATION
             //Vertex info
             //int uppermostActiveLocation = -1;
@@ -142,8 +141,6 @@ namespace glCompact {
 
 
           //STATES
-            void activate();
-
             PipelineRasterizationStateChange pipelineRasterizationStateChangePending;
 
             PrimitiveTopology vertexStageInputPrimitiveTopology = static_cast<PrimitiveTopology>(0xFFFFFFFF);
@@ -223,6 +220,7 @@ namespace glCompact {
             void deactivateAttributeIndex();
 
             void processPendingChanges();
+            void processPendingChangesPipeline();
             void processPendingChangesPipelineRasterization();
             void processPendingChangesAttributeLayoutAndBuffers();
 

@@ -5,6 +5,7 @@
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Frame.hpp"
+#include "glCompact/PipelineInterface.hpp"
 
 #include <exception>
 #include <stdexcept>
@@ -122,31 +123,9 @@ namespace glCompact {
         buffer_copyWriteId   = 0;
     }
 
-    void Context::buffer_attribute_markSlotChange(
-        int8_t slot
-    ) {
-        buffer_attribute_changedSlotMin = min(buffer_attribute_changedSlotMin, slot);
-        buffer_attribute_changedSlotMax = max(buffer_attribute_changedSlotMax, slot);
-        buffer_attribute_maxHighestNonNull = max(buffer_attribute_maxHighestNonNull, slot);
-    }
-
     int8_t Context::buffer_attribute_getHighestNonNull() {
         while (buffer_attribute_maxHighestNonNull >= 0 && buffer_attribute_id[buffer_attribute_maxHighestNonNull] == 0) buffer_attribute_maxHighestNonNull--;
         return buffer_attribute_maxHighestNonNull;
-    }
-
-    void Context::buffer_uniform_markSlotChange(
-        int32_t slot
-    ) {
-        buffer_uniform_changedSlotMin = min(buffer_uniform_changedSlotMin, slot);
-        buffer_uniform_changedSlotMax = max(buffer_uniform_changedSlotMax, slot);
-    }
-
-    void Context::buffer_atomicCounter_markSlotChange(
-        int32_t slot
-    ) {
-        buffer_atomicCounter_changedSlotMin = min(buffer_atomicCounter_changedSlotMin, slot);
-        buffer_atomicCounter_changedSlotMax = max(buffer_atomicCounter_changedSlotMax, slot);
     }
 
     int32_t Context::buffer_uniform_getHighestNonNull() {
@@ -159,23 +138,9 @@ namespace glCompact {
         return buffer_atomicCounter_maxHighestNonNull;
     }
 
-    void Context::buffer_shaderStorage_markSlotChange(
-        int32_t slot
-    ) {
-        buffer_shaderStorage_changedSlotMin = min(buffer_shaderStorage_changedSlotMin, slot);
-        buffer_shaderStorage_changedSlotMax = max(buffer_shaderStorage_changedSlotMax, slot);
-    }
-
     int32_t Context::buffer_shaderStorage_getHighestNonNull() {
         while (buffer_shaderStorage_maxHighestNonNull >= 0 && buffer_shaderStorage_id[buffer_shaderStorage_maxHighestNonNull] == 0) buffer_shaderStorage_maxHighestNonNull--;
         return buffer_shaderStorage_maxHighestNonNull;
-    }
-
-    void Context::texture_markSlotChange(
-        int32_t slot
-    ) {
-        texture_changedSlotMin = min(texture_changedSlotMin, slot);
-        texture_changedSlotMax = max(texture_changedSlotMax, slot);
     }
 
     int32_t Context::texture_getHighestNonNull() {
@@ -183,23 +148,9 @@ namespace glCompact {
         return texture_maxHighestNonNull;
     }
 
-    void Context::sampler_markSlotChange(
-        int32_t slot
-    ) {
-        sampler_changedSlotMin = min(sampler_changedSlotMin, slot);
-        sampler_changedSlotMax = max(sampler_changedSlotMax, slot);
-    }
-
     int32_t Context::sampler_getHighestNonNull() {
         while (sampler_maxHighestNonNull >= 0 && sampler_id[sampler_maxHighestNonNull] == 0) sampler_maxHighestNonNull--;
         return sampler_maxHighestNonNull;
-    }
-
-    void Context::image_markSlotChange(
-        int32_t slot
-    ) {
-        image_changedSlotMin = min(image_changedSlotMin, slot);
-        image_changedSlotMax = max(image_changedSlotMax, slot);
     }
 
     int32_t Context::image_getHighestNonNull() {
@@ -230,7 +181,7 @@ namespace glCompact {
         bool     bindNewTexture  = textureChange && texId;
         if (unbindOldTarget || bindNewTexture) {
             cachedSetActiveTextureUnit(texSlot);
-            texture_markSlotChange(texSlot);
+            if (pipeline) pipeline->texture_markSlotChange(texSlot);
         }
         if (unbindOldTarget) threadContextGroup_->functions.glBindTexture(texTargetOld, 0);
         if (bindNewTexture)  threadContextGroup_->functions.glBindTexture(texTarget   , texId);
@@ -249,7 +200,7 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
             if (texture_id[texSlot] != texId) {
                 texture_id[texSlot] = texId;
-                texture_markSlotChange(texSlot);
+                if (pipeline) pipeline->texture_markSlotChange(texSlot);
                 threadContextGroup_->functions.glBindTextures(texSlot, 1, &texId);
             }
         } else {
@@ -258,11 +209,11 @@ namespace glCompact {
     }
 
     void Context::cachedBindShader(
-        uint32_t newShaderId
+        uint32_t pipelineShaderId
     ) {
-        if (shaderId != newShaderId) {
-            threadContextGroup_->functions.glUseProgram(newShaderId);
-            shaderId = newShaderId;
+        if (this->pipelineShaderId != pipelineShaderId) {
+            threadContextGroup_->functions.glUseProgram(pipelineShaderId);
+            this->pipelineShaderId = pipelineShaderId;
         }
     }
 

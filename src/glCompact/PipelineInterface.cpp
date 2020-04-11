@@ -123,8 +123,7 @@ namespace glCompact {
 
         texture_id    [slot] = texture.id;
         texture_target[slot] = texture.target;
-
-        if (threadContext->shader == this) threadContext->texture_markSlotChange(slot);
+        texture_markSlotChange(slot);
     }
 
     void PipelineInterface::setTexture(
@@ -134,7 +133,7 @@ namespace glCompact {
 
         texture_id    [slot] = 0;
         texture_target[slot] = 0;
-        if (threadContext->shader == this) threadContext->texture_markSlotChange(slot);
+        texture_markSlotChange(slot);
     }
 
     void PipelineInterface::setTexture() {
@@ -142,10 +141,8 @@ namespace glCompact {
             texture_id    [i] = 0;
             texture_target[i] = 0;
         }
-        if (threadContext->shader == this) {
-            threadContext->texture_markSlotChange(0);
-            threadContext->texture_markSlotChange(sampler_highestActiveBinding);
-        }
+        texture_changedSlotMin = 0;
+        texture_changedSlotMax = sampler_highestActiveBinding;
     }
 
     void PipelineInterface::setSampler(
@@ -155,7 +152,7 @@ namespace glCompact {
         if (int32_t(slot) > sampler_highestActiveBinding) return;
 
         sampler_id[slot] = sampler.id;
-        if (threadContext->shader == this) threadContext->sampler_markSlotChange(slot);
+        sampler_markSlotChange(slot);
     }
 
     void PipelineInterface::setSampler(
@@ -164,14 +161,13 @@ namespace glCompact {
         if (int32_t(slot) > sampler_highestActiveBinding) return;
 
         sampler_id[slot] = 0;
-        if (threadContext->shader == this) threadContext->sampler_markSlotChange(slot);
+        sampler_markSlotChange(slot);
     }
 
     void PipelineInterface::setSampler() {
         for (int32_t i = 0; i <= sampler_highestActiveBinding; ++i) sampler_id[i] = 0;
-        if (threadContext->shader == this) {
-            threadContext->sampler_markSlotChange(0);
-        }
+        sampler_changedSlotMin = 0;
+        sampler_changedSlotMax = sampler_highestActiveBinding;
     }
 
     void PipelineInterface::setUniformBuffer(
@@ -186,7 +182,7 @@ namespace glCompact {
         buffer_uniform_id    [slot] = buffer.id;
         buffer_uniform_offset[slot] = offset;
         buffer_uniform_size  [slot] = 0;
-        if (threadContext->shader == this) threadContext->buffer_uniform_markSlotChange(slot);
+        buffer_uniform_markSlotChange(slot);
     }
 
     void PipelineInterface::setUniformBuffer(
@@ -202,7 +198,7 @@ namespace glCompact {
         buffer_uniform_id    [slot] = buffer.id;
         buffer_uniform_offset[slot] = offset;
         buffer_uniform_size  [slot] = size;
-        if (threadContext->shader == this) threadContext->buffer_uniform_markSlotChange(slot);
+        buffer_uniform_markSlotChange(slot);
     }
 
     void PipelineInterface::setUniformBuffer(
@@ -211,15 +207,13 @@ namespace glCompact {
         if (int32_t(slot) > buffer_uniform_highestActiveBinding) return;
 
         buffer_uniform_id[slot] = 0;
-        if (threadContext->shader == this) threadContext->buffer_uniform_markSlotChange(slot);
+        buffer_uniform_markSlotChange(slot);
     }
 
     void PipelineInterface::setUniformBuffer() {
         for (int32_t i = 0; i <= buffer_uniform_highestActiveBinding; ++i) buffer_uniform_id[i] = 0;
-        if (threadContext->shader == this) {
-            threadContext->buffer_uniform_markSlotChange(0);
-            threadContext->buffer_uniform_markSlotChange(buffer_uniform_highestActiveBinding);
-        }
+        buffer_uniform_changedSlotMin = 0;
+        buffer_uniform_changedSlotMax = buffer_uniform_highestActiveBinding;
     }
 
     void PipelineInterface::setImage(
@@ -240,7 +234,7 @@ namespace glCompact {
         image_format     [slot] = surfaceFormat->sizedFormat;
         image_mipmapLevel[slot] = textureSelector.mipmapLevel;
         image_layer      [slot] = textureSelector.layer;
-        if (threadContext->shader == this) threadContext->image_markSlotChange(slot);
+        image_markSlotChange(slot);
     }
 
     void PipelineInterface::setImage(
@@ -249,16 +243,13 @@ namespace glCompact {
         if (int32_t(slot) > image_highestActiveBinding) return;
 
         image_id[slot] = 0;
-        if (threadContext->shader == this) threadContext->image_markSlotChange(slot);
+        image_markSlotChange(slot);
     }
 
     void PipelineInterface::setImage() {
         for (int32_t i = 0; i <= image_highestActiveBinding; ++i) image_id[i] = 0;
-
-        if (threadContext->shader == this) {
-            threadContext->image_changedSlotMin = 0;
-            threadContext->image_changedSlotMax = max(threadContext->image_changedSlotMax, image_highestActiveBinding);
-        }
+        image_changedSlotMin = 0;
+        image_changedSlotMax = image_highestActiveBinding;
     }
 
     void PipelineInterface::setAtomicCounterBuffer(
@@ -288,7 +279,7 @@ namespace glCompact {
         buffer_atomicCounter_id    [slot] = buffer.id;
         buffer_atomicCounter_offset[slot] = offset;
         buffer_atomicCounter_size  [slot] = size;
-        if (threadContext->shader == this) threadContext->buffer_atomicCounter_markSlotChange(slot);
+        buffer_atomicCounter_markSlotChange(slot);
     }
 
     void PipelineInterface::setAtomicCounterBuffer(
@@ -299,7 +290,7 @@ namespace glCompact {
         buffer_atomicCounter_id    [slot] = 0;
         buffer_atomicCounter_offset[slot] = 0;
         buffer_atomicCounter_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
-        if (threadContext->shader == this) threadContext->buffer_atomicCounter_markSlotChange(slot);
+        buffer_atomicCounter_markSlotChange(slot);
     }
 
     void PipelineInterface::setAtomicCounterBuffer() {
@@ -308,10 +299,8 @@ namespace glCompact {
             buffer_atomicCounter_offset[i] = 0;
             buffer_atomicCounter_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         }
-        if (threadContext->shader == this) {
-            threadContext->buffer_atomicCounter_markSlotChange(0);
-            threadContext->buffer_atomicCounter_markSlotChange(buffer_atomicCounter_highestActiveBinding);
-        }
+        buffer_atomicCounter_changedSlotMin = 0;
+        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_highestActiveBinding;
     }
 
     void PipelineInterface::setShaderStorageBuffer(
@@ -339,7 +328,7 @@ namespace glCompact {
         buffer_shaderStorage_id    [slot] = buffer.id;
         buffer_shaderStorage_offset[slot] = offset;
         buffer_shaderStorage_size  [slot] = size;
-        if (threadContext->shader == this) threadContext->buffer_shaderStorage_markSlotChange(slot);
+        buffer_shaderStorage_markSlotChange(slot);
     }
 
     void PipelineInterface::setShaderStorageBuffer(
@@ -350,7 +339,7 @@ namespace glCompact {
         buffer_shaderStorage_id    [slot] = 0;
         buffer_shaderStorage_offset[slot] = 0;
         buffer_shaderStorage_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
-        if (threadContext->shader == this) threadContext->buffer_shaderStorage_markSlotChange(slot);
+        buffer_shaderStorage_markSlotChange(slot);
     }
 
     void PipelineInterface::setShaderStorageBuffer() {
@@ -359,16 +348,14 @@ namespace glCompact {
             buffer_shaderStorage_offset[i] = 0;
             buffer_shaderStorage_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         }
-        if (threadContext->shader == this) {
-            threadContext->buffer_shaderStorage_markSlotChange(0);
-            threadContext->buffer_shaderStorage_markSlotChange(buffer_shaderStorage_highestActiveBinding);
-        }
+        buffer_shaderStorage_changedSlotMin = 0;
+        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_highestActiveBinding;
     }
 
     void PipelineInterface::detachFromThreadContext() {
         if (threadContext) {
             //TODO: also remove VAO that buffers vertex layout, because they only exist in the creator context
-            if (threadContext->shader == this) threadContext->shader = 0;
+            if (threadContext->pipeline == this) threadContext->pipeline = 0;
         }
     }
 
@@ -1036,23 +1023,51 @@ namespace glCompact {
         }
     }
 
-    void PipelineInterface::activate() {
-        threadContext->attributeLayoutChanged = 1;
+    void PipelineInterface::buffer_attribute_markSlotChange(int32_t slot) {
+        buffer_attribute_changedSlotMin = min(buffer_attribute_changedSlotMin, slot);
+        buffer_attribute_changedSlotMax = max(buffer_attribute_changedSlotMax, slot);
+    }
 
-        threadContext->texture_changedSlotMin = 0;
-        threadContext->texture_changedSlotMax = max(threadContext->texture_getHighestNonNull(), sampler_highestActiveBinding);
-        threadContext->sampler_changedSlotMin = 0;
-        threadContext->sampler_changedSlotMax = max(threadContext->sampler_getHighestNonNull(), sampler_highestActiveBinding);
-        threadContext->buffer_uniform_changedSlotMin = 0;
-        threadContext->buffer_uniform_changedSlotMax = max(threadContext->buffer_uniform_getHighestNonNull(), buffer_uniform_highestActiveBinding);
+    void PipelineInterface::buffer_uniform_markSlotChange(
+        int32_t slot
+    ) {
+        buffer_uniform_changedSlotMin = min(buffer_uniform_changedSlotMin, slot);
+        buffer_uniform_changedSlotMax = max(buffer_uniform_changedSlotMax, slot);
+    }
 
-        threadContext->image_changedSlotMin   = 0;
-        threadContext->image_changedSlotMax   = max(threadContext->image_getHighestNonNull(),   image_highestActiveBinding);
+    void PipelineInterface::buffer_atomicCounter_markSlotChange(
+        int32_t slot
+    ) {
+        buffer_atomicCounter_changedSlotMin = min(buffer_atomicCounter_changedSlotMin, slot);
+        buffer_atomicCounter_changedSlotMax = max(buffer_atomicCounter_changedSlotMax, slot);
+    }
 
-        threadContext->buffer_atomicCounter_changedSlotMin = 0;
-        threadContext->buffer_atomicCounter_changedSlotMax = max(threadContext->buffer_atomicCounter_getHighestNonNull(), buffer_atomicCounter_highestActiveBinding);
-        threadContext->buffer_shaderStorage_changedSlotMin = 0;
-        threadContext->buffer_shaderStorage_changedSlotMax = max(threadContext->buffer_shaderStorage_getHighestNonNull(), buffer_shaderStorage_highestActiveBinding);
+    void PipelineInterface::buffer_shaderStorage_markSlotChange(
+        int32_t slot
+    ) {
+        buffer_shaderStorage_changedSlotMin = min(buffer_shaderStorage_changedSlotMin, slot);
+        buffer_shaderStorage_changedSlotMax = max(buffer_shaderStorage_changedSlotMax, slot);
+    }
+
+    void PipelineInterface::texture_markSlotChange(
+        int32_t slot
+    ) {
+        texture_changedSlotMin = min(texture_changedSlotMin, slot);
+        texture_changedSlotMax = max(texture_changedSlotMax, slot);
+    }
+
+    void PipelineInterface::sampler_markSlotChange(
+        int32_t slot
+    ) {
+        sampler_changedSlotMin = min(sampler_changedSlotMin, slot);
+        sampler_changedSlotMax = max(sampler_changedSlotMax, slot);
+    }
+
+    void PipelineInterface::image_markSlotChange(
+        int32_t slot
+    ) {
+        image_changedSlotMin = min(image_changedSlotMin, slot);
+        image_changedSlotMax = max(image_changedSlotMax, slot);
     }
 
     /*
@@ -1537,13 +1552,29 @@ namespace glCompact {
         processPendingChangesTextures();
         processPendingChangesSamplers();
         processPendingChangesImages();
-
         threadContext->processPendingChangesMemoryBarriers();
     }
 
+    void PipelineInterface::processPendingChangesPipeline() {
+        threadContext->attributeLayoutChanged = 1;
+
+        buffer_uniform_changedSlotMin       = 0;
+        buffer_uniform_changedSlotMax       = buffer_uniform_highestActiveBinding;
+        buffer_atomicCounter_changedSlotMin = 0;
+        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_highestActiveBinding;
+        buffer_shaderStorage_changedSlotMin = 0;
+        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_highestActiveBinding;
+        texture_changedSlotMin              = 0;
+        texture_changedSlotMax              = sampler_highestActiveBinding;
+        sampler_changedSlotMin              = 0;
+        sampler_changedSlotMax              = sampler_highestActiveBinding;
+        image_changedSlotMin                = 0;
+        image_changedSlotMax                = image_highestActiveBinding;
+    }
+
     void PipelineInterface::processPendingChangesBuffersUniform() {
-        auto changedSlotMin = threadContext->buffer_uniform_changedSlotMin;
-        auto changedSlotMax = threadContext->buffer_uniform_changedSlotMax;
+        auto changedSlotMin = buffer_uniform_changedSlotMin;
+        auto changedSlotMax = buffer_uniform_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
@@ -1581,14 +1612,14 @@ namespace glCompact {
                 threadContext->buffer_uniform_offset[i] = buffer_uniform_offset[i];
                 threadContext->buffer_uniform_size  [i] = buffer_uniform_size  [i];
             }
-            threadContext->buffer_uniform_changedSlotMin = Config::MAX_UNIFORM_BUFFER_BINDINGS;
-            threadContext->buffer_uniform_changedSlotMax = -1;
+            buffer_uniform_changedSlotMin = Config::MAX_UNIFORM_BUFFER_BINDINGS;
+            buffer_uniform_changedSlotMax = -1;
         }
     }
 
     void PipelineInterface::processPendingChangesBuffersAtomicCounter() {
-        auto changedSlotMin = threadContext->buffer_atomicCounter_changedSlotMin;
-        auto changedSlotMax = threadContext->buffer_atomicCounter_changedSlotMax;
+        auto changedSlotMin = buffer_atomicCounter_changedSlotMin;
+        auto changedSlotMax = buffer_atomicCounter_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
@@ -1626,8 +1657,8 @@ namespace glCompact {
                 threadContext->buffer_atomicCounter_offset[i] = buffer_atomicCounter_offset[i];
                 threadContext->buffer_atomicCounter_size  [i] = buffer_atomicCounter_size  [i];
             }
-            threadContext->buffer_atomicCounter_changedSlotMin = Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS;
-            threadContext->buffer_atomicCounter_changedSlotMax = -1;
+            buffer_atomicCounter_changedSlotMin = Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS;
+            buffer_atomicCounter_changedSlotMax = -1;
         }
     }
 
@@ -1642,8 +1673,8 @@ namespace glCompact {
             void glBindBuffersRange(GLenum target, GLuint first, GLsizei count, const GLuint *buffers, const GLintptr *offsets, const GLintptr *sizes);
     */
     void PipelineInterface::processPendingChangesBuffersShaderStorage() {
-        auto changedSlotMin = threadContext->buffer_shaderStorage_changedSlotMin;
-        auto changedSlotMax = threadContext->buffer_shaderStorage_changedSlotMax;
+        auto changedSlotMin = buffer_shaderStorage_changedSlotMin;
+        auto changedSlotMax = buffer_shaderStorage_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
@@ -1665,8 +1696,8 @@ namespace glCompact {
                 threadContext->buffer_shaderStorage_offset[i] = buffer_shaderStorage_offset[i];
                 threadContext->buffer_shaderStorage_size  [i] = buffer_shaderStorage_size  [i];
             }
-            threadContext->buffer_shaderStorage_changedSlotMin = Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS;
-            threadContext->buffer_shaderStorage_changedSlotMax = -1;
+            buffer_shaderStorage_changedSlotMin = Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS;
+            buffer_shaderStorage_changedSlotMax = -1;
         }
     }
 
@@ -1674,8 +1705,8 @@ namespace glCompact {
      * glBindTextureUnit (Core since 4.5) is not used because we already have GL_ARB_multi_bind (Core since 4.4)
      */
     void PipelineInterface::processPendingChangesTextures() {
-        auto changedSlotMin = threadContext->texture_changedSlotMin;
-        auto changedSlotMax = threadContext->texture_changedSlotMax;
+        auto changedSlotMin = texture_changedSlotMin;
+        auto changedSlotMax = texture_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
@@ -1701,14 +1732,14 @@ namespace glCompact {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i)
                     threadContext->cachedBindTextureCompatibleOrFirstTime(i, texture_target[i], texture_id[i]);
             }
-            threadContext->texture_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
-            threadContext->texture_changedSlotMax = -1;
+            texture_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
+            texture_changedSlotMax = -1;
         }
     }
 
     void PipelineInterface::processPendingChangesSamplers() {
-        auto changedSlotMin = threadContext->sampler_changedSlotMin;
-        auto changedSlotMax = threadContext->sampler_changedSlotMax;
+        auto changedSlotMin = sampler_changedSlotMin;
+        auto changedSlotMax = sampler_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
@@ -1737,8 +1768,8 @@ namespace glCompact {
                     }
                 }
             }
-            threadContext->sampler_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
-            threadContext->sampler_changedSlotMax = -1;
+            sampler_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
+            sampler_changedSlotMax = -1;
         }
     }
 
@@ -1754,8 +1785,8 @@ namespace glCompact {
         glBindImageTextures (Core since 4.4)
     */
     void PipelineInterface::processPendingChangesImages() {
-        auto changedSlotMin = threadContext->image_changedSlotMin;
-        auto changedSlotMax = threadContext->image_changedSlotMax;
+        auto changedSlotMin = image_changedSlotMin;
+        auto changedSlotMax = image_changedSlotMax;
 
         if (changedSlotMin <= changedSlotMax) {
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
@@ -1779,8 +1810,8 @@ namespace glCompact {
                     threadContext->image_layer      [i] = image_layer      [i];
                 }
             }
-            threadContext->image_changedSlotMin = Config::MAX_IMAGE_BINDINGS;
-            threadContext->image_changedSlotMax = -1;
+            image_changedSlotMin = Config::MAX_IMAGE_BINDINGS;
+            image_changedSlotMax = -1;
         }
     }
 

@@ -226,11 +226,11 @@ namespace glCompact {
                 attributeLayoutStates.instancing[i] = attributeLayout.bufferIndex[attributeLayout.location[i].bufferIndex].instancing;
         }
 
-        if (this == threadContext->shader) {
+        if (this == threadContext->pipeline) {
             threadContext->attributeLayoutChanged = true;
-            threadContext->buffer_attribute_markSlotChange(0);
-            threadContext->buffer_attribute_markSlotChange(attributeLayout.uppermostActiveBufferIndex);
         }
+        buffer_attribute_markSlotChange(0);
+        buffer_attribute_markSlotChange(attributeLayout.uppermostActiveBufferIndex);
     }
 
     void PipelineRasterization::setAttributeLayout() {
@@ -238,7 +238,7 @@ namespace glCompact {
             if (attributeLayoutStates.location[i].usage != AttributeLayoutStates::Usage::indifferent)
                 attributeLayoutStates.location[i].usage = AttributeLayoutStates::Usage::disabled;
         }
-        if (this == threadContext->shader) {
+        if (this == threadContext->pipeline) {
             threadContext->attributeLayoutChanged = true;
         }
     }
@@ -248,30 +248,32 @@ namespace glCompact {
         const BufferInterface& buffer,
         uintptr_t              offset
     ) {
-        if (int32_t(slot) > attributeLayoutStates.uppermostActiveBufferIndex) return;
+        if (int32_t(slot) >= Config::MAX_ATTRIBUTES)
+            throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= Config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
 
         buffer_attribute_id    [slot] = buffer.id;
         buffer_attribute_offset[slot] = buffer.id ? offset : 0;
-        if (this == threadContext->shader) threadContext->buffer_attribute_markSlotChange(slot);
+        buffer_attribute_markSlotChange(slot);
     }
 
     void PipelineRasterization::setAttributeBuffer(
         uint32_t               slot
     ) {
+        if (int32_t(slot) >= Config::MAX_ATTRIBUTES)
+            throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= Config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
+
         buffer_attribute_id    [slot] = 0;
         buffer_attribute_offset[slot] = 0;
-        if (this == threadContext->shader) threadContext->buffer_attribute_markSlotChange(slot);
+        buffer_attribute_markSlotChange(slot);
     }
 
     void PipelineRasterization::setAttributeBuffer() {
-        for (int32_t i = 0; i <= attributeLayoutStates.uppermostActiveBufferIndex; ++i) {
+        for (int32_t i = 0; i < Config::MAX_ATTRIBUTES; ++i) {
             buffer_attribute_id    [i] = 0;
             buffer_attribute_offset[i] = 0;
         }
-        if (this == threadContext->shader) {
-            threadContext->buffer_attribute_markSlotChange(0);
-            threadContext->buffer_attribute_markSlotChange(attributeLayoutStates.uppermostActiveBufferIndex);
-        }
+        buffer_attribute_changedSlotMin = 0;
+        buffer_attribute_changedSlotMax = Config::MAX_ATTRIBUTES - 1;
     }
 
     /*
@@ -1222,26 +1224,24 @@ namespace glCompact {
         }
     }
 
-    void PipelineRasterization::activate() {
-        threadContext->cachedBindShader(id); //shaderID and shader activation are independent! (e.g. setting a uniform will bind the shaderId in the background)
-        if (threadContext->shader != this) {
-            PipelineInterface::activate();
-            threadContext->buffer_attribute_changedSlotMin = 0;
-            threadContext->buffer_attribute_changedSlotMax = max(threadContext->buffer_attribute_getHighestNonNull(), attributeLayoutStates.uppermostActiveBufferIndex);
-            //TODO...
-            pipelineRasterizationStateChangePending = PipelineRasterizationStateChange::all;
-            threadContext->shader = this;
-        }
-    }
-
     void PipelineRasterization::processPendingChanges() {
-        activate();
         PipelineInterface::processPendingChanges();
+        processPendingChangesPipeline();
         processPendingChangesAttributeLayoutAndBuffers();
         threadContext->processPendingChangesDrawFrame();
         processPendingChangesPipelineRasterization();
-
         threadContext->processPendingChangesMemoryBarriersRasterizationRegion();
+    }
+
+    void PipelineRasterization::processPendingChangesPipeline() {
+        threadContext->cachedBindShader(id); //pipelineShaderID and pipeline activation are independent! (e.g. setting a uniform will bind the shaderId in the background)
+        if (threadContext->pipeline != this) {
+            PipelineInterface::processPendingChangesPipeline();
+            buffer_attribute_changedSlotMin = 0;
+            buffer_attribute_changedSlotMax = attributeLayoutStates.uppermostActiveBufferIndex;
+            pipelineRasterizationStateChangePending = PipelineRasterizationStateChange::all;
+            threadContext->pipeline = this;
+        }
     }
 
     /*
@@ -1762,8 +1762,8 @@ namespace glCompact {
                 threadContext->attributeLayoutChanged = false;
             }
 
-            int8_t changedSlotMin = threadContext->buffer_attribute_changedSlotMin;
-            int8_t changedSlotMax = threadContext->buffer_attribute_changedSlotMax;
+            int8_t changedSlotMin = buffer_attribute_changedSlotMin;
+            int8_t changedSlotMax = buffer_attribute_changedSlotMax;
 
             //ignore states of buffer index if not used by shader layout
             changedSlotMax = std::min(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
@@ -1828,13 +1828,13 @@ namespace glCompact {
                         }
                     }
                 }
-                threadContext->buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
-                threadContext->buffer_attribute_changedSlotMax = -1;
+                buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
+                buffer_attribute_changedSlotMax = -1;
             }
         } else {
             //This path gets used when there is no GL_ARB_vertex_attrib_binding (There is also no use of GL_ARB_multi_bind here)
-            int8_t changedSlotMin = threadContext->buffer_attribute_changedSlotMin;
-            int8_t changedSlotMax = threadContext->buffer_attribute_changedSlotMax;
+            int8_t changedSlotMin = buffer_attribute_changedSlotMin;
+            int8_t changedSlotMax = buffer_attribute_changedSlotMax;
 
             //ignore states of buffer index if not used by shader layout
             changedSlotMax = std::min(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
@@ -1891,8 +1891,8 @@ namespace glCompact {
                         //indifferent attribute state because shader does not use attribute location at all. So we do not need to change anything!
                     }
                 }
-                threadContext->buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
-                threadContext->buffer_attribute_changedSlotMax = -1;
+                buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
+                buffer_attribute_changedSlotMax = -1;
                 threadContext->attributeLayoutChanged = false;
             } else if (changedSlotMax >= changedSlotMin) {
                 LOOPI(attributeLayoutStates.uppermostActiveLocation + 1) {
@@ -1926,8 +1926,8 @@ namespace glCompact {
                     threadContext->buffer_attribute_id    [i] = buffer_attribute_id    [i];
                     threadContext->buffer_attribute_offset[i] = buffer_attribute_offset[i];
                 }
-                threadContext->buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
-                threadContext->buffer_attribute_changedSlotMax = -1;
+                buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
+                buffer_attribute_changedSlotMax = -1;
             }
         }
     }
