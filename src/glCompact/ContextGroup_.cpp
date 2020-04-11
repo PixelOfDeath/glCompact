@@ -3,38 +3,125 @@
 #include "glCompact/gl/ConstantsCustom.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
+
 #include <string>
+#include <regex>
 
 using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
+    template<>
+    int32_t ContextGroup_::getValue(GLint pname) {
+        int32_t ret = 0;
+        functions.glGetIntegerv(pname, &ret);
+        return ret;
+    }
+
+    template<>
+    int32_t ContextGroup_::getValue(GLint pname, uint32_t index) {
+        int32_t ret = 0;
+        functions.glGetIntegeri_v(pname, index, &ret);
+        return ret;
+    }
+
+    template<>
+    uint32_t ContextGroup_::getValue(GLint pname) {
+        uint32_t ret = 0;
+        functions.glGetIntegerv(pname, reinterpret_cast<int32_t*>(&ret));
+        return ret;
+    }
+
+    template<>
+    uint32_t ContextGroup_::getValue(GLint pname, uint32_t index) {
+        uint32_t ret = 0;
+        functions.glGetIntegeri_v(pname, index, reinterpret_cast<int32_t*>(&ret));
+        return ret;
+    }
+
+    template<>
+    int64_t ContextGroup_::getValue(GLint pname) {
+        int64_t ret = 0;
+        functions.glGetInteger64v(pname, &ret);
+        return ret;
+    }
+
+    template<>
+    int64_t ContextGroup_::getValue(GLint pname, uint32_t index) {
+        int64_t ret = 0;
+        functions.glGetInteger64i_v(pname, index, &ret);
+        return ret;
+    }
+
+    template<>
+    uint64_t ContextGroup_::getValue(GLint pname) {
+        uint64_t ret = 0;
+        functions.glGetInteger64v(pname, reinterpret_cast<int64_t*>(&ret));
+        return ret;
+    }
+
+    template<>
+    uint64_t ContextGroup_::getValue(GLint pname, uint32_t index) {
+        uint64_t ret = 0;
+        functions.glGetInteger64i_v(pname, index, reinterpret_cast<int64_t*>(&ret));
+        return ret;
+    }
+
+    template<>
+    float ContextGroup_::getValue(GLint pname) {
+        float ret = 0;
+        functions.glGetFloatv(pname, &ret);
+        return ret;
+    }
+
+    template<>
+    float ContextGroup_::getValue(GLint pname, uint32_t index) {
+        float ret = 0;
+        functions.glGetFloati_v(pname, index, &ret);
+        return ret;
+    }
+
+    template<>
+    double ContextGroup_::getValue(GLint pname) {
+        double ret = 0;
+        functions.glGetDoublev(pname, &ret);
+        return ret;
+    }
+
+    template<>
+    double ContextGroup_::getValue(GLint pname, uint32_t index) {
+        double ret = 0;
+        functions.glGetDoublei_v(pname, index, &ret);
+        return ret;
+    }
+
     ContextGroup_::ContextGroup_(
         void*(*getGlFunctionPointer)(const char* glFunctionName)
     ) {
         functions.init(getGlFunctionPointer);
 
-        const char* versionString = reinterpret_cast<const char*>(functions.glGetString(GL_VERSION));
-        if (!versionString)
-            crash("No active OpenGL context in this thread! Can not initalize without one!");
+        const char* versionStringPtr = reinterpret_cast<const char*>(functions.glGetString(GL_VERSION));
+        if (!versionStringPtr)
+            crash("glGetString(GL_VERSION) returned 0! No active OpenGL context in this thread? Can not initalize without one!");
+        version.string = string(versionStringPtr);
 
-        //TODO make this a regex in case anyone returns the version with more then one digit per major/minor
-        //raw ascii to integer
-        int major = versionString[0] - 48;
-        int minor = versionString[2] - 48;
-        //this needs 3.0 minimum, but the user may incorrectly initiated OpenGL and we want to give at last a decent error message when already crashing here!
-        //functions.glGetIntegerv(GL_MAJOR_VERSION, &major);
-        //functions.glGetIntegerv(GL_MINOR_VERSION, &minor);
-        if (major >  Config::MIN_MAJOR
-        || (major == Config::MIN_MAJOR && minor >= Config::MIN_MINOR)) {
+        //On Mesa:
+        //GL   version string: "X.X ..."
+        //GLES version string: "OpenGL ES X.X ..."
+        smatch match;
+        if (!regex_match(version.string, match, regex("^(OpenGL ES |)([0-9]).([0-9]) .*")))
+            crash("Failed to parse version from glGetString(GL_VERSION): " + version.string);
+        version.es    = (match[1] == "OpenGL ES ") ? 1 : 0;
+        version.major = stoi(match[2]);
+        version.minor = stoi(match[3]);
+        if (version.major >  Config::MIN_MAJOR
+        || (version.major == Config::MIN_MAJOR && version.minor >= Config::MIN_MINOR)) {
             //all okey dokey!
         } else {
-            crash("glCompact needs at last OpenGL " + std::to_string(Config::MIN_MAJOR) + "." + std::to_string(Config::MIN_MINOR) + " but only detected " + std::to_string(major) + "." + std::to_string(minor) + "!");
+            crash("glCompact needs at last OpenGL " + to_string(Config::MIN_MAJOR) + "." + to_string(Config::MIN_MINOR) + "!");
         }
-        version.major = major;
-        version.minor = minor;
-        GLenum contextProfileMask;
-        functions.glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &contextProfileMask);
+
+        int32_t contextProfileMask = getValue<int32_t>(GL_CONTEXT_PROFILE_MASK);
         version.core              = contextProfileMask & GL_CONTEXT_CORE_PROFILE_BIT;
         version.forwardCompatible = contextProfileMask & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT;
         version.debug             = contextProfileMask & GL_CONTEXT_FLAG_DEBUG_BIT;
@@ -57,14 +144,14 @@ namespace glCompact {
         //*const_cast<bool*>(&extensions.GL_ARB_ES3_compatibility)     = false;
     }
 
-    /**
-    * There are extensions in OpenGL that behaves exactly the same as the later implemented core functionality.
-    * Somebody hat the ingenious idea to not list extensions in the supported list if the OpenGL version running integrates them as core functionality.
-    * This forces one to always check the extension list AND if the OpenGL version is => where the extension became part of the core standard.
-    *
-    * This function simply sets all extensions to true if the OpenGL version is met where they became part of core.
-    *
-    * Only checking the extension now is enough!
+    /*
+        There are extensions in OpenGL that behaves exactly the same as the later implemented core functionality.
+        Somebody hat the ingenious idea to not list extensions in the supported list if the OpenGL version running integrates them as core functionality.
+        This forces one to always check the extension list AND if the OpenGL version is => where the extension became part of the core standard.
+
+        This function simply sets all extensions to true if the OpenGL version is met where they became part of core.
+
+        Only checking the extension now is enough!
     */
     void ContextGroup_::setAllCoreExtensionTrue() {
         if (version.equalOrGreater(1, 2)) {
@@ -249,90 +336,6 @@ namespace glCompact {
             extensions.GL_ARB_texture_filter_anisotropic        = true;
             extensions.GL_ARB_transform_feedback_overflow_query = true;
         }
-    }
-
-    template<>
-    int32_t ContextGroup_::getValue(GLint pname) {
-        int32_t ret = 0;
-        functions.glGetIntegerv(pname, &ret);
-        return ret;
-    }
-
-    template<>
-    int32_t ContextGroup_::getValue(GLint pname, uint32_t index) {
-        int32_t ret = 0;
-        functions.glGetIntegeri_v(pname, index, &ret);
-        return ret;
-    }
-
-    template<>
-    uint32_t ContextGroup_::getValue(GLint pname) {
-        uint32_t ret = 0;
-        functions.glGetIntegerv(pname, reinterpret_cast<int32_t*>(&ret));
-        return ret;
-    }
-
-    template<>
-    uint32_t ContextGroup_::getValue(GLint pname, uint32_t index) {
-        uint32_t ret = 0;
-        functions.glGetIntegeri_v(pname, index, reinterpret_cast<int32_t*>(&ret));
-        return ret;
-    }
-
-    template<>
-    int64_t ContextGroup_::getValue(GLint pname) {
-        int64_t ret = 0;
-        functions.glGetInteger64v(pname, &ret);
-        return ret;
-    }
-
-    template<>
-    int64_t ContextGroup_::getValue(GLint pname, uint32_t index) {
-        int64_t ret = 0;
-        functions.glGetInteger64i_v(pname, index, &ret);
-        return ret;
-    }
-
-    template<>
-    uint64_t ContextGroup_::getValue(GLint pname) {
-        uint64_t ret = 0;
-        functions.glGetInteger64v(pname, reinterpret_cast<int64_t*>(&ret));
-        return ret;
-    }
-
-    template<>
-    uint64_t ContextGroup_::getValue(GLint pname, uint32_t index) {
-        uint64_t ret = 0;
-        functions.glGetInteger64i_v(pname, index, reinterpret_cast<int64_t*>(&ret));
-        return ret;
-    }
-
-    template<>
-    float ContextGroup_::getValue(GLint pname) {
-        float ret = 0;
-        functions.glGetFloatv(pname, &ret);
-        return ret;
-    }
-
-    template<>
-    float ContextGroup_::getValue(GLint pname, uint32_t index) {
-        float ret = 0;
-        functions.glGetFloati_v(pname, index, &ret);
-        return ret;
-    }
-
-    template<>
-    double ContextGroup_::getValue(GLint pname) {
-        double ret = 0;
-        functions.glGetDoublev(pname, &ret);
-        return ret;
-    }
-
-    template<>
-    double ContextGroup_::getValue(GLint pname, uint32_t index) {
-        double ret = 0;
-        functions.glGetDoublei_v(pname, index, &ret);
-        return ret;
     }
 
     void ContextGroup_::getAllValue() {
