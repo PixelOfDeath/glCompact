@@ -6,20 +6,17 @@
 
 namespace glCompact {
     struct Version {
-        std::string string;
-        int32_t major;
-        int32_t minor;
+        std::string versionString;
+        std::string shadingLanguageVersionString;
 
-        bool    es;
-        bool    core;
-        bool    forwardCompatible;
-        bool    debug;
-        bool    robustAccess;
-        //bool    resetIsolation; //GL_ARB_robustness_isolation (Core since 4.3)
-        bool    noErrorReporting;
+        GlVersion   gl;
+        GlesVersion gles;
 
-        constexpr bool equalOrGreater(int ma, int mi) const {
-            return config::glEqualOrGreater(ma, mi) || (major > ma) || ((major == ma) && (minor >= mi));
-        };
+        bool    core                = false;
+        bool    forwardCompatible   = false;
+        bool    debug               = false;
+        bool    robustAccess        = false;
+      //bool    resetIsolation      = false; //GL_ARB_robustness_isolation (Core since 4.3)
+        bool    noErrorReporting    = false;
     };
 }

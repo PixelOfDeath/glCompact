@@ -40,9 +40,6 @@ namespace glCompact {
         frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
         contextId = nextContextId.fetch_add(1);
 
-        if (!threadContextGroup_->version.equalOrGreater(3, 3))
-            crash("glCompact requires Opengl 3.3 or higher!");
-
         Debug::enableDebugOutput();
         //TODO
         /*if (version.debug) {

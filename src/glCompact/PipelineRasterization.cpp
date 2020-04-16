@@ -151,7 +151,7 @@ namespace glCompact {
             GLenum shaderLocationBaseType = gl::typeToBaseType(attributeLocationInfo[i].type);
 
             if (attributeFormat == AttributeFormat::B10G11R11_UFLOAT) {
-                UNLIKELY_IF (!threadContextGroup_->version.equalOrGreater(4,4))
+                UNLIKELY_IF (!(threadContextGroup_->version.gl >= GlVersion::v44))
                     setAttributeLayoutThrow("AttributeFormat::B10G11R11_UFLOAT (GL_UNSIGNED_INT_10F_11F_11F_REV) is only supported with OpenGL 4.4 or higher");
             }
             switch (shaderLocationBaseType) {
@@ -1183,7 +1183,7 @@ namespace glCompact {
         threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
         threadContext->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
-        if (threadContextGroup_->version.equalOrGreater(4, 6)) {
+        if (threadContextGroup_->version.gl >= GlVersion::v46) {
             threadContextGroup_->functions.glMultiDrawArraysIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         } else {
             threadContextGroup_->functions.glMultiDrawArraysIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
@@ -1215,7 +1215,7 @@ namespace glCompact {
         threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
         threadContext->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
-        if (threadContextGroup_->version.equalOrGreater(4, 6)) {
+        if (threadContextGroup_->version.gl >= GlVersion::v46) {
             threadContextGroup_->functions.glMultiDrawElementsIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         } else {
             threadContextGroup_->functions.glMultiDrawElementsIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
@@ -1642,7 +1642,7 @@ namespace glCompact {
                     //TODO: implement ARB version, too
                     //UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_draw_buffers_blend)
                     //    throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing GL_ARB_draw_buffers_blend (Core since 4.0))");
-                    UNLIKELY_IF (!threadContextGroup_->version.equalOrGreater(4, 0))
+                    UNLIKELY_IF (!(threadContextGroup_->version.gl >= GlVersion::v40))
                         throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing OpenGL 4.0 or higher)");
                     for (int i = firstActiveIndex; i < config::MAX_RGBA_ATTACHMENTS; i++) {
                         if (threadContext->blendFactors[i] != blendFactors[i]) {

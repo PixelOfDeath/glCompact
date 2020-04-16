@@ -1,4 +1,6 @@
 #pragma once
+#include <glCompact/GlVersion.hpp>
+#include <glCompact/GlesVersion.hpp>
 
 namespace glCompact {
     namespace config {
@@ -10,20 +12,13 @@ namespace glCompact {
         //to access different devices/drivers from one application at the same time. Each with their own OpenGL version/features/extensions/function pointers/...
         //#define GLCOMPACT_MULTIPLE_CONTEXT_GROUP
 
-        //glCompact requeres at last OpenGL 3.3 (or OpenGL ES 3.3 ?). Setting this constands to anything lower will break stuff!
+        //glCompact requeres at last OpenGL 3.3 (or OpenGL ES 3.2 ?). Setting this constands to anything lower will break stuff!
         //The minimum version values can be set higher to enable constand folding for extensions that are always present with newer versions.
         //
         //FeatureSetting will be ignored for all features that are core since this OpenGL version!
-        constexpr bool glSupported = 1;
-        constexpr int glMinMajor = 3;
-        constexpr int glMinMinor = 3;
-
-        constexpr bool glesSupported = 0; //Not really supported yet
-        constexpr int glesMinMajor = 3;
-        constexpr int glesMinMinor = 3;
-
-        constexpr bool glEqualOrGreater(int major, int minor) {
-            return glMinMajor > major || (glMinMajor == major && glMinMinor >= minor);
+        namespace version {
+            constexpr GlVersion   glMin   = GlVersion::v33;
+            constexpr GlesVersion glesMin = GlesVersion::notSupported;
         }
 
         enum class FeatureSetting {

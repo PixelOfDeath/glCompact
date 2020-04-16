@@ -54,7 +54,7 @@ namespace glCompact {
                 crash("This thread already has a glCompact::Context object registered!");
         #else
             UNLIKELY_IF (threadContextConstructed)
-                crash("A glCompact::Context object is already registered!\nNote: Config.hpp GLCOMPACT_MULTIPLE_CONTEXT is not defined! Define it if you want to use more then one context!");
+                crash("A glCompact::Context object is already registered!\nNote: config.hpp GLCOMPACT_MULTIPLE_CONTEXT is not defined! Define it if you want to use more then one context!");
         #endif
     }
 
@@ -64,7 +64,7 @@ namespace glCompact {
                 crash("This thread already has a glCompact::ContextGroup_ object registered!");
         #else
             UNLIKELY_IF (threadContextGroupConstructed_)
-                crash("A glCompact::ContextGroup object is already registered!\nNote: Config.hpp GLCOMPACT_MULTIPLE_CONTEXT_GROUP is not defined! Define it if you want to use more then one shared ContextGroup!");
+                crash("A glCompact::ContextGroup object is already registered!\nNote: config.hpp GLCOMPACT_MULTIPLE_CONTEXT_GROUP is not defined! Define it if you want to use more then one shared ContextGroup!");
         #endif
     }
 

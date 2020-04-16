@@ -36,7 +36,7 @@ namespace glCompact {
         void Extensions::init(
             const ContextGroup_* contextGroup_
         ) {
-            //Needs at last 3.0! But unlike glGetString(GL_EXTENSIONS), this also works in core.
+            //Needs at last GL 3.0/GLES 3.0! But unlike glGetString(GL_EXTENSIONS), this also works in core.
             int32_t extensionCount = 0;
             contextGroup_->functions.glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
             auto glGetStringi = contextGroup_->functions.glGetStringi;
