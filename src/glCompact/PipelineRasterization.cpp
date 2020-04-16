@@ -1169,8 +1169,7 @@ namespace glCompact {
         intptr_t               maxDrawCount,
         uint32_t               stride
     ) {
-        UNLIKELY_IF (    !threadContextGroup_->version.equalOrGreater(4, 6)
-                     &&  !threadContextGroup_->extensions.GL_ARB_indirect_parameters)
+        UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_indirect_parameters)
             throw std::runtime_error("Missing GL_ARB_indirect_parameters (Core since 4.6)");
         UNLIKELY_IF (!parameterBuffer.id)
             throw std::runtime_error("does not take empty draw indirect parameterBuffer!");
@@ -1202,8 +1201,7 @@ namespace glCompact {
         intptr_t               maxDrawCount,
         uint32_t               stride
     ) {
-        UNLIKELY_IF (    !threadContextGroup_->version.equalOrGreater(4, 6)
-                     &&  !threadContextGroup_->extensions.GL_ARB_indirect_parameters)
+        UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_indirect_parameters)
             throw std::runtime_error("Missing GL_ARB_indirect_parameters (Core since 4.6)");
         UNLIKELY_IF (!parameterBuffer.id)
             throw std::runtime_error("does not take empty draw indirect parameterBuffer!");
