@@ -101,8 +101,8 @@ namespace glCompact {
         functions.init(getGlFunctionPointer);
 
         //Works since GL 3.0/GLES 3.0
-        int major = getValue<int32_t>(GL_MINOR_VERSION);
-        int minor = getValue<int32_t>(GL_MAJOR_VERSION);
+        int major = getValue<int32_t>(GL_MAJOR_VERSION);
+        int minor = getValue<int32_t>(GL_MINOR_VERSION);
 
         /*
             OpenGL Spec
@@ -119,7 +119,7 @@ namespace glCompact {
         version.versionString                = string(versionStringPtr);
         version.shadingLanguageVersionString = string(shadingLanguageVersionStringPtr);
 
-        bool glesOnly = version.versionString.find("OpenGL ES ") != std::string::npos;
+        bool glesOnly = version.versionString.find("OpenGL ES ") != string::npos;
 
         /*
         smatch versionMatch;
@@ -200,14 +200,9 @@ namespace glCompact {
                     default: return "pre 3.0";
                 }
             };
-            string errorString = "glCompact configured to require at last ";
-            if (bool(config::version::glMin))
-                errorString += "OpenGL " + glVersionToString(config::version::glMin);
-            if (bool(config::version::glMin) && bool(config::version::glesMin))
-                errorString += " or ";
-            if (bool(config::version::glesMin))
-                errorString += "OpenGL ES " + glesVersionToString(config::version::glesMin);
-            crash(errorString);
+
+            crash("Detected OpenGL " + glVersionToString(version.gl) + " / OpenGL ES " + glesVersionToString(version.gles)
+                + " but minimum is OpenGL " + glVersionToString(config::version::glMin) + " / OpenGL ES " + glesVersionToString(config::version::glesMin));
         }
 
         extensions.init(this);
