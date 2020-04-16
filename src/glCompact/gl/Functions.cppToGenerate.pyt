@@ -31,7 +31,6 @@ for functionName in functionNameList:
 
 outputTemplate = """#include "glCompact/gl/Functions.hpp"
 #include "glCompact/gl/FunctionsTypedef.hpp"
-#include "glCompact/ToolsInternal.hpp"
 
 namespace glCompact {
     namespace gl {

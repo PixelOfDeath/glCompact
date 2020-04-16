@@ -32,6 +32,7 @@ outputTemplate = """#pragma once
 #include "glCompact/gl/Types.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/gl/FunctionsTypedef.hpp"
+#include "glCompact/ToolsInternal.hpp"
 
 namespace glCompact {
     namespace gl {
