@@ -1,6 +1,6 @@
 #pragma once
 #include "glCompact/SurfaceInterface.hpp"
-#include "glCompact/Config.hpp"
+#include "glCompact/config.hpp"
 #include "glCompact/SurfaceSelector.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -100,7 +100,7 @@ namespace glCompact {
                 unsignedInteger,
                 signedInteger
             };
-            AttachmentDataType rgbaAttachmentDataType[Config::MAX_RGBA_ATTACHMENTS] = {};
+            AttachmentDataType rgbaAttachmentDataType[config::MAX_RGBA_ATTACHMENTS] = {};
             AttachmentDataType depthAttachmentDataType   = AttachmentDataType::unused;
             AttachmentDataType stencilAttachmentDataType = AttachmentDataType::unused;
 

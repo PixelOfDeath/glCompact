@@ -113,8 +113,8 @@ namespace glCompact {
     void AttributeLayout::addBufferIndex_(
         bool instancing
     ) {
-        UNLIKELY_IF (uppermostActiveBufferIndex >= Config::MAX_ATTRIBUTES)
-            throw std::runtime_error("Trying to define buffer index beyond Config::MAX_ATTRIBUTES (" + to_string(Config::MAX_ATTRIBUTES) + ")");
+        UNLIKELY_IF (uppermostActiveBufferIndex >= config::MAX_ATTRIBUTES)
+            throw std::runtime_error("Trying to define buffer index beyond config::MAX_ATTRIBUTES (" + to_string(config::MAX_ATTRIBUTES) + ")");
         auto currentBufferIndex = ++uppermostActiveBufferIndex;
         bufferIndex[currentBufferIndex].instancing = instancing;
     }
@@ -129,8 +129,8 @@ namespace glCompact {
             throw runtime_error("Need to add a buffer index before any vertex location can be defined!");
         UNLIKELY_IF (this->location[location].attributeFormat != AttributeFormat::NONE)
             throw runtime_error("Trying to define already defined attribute location (" + to_string(location) + ")");
-        UNLIKELY_IF (location >  Config::MAX_ATTRIBUTES)
-            throw runtime_error("Trying to define location (" + to_string(location) + ") beyond Config::MAX_ATTRIBUTES (" + to_string(Config::MAX_ATTRIBUTES) + ")");
+        UNLIKELY_IF (location >  config::MAX_ATTRIBUTES)
+            throw runtime_error("Trying to define location (" + to_string(location) + ") beyond config::MAX_ATTRIBUTES (" + to_string(config::MAX_ATTRIBUTES) + ")");
         UNLIKELY_IF (location >= threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS)
             throw runtime_error("Trying to set AttributeLayout that has attribute location (" + to_string(location) + ") that goes beyond implementation limit. GL_MAX_VERTEX_ATTRIBS(" + to_string(threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS) + " = 0.." + to_string(threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS - 1));
 
@@ -161,11 +161,11 @@ namespace glCompact {
     void AttributeLayout::reset() {
         uppermostActiveLocation    = -1;
         uppermostActiveBufferIndex = -1;
-        LOOPI(Config::MAX_ATTRIBUTES) {
+        LOOPI(config::MAX_ATTRIBUTES) {
             bufferIndex[i].stride     = 0;
             bufferIndex[i].instancing = 0;
         }
-        LOOPI(Config::MAX_ATTRIBUTES) {
+        LOOPI(config::MAX_ATTRIBUTES) {
             location[i].attributeFormat = AttributeFormat::NONE;
             location[i].offset          = 0;
             location[i].bufferIndex     = 0;

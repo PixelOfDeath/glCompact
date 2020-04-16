@@ -335,7 +335,7 @@ namespace glCompact {
         z       = frame.z;
         samples = frame.samples;
         layered = frame.layered;
-        LOOPI(Config::MAX_RGBA_ATTACHMENTS)
+        LOOPI(config::MAX_RGBA_ATTACHMENTS)
             rgbaAttachmentDataType[i] = frame.rgbaAttachmentDataType[i];
         scissorEnabled = frame.scissorEnabled;
         viewportOffset = frame.viewportOffset;
@@ -358,7 +358,7 @@ namespace glCompact {
         z       = frame.z;
         samples = frame.samples;
         layered = frame.layered;
-        LOOPI(Config::MAX_RGBA_ATTACHMENTS)
+        LOOPI(config::MAX_RGBA_ATTACHMENTS)
             rgbaAttachmentDataType[i] = frame.rgbaAttachmentDataType[i];
         scissorEnabled = frame.scissorEnabled;
         viewportOffset = frame.viewportOffset;
@@ -604,7 +604,7 @@ namespace glCompact {
         Can not use GL_COLOR for default frame buffer!?
     */
     void Frame::clearRgba() {
-        LOOPI(Config::MAX_RGBA_ATTACHMENTS)
+        LOOPI(config::MAX_RGBA_ATTACHMENTS)
             clearRgba(i);
     }
 
@@ -831,8 +831,8 @@ namespace glCompact {
         glm::ivec2          size
     ) {
         if (memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat || memorySurfaceFormat->isRgbaInteger) {
-            UNLIKELY_IF (rgbaSlot >= Config::MAX_RGBA_ATTACHMENTS)
-                throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") beyond Config::MAX_RGBA_ATTACHMENTS(0.." + to_string(Config::MAX_RGBA_ATTACHMENTS - 1) + ")");
+            UNLIKELY_IF (rgbaSlot >= config::MAX_RGBA_ATTACHMENTS)
+                throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") beyond config::MAX_RGBA_ATTACHMENTS(0.." + to_string(config::MAX_RGBA_ATTACHMENTS - 1) + ")");
         }
 
         if (memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat) {
@@ -981,7 +981,7 @@ namespace glCompact {
         assert(!threadContext);
 
         int setCurrentValue = 0;
-        if (Config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO) setCurrentValue = -1;
+        if (config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO) setCurrentValue = -1;
 
         if (threadContext->current_frame        == this) threadContext->current_frame        = 0;
         if (threadContext->current_frame_drawId ==   id) threadContext->current_frame_drawId = setCurrentValue;
@@ -1055,7 +1055,7 @@ namespace glCompact {
         Note that this test is not performed if OpenGL 4.1 or ARB_ES2_compatibility is available.
 
 
-        Config::MAX_RGBA_ATTACHMENTS
+        config::MAX_RGBA_ATTACHMENTS
     */
     void Frame::setRgbaDrawMapping(
         int32_t slot0,

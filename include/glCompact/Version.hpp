@@ -1,5 +1,5 @@
 #pragma once
-#include "glCompact/Config.hpp"
+#include "glCompact/config.hpp"
 
 #include <cstdint> //C++11
 #include <string>
@@ -19,7 +19,7 @@ namespace glCompact {
         bool    noErrorReporting;
 
         constexpr bool equalOrGreater(int ma, int mi) const {
-            return Config::glEqualOrGreater(ma, mi) || (major > ma) || ((major == ma) && (minor >= mi));
+            return config::glEqualOrGreater(ma, mi) || (major > ma) || ((major == ma) && (minor >= mi));
         };
     };
 }

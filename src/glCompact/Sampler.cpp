@@ -194,7 +194,7 @@ namespace glCompact {
 
     void Sampler::detachFromThreadContext() {
         //TODO: also unbind here? (Should be unbound automaticly from active VAO when deleting it)
-        LOOPI(Config::MAX_SAMPLER_BINDINGS) {
+        LOOPI(config::MAX_SAMPLER_BINDINGS) {
             if (threadContext->sampler_id[i] == id) threadContext->sampler_id[i] = 0;
         }
     }

@@ -3,7 +3,7 @@
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
-#include "glCompact/Config.hpp"
+#include "glCompact/config.hpp"
 #include "glCompact/Buffer.hpp"
 #include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
 
@@ -248,8 +248,8 @@ namespace glCompact {
         const BufferInterface& buffer,
         uintptr_t              offset
     ) {
-        if (int32_t(slot) >= Config::MAX_ATTRIBUTES)
-            throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= Config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
+        if (int32_t(slot) >= config::MAX_ATTRIBUTES)
+            throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
 
         buffer_attribute_id    [slot] = buffer.id;
         buffer_attribute_offset[slot] = buffer.id ? offset : 0;
@@ -259,8 +259,8 @@ namespace glCompact {
     void PipelineRasterization::setAttributeBuffer(
         uint32_t               slot
     ) {
-        if (int32_t(slot) >= Config::MAX_ATTRIBUTES)
-            throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= Config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
+        if (int32_t(slot) >= config::MAX_ATTRIBUTES)
+            throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
 
         buffer_attribute_id    [slot] = 0;
         buffer_attribute_offset[slot] = 0;
@@ -268,12 +268,12 @@ namespace glCompact {
     }
 
     void PipelineRasterization::setAttributeBuffer() {
-        for (int32_t i = 0; i < Config::MAX_ATTRIBUTES; ++i) {
+        for (int32_t i = 0; i < config::MAX_ATTRIBUTES; ++i) {
             buffer_attribute_id    [i] = 0;
             buffer_attribute_offset[i] = 0;
         }
         buffer_attribute_changedSlotMin = 0;
-        buffer_attribute_changedSlotMax = Config::MAX_ATTRIBUTES - 1;
+        buffer_attribute_changedSlotMax = config::MAX_ATTRIBUTES - 1;
     }
 
     /*
@@ -364,7 +364,7 @@ namespace glCompact {
         bool     b,
         bool     a
     ) {
-        if (singleRgbaWriteMaskState) for (int i = 1; i < Config::MAX_RGBA_ATTACHMENTS; ++i) {
+        if (singleRgbaWriteMaskState) for (int i = 1; i < config::MAX_RGBA_ATTACHMENTS; ++i) {
             rgbaWriteMask[i].r = rgbaWriteMask[0].r;
             rgbaWriteMask[i].g = rgbaWriteMask[0].g;
             rgbaWriteMask[i].b = rgbaWriteMask[0].b;
@@ -606,7 +606,7 @@ namespace glCompact {
         blendEnabledAny   = true;
         blendEnabledAll   = true;
         blendModesUniform = true;
-        LOOPI(Config::MAX_RGBA_ATTACHMENTS) {
+        LOOPI(config::MAX_RGBA_ATTACHMENTS) {
             blendEnabled  [i]        = true;
             blendFactors  [i].srcRgb = srcFactorRgb;
             blendFactors  [i].srcA   = srcFactorA;
@@ -645,8 +645,8 @@ namespace glCompact {
         BlendFactorRgb dstFactorRgb,
         BlendFactorA   dstFactorA
     ) {
-        UNLIKELY_IF (rgbaSlot >= Config::MAX_RGBA_ATTACHMENTS)
-            throw std::runtime_error("Trying to set slot(" + to_string(rgbaSlot) + ") that is bayond Config::MAX_RGBA_ATTACHMENTS(" + to_string(Config::MAX_RGBA_ATTACHMENTS) + ")");
+        UNLIKELY_IF (rgbaSlot >= config::MAX_RGBA_ATTACHMENTS)
+            throw std::runtime_error("Trying to set slot(" + to_string(rgbaSlot) + ") that is bayond config::MAX_RGBA_ATTACHMENTS(" + to_string(config::MAX_RGBA_ATTACHMENTS) + ")");
 
         blendEnabledAny   = true;
         if (blendEnabledAll.isFalse()) blendEnabledAll = {};
@@ -665,8 +665,8 @@ namespace glCompact {
     /** \brief disables rgba blend for a specific rgba slot (Rgba blend is disabled for all slots by default)
      */
     void PipelineRasterization::setRgbaBlendDisabled(uint32_t rgbaSlot) {
-        UNLIKELY_IF (rgbaSlot >= Config::MAX_RGBA_ATTACHMENTS)
-            throw std::runtime_error("Trying to set slot(" + to_string(rgbaSlot) + ") that is bayond Config::MAX_RGBA_ATTACHMENTS(" + to_string(Config::MAX_RGBA_ATTACHMENTS) + ")");
+        UNLIKELY_IF (rgbaSlot >= config::MAX_RGBA_ATTACHMENTS)
+            throw std::runtime_error("Trying to set slot(" + to_string(rgbaSlot) + ") that is bayond config::MAX_RGBA_ATTACHMENTS(" + to_string(config::MAX_RGBA_ATTACHMENTS) + ")");
 
         blendEnabledAny = {};
         blendEnabledAll = false;
@@ -680,7 +680,7 @@ namespace glCompact {
     void PipelineRasterization::setRgbaBlendDisabled() {
         blendEnabledAny = false;
         blendEnabledAll = false;
-        LOOPI(Config::MAX_RGBA_ATTACHMENTS) blendEnabled[i] = false;
+        LOOPI(config::MAX_RGBA_ATTACHMENTS) blendEnabled[i] = false;
 
         pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
     }
@@ -1549,12 +1549,12 @@ namespace glCompact {
         if (singleRgbaWriteMaskState) {
             if (!threadContext->singleRgbaWriteMaskState || threadContext->rgbaWriteMask[0].value != rgbaWriteMask[0].value) {
                 threadContextGroup_->functions.glColorMask(rgbaWriteMask[0].r, rgbaWriteMask[0].g, rgbaWriteMask[0].b, rgbaWriteMask[0].a);
-                LOOPI(Config::MAX_RGBA_ATTACHMENTS) {
+                LOOPI(config::MAX_RGBA_ATTACHMENTS) {
                     threadContext->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
                 }
             }
         } else {
-            LOOPI(Config::MAX_RGBA_ATTACHMENTS) if (threadContext->rgbaWriteMask[i].value != rgbaWriteMask[i].value) {
+            LOOPI(config::MAX_RGBA_ATTACHMENTS) if (threadContext->rgbaWriteMask[i].value != rgbaWriteMask[i].value) {
                 threadContextGroup_->functions.glColorMaski(i, rgbaWriteMask[i].r, rgbaWriteMask[i].g, rgbaWriteMask[i].b, rgbaWriteMask[i].a);
                 threadContext->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
             }
@@ -1583,7 +1583,7 @@ namespace glCompact {
                     for (bool& e : threadContext->blendEnabled) e = true;
                     threadContextGroup_->functions.glEnable(GL_BLEND);
                 } else {
-                    LOOPI(Config::MAX_RGBA_ATTACHMENTS) {
+                    LOOPI(config::MAX_RGBA_ATTACHMENTS) {
                         if (threadContext->blendEnabled[i] != blendEnabled[i]) {
                             threadContext->blendEnabled[i] = blendEnabled[i];
                             if (blendEnabled[i])
@@ -1598,12 +1598,12 @@ namespace glCompact {
                     threadContextGroup_->functions.glBlendColor(blendConstRgba.r, blendConstRgba.g, blendConstRgba.b, blendConstRgba.a);
                 }
                 int firstActiveIndex = 0;
-                for (;firstActiveIndex < Config::MAX_RGBA_ATTACHMENTS; firstActiveIndex++) {
+                for (;firstActiveIndex < config::MAX_RGBA_ATTACHMENTS; firstActiveIndex++) {
                     if (blendEnabled[firstActiveIndex]) break;
                 }
                 if (blendModesUniform.isUnknown()) {
                     blendModesUniform = true;
-                    for (int i = firstActiveIndex + 1; i < Config::MAX_RGBA_ATTACHMENTS; i++) {
+                    for (int i = firstActiveIndex + 1; i < config::MAX_RGBA_ATTACHMENTS; i++) {
                         if (blendEnabled[i]) {
                             if (    blendFactors  [i] != blendFactors  [firstActiveIndex]
                                 ||  blendEquations[i] != blendEquations[firstActiveIndex]
@@ -1622,7 +1622,7 @@ namespace glCompact {
                         if (threadContext->blendEquations[0] == blendEquations[firstActiveIndex]) blendEquationsChanged = false;
                     }
                     if (blendFactorsChanged) {
-                        LOOPI(Config::MAX_RGBA_ATTACHMENTS)
+                        LOOPI(config::MAX_RGBA_ATTACHMENTS)
                             threadContext->blendFactors[i] = blendFactors[i];
                         threadContextGroup_->functions.glBlendFuncSeparate(
                             static_cast<GLenum>(blendFactors[firstActiveIndex].srcRgb),
@@ -1632,7 +1632,7 @@ namespace glCompact {
                         );
                     }
                     if (blendEquationsChanged) {
-                        LOOPI(Config::MAX_RGBA_ATTACHMENTS)
+                        LOOPI(config::MAX_RGBA_ATTACHMENTS)
                             threadContext->blendEquations[i] = blendEquations[i];
                         threadContextGroup_->functions.glBlendEquationSeparate(
                             static_cast<GLenum>(blendEquations[firstActiveIndex].rgb),
@@ -1646,7 +1646,7 @@ namespace glCompact {
                     //    throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing GL_ARB_draw_buffers_blend (Core since 4.0))");
                     UNLIKELY_IF (!threadContextGroup_->version.equalOrGreater(4, 0))
                         throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing OpenGL 4.0 or higher)");
-                    for (int i = firstActiveIndex; i < Config::MAX_RGBA_ATTACHMENTS; i++) {
+                    for (int i = firstActiveIndex; i < config::MAX_RGBA_ATTACHMENTS; i++) {
                         if (threadContext->blendFactors[i] != blendFactors[i]) {
                             threadContext->blendFactors[i] = blendFactors[i];
                             threadContextGroup_->functions.glBlendFuncSeparatei(
@@ -1671,7 +1671,7 @@ namespace glCompact {
             } else {
                 if (threadContext->blendEnabledAny) {
                     threadContext->blendEnabledAny = false;
-                    LOOPI(Config::MAX_RGBA_ATTACHMENTS)
+                    LOOPI(config::MAX_RGBA_ATTACHMENTS)
                         threadContext->blendEnabled[i] = false;
                     threadContextGroup_->functions.glDisable(GL_BLEND);
                 }
@@ -1803,7 +1803,7 @@ namespace glCompact {
                     //}
 
                     //first = 0;
-                    //last  = 28;//Config::MAX_ATTRIBUTES - 1;  //if value is higher then 28, the Win7 AMD blobs break without error output
+                    //last  = 28;//config::MAX_ATTRIBUTES - 1;  //if value is higher then 28, the Win7 AMD blobs break without error output
                     if (first <= last) {
                         const uint32_t  count        = last - first + 1;
                         const uint32_t* bufferIdList =                                   &buffer_attribute_id                    [first];
@@ -1828,7 +1828,7 @@ namespace glCompact {
                         }
                     }
                 }
-                buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
+                buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
                 buffer_attribute_changedSlotMax = -1;
             }
         } else {
@@ -1891,7 +1891,7 @@ namespace glCompact {
                         //indifferent attribute state because shader does not use attribute location at all. So we do not need to change anything!
                     }
                 }
-                buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
+                buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
                 buffer_attribute_changedSlotMax = -1;
                 threadContext->attributeLayoutChanged = false;
             } else if (changedSlotMax >= changedSlotMin) {
@@ -1926,7 +1926,7 @@ namespace glCompact {
                     threadContext->buffer_attribute_id    [i] = buffer_attribute_id    [i];
                     threadContext->buffer_attribute_offset[i] = buffer_attribute_offset[i];
                 }
-                buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
+                buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
                 buffer_attribute_changedSlotMax = -1;
             }
         }

@@ -270,7 +270,7 @@ namespace glCompact {
             uint32_t id = 0;
             std::string infoLog_;
 
-            int32_t textureUniformLocation[Config::MAX_SAMPLER_BINDINGS];
+            int32_t textureUniformLocation[config::MAX_SAMPLER_BINDINGS];
 
             std::string getShaderInfoLog(uint32_t objId);
             std::string getProgramInfoLog(uint32_t objId);
@@ -339,59 +339,59 @@ namespace glCompact {
             //BUFFER ATTRIBUTE
             //attributeLayoutStates.uppermostActiveBufferIndex for highestActiveBinding
             void      buffer_attribute_markSlotChange(int32_t slot);
-             int32_t  buffer_attribute_changedSlotMin = Config::MAX_ATTRIBUTES;
+             int32_t  buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
              int32_t  buffer_attribute_changedSlotMax = -1;
 
             //BUFFER UNIFORM
              int32_t  buffer_uniform_highestActiveBinding = -1;
             void      buffer_uniform_markSlotChange(int32_t slot);
-             int32_t  buffer_uniform_changedSlotMin = Config::MAX_UNIFORM_BUFFER_BINDINGS;
+             int32_t  buffer_uniform_changedSlotMin = config::MAX_UNIFORM_BUFFER_BINDINGS;
              int32_t  buffer_uniform_changedSlotMax = -1;
-            uint32_t  buffer_uniform_id    [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_offset[Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_size  [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uint32_t  buffer_uniform_id    [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_uniform_offset[config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_uniform_size  [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
 
             //BUFFER ATOMIC COUNTER
              int32_t  buffer_atomicCounter_highestActiveBinding = -1;
             void      buffer_atomicCounter_markSlotChange(int32_t slot);
-             int32_t  buffer_atomicCounter_changedSlotMin = Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS;
+             int32_t  buffer_atomicCounter_changedSlotMin = config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS;
              int32_t  buffer_atomicCounter_changedSlotMax = -1;
-            uint32_t  buffer_atomicCounter_id    [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_offset[Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_size  [Config::MAX_UNIFORM_BUFFER_BINDINGS];
+            uint32_t  buffer_atomicCounter_id    [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_atomicCounter_offset[config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_atomicCounter_size  [config::MAX_UNIFORM_BUFFER_BINDINGS];
 
             //BUFFER SHADER STORAGE
              int32_t  buffer_shaderStorage_highestActiveBinding = -1;
             void      buffer_shaderStorage_markSlotChange(int32_t slot);
-             int32_t  buffer_shaderStorage_changedSlotMin = Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS;
+             int32_t  buffer_shaderStorage_changedSlotMin = config::MAX_SHADERSTORAGE_BUFFER_BINDINGS;
              int32_t  buffer_shaderStorage_changedSlotMax = -1;
-            uint32_t  buffer_shaderStorage_id    [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_offset[Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_size  [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS];
+            uint32_t  buffer_shaderStorage_id    [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_shaderStorage_offset[config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_shaderStorage_size  [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS];
 
             //TEXTURE
              int32_t  sampler_highestActiveBinding = -1;
             void      texture_markSlotChange(int32_t slot);
-             int32_t  texture_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
+             int32_t  texture_changedSlotMin = config::MAX_SAMPLER_BINDINGS;
              int32_t  texture_changedSlotMax = -1;
-            uint32_t  texture_id    [Config::MAX_SAMPLER_BINDINGS] = {};
-             int32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
+            uint32_t  texture_id    [config::MAX_SAMPLER_BINDINGS] = {};
+             int32_t  texture_target[config::MAX_SAMPLER_BINDINGS] = {};
 
             //SAMPLER
             void      sampler_markSlotChange(int32_t slot);
-             int32_t  sampler_changedSlotMin = Config::MAX_SAMPLER_BINDINGS;
+             int32_t  sampler_changedSlotMin = config::MAX_SAMPLER_BINDINGS;
              int32_t  sampler_changedSlotMax = -1;
-            uint32_t  sampler_id    [Config::MAX_SAMPLER_BINDINGS] = {};
+            uint32_t  sampler_id    [config::MAX_SAMPLER_BINDINGS] = {};
 
             //IMAGE
              int32_t  image_highestActiveBinding = -1;
             void      image_markSlotChange(int32_t slot);
-             int32_t  image_changedSlotMin = Config::MAX_IMAGE_BINDINGS;
+             int32_t  image_changedSlotMin = config::MAX_IMAGE_BINDINGS;
              int32_t  image_changedSlotMax = -1;
-            uint32_t  image_id         [Config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_format     [Config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_mipmapLevel[Config::MAX_IMAGE_BINDINGS] = {};
-             int32_t  image_layer      [Config::MAX_IMAGE_BINDINGS] = {};
+            uint32_t  image_id         [config::MAX_IMAGE_BINDINGS] = {};
+            uint32_t  image_format     [config::MAX_IMAGE_BINDINGS] = {};
+            uint32_t  image_mipmapLevel[config::MAX_IMAGE_BINDINGS] = {};
+             int32_t  image_layer      [config::MAX_IMAGE_BINDINGS] = {};
 
             struct Attribute {
                 std::string name;

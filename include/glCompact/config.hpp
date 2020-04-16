@@ -1,7 +1,7 @@
 #pragma once
 
 namespace glCompact {
-    namespace Config {
+    namespace config {
         //If enabled this will use a thread_local pointer for the context state tracking information.
         //For thread local performance reasons this library should be linked statically or if used as a dynamic library there should be a static dependency to it.
         #define GLCOMPACT_MULTIPLE_CONTEXT

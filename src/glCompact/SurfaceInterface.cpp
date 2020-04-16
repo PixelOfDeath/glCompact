@@ -425,7 +425,7 @@ namespace glCompact {
         }
 
         if (targetFboId) {
-            int setCurrentDrawId = Config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO ? -1 : 0;
+            int setCurrentDrawId = config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO ? -1 : 0;
             threadContextGroup_->functions.glDeleteFramebuffers(1, &targetFboId);
             threadContext->current_frame_drawId = setCurrentDrawId;
         }

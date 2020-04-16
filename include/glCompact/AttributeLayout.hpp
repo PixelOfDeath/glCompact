@@ -1,5 +1,5 @@
 #pragma once
-#include "glCompact/Config.hpp"
+#include "glCompact/config.hpp"
 #include "glCompact/AttributeFormat.hpp"
 
 namespace glCompact {
@@ -23,12 +23,12 @@ namespace glCompact {
             struct BufferIndex {
                 uint16_t stride     = 0;
                 bool     instancing = 0;
-            } bufferIndex[Config::MAX_ATTRIBUTES];
+            } bufferIndex[config::MAX_ATTRIBUTES];
             struct Location {
                 AttributeFormat attributeFormat = AttributeFormat::NONE; //AttributeFormat::none = location disabled
                 uint16_t        offset          = 0;
                 uint8_t         bufferIndex     = 0;
-            } location[Config::MAX_ATTRIBUTES];
+            } location[config::MAX_ATTRIBUTES];
 
             void addBufferIndex_(bool instancing);
     };

@@ -1,5 +1,5 @@
 #pragma once
-#include "glCompact/Config.hpp"
+#include "glCompact/config.hpp"
 #include "glCompact/AttributeLayoutStates.hpp"
 #include "glCompact/IndexType.hpp"
 #include "glCompact/Frame.hpp"
@@ -107,8 +107,8 @@ namespace glCompact {
             //BUFFER ATTRIBUTE
              int8_t   buffer_attribute_getHighestNonNull();
              int8_t   buffer_attribute_maxHighestNonNull = -1;
-            uint32_t  buffer_attribute_id    [Config::MAX_ATTRIBUTES] = {};
-            uintptr_t buffer_attribute_offset[Config::MAX_ATTRIBUTES] = {};
+            uint32_t  buffer_attribute_id    [config::MAX_ATTRIBUTES] = {};
+            uintptr_t buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
 
             //BUFFER INDEX
             bool      buffer_attribute_index_enabled = 0;
@@ -123,23 +123,23 @@ namespace glCompact {
             //BUFFER UNIFORM
              int32_t  buffer_uniform_getHighestNonNull();
              int32_t  buffer_uniform_maxHighestNonNull = -1;
-            uint32_t  buffer_uniform_id    [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_offset[Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_size  [Config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uint32_t  buffer_uniform_id    [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_uniform_offset[config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_uniform_size  [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
 
             //BUFFER ATOMIC COUNTER
              int32_t  buffer_atomicCounter_getHighestNonNull();
              int32_t  buffer_atomicCounter_maxHighestNonNull = -1;
-            uint32_t  buffer_atomicCounter_id    [Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_offset[Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_size  [Config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
+            uint32_t  buffer_atomicCounter_id    [config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_atomicCounter_offset[config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_atomicCounter_size  [config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
 
             //BUFFER SHADER STORAGE
              int32_t  buffer_shaderStorage_getHighestNonNull();
              int32_t  buffer_shaderStorage_maxHighestNonNull = -1;
-            uint32_t  buffer_shaderStorage_id    [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_offset[Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_size  [Config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
+            uint32_t  buffer_shaderStorage_id    [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_shaderStorage_offset[config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
+            uintptr_t buffer_shaderStorage_size  [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
 
             //PIXEL PACK BUFFERS (INTERNAL ONLY)
             uint32_t  buffer_pixelPackId   = 0;
@@ -153,21 +153,21 @@ namespace glCompact {
             uint32_t  activeTextureSlot = 0; //caching of "GL_TEXTURE0 + i" value for old style binding
              int32_t  texture_getHighestNonNull();
              int32_t  texture_maxHighestNonNull = -1;
-            uint32_t  texture_id    [Config::MAX_SAMPLER_BINDINGS] = {};
-             int32_t  texture_target[Config::MAX_SAMPLER_BINDINGS] = {};
+            uint32_t  texture_id    [config::MAX_SAMPLER_BINDINGS] = {};
+             int32_t  texture_target[config::MAX_SAMPLER_BINDINGS] = {};
 
             //SAMPLER
              int32_t  sampler_getHighestNonNull();
              int32_t  sampler_maxHighestNonNull = -1;
-            uint32_t  sampler_id[Config::MAX_SAMPLER_BINDINGS] = {};
+            uint32_t  sampler_id[config::MAX_SAMPLER_BINDINGS] = {};
 
             //IMAGE
              int32_t  image_getHighestNonNull();
              int32_t  image_maxHighestNonNull = -1;
-            uint32_t  image_id         [Config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_format     [Config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_mipmapLevel[Config::MAX_IMAGE_BINDINGS] = {};
-             int32_t  image_layer      [Config::MAX_IMAGE_BINDINGS] = {};
+            uint32_t  image_id         [config::MAX_IMAGE_BINDINGS] = {};
+            uint32_t  image_format     [config::MAX_IMAGE_BINDINGS] = {};
+            uint32_t  image_mipmapLevel[config::MAX_IMAGE_BINDINGS] = {};
+             int32_t  image_layer      [config::MAX_IMAGE_BINDINGS] = {};
 
             //Graphics pipeline state
             PipelineRasterizationStateChange pipelineRasterizationStateChangePending;
@@ -215,16 +215,16 @@ namespace glCompact {
                     uint8_t r:1, g:1, b:1, a:1;
                 };
             };
-            RgbaWriteMask rgbaWriteMask[Config::MAX_RGBA_ATTACHMENTS];
+            RgbaWriteMask rgbaWriteMask[config::MAX_RGBA_ATTACHMENTS];
             bool singleRgbaWriteMaskState = true;
 
             //RGBA BLEND
             bool      blendEnabledAny   = false;
             bool      blendModesUniform = true;
             glm::vec4 blendConstRgba    = glm::vec4(0);
-            bool blendEnabled[Config::MAX_RGBA_ATTACHMENTS] = {};
-            BlendFactors   blendFactors  [Config::MAX_RGBA_ATTACHMENTS];
-            BlendEquations blendEquations[Config::MAX_RGBA_ATTACHMENTS];
+            bool blendEnabled[config::MAX_RGBA_ATTACHMENTS] = {};
+            BlendFactors   blendFactors  [config::MAX_RGBA_ATTACHMENTS];
+            BlendEquations blendEquations[config::MAX_RGBA_ATTACHMENTS];
 
             //LOGIC OPERATION
             //...probbaly not going to implement this

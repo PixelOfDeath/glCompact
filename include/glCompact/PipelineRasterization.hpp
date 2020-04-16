@@ -124,7 +124,7 @@ namespace glCompact {
             struct AttributeLocationInfo {
                 uint32_t    type = 0; //0 = attribute location not in use; Maybe make custom class to hold all the sub info for each type?
                 std::string name;
-            } attributeLocationInfo[Config::MAX_ATTRIBUTES];
+            } attributeLocationInfo[config::MAX_ATTRIBUTES];
 
             void setAttributeLayoutThrow(const std::string& errorMessage);
 
@@ -185,7 +185,7 @@ namespace glCompact {
                     uint8_t r:1, g:1, b:1, a:1;
                 };
             };
-            RgbaWriteMask rgbaWriteMask[Config::MAX_RGBA_ATTACHMENTS];
+            RgbaWriteMask rgbaWriteMask[config::MAX_RGBA_ATTACHMENTS];
             bool singleRgbaWriteMaskState = true;
 
             //RGBA BLEND
@@ -193,9 +193,9 @@ namespace glCompact {
             Tribool   blendEnabledAll   = false;
             Tribool   blendModesUniform = true;
             glm::vec4 blendConstRgba    = glm::vec4(0);
-            bool blendEnabled[Config::MAX_RGBA_ATTACHMENTS] = {};
-            BlendFactors   blendFactors  [Config::MAX_RGBA_ATTACHMENTS];
-            BlendEquations blendEquations[Config::MAX_RGBA_ATTACHMENTS];
+            bool blendEnabled[config::MAX_RGBA_ATTACHMENTS] = {};
+            BlendFactors   blendFactors  [config::MAX_RGBA_ATTACHMENTS];
+            BlendEquations blendEquations[config::MAX_RGBA_ATTACHMENTS];
 
             //LOGIC OPERATION
             //...probbaly not going to implement this
@@ -208,8 +208,8 @@ namespace glCompact {
             AttributeLayoutStates attributeLayoutStates;
 
             //BUFFER ATTRIBUTE
-            uint32_t  buffer_attribute_id    [Config::MAX_ATTRIBUTES] = {};
-            uintptr_t buffer_attribute_offset[Config::MAX_ATTRIBUTES] = {};
+            uint32_t  buffer_attribute_id    [config::MAX_ATTRIBUTES] = {};
+            uintptr_t buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
 
             //BUFFER ATTRIBUTE INDEX
             IndexType indexType                     = static_cast<IndexType>(0);
