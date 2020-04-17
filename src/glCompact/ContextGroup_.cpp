@@ -187,8 +187,14 @@ namespace glCompact {
                     case GlVersion::v41: return "4.1";
                     case GlVersion::v40: return "4.0";
                     case GlVersion::v33: return "3.3";
-                    case GlVersion::notSupported: return "not supported";
-                    default: return "pre 3.3";
+                    case GlVersion::v32: return "3.2";
+                    case GlVersion::v31: return "3.1";
+                    case GlVersion::v30: return "3.0";
+                    case GlVersion::v21: return "2.1";
+                    case GlVersion::v20: return "2.0";
+                    case GlVersion::v15: return "1.5";
+                    case GlVersion::v14: return "1.4";
+                    default: return "not supported";
                 }
             };
             auto glesVersionToString = [](GlesVersion glesVersion) -> string {
@@ -196,13 +202,13 @@ namespace glCompact {
                     case GlesVersion::v32: return "3.2";
                     case GlesVersion::v31: return "3.1";
                     case GlesVersion::v30: return "3.0";
-                    case GlesVersion::notSupported: return "not supported";
-                    default: return "pre 3.0";
+                    case GlesVersion::v20: return "2.0";
+                    default: return "not supported";
                 }
             };
 
             crash("Detected OpenGL " + glVersionToString(version.gl) + " / OpenGL ES " + glesVersionToString(version.gles)
-                + " but minimum is OpenGL " + glVersionToString(config::version::glMin) + " / OpenGL ES " + glesVersionToString(config::version::glesMin));
+                + " but minimum requirement is OpenGL " + glVersionToString(config::version::glMin) + " / OpenGL ES " + glesVersionToString(config::version::glesMin));
         }
 
         extensions.init(this);
