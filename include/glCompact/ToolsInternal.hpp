@@ -55,4 +55,34 @@ namespace glCompact {
     #endif
 
     [[noreturn]] extern void crash(std::string s);
+
+    template<typename T>
+    T alignTo(T value, T alignTo) {
+        return (value % alignTo) ? (value + (alignTo - (value % alignTo))) : value;
+    }
+
+    namespace {
+        template<typename T>
+        void multiMallocPlacement(uintptr_t& offset, T*& ptr, uintptr_t count) {
+            offset  = alignTo(offset, alignof(T));
+            ptr     = reinterpret_cast<T*>(offset);
+            offset += sizeof(T) * count;
+        }
+
+        template<typename T, typename... Args>
+        void multiMallocPlacement(uintptr_t& offset, T*& ptr, uintptr_t count, Args&&... args) {
+            multiMallocPlacement(offset, ptr, count);
+            multiMallocPlacement(offset, args...);
+        }
+    }
+
+    template<typename T, typename... Args>
+    void* multiMalloc(T*& ptr, uintptr_t count, Args&&... args) {
+        uintptr_t offset = 0;
+        multiMallocPlacement(offset, ptr, count, args...);
+        void* m = malloc(offset);
+        offset = reinterpret_cast<uintptr_t>(m);
+        multiMallocPlacement(offset, ptr, count, args...);
+        return m;
+    }
 }
