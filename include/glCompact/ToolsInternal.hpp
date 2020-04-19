@@ -77,12 +77,12 @@ namespace glCompact {
     }
 
     template<typename T, typename... Args>
-    void* multiMalloc(T*& ptr, uintptr_t count, Args&&... args) {
+    void multiMalloc(void*& multiPtr, uintptr_t& mallocSize, T*& ptr, uintptr_t count, Args&&... args) {
         uintptr_t offset = 0;
         multiMallocPlacement(offset, ptr, count, args...);
-        void* m = malloc(offset);
-        offset = reinterpret_cast<uintptr_t>(m);
+        mallocSize = offset;
+        multiPtr = malloc(offset);
+        offset = reinterpret_cast<uintptr_t>(multiPtr);
         multiMallocPlacement(offset, ptr, count, args...);
-        return m;
     }
 }
