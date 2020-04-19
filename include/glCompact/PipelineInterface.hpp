@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <initializer_list> //We need to use initializer_list, because GCC has broken template arrays for unsigned int types until something like GCC 8.3
+#include <limits>
 
 namespace glCompact {
     class PipelineInterface {
@@ -193,7 +194,7 @@ namespace glCompact {
 
             //TODO: need setter for uniform structures
         protected:
-            PipelineInterface();
+            PipelineInterface() = default;
             ~PipelineInterface();
         protected:
             template<typename T>
@@ -338,60 +339,62 @@ namespace glCompact {
 
             //BUFFER ATTRIBUTE
             //attributeLayoutStates.uppermostActiveBufferIndex for highestActiveBinding
-            void      buffer_attribute_markSlotChange(int32_t slot);
-             int32_t  buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
-             int32_t  buffer_attribute_changedSlotMax = -1;
+            void       buffer_attribute_markSlotChange(int32_t slot);
+             int32_t   buffer_attribute_changedSlotMin = std::numeric_limits<decltype(buffer_attribute_changedSlotMin)>::max();
+             int32_t   buffer_attribute_changedSlotMax = -1;
 
             //BUFFER UNIFORM
-             int32_t  buffer_uniform_highestActiveBinding = -1;
-            void      buffer_uniform_markSlotChange(int32_t slot);
-             int32_t  buffer_uniform_changedSlotMin = config::MAX_UNIFORM_BUFFER_BINDINGS;
-             int32_t  buffer_uniform_changedSlotMax = -1;
-            uint32_t  buffer_uniform_id    [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_offset[config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_size  [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+             int32_t   buffer_uniform_highestActiveBinding = -1;
+            void       buffer_uniform_markSlotChange(int32_t slot);
+             int32_t   buffer_uniform_changedSlotMin = std::numeric_limits<decltype(buffer_uniform_changedSlotMin)>::max();
+             int32_t   buffer_uniform_changedSlotMax = -1;
+            uint32_t*  buffer_uniform_id;
+            uintptr_t* buffer_uniform_offset;
+            uintptr_t* buffer_uniform_size;
 
             //BUFFER ATOMIC COUNTER
-             int32_t  buffer_atomicCounter_highestActiveBinding = -1;
-            void      buffer_atomicCounter_markSlotChange(int32_t slot);
-             int32_t  buffer_atomicCounter_changedSlotMin = config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS;
-             int32_t  buffer_atomicCounter_changedSlotMax = -1;
-            uint32_t  buffer_atomicCounter_id    [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_offset[config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_size  [config::MAX_UNIFORM_BUFFER_BINDINGS];
+             int32_t   buffer_atomicCounter_highestActiveBinding = -1;
+            void       buffer_atomicCounter_markSlotChange(int32_t slot);
+             int32_t   buffer_atomicCounter_changedSlotMin = std::numeric_limits<decltype(buffer_atomicCounter_changedSlotMin)>::max();
+             int32_t   buffer_atomicCounter_changedSlotMax = -1;
+            uint32_t*  buffer_atomicCounter_id;
+            uintptr_t* buffer_atomicCounter_offset;
+            uintptr_t* buffer_atomicCounter_size;
 
             //BUFFER SHADER STORAGE
-             int32_t  buffer_shaderStorage_highestActiveBinding = -1;
-            void      buffer_shaderStorage_markSlotChange(int32_t slot);
-             int32_t  buffer_shaderStorage_changedSlotMin = config::MAX_SHADERSTORAGE_BUFFER_BINDINGS;
-             int32_t  buffer_shaderStorage_changedSlotMax = -1;
-            uint32_t  buffer_shaderStorage_id    [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_offset[config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_size  [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS];
+             int32_t   buffer_shaderStorage_highestActiveBinding = -1;
+            void       buffer_shaderStorage_markSlotChange(int32_t slot);
+             int32_t   buffer_shaderStorage_changedSlotMin = std::numeric_limits<decltype(buffer_shaderStorage_changedSlotMin)>::max();
+             int32_t   buffer_shaderStorage_changedSlotMax = -1;
+            uint32_t*  buffer_shaderStorage_id;
+            uintptr_t* buffer_shaderStorage_offset;
+            uintptr_t* buffer_shaderStorage_size;
 
             //TEXTURE
-             int32_t  sampler_highestActiveBinding = -1;
-            void      texture_markSlotChange(int32_t slot);
-             int32_t  texture_changedSlotMin = config::MAX_SAMPLER_BINDINGS;
-             int32_t  texture_changedSlotMax = -1;
-            uint32_t  texture_id    [config::MAX_SAMPLER_BINDINGS] = {};
-             int32_t  texture_target[config::MAX_SAMPLER_BINDINGS] = {};
+             int32_t   sampler_highestActiveBinding = -1;
+            void       texture_markSlotChange(int32_t slot);
+             int32_t   texture_changedSlotMin = std::numeric_limits<decltype(texture_changedSlotMin)>::max();
+             int32_t   texture_changedSlotMax = -1;
+            uint32_t*  texture_id;
+             int32_t*  texture_target;
 
             //SAMPLER
-            void      sampler_markSlotChange(int32_t slot);
-             int32_t  sampler_changedSlotMin = config::MAX_SAMPLER_BINDINGS;
-             int32_t  sampler_changedSlotMax = -1;
-            uint32_t  sampler_id    [config::MAX_SAMPLER_BINDINGS] = {};
+            void       sampler_markSlotChange(int32_t slot);
+             int32_t   sampler_changedSlotMin = std::numeric_limits<decltype(sampler_changedSlotMin)>::max();
+             int32_t   sampler_changedSlotMax = -1;
+            uint32_t*  sampler_id;
 
             //IMAGE
-             int32_t  image_highestActiveBinding = -1;
-            void      image_markSlotChange(int32_t slot);
-             int32_t  image_changedSlotMin = config::MAX_IMAGE_BINDINGS;
-             int32_t  image_changedSlotMax = -1;
-            uint32_t  image_id         [config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_format     [config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_mipmapLevel[config::MAX_IMAGE_BINDINGS] = {};
-             int32_t  image_layer      [config::MAX_IMAGE_BINDINGS] = {};
+             int32_t   image_highestActiveBinding = -1;
+            void       image_markSlotChange(int32_t slot);
+             int32_t   image_changedSlotMin = std::numeric_limits<decltype(image_changedSlotMin)>::max();
+             int32_t   image_changedSlotMax = -1;
+            uint32_t*  image_id;
+            uint32_t*  image_format;
+            uint32_t*  image_mipmapLevel;
+             int32_t*  image_layer;
+
+            void* multiMallocPtr = 0;
 
             struct Attribute {
                 std::string name;
@@ -471,6 +474,7 @@ namespace glCompact {
             std::vector<StorageBlock>         storageBlockList;
 
             void collectInformation();
+            void allocateMemory();
 
             void processPendingChanges();
             void processPendingChangesPipeline();

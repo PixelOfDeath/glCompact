@@ -94,11 +94,6 @@ using namespace glCompact::gl;
 namespace glCompact {
     static constexpr uintptr_t DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE = config::Workarounds::MESA_BIND_BUFFER_RANGE_NULL_ERROR_WHEN_SIZE_IS_NULL ? 1 : 0;
 
-    PipelineInterface::PipelineInterface() {
-        LOOPI(config::MAX_SHADERSTORAGE_BUFFER_BINDINGS) buffer_shaderStorage_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
-        LOOPI(config::MAX_UNIFORM_BUFFER_BINDINGS)       buffer_atomicCounter_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
-    }
-
     PipelineInterface::~PipelineInterface() {
         //if (!SDL_GL_GetCurrentContext())
         //    cout << "WARNING: glCompact::PipelineInterface destructor called but no active OpenGL context in this thread to delete it! Leaking OpenGL object!" << endl;
@@ -111,6 +106,7 @@ namespace glCompact {
             }
             id = 0;
         }
+        if (multiMallocPtr) free(multiMallocPtr);
     }
 
     void PipelineInterface::setTexture(
@@ -1545,6 +1541,33 @@ namespace glCompact {
         for (const auto& sb : storageBlockList) buffer_shaderStorage_highestActiveBinding = max(buffer_shaderStorage_highestActiveBinding, sb.binding);
     }
 
+    void PipelineInterface::allocateMemory() {
+        uintptr_t mallocSize;
+        multiMalloc(multiMallocPtr, mallocSize,
+            buffer_uniform_id,              buffer_uniform_highestActiveBinding + 1,
+            buffer_uniform_offset,          buffer_uniform_highestActiveBinding + 1,
+            buffer_uniform_size,            buffer_uniform_highestActiveBinding + 1,
+            buffer_atomicCounter_id,        buffer_atomicCounter_highestActiveBinding + 1,
+            buffer_atomicCounter_offset,    buffer_atomicCounter_highestActiveBinding + 1,
+            buffer_atomicCounter_size,      buffer_atomicCounter_highestActiveBinding + 1,
+            buffer_shaderStorage_id,        buffer_shaderStorage_highestActiveBinding + 1,
+            buffer_shaderStorage_offset,    buffer_shaderStorage_highestActiveBinding + 1,
+            buffer_shaderStorage_size,      buffer_shaderStorage_highestActiveBinding + 1,
+            texture_id,                     sampler_highestActiveBinding + 1,
+            texture_target,                 sampler_highestActiveBinding + 1,
+            sampler_id,                     sampler_highestActiveBinding + 1,
+            image_id,                       image_highestActiveBinding + 1,
+            image_format,                   image_highestActiveBinding + 1,
+            image_mipmapLevel,              image_highestActiveBinding + 1,
+            image_layer,                    image_highestActiveBinding + 1
+        );
+        std::memset(multiMallocPtr, 0, mallocSize);
+        LOOPI(buffer_atomicCounter_highestActiveBinding + 1)
+            buffer_atomicCounter_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        LOOPI(buffer_shaderStorage_highestActiveBinding + 1)
+            buffer_shaderStorage_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+    }
+
     void PipelineInterface::processPendingChanges() {
         processPendingChangesBuffersUniform();
         processPendingChangesBuffersAtomicCounter();
@@ -1612,7 +1635,7 @@ namespace glCompact {
                 threadContext->buffer_uniform_offset[i] = buffer_uniform_offset[i];
                 threadContext->buffer_uniform_size  [i] = buffer_uniform_size  [i];
             }
-            buffer_uniform_changedSlotMin = config::MAX_UNIFORM_BUFFER_BINDINGS;
+            buffer_uniform_changedSlotMin = std::numeric_limits<decltype(buffer_uniform_changedSlotMin)>::max();
             buffer_uniform_changedSlotMax = -1;
         }
     }
@@ -1657,7 +1680,7 @@ namespace glCompact {
                 threadContext->buffer_atomicCounter_offset[i] = buffer_atomicCounter_offset[i];
                 threadContext->buffer_atomicCounter_size  [i] = buffer_atomicCounter_size  [i];
             }
-            buffer_atomicCounter_changedSlotMin = config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS;
+            buffer_atomicCounter_changedSlotMin = std::numeric_limits<decltype(buffer_atomicCounter_changedSlotMin)>::max();
             buffer_atomicCounter_changedSlotMax = -1;
         }
     }
@@ -1696,7 +1719,7 @@ namespace glCompact {
                 threadContext->buffer_shaderStorage_offset[i] = buffer_shaderStorage_offset[i];
                 threadContext->buffer_shaderStorage_size  [i] = buffer_shaderStorage_size  [i];
             }
-            buffer_shaderStorage_changedSlotMin = config::MAX_SHADERSTORAGE_BUFFER_BINDINGS;
+            buffer_shaderStorage_changedSlotMin = std::numeric_limits<decltype(buffer_shaderStorage_changedSlotMin)>::max();
             buffer_shaderStorage_changedSlotMax = -1;
         }
     }
@@ -1732,7 +1755,7 @@ namespace glCompact {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i)
                     threadContext->cachedBindTextureCompatibleOrFirstTime(i, texture_target[i], texture_id[i]);
             }
-            texture_changedSlotMin = config::MAX_SAMPLER_BINDINGS;
+            texture_changedSlotMin = std::numeric_limits<decltype(texture_changedSlotMin)>::max();
             texture_changedSlotMax = -1;
         }
     }
@@ -1768,7 +1791,7 @@ namespace glCompact {
                     }
                 }
             }
-            sampler_changedSlotMin = config::MAX_SAMPLER_BINDINGS;
+            sampler_changedSlotMin = std::numeric_limits<decltype(sampler_changedSlotMin)>::max();
             sampler_changedSlotMax = -1;
         }
     }
@@ -1810,7 +1833,7 @@ namespace glCompact {
                     threadContext->image_layer      [i] = image_layer      [i];
                 }
             }
-            image_changedSlotMin = config::MAX_IMAGE_BINDINGS;
+            image_changedSlotMin = std::numeric_limits<decltype(image_changedSlotMin)>::max();
             image_changedSlotMax = -1;
         }
     }

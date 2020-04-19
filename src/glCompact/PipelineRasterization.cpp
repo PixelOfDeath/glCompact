@@ -847,6 +847,7 @@ namespace glCompact {
         hasShader[4] = !stringFragment.empty();
 
         collectInformation();
+        allocateMemory();
         setDefaultValues();
         return true;
     }

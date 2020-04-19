@@ -128,6 +128,7 @@ namespace glCompact {
         }
 
         collectInformation();
+        allocateMemory();
     }
 
     void PipelineCompute::collectInformation() {
