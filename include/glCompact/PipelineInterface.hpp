@@ -271,8 +271,6 @@ namespace glCompact {
             uint32_t id = 0;
             std::string infoLog_;
 
-            int32_t textureUniformLocation[config::MAX_SAMPLER_BINDINGS];
-
             std::string getShaderInfoLog(uint32_t objId);
             std::string getProgramInfoLog(uint32_t objId);
         protected:
@@ -393,6 +391,7 @@ namespace glCompact {
             uint32_t*  image_format;
             uint32_t*  image_mipmapLevel;
              int32_t*  image_layer;
+
 
             struct Attribute {
                 std::string name;
