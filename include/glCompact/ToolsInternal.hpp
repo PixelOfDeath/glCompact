@@ -62,27 +62,33 @@ namespace glCompact {
     }
 
     namespace {
-        template<typename T>
-        void multiMallocPlacement(uintptr_t& offset, T*& ptr, uintptr_t count) {
-            offset  = alignTo(offset, alignof(T));
-            ptr     = reinterpret_cast<T*>(offset);
-            offset += sizeof(T) * count;
+        template<bool setValue, typename Tinit, typename T>
+        void multiNewPlacement(uintptr_t& currentOffset, T*& ptr, uintptr_t count, Tinit initValue) {
+            if (count) {
+                currentOffset  = alignTo(currentOffset, alignof(T));
+                ptr            = reinterpret_cast<T*>(currentOffset);
+                currentOffset += sizeof(T) * count;
+            } else {
+                ptr            = reinterpret_cast<T*>(currentOffset);
+            }
+            if (setValue)
+                for (uintptr_t i = 0; i < count; ++i) new (ptr + i)T(initValue);
         }
 
-        template<typename T, typename... Args>
-        void multiMallocPlacement(uintptr_t& offset, T*& ptr, uintptr_t count, Args&&... args) {
-            multiMallocPlacement(offset, ptr, count);
-            multiMallocPlacement(offset, args...);
+        template<bool setValue, typename T, typename Tinit, typename... Args>
+        void multiNewPlacement(uintptr_t& currentOffset, T*& ptr, uintptr_t count, Tinit initValue, Args&&... args) {
+            multiNewPlacement<setValue>(currentOffset, ptr, count, initValue);
+            multiNewPlacement<setValue>(currentOffset, args...);
         }
     }
 
-    template<typename T, typename... Args>
-    void multiMalloc(void*& multiPtr, uintptr_t& mallocSize, T*& ptr, uintptr_t count, Args&&... args) {
-        uintptr_t offset = 0;
-        multiMallocPlacement(offset, ptr, count, args...);
-        mallocSize = offset;
-        multiPtr = malloc(offset);
-        offset = reinterpret_cast<uintptr_t>(multiPtr);
-        multiMallocPlacement(offset, ptr, count, args...);
+    template<typename T, typename Tinit, typename... Args>
+    void multiNew(T*& ptr, uintptr_t count, Tinit initValue, Args&&... args) {
+        uintptr_t currentOffset = 0;
+        multiNewPlacement<0>(currentOffset, ptr, count, initValue, args...);
+        uintptr_t mallocSize = currentOffset;
+        void* multiPtr = malloc(mallocSize);
+        currentOffset = reinterpret_cast<uintptr_t>(multiPtr);
+        multiNewPlacement<1>(currentOffset, ptr, count, initValue, args...);
     }
 }

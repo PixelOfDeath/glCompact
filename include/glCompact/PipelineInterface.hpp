@@ -394,8 +394,6 @@ namespace glCompact {
             uint32_t*  image_mipmapLevel;
              int32_t*  image_layer;
 
-            void* multiMallocPtr = 0;
-
             struct Attribute {
                 std::string name;
                 int32_t type        =  0;

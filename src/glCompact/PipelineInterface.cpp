@@ -106,7 +106,7 @@ namespace glCompact {
             }
             id = 0;
         }
-        if (multiMallocPtr) free(multiMallocPtr);
+        if (buffer_uniform_id) free(buffer_uniform_id);
     }
 
     void PipelineInterface::setTexture(
@@ -1542,30 +1542,24 @@ namespace glCompact {
     }
 
     void PipelineInterface::allocateMemory() {
-        uintptr_t mallocSize;
-        multiMalloc(multiMallocPtr, mallocSize,
-            buffer_uniform_id,              buffer_uniform_highestActiveBinding + 1,
-            buffer_uniform_offset,          buffer_uniform_highestActiveBinding + 1,
-            buffer_uniform_size,            buffer_uniform_highestActiveBinding + 1,
-            buffer_atomicCounter_id,        buffer_atomicCounter_highestActiveBinding + 1,
-            buffer_atomicCounter_offset,    buffer_atomicCounter_highestActiveBinding + 1,
-            buffer_atomicCounter_size,      buffer_atomicCounter_highestActiveBinding + 1,
-            buffer_shaderStorage_id,        buffer_shaderStorage_highestActiveBinding + 1,
-            buffer_shaderStorage_offset,    buffer_shaderStorage_highestActiveBinding + 1,
-            buffer_shaderStorage_size,      buffer_shaderStorage_highestActiveBinding + 1,
-            texture_id,                     sampler_highestActiveBinding + 1,
-            texture_target,                 sampler_highestActiveBinding + 1,
-            sampler_id,                     sampler_highestActiveBinding + 1,
-            image_id,                       image_highestActiveBinding + 1,
-            image_format,                   image_highestActiveBinding + 1,
-            image_mipmapLevel,              image_highestActiveBinding + 1,
-            image_layer,                    image_highestActiveBinding + 1
+        multiNew(
+            buffer_uniform_id,              buffer_uniform_highestActiveBinding       + 1, 0,
+            buffer_uniform_offset,          buffer_uniform_highestActiveBinding       + 1, 0,
+            buffer_uniform_size,            buffer_uniform_highestActiveBinding       + 1, 0,
+            buffer_atomicCounter_id,        buffer_atomicCounter_highestActiveBinding + 1, 0,
+            buffer_atomicCounter_offset,    buffer_atomicCounter_highestActiveBinding + 1, 0,
+            buffer_atomicCounter_size,      buffer_atomicCounter_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            buffer_shaderStorage_id,        buffer_shaderStorage_highestActiveBinding + 1, 0,
+            buffer_shaderStorage_offset,    buffer_shaderStorage_highestActiveBinding + 1, 0,
+            buffer_shaderStorage_size,      buffer_shaderStorage_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            texture_id,                     sampler_highestActiveBinding              + 1, 0,
+            texture_target,                 sampler_highestActiveBinding              + 1, 0,
+            sampler_id,                     sampler_highestActiveBinding              + 1, 0,
+            image_id,                       image_highestActiveBinding                + 1, 0,
+            image_format,                   image_highestActiveBinding                + 1, 0,
+            image_mipmapLevel,              image_highestActiveBinding                + 1, 0,
+            image_layer,                    image_highestActiveBinding                + 1, 0
         );
-        std::memset(multiMallocPtr, 0, mallocSize);
-        LOOPI(buffer_atomicCounter_highestActiveBinding + 1)
-            buffer_atomicCounter_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
-        LOOPI(buffer_shaderStorage_highestActiveBinding + 1)
-            buffer_shaderStorage_size[i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
     }
 
     void PipelineInterface::processPendingChanges() {
