@@ -1301,9 +1301,9 @@ namespace glCompact {
                         + "Sampler uses different GLSL layout qualifier binding value then glCompact NAME_bindingX binding! But must be the same or layout qualifier must be removed!\n"
                         + " -> layout(binding = " + to_string(layoutQualifierBinding) + ") " + ru.name
                     );
-                if (binding >= config::MAX_SAMPLER_BINDINGS)
-                    error(" Trying to use sampler binding that is outside the range of config::MAX_SAMPLER_BINDINGS(" + to_string(config::MAX_SAMPLER_BINDINGS) + " = 0.." + to_string(config::MAX_SAMPLER_BINDINGS-1) + ")\n"
-                    + " -> " + ru.name);
+                //if (binding >= config::MAX_SAMPLER_BINDINGS)
+                //    error(" Trying to use sampler binding that is outside the range of config::MAX_SAMPLER_BINDINGS(" + to_string(config::MAX_SAMPLER_BINDINGS) + " = 0.." + to_string(config::MAX_SAMPLER_BINDINGS-1) + ")\n"
+                //    + " -> " + ru.name);
                 if (samplerList.size() < uint32_t(binding + 1))
                     samplerList.resize(binding + 1);
                 if (samplerList[binding].type != 0)
@@ -1326,9 +1326,9 @@ namespace glCompact {
                         + "Image uses different GLSL layout qualifier binding value then glCompact NAME_bindingX binding! But must be the same or layout qualifier must be removed!\n"
                         + " -> layout(binding = " + to_string(layoutQualifierBinding) + ") " + ru.name
                     );
-                if (binding >= config::MAX_IMAGE_BINDINGS)
-                    error(" Trying to use sampler binding that is outside the range of config::MAX_IMAGE_BINDINGS(" + to_string(config::MAX_IMAGE_BINDINGS) + " = 0.." + to_string(config::MAX_IMAGE_BINDINGS-1) + ")\n"
-                    + " -> " + ru.name);
+                //if (binding >= config::MAX_IMAGE_BINDINGS)
+                //    error(" Trying to use sampler binding that is outside the range of config::MAX_IMAGE_BINDINGS(" + to_string(config::MAX_IMAGE_BINDINGS) + " = 0.." + to_string(config::MAX_IMAGE_BINDINGS-1) + ")\n"
+                //    + " -> " + ru.name);
                 if (imageList.size() < uint32_t(binding + 1))
                     imageList.resize(binding + 1);
                 if (imageList[binding].type != 0)
@@ -1370,11 +1370,11 @@ namespace glCompact {
                 threadContextGroup_->functions.glGetActiveUniformBlockName(id, uint32_t(i), activeUniformBlockNameLengthMax, &stringLenght, &nameBuffer[0]);
                 uniformBlock.name = string(&nameBuffer[0], stringLenght);
                 int32_t binding = getBindingFromString(uniformBlock.name);
-                if (binding >= config::MAX_UNIFORM_BUFFER_BINDINGS)
-                    error(string("")
-                        + "Trying to use uniform block binding outisde of valid range of config::MAX_UNIFORM_BUFFER_BINDINGS(" + to_string(config::MAX_UNIFORM_BUFFER_BINDINGS) + " = 0.." + to_string(config::MAX_UNIFORM_BUFFER_BINDINGS - 1) + ")\n"
-                        + " -> " + uniformBlock.name
-                    );
+                //if (binding >= config::MAX_UNIFORM_BUFFER_BINDINGS)
+                //    error(string("")
+                //        + "Trying to use uniform block binding outisde of valid range of config::MAX_UNIFORM_BUFFER_BINDINGS(" + to_string(config::MAX_UNIFORM_BUFFER_BINDINGS) + " = 0.." + to_string(config::MAX_UNIFORM_BUFFER_BINDINGS - 1) + ")\n"
+                //        + " -> " + uniformBlock.name
+                //    );
                 int32_t blockIndex = threadContextGroup_->functions.glGetUniformBlockIndex(id, &nameBuffer[0]);
                 int32_t layoutQualifierBinding;
                 threadContextGroup_->functions.glGetActiveUniformBlockiv(id, blockIndex, GL_UNIFORM_BLOCK_BINDING, &layoutQualifierBinding);
@@ -1587,6 +1587,48 @@ namespace glCompact {
         sampler_changedSlotMax              = sampler_highestActiveBinding;
         image_changedSlotMin                = 0;
         image_changedSlotMax                = image_highestActiveBinding;
+
+        if (threadContext->buffer_uniform_highestActiveBinding       < buffer_uniform_highestActiveBinding
+        ||  threadContext->buffer_atomicCounter_highestActiveBinding < buffer_atomicCounter_highestActiveBinding
+        ||  threadContext->buffer_shaderStorage_highestActiveBinding < buffer_shaderStorage_highestActiveBinding
+        ||  threadContext->sampler_highestActiveBinding              < sampler_highestActiveBinding
+        ||  threadContext->image_highestActiveBinding                < image_highestActiveBinding
+        ) {
+            multiReNew(
+                threadContext->buffer_uniform_id,              threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1, 0,
+                threadContext->buffer_uniform_offset,          threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1, 0,
+                threadContext->buffer_uniform_size,            threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1, 0,
+                threadContext->buffer_atomicCounter_id,        threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1, 0,
+                threadContext->buffer_atomicCounter_offset,    threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1, 0,
+                threadContext->buffer_atomicCounter_size,      threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1, 0,
+                threadContext->buffer_shaderStorage_id,        threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1, 0,
+                threadContext->buffer_shaderStorage_offset,    threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1, 0,
+                threadContext->buffer_shaderStorage_size,      threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1, 0,
+                threadContext->texture_id,                     threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1, 0,
+                threadContext->texture_target,                 threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1, 0,
+                threadContext->sampler_id,                     threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1, 0,
+                threadContext->image_id,                       threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0,
+                threadContext->image_format,                   threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0,
+                threadContext->image_mipmapLevel,              threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0,
+                threadContext->image_layer,                    threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0
+            );
+            threadContext->buffer_uniform_highestActiveBinding       = buffer_uniform_highestActiveBinding;
+            threadContext->buffer_uniform_highestActiveBinding       = buffer_uniform_highestActiveBinding;
+            threadContext->buffer_uniform_highestActiveBinding       = buffer_uniform_highestActiveBinding;
+            threadContext->buffer_atomicCounter_highestActiveBinding = buffer_atomicCounter_highestActiveBinding;
+            threadContext->buffer_atomicCounter_highestActiveBinding = buffer_atomicCounter_highestActiveBinding;
+            threadContext->buffer_atomicCounter_highestActiveBinding = buffer_atomicCounter_highestActiveBinding;
+            threadContext->buffer_shaderStorage_highestActiveBinding = buffer_shaderStorage_highestActiveBinding;
+            threadContext->buffer_shaderStorage_highestActiveBinding = buffer_shaderStorage_highestActiveBinding;
+            threadContext->buffer_shaderStorage_highestActiveBinding = buffer_shaderStorage_highestActiveBinding;
+            threadContext->sampler_highestActiveBinding              = sampler_highestActiveBinding;
+            threadContext->sampler_highestActiveBinding              = sampler_highestActiveBinding;
+            threadContext->sampler_highestActiveBinding              = sampler_highestActiveBinding;
+            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
+            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
+            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
+            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
+        }
     }
 
     void PipelineInterface::processPendingChangesBuffersUniform() {

@@ -1224,8 +1224,8 @@ namespace glCompact {
     }
 
     void PipelineRasterization::processPendingChanges() {
-        PipelineInterface::processPendingChanges();
         processPendingChangesPipeline();
+        PipelineInterface::processPendingChanges();
         processPendingChangesAttributeLayoutAndBuffers();
         threadContext->processPendingChangesDrawFrame();
         processPendingChangesPipelineRasterization();

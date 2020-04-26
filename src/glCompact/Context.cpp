@@ -120,7 +120,7 @@ namespace glCompact {
         buffer_copyWriteId   = 0;
     }
 
-    int8_t Context::buffer_attribute_getHighestNonNull() {
+    int32_t Context::buffer_attribute_getHighestNonNull() {
         while (buffer_attribute_maxHighestNonNull >= 0 && buffer_attribute_id[buffer_attribute_maxHighestNonNull] == 0) buffer_attribute_maxHighestNonNull--;
         return buffer_attribute_maxHighestNonNull;
     }

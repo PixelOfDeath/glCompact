@@ -98,76 +98,81 @@ namespace glCompact {
             PipelineInterface* pipeline = 0;
             PipelineInterface* pipelineThatCausedLastWarning = 0; //using this to only print out the pipeline information/identification once until a different pipeline causes warnings
 
-            uint32_t  defaultVaoId = 0;
-            uint32_t  boundArrayBuffer = 0;
+            uint32_t   defaultVaoId = 0;
+            uint32_t   boundArrayBuffer = 0;
             //ATTRIBUTE LAYOUT STATES
-            bool      attributeLayoutChanged = false; //TODO: make this one of the state bits
+            bool       attributeLayoutChanged = false; //TODO: make this one of the state bits
             AttributeLayoutStates attributeLayoutStates;
 
             //BUFFER ATTRIBUTE
-             int8_t   buffer_attribute_getHighestNonNull();
-             int8_t   buffer_attribute_maxHighestNonNull = -1;
-            uint32_t  buffer_attribute_id    [config::MAX_ATTRIBUTES] = {};
-            uintptr_t buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
+             int32_t   buffer_attribute_getHighestNonNull();
+             int32_t   buffer_attribute_maxHighestNonNull = -1;
+            uint32_t   buffer_attribute_id    [config::MAX_ATTRIBUTES] = {};
+            uintptr_t  buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
 
             //BUFFER INDEX
-            bool      buffer_attribute_index_enabled = 0;
-            IndexType buffer_attribute_index_type    = static_cast<IndexType>(0);
-            uint32_t  buffer_attribute_index_id      = 0;
+            bool       buffer_attribute_index_enabled = 0;
+            IndexType  buffer_attribute_index_type    = static_cast<IndexType>(0);
+            uint32_t   buffer_attribute_index_id      = 0;
 
             //BUFFER INDIRECT
-            uint32_t  buffer_draw_indirect_id     = 0;
-            uint32_t  buffer_dispatch_indirect_id = 0;
-            uint32_t  buffer_parameter_id         = 0;
+            uint32_t   buffer_draw_indirect_id     = 0;
+            uint32_t   buffer_dispatch_indirect_id = 0;
+            uint32_t   buffer_parameter_id         = 0;
 
             //BUFFER UNIFORM
-             int32_t  buffer_uniform_getHighestNonNull();
-             int32_t  buffer_uniform_maxHighestNonNull = -1;
-            uint32_t  buffer_uniform_id    [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_offset[config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_uniform_size  [config::MAX_UNIFORM_BUFFER_BINDINGS] = {};
+             int32_t   buffer_uniform_highestActiveBinding = -1;
+             int32_t   buffer_uniform_getHighestNonNull();
+             int32_t   buffer_uniform_maxHighestNonNull = -1;
+            uint32_t*  buffer_uniform_id = 0;
+            uintptr_t* buffer_uniform_offset;
+            uintptr_t* buffer_uniform_size;
 
             //BUFFER ATOMIC COUNTER
-             int32_t  buffer_atomicCounter_getHighestNonNull();
-             int32_t  buffer_atomicCounter_maxHighestNonNull = -1;
-            uint32_t  buffer_atomicCounter_id    [config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_offset[config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_atomicCounter_size  [config::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS] = {};
+             int32_t   buffer_atomicCounter_highestActiveBinding = -1;
+             int32_t   buffer_atomicCounter_getHighestNonNull();
+             int32_t   buffer_atomicCounter_maxHighestNonNull = -1;
+            uint32_t*  buffer_atomicCounter_id;
+            uintptr_t* buffer_atomicCounter_offset;
+            uintptr_t* buffer_atomicCounter_size;
 
             //BUFFER SHADER STORAGE
-             int32_t  buffer_shaderStorage_getHighestNonNull();
-             int32_t  buffer_shaderStorage_maxHighestNonNull = -1;
-            uint32_t  buffer_shaderStorage_id    [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_offset[config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
-            uintptr_t buffer_shaderStorage_size  [config::MAX_SHADERSTORAGE_BUFFER_BINDINGS] = {};
+             int32_t   buffer_shaderStorage_highestActiveBinding = -1;
+             int32_t   buffer_shaderStorage_getHighestNonNull();
+             int32_t   buffer_shaderStorage_maxHighestNonNull = -1;
+            uint32_t*  buffer_shaderStorage_id;
+            uintptr_t* buffer_shaderStorage_offset;
+            uintptr_t* buffer_shaderStorage_size;
 
             //PIXEL PACK BUFFERS (INTERNAL ONLY)
-            uint32_t  buffer_pixelPackId   = 0;
-            uint32_t  buffer_pixelUnpackId = 0;
+            uint32_t   buffer_pixelPackId   = 0;
+            uint32_t   buffer_pixelUnpackId = 0;
 
             //COPY READ/WRITE BUFFERS (INTERNAL ONLY)
-            uint32_t  buffer_copyReadId  = 0;
-            uint32_t  buffer_copyWriteId = 0;
+            uint32_t   buffer_copyReadId  = 0;
+            uint32_t   buffer_copyWriteId = 0;
 
             //TEXTURE
-            uint32_t  activeTextureSlot = 0; //caching of "GL_TEXTURE0 + i" value for old style binding
-             int32_t  texture_getHighestNonNull();
-             int32_t  texture_maxHighestNonNull = -1;
-            uint32_t  texture_id    [config::MAX_SAMPLER_BINDINGS] = {};
-             int32_t  texture_target[config::MAX_SAMPLER_BINDINGS] = {};
+             int32_t   sampler_highestActiveBinding = -1;
+            uint32_t   activeTextureSlot = 0; //caching of "GL_TEXTURE0 + i" value for old style binding
+             int32_t   texture_getHighestNonNull();
+             int32_t   texture_maxHighestNonNull = -1;
+            uint32_t*  texture_id;
+             int32_t*  texture_target;
 
             //SAMPLER
-             int32_t  sampler_getHighestNonNull();
-             int32_t  sampler_maxHighestNonNull = -1;
-            uint32_t  sampler_id[config::MAX_SAMPLER_BINDINGS] = {};
+             int32_t   sampler_getHighestNonNull();
+             int32_t   sampler_maxHighestNonNull = -1;
+            uint32_t*  sampler_id;
 
             //IMAGE
-             int32_t  image_getHighestNonNull();
-             int32_t  image_maxHighestNonNull = -1;
-            uint32_t  image_id         [config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_format     [config::MAX_IMAGE_BINDINGS] = {};
-            uint32_t  image_mipmapLevel[config::MAX_IMAGE_BINDINGS] = {};
-             int32_t  image_layer      [config::MAX_IMAGE_BINDINGS] = {};
+             int32_t   image_highestActiveBinding = -1;
+             int32_t   image_getHighestNonNull();
+             int32_t   image_maxHighestNonNull = -1;
+            uint32_t*  image_id;
+            uint32_t*  image_format;
+            uint32_t*  image_mipmapLevel;
+             int32_t*  image_layer;
 
             //Graphics pipeline state
             PipelineRasterizationStateChange pipelineRasterizationStateChangePending;

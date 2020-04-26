@@ -214,8 +214,8 @@ namespace glCompact {
     }
 
     void PipelineCompute::processPendingChanges() {
-        PipelineInterface::processPendingChanges();
         processPendingChangesPipeline();
+        PipelineInterface::processPendingChanges();
     }
 
     void PipelineCompute::processPendingChangesPipeline() {
