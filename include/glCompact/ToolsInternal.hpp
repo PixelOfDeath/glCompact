@@ -62,33 +62,62 @@ namespace glCompact {
     }
 
     namespace {
-        template<bool setValue, typename Tinit, typename T>
-        void multiNewPlacement(uintptr_t& currentOffset, T*& ptr, uintptr_t count, Tinit initValue) {
-            if (count) {
-                currentOffset  = alignTo(currentOffset, alignof(T));
-                ptr            = reinterpret_cast<T*>(currentOffset);
-                currentOffset += sizeof(T) * count;
-            } else {
-                ptr            = reinterpret_cast<T*>(currentOffset);
-            }
-            if (setValue)
+        template<bool modifiyPtr, typename T, typename Tinit>
+        void multiNewPlacement(uintptr_t& currentOffset, T*& ptr, uintptr_t count, const Tinit initValue) {
+            if (modifiyPtr) {
+                ptr = reinterpret_cast<T*>(count ? alignTo(currentOffset, alignof(T)) : currentOffset);
                 for (uintptr_t i = 0; i < count; ++i) new (ptr + i)T(initValue);
+            }
+            if (count) currentOffset = alignTo(currentOffset, alignof(T)) + sizeof(T) * count;
         }
 
-        template<bool setValue, typename T, typename Tinit, typename... Args>
-        void multiNewPlacement(uintptr_t& currentOffset, T*& ptr, uintptr_t count, Tinit initValue, Args&&... args) {
-            multiNewPlacement<setValue>(currentOffset, ptr, count, initValue);
-            multiNewPlacement<setValue>(currentOffset, args...);
+        template<bool modifiyPtr, typename T, typename Tinit, typename... Args>
+        void multiNewPlacement(uintptr_t& currentOffset, T*& ptr, uintptr_t count, const Tinit initValue, Args&&... args) {
+            multiNewPlacement<modifiyPtr>(currentOffset, ptr, count, initValue);
+            multiNewPlacement<modifiyPtr>(currentOffset, args...);
+        }
+
+        template<bool modifiyPtr, typename T, typename Tinit>
+        void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
+            if (modifiyPtr) {
+                T* oldPtr = reinterpret_cast<T*>(oldCount ? alignTo(oldCurrentOffset, alignof(T)) : oldCurrentOffset);
+                T* newPtr = reinterpret_cast<T*>(newCount ? alignTo(newCurrentOffset, alignof(T)) : newCurrentOffset);
+                uintptr_t i = 0;
+                for (; i < std::min(oldCount, newCount); ++i) new (newPtr + i)T(std::move(oldPtr[i])); //newPtr[i] = std::move(oldPtr[i]);
+                for (; i <                    newCount ; ++i) new (newPtr + i)T(initValue);
+                for (; i <                    oldCount ; ++i) oldPtr[i].~T();
+                ptr = newPtr;
+            }
+            if (oldCount) oldCurrentOffset = alignTo(oldCurrentOffset, alignof(T)) + sizeof(T) * oldCount;
+            if (newCount) newCurrentOffset = alignTo(newCurrentOffset, alignof(T)) + sizeof(T) * newCount;
+        }
+
+        template<bool modifiyPtr, typename T, typename Tinit, typename... Args>
+        void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
+            multiReNewPlacement<modifiyPtr>(oldCurrentOffset, newCurrentOffset, ptr, oldCount, newCount, initValue);
+            multiReNewPlacement<modifiyPtr>(oldCurrentOffset, newCurrentOffset, args...);
         }
     }
+
+    //TODO: malloc is only aligned to 16 byte, so if the first type has a larger alignment it could randomly break calling free on that pointer!
 
     template<typename T, typename Tinit, typename... Args>
     void multiNew(T*& ptr, uintptr_t count, Tinit initValue, Args&&... args) {
         uintptr_t currentOffset = 0;
         multiNewPlacement<0>(currentOffset, ptr, count, initValue, args...);
-        uintptr_t mallocSize = currentOffset;
-        void* multiPtr = malloc(mallocSize);
-        currentOffset = reinterpret_cast<uintptr_t>(multiPtr);
+        currentOffset = reinterpret_cast<uintptr_t>(malloc(currentOffset));
         multiNewPlacement<1>(currentOffset, ptr, count, initValue, args...);
+    }
+
+    template<typename T, typename Tinit, typename... Args>
+    void multiReNew(T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
+        void* firstPtr = ptr;
+        uintptr_t oldCurrentOffset = 0;
+        uintptr_t newCurrentOffset = 0;
+        multiReNewPlacement<0>(oldCurrentOffset, newCurrentOffset, ptr, oldCount, newCount, initValue, args...);
+        oldCurrentOffset = reinterpret_cast<uintptr_t>(firstPtr);
+        newCurrentOffset = reinterpret_cast<uintptr_t>(malloc(newCurrentOffset));
+        multiReNewPlacement<1>(oldCurrentOffset, newCurrentOffset, ptr, oldCount, newCount, initValue, args...);
+        free(firstPtr);
     }
 }
