@@ -1019,7 +1019,9 @@ namespace glCompact {
         }
     }
 
-    void PipelineInterface::buffer_attribute_markSlotChange(int32_t slot) {
+    void PipelineInterface::buffer_attribute_markSlotChange(
+        int32_t slot
+    ) {
         buffer_attribute_changedSlotMin = min(buffer_attribute_changedSlotMin, slot);
         buffer_attribute_changedSlotMax = max(buffer_attribute_changedSlotMax, slot);
     }
@@ -1571,6 +1573,7 @@ namespace glCompact {
         processPendingChangesImages();
         threadContext->processPendingChangesMemoryBarriers();
     }
+
 
     void PipelineInterface::processPendingChangesPipeline() {
         threadContext->attributeLayoutChanged = 1;
