@@ -1598,39 +1598,28 @@ namespace glCompact {
         ||  threadContext->image_highestActiveBinding                < image_highestActiveBinding
         ) {
             multiReNew(
-                threadContext->buffer_uniform_id,              threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1, 0,
-                threadContext->buffer_uniform_offset,          threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1, 0,
-                threadContext->buffer_uniform_size,            threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1, 0,
-                threadContext->buffer_atomicCounter_id,        threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1, 0,
-                threadContext->buffer_atomicCounter_offset,    threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1, 0,
-                threadContext->buffer_atomicCounter_size,      threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1, 0,
-                threadContext->buffer_shaderStorage_id,        threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1, 0,
-                threadContext->buffer_shaderStorage_offset,    threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1, 0,
-                threadContext->buffer_shaderStorage_size,      threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1, 0,
-                threadContext->texture_id,                     threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1, 0,
-                threadContext->texture_target,                 threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1, 0,
-                threadContext->sampler_id,                     threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1, 0,
-                threadContext->image_id,                       threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0,
-                threadContext->image_format,                   threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0,
-                threadContext->image_mipmapLevel,              threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0,
-                threadContext->image_layer,                    threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1, 0
+                threadContext->buffer_uniform_id,              threadContext->buffer_uniform_highestActiveBinding       + 1, max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1), 0,
+                threadContext->buffer_uniform_offset,          threadContext->buffer_uniform_highestActiveBinding       + 1, max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1), 0,
+                threadContext->buffer_uniform_size,            threadContext->buffer_uniform_highestActiveBinding       + 1, max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1), 0,
+                threadContext->buffer_atomicCounter_id,        threadContext->buffer_atomicCounter_highestActiveBinding + 1, max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1), 0,
+                threadContext->buffer_atomicCounter_offset,    threadContext->buffer_atomicCounter_highestActiveBinding + 1, max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1), 0,
+                threadContext->buffer_atomicCounter_size,      threadContext->buffer_atomicCounter_highestActiveBinding + 1, max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1), 0,
+                threadContext->buffer_shaderStorage_id,        threadContext->buffer_shaderStorage_highestActiveBinding + 1, max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1), 0,
+                threadContext->buffer_shaderStorage_offset,    threadContext->buffer_shaderStorage_highestActiveBinding + 1, max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1), 0,
+                threadContext->buffer_shaderStorage_size,      threadContext->buffer_shaderStorage_highestActiveBinding + 1, max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1), 0,
+                threadContext->texture_id,                     threadContext->sampler_highestActiveBinding              + 1, max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1), 0,
+                threadContext->texture_target,                 threadContext->sampler_highestActiveBinding              + 1, max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1), 0,
+                threadContext->sampler_id,                     threadContext->sampler_highestActiveBinding              + 1, max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1), 0,
+                threadContext->image_id,                       threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0,
+                threadContext->image_format,                   threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0,
+                threadContext->image_mipmapLevel,              threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0,
+                threadContext->image_layer,                    threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0
             );
-            threadContext->buffer_uniform_highestActiveBinding       = buffer_uniform_highestActiveBinding;
-            threadContext->buffer_uniform_highestActiveBinding       = buffer_uniform_highestActiveBinding;
-            threadContext->buffer_uniform_highestActiveBinding       = buffer_uniform_highestActiveBinding;
-            threadContext->buffer_atomicCounter_highestActiveBinding = buffer_atomicCounter_highestActiveBinding;
-            threadContext->buffer_atomicCounter_highestActiveBinding = buffer_atomicCounter_highestActiveBinding;
-            threadContext->buffer_atomicCounter_highestActiveBinding = buffer_atomicCounter_highestActiveBinding;
-            threadContext->buffer_shaderStorage_highestActiveBinding = buffer_shaderStorage_highestActiveBinding;
-            threadContext->buffer_shaderStorage_highestActiveBinding = buffer_shaderStorage_highestActiveBinding;
-            threadContext->buffer_shaderStorage_highestActiveBinding = buffer_shaderStorage_highestActiveBinding;
-            threadContext->sampler_highestActiveBinding              = sampler_highestActiveBinding;
-            threadContext->sampler_highestActiveBinding              = sampler_highestActiveBinding;
-            threadContext->sampler_highestActiveBinding              = sampler_highestActiveBinding;
-            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
-            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
-            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
-            threadContext->image_highestActiveBinding                = image_highestActiveBinding;
+            threadContext->buffer_uniform_highestActiveBinding       = max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1);
+            threadContext->buffer_atomicCounter_highestActiveBinding = max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1);
+            threadContext->buffer_shaderStorage_highestActiveBinding = max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1);
+            threadContext->sampler_highestActiveBinding              = max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1);
+            threadContext->image_highestActiveBinding                = max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1);
         }
     }
 
