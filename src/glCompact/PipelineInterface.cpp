@@ -1544,23 +1544,23 @@ namespace glCompact {
     }
 
     void PipelineInterface::allocateMemory() {
-        multiNew(
-            buffer_uniform_id,              buffer_uniform_highestActiveBinding       + 1, 0,
-            buffer_uniform_offset,          buffer_uniform_highestActiveBinding       + 1, 0,
-            buffer_uniform_size,            buffer_uniform_highestActiveBinding       + 1, 0,
-            buffer_atomicCounter_id,        buffer_atomicCounter_highestActiveBinding + 1, 0,
-            buffer_atomicCounter_offset,    buffer_atomicCounter_highestActiveBinding + 1, 0,
-            buffer_atomicCounter_size,      buffer_atomicCounter_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
-            buffer_shaderStorage_id,        buffer_shaderStorage_highestActiveBinding + 1, 0,
-            buffer_shaderStorage_offset,    buffer_shaderStorage_highestActiveBinding + 1, 0,
-            buffer_shaderStorage_size,      buffer_shaderStorage_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
-            texture_id,                     sampler_highestActiveBinding              + 1, 0,
-            texture_target,                 sampler_highestActiveBinding              + 1, 0,
-            sampler_id,                     sampler_highestActiveBinding              + 1, 0,
-            image_id,                       image_highestActiveBinding                + 1, 0,
-            image_format,                   image_highestActiveBinding                + 1, 0,
-            image_mipmapLevel,              image_highestActiveBinding                + 1, 0,
-            image_layer,                    image_highestActiveBinding                + 1, 0
+        multiReNew(
+            buffer_uniform_id,              0, buffer_uniform_highestActiveBinding       + 1, 0,
+            buffer_uniform_offset,          0, buffer_uniform_highestActiveBinding       + 1, 0,
+            buffer_uniform_size,            0, buffer_uniform_highestActiveBinding       + 1, 0,
+            buffer_atomicCounter_id,        0, buffer_atomicCounter_highestActiveBinding + 1, 0,
+            buffer_atomicCounter_offset,    0, buffer_atomicCounter_highestActiveBinding + 1, 0,
+            buffer_atomicCounter_size,      0, buffer_atomicCounter_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            buffer_shaderStorage_id,        0, buffer_shaderStorage_highestActiveBinding + 1, 0,
+            buffer_shaderStorage_offset,    0, buffer_shaderStorage_highestActiveBinding + 1, 0,
+            buffer_shaderStorage_size,      0, buffer_shaderStorage_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            texture_id,                     0, sampler_highestActiveBinding              + 1, 0,
+            texture_target,                 0, sampler_highestActiveBinding              + 1, 0,
+            sampler_id,                     0, sampler_highestActiveBinding              + 1, 0,
+            image_id,                       0, image_highestActiveBinding                + 1, 0,
+            image_format,                   0, image_highestActiveBinding                + 1, 0,
+            image_mipmapLevel,              0, image_highestActiveBinding                + 1, 0,
+            image_layer,                    0, image_highestActiveBinding                + 1, 0
         );
     }
 
