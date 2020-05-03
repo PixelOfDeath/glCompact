@@ -2,6 +2,7 @@
 //SHOULD NEVER BE INCLUDED IN HPP FILES TO NOT BLEED MACROS INTO OTHER PROJECTS!
 
 #include <string>
+#include <cstddef> //std::max_align_t
 
 #define LOOPINT(v, m_m) for(int v = 0; v < int(m_m); v++)
 #define LOOPI(m_m) LOOPINT(i,m_m)
@@ -64,6 +65,7 @@ namespace glCompact {
     namespace {
         template<bool modifiyPtr, typename T, typename Tinit>
         void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
+            static_assert(alignof(T) <= alignof(std::max_align_t), "Only support alignment up to alignof(std::max_align_t)");
             if (modifiyPtr) {
                 T* oldPtr = reinterpret_cast<T*>(oldCount ? alignTo(oldCurrentOffset, alignof(T)) : oldCurrentOffset);
                 T* newPtr = reinterpret_cast<T*>(newCount ? alignTo(newCurrentOffset, alignof(T)) : newCurrentOffset);
@@ -84,7 +86,7 @@ namespace glCompact {
         }
     }
 
-    //TODO: malloc is only aligned to 16 byte, so if the first type has a larger alignment it could randomly break calling free on that pointer!
+    //Currently this function is limited to alignof(std::max_align_t)
     template<typename T, typename Tinit, typename... Args>
     void multiReNew(T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
         void* firstPtr = ptr;
