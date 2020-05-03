@@ -71,7 +71,6 @@ namespace glCompact {
     namespace {
         template<bool modifiyPtr, typename T, typename Tinit>
         void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
-            static_assert(alignof(T) <= alignof(std::max_align_t), "Only support alignment up to alignof(std::max_align_t)");
             if (modifiyPtr) {
                 T* oldPtr = reinterpret_cast<T*>(oldCount ? alignTo(oldCurrentOffset, alignof(T)) : oldCurrentOffset);
                 T* newPtr = reinterpret_cast<T*>(newCount ? alignTo(newCurrentOffset, alignof(T)) : newCurrentOffset);
@@ -90,6 +89,16 @@ namespace glCompact {
             multiReNewPlacement<modifiyPtr>(oldCurrentOffset, newCurrentOffset, ptr, oldCount, newCount, initValue);
             multiReNewPlacement<modifiyPtr>(oldCurrentOffset, newCurrentOffset, args...);
         }
+
+        template<typename T, typename, typename, typename>
+        constexpr uintptr_t multiReNewGetMaxAlign() {
+            return alignof(T);
+        }
+
+        template<typename T, typename, typename, typename, typename Arg0, typename... Args>
+        constexpr uintptr_t multiReNewGetMaxAlign() {
+            return max(alignof(T), multiReNewGetMaxAlign<Arg0, Args...>());
+        }
     }
 
     //Currently this function is limited to alignof(std::max_align_t)
@@ -97,6 +106,8 @@ namespace glCompact {
     void multiReNew(T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
         void* firstPtr = ptr;
         uintptr_t oldCurrentOffset, newCurrentOffset;
+        constexpr uintptr_t maxAlign = multiReNewGetMaxAlign<T, uintptr_t, uintptr_t, const Tinit, Args...>();
+        static_assert(maxAlign <= alignof(std::max_align_t), "Only support alignment up to alignof(std::max_align_t)");
         multiReNewPlacement<0>(oldCurrentOffset = 0,                   newCurrentOffset = 0,                                   ptr, oldCount, newCount, initValue, args...);
         multiReNewPlacement<1>(oldCurrentOffset = uintptr_t(firstPtr), newCurrentOffset = uintptr_t(malloc(newCurrentOffset)), ptr, oldCount, newCount, initValue, args...);
         free(firstPtr);
