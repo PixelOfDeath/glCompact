@@ -28,7 +28,7 @@ namespace glCompact {
     }
     */
 
-    #if __cplusplus > 201703L //C++20
+    #if __cplusplus > 201703L //C++20 (this actually just tests if __cplusplus is higher then C++17)
         #define LIKELY_IF  (x) if (x) [[likely]]
         #define UNLIKELY_IF(x) if (x) [[unlikely]]
     #elif defined(__GNUC__) || defined(__clang__)
