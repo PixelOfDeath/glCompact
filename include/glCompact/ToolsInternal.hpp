@@ -62,6 +62,12 @@ namespace glCompact {
         return (value % alignTo) ? (value + (alignTo - (value % alignTo))) : value;
     }
 
+    //C++11 std::max is NOT constexpr!
+    template<typename T>
+    constexpr T max(T l, T r) {
+        return (l >= r) ? l : r;
+    }
+
     namespace {
         template<bool modifiyPtr, typename T, typename Tinit>
         void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
