@@ -69,9 +69,9 @@ namespace glCompact {
     }
 
     namespace {
-        template<bool modifiyPtr, typename T, typename Tinit>
+        template<bool modifyPtr, typename T, typename Tinit>
         void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
-            if (modifiyPtr) {
+            if (modifyPtr) {
                 T* oldPtr = reinterpret_cast<T*>(oldCount ? alignTo(oldCurrentOffset, alignof(T)) : oldCurrentOffset);
                 T* newPtr = reinterpret_cast<T*>(newCount ? alignTo(newCurrentOffset, alignof(T)) : newCurrentOffset);
                 uintptr_t i = 0;
@@ -84,10 +84,10 @@ namespace glCompact {
             if (newCount) newCurrentOffset = alignTo(newCurrentOffset, alignof(T)) + sizeof(T) * newCount;
         }
 
-        template<bool modifiyPtr, typename T, typename Tinit, typename... Args>
+        template<bool modifyPtr, typename T, typename Tinit, typename... Args>
         void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
-            multiReNewPlacement<modifiyPtr>(oldCurrentOffset, newCurrentOffset, ptr, oldCount, newCount, initValue);
-            multiReNewPlacement<modifiyPtr>(oldCurrentOffset, newCurrentOffset, args...);
+            multiReNewPlacement<modifyPtr>(oldCurrentOffset, newCurrentOffset, ptr, oldCount, newCount, initValue);
+            multiReNewPlacement<modifyPtr>(oldCurrentOffset, newCurrentOffset, args...);
         }
 
         template<typename T, typename, typename, typename>
