@@ -105,8 +105,8 @@ namespace glCompact {
             AttributeLayoutStates attributeLayoutStates;
 
             //BUFFER ATTRIBUTE
-             int32_t   buffer_attribute_getHighestNonNull();
-             int32_t   buffer_attribute_maxHighestNonNull = -1;
+             int32_t   buffer_attribute_getHighestIndexNonNull();
+             int32_t   buffer_attribute_highestIndexNonNull = -1;
             uint32_t   buffer_attribute_id    [config::MAX_ATTRIBUTES] = {};
             uintptr_t  buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
 
@@ -122,24 +122,24 @@ namespace glCompact {
 
             //BUFFER UNIFORM
              int32_t   buffer_uniform_count = 0;
-             int32_t   buffer_uniform_getHighestNonNull();
-             int32_t   buffer_uniform_maxHighestNonNull = -1;
+             int32_t   buffer_uniform_getHighestIndexNonNull();
+             int32_t   buffer_uniform_highestIndexNonNull = -1;
             uint32_t*  buffer_uniform_id = 0;
             uintptr_t* buffer_uniform_offset;
             uintptr_t* buffer_uniform_size;
 
             //BUFFER ATOMIC COUNTER
              int32_t   buffer_atomicCounter_count = 0;
-             int32_t   buffer_atomicCounter_getHighestNonNull();
-             int32_t   buffer_atomicCounter_maxHighestNonNull = -1;
+             int32_t   buffer_atomicCounter_getHighestIndexNonNull();
+             int32_t   buffer_atomicCounter_highestIndexNonNull = -1;
             uint32_t*  buffer_atomicCounter_id;
             uintptr_t* buffer_atomicCounter_offset;
             uintptr_t* buffer_atomicCounter_size;
 
             //BUFFER SHADER STORAGE
              int32_t   buffer_shaderStorage_count = 0;
-             int32_t   buffer_shaderStorage_getHighestNonNull();
-             int32_t   buffer_shaderStorage_maxHighestNonNull = -1;
+             int32_t   buffer_shaderStorage_getHighestIndexNonNull();
+             int32_t   buffer_shaderStorage_highestIndexNonNull = -1;
             uint32_t*  buffer_shaderStorage_id;
             uintptr_t* buffer_shaderStorage_offset;
             uintptr_t* buffer_shaderStorage_size;
@@ -155,20 +155,20 @@ namespace glCompact {
             //TEXTURE
              int32_t   sampler_count = 0;
             uint32_t   activeTextureSlot = 0; //caching of "GL_TEXTURE0 + i" value for old style binding
-             int32_t   texture_getHighestNonNull();
-             int32_t   texture_maxHighestNonNull = -1;
+             int32_t   texture_getHighestIndexNonNull();
+             int32_t   texture_highestIndexNonNull = -1;
             uint32_t*  texture_id;
              int32_t*  texture_target;
 
             //SAMPLER
-             int32_t   sampler_getHighestNonNull();
-             int32_t   sampler_maxHighestNonNull = -1;
+             int32_t   sampler_getHighestIndexNonNull();
+             int32_t   sampler_highestIndexNonNull = -1;
             uint32_t*  sampler_id;
 
             //IMAGE
              int32_t   image_count = 0;
-             int32_t   image_getHighestNonNull();
-             int32_t   image_maxHighestNonNull = -1;
+             int32_t   image_getHighestIndexNonNull();
+             int32_t   image_highestIndexNonNull = -1;
             uint32_t*  image_id;
             uint32_t*  image_format;
             uint32_t*  image_mipmapLevel;

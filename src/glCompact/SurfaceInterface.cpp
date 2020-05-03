@@ -53,12 +53,12 @@ namespace glCompact {
         if (!id) return;
         //TODO
         if (threadContext) {
-            LOOPI(threadContext->texture_getHighestNonNull()) {
+            LOOPI(threadContext->texture_getHighestIndexNonNull()) {
                 if (threadContext->texture_id[i] == id) {
                     threadContext->texture_id[i] = 0;
                 }
             }
-            LOOPI(threadContext->image_getHighestNonNull()) {
+            LOOPI(threadContext->image_getHighestIndexNonNull()) {
                 if (threadContext->image_id[i] == id) {
                     threadContext->image_id[i] = 0;
                     //TODO: set the rest values to NULL, too?

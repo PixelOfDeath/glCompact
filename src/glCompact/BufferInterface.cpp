@@ -316,7 +316,7 @@ namespace glCompact {
               detachAndUnbindBufferFromThreadContext
         */
         if (threadContext) {
-            LOOPI(threadContext->buffer_attribute_getHighestNonNull()) {
+            LOOPI(threadContext->buffer_attribute_getHighestIndexNonNull()) {
                 if (threadContext->buffer_attribute_id    [i] == id) {
                     threadContext->buffer_attribute_id    [i] = 0;
                     threadContext->buffer_attribute_offset[i] = 0;
@@ -332,7 +332,7 @@ namespace glCompact {
             if (threadContext->buffer_dispatch_indirect_id == id) threadContext->buffer_dispatch_indirect_id = 0;
             if (threadContext->buffer_parameter_id         == id) threadContext->buffer_parameter_id         = 0;
 
-            LOOPI(threadContext->buffer_uniform_getHighestNonNull()) {
+            LOOPI(threadContext->buffer_uniform_getHighestIndexNonNull()) {
                 if (threadContext->buffer_uniform_id    [i] == id) {
                     threadContext->buffer_uniform_id    [i] = 0;
                     threadContext->buffer_uniform_offset[i] = 0;

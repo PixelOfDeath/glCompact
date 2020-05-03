@@ -120,39 +120,39 @@ namespace glCompact {
         buffer_copyWriteId   = 0;
     }
 
-    int32_t Context::buffer_attribute_getHighestNonNull() {
-        while (buffer_attribute_maxHighestNonNull >= 0 && buffer_attribute_id[buffer_attribute_maxHighestNonNull] == 0) buffer_attribute_maxHighestNonNull--;
-        return buffer_attribute_maxHighestNonNull;
+    int32_t Context::buffer_attribute_getHighestIndexNonNull() {
+        while (buffer_attribute_highestIndexNonNull >= 0 && buffer_attribute_id[buffer_attribute_highestIndexNonNull] == 0) buffer_attribute_highestIndexNonNull--;
+        return buffer_attribute_highestIndexNonNull;
     }
 
-    int32_t Context::buffer_uniform_getHighestNonNull() {
-        while (buffer_uniform_maxHighestNonNull >= 0 && buffer_uniform_id[buffer_uniform_maxHighestNonNull] == 0) buffer_uniform_maxHighestNonNull--;
-        return buffer_uniform_maxHighestNonNull;
+    int32_t Context::buffer_uniform_getHighestIndexNonNull() {
+        while (buffer_uniform_highestIndexNonNull >= 0 && buffer_uniform_id[buffer_uniform_highestIndexNonNull] == 0) buffer_uniform_highestIndexNonNull--;
+        return buffer_uniform_highestIndexNonNull;
     }
 
-    int32_t Context::buffer_atomicCounter_getHighestNonNull() {
-        while (buffer_atomicCounter_maxHighestNonNull >= 0 && buffer_atomicCounter_id[buffer_atomicCounter_maxHighestNonNull] == 0) buffer_atomicCounter_maxHighestNonNull--;
-        return buffer_atomicCounter_maxHighestNonNull;
+    int32_t Context::buffer_atomicCounter_getHighestIndexNonNull() {
+        while (buffer_atomicCounter_highestIndexNonNull >= 0 && buffer_atomicCounter_id[buffer_atomicCounter_highestIndexNonNull] == 0) buffer_atomicCounter_highestIndexNonNull--;
+        return buffer_atomicCounter_highestIndexNonNull;
     }
 
-    int32_t Context::buffer_shaderStorage_getHighestNonNull() {
-        while (buffer_shaderStorage_maxHighestNonNull >= 0 && buffer_shaderStorage_id[buffer_shaderStorage_maxHighestNonNull] == 0) buffer_shaderStorage_maxHighestNonNull--;
-        return buffer_shaderStorage_maxHighestNonNull;
+    int32_t Context::buffer_shaderStorage_getHighestIndexNonNull() {
+        while (buffer_shaderStorage_highestIndexNonNull >= 0 && buffer_shaderStorage_id[buffer_shaderStorage_highestIndexNonNull] == 0) buffer_shaderStorage_highestIndexNonNull--;
+        return buffer_shaderStorage_highestIndexNonNull;
     }
 
-    int32_t Context::texture_getHighestNonNull() {
-        while (texture_maxHighestNonNull >= 0 && texture_id[texture_maxHighestNonNull] == 0) texture_maxHighestNonNull--;
-        return texture_maxHighestNonNull;
+    int32_t Context::texture_getHighestIndexNonNull() {
+        while (texture_highestIndexNonNull >= 0 && texture_id[texture_highestIndexNonNull] == 0) texture_highestIndexNonNull--;
+        return texture_highestIndexNonNull;
     }
 
-    int32_t Context::sampler_getHighestNonNull() {
-        while (sampler_maxHighestNonNull >= 0 && sampler_id[sampler_maxHighestNonNull] == 0) sampler_maxHighestNonNull--;
-        return sampler_maxHighestNonNull;
+    int32_t Context::sampler_getHighestIndexNonNull() {
+        while (sampler_highestIndexNonNull >= 0 && sampler_id[sampler_highestIndexNonNull] == 0) sampler_highestIndexNonNull--;
+        return sampler_highestIndexNonNull;
     }
 
-    int32_t Context::image_getHighestNonNull() {
-        while (image_maxHighestNonNull >= 0 && image_id[image_maxHighestNonNull] == 0) image_maxHighestNonNull--;
-        return image_maxHighestNonNull;
+    int32_t Context::image_getHighestIndexNonNull() {
+        while (image_highestIndexNonNull >= 0 && image_id[image_highestIndexNonNull] == 0) image_highestIndexNonNull--;
+        return image_highestIndexNonNull;
     }
 
     /**
