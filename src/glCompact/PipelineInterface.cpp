@@ -115,7 +115,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!texture.id)
             throw std::runtime_error("empty texture not accepted!");
-        UNLIKELY_IF (int32_t(slot) > sampler_highestActiveBinding) return; //TODO: would break if anyone uses slot value over 0x8FFFFFFFF
+        UNLIKELY_IF (int32_t(slot) >= sampler_count) return; //TODO: would break if anyone uses slot value over 0x8FFFFFFFF
 
         texture_id    [slot] = texture.id;
         texture_target[slot] = texture.target;
@@ -125,7 +125,7 @@ namespace glCompact {
     void PipelineInterface::setTexture(
         uint32_t slot
     ) {
-        if (int32_t(slot) > sampler_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= sampler_count) return;
 
         texture_id    [slot] = 0;
         texture_target[slot] = 0;
@@ -133,19 +133,19 @@ namespace glCompact {
     }
 
     void PipelineInterface::setTexture() {
-        for (int32_t i = 0; i <= sampler_highestActiveBinding; ++i) {
+        for (int32_t i = 0; i < sampler_count; ++i) {
             texture_id    [i] = 0;
             texture_target[i] = 0;
         }
         texture_changedSlotMin = 0;
-        texture_changedSlotMax = sampler_highestActiveBinding;
+        texture_changedSlotMax = sampler_count - 1;
     }
 
     void PipelineInterface::setSampler(
         uint32_t       slot,
         const Sampler& sampler
     ) {
-        if (int32_t(slot) > sampler_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= sampler_count) return;
 
         sampler_id[slot] = sampler.id;
         sampler_markSlotChange(slot);
@@ -154,16 +154,16 @@ namespace glCompact {
     void PipelineInterface::setSampler(
         uint32_t slot
     ) {
-        if (int32_t(slot) > sampler_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= sampler_count) return;
 
         sampler_id[slot] = 0;
         sampler_markSlotChange(slot);
     }
 
     void PipelineInterface::setSampler() {
-        for (int32_t i = 0; i <= sampler_highestActiveBinding; ++i) sampler_id[i] = 0;
+        for (int32_t i = 0; i < sampler_count; ++i) sampler_id[i] = 0;
         sampler_changedSlotMin = 0;
-        sampler_changedSlotMax = sampler_highestActiveBinding;
+        sampler_changedSlotMax = sampler_count - 1;
     }
 
     void PipelineInterface::setUniformBuffer(
@@ -173,7 +173,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty Buffer!");
-        UNLIKELY_IF (int32_t(slot) > buffer_uniform_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_uniform_count) return;
 
         buffer_uniform_id    [slot] = buffer.id;
         buffer_uniform_offset[slot] = offset;
@@ -189,7 +189,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty Buffer!");
-        UNLIKELY_IF (int32_t(slot) > buffer_uniform_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_uniform_count) return;
 
         buffer_uniform_id    [slot] = buffer.id;
         buffer_uniform_offset[slot] = offset;
@@ -200,16 +200,16 @@ namespace glCompact {
     void PipelineInterface::setUniformBuffer(
         uint32_t slot
     ) {
-        if (int32_t(slot) > buffer_uniform_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_uniform_count) return;
 
         buffer_uniform_id[slot] = 0;
         buffer_uniform_markSlotChange(slot);
     }
 
     void PipelineInterface::setUniformBuffer() {
-        for (int32_t i = 0; i <= buffer_uniform_highestActiveBinding; ++i) buffer_uniform_id[i] = 0;
+        for (int32_t i = 0; i < buffer_uniform_count; ++i) buffer_uniform_id[i] = 0;
         buffer_uniform_changedSlotMin = 0;
-        buffer_uniform_changedSlotMax = buffer_uniform_highestActiveBinding;
+        buffer_uniform_changedSlotMax = buffer_uniform_count - 1;
     }
 
     void PipelineInterface::setImage(
@@ -224,7 +224,7 @@ namespace glCompact {
         TextureSelector textureSelector,
         SurfaceFormat   surfaceFormat
     ){
-        if (int32_t(slot) > image_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= image_count) return;
 
         image_id         [slot] = textureSelector.texture->id;
         image_format     [slot] = surfaceFormat->sizedFormat;
@@ -236,16 +236,16 @@ namespace glCompact {
     void PipelineInterface::setImage(
         uint32_t slot
     ) {
-        if (int32_t(slot) > image_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= image_count) return;
 
         image_id[slot] = 0;
         image_markSlotChange(slot);
     }
 
     void PipelineInterface::setImage() {
-        for (int32_t i = 0; i <= image_highestActiveBinding; ++i) image_id[i] = 0;
+        for (int32_t i = 0; i < image_count; ++i) image_id[i] = 0;
         image_changedSlotMin = 0;
-        image_changedSlotMax = image_highestActiveBinding;
+        image_changedSlotMax = image_count - 1;
     }
 
     void PipelineInterface::setAtomicCounterBuffer(
@@ -264,7 +264,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty Buffer!");
-        UNLIKELY_IF (int32_t(slot) > buffer_atomicCounter_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_atomicCounter_count) return;
         UNLIKELY_IF (buffer.getSize() - offset < atomicCounterBindingList[slot].dataSize)
             throw std::runtime_error(string("")
             +   "Buffer does not have enough space after offset for all atomic counters!\n"
@@ -281,7 +281,7 @@ namespace glCompact {
     void PipelineInterface::setAtomicCounterBuffer(
         uint32_t slot
     ) {
-        if (int32_t(slot) > buffer_atomicCounter_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_atomicCounter_count) return;
 
         buffer_atomicCounter_id    [slot] = 0;
         buffer_atomicCounter_offset[slot] = 0;
@@ -290,13 +290,13 @@ namespace glCompact {
     }
 
     void PipelineInterface::setAtomicCounterBuffer() {
-        for (int32_t i = 0; i <= buffer_atomicCounter_highestActiveBinding; ++i) {
+        for (int32_t i = 0; i < buffer_atomicCounter_count; ++i) {
             buffer_atomicCounter_id    [i] = 0;
             buffer_atomicCounter_offset[i] = 0;
             buffer_atomicCounter_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         }
         buffer_atomicCounter_changedSlotMin = 0;
-        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_highestActiveBinding;
+        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
     }
 
     void PipelineInterface::setShaderStorageBuffer(
@@ -306,7 +306,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty Buffer!");
-        UNLIKELY_IF (int32_t(slot) > buffer_shaderStorage_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_shaderStorage_count) return;
 
         setShaderStorageBuffer(slot, buffer, offset, buffer.size_);
     }
@@ -319,7 +319,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty Buffer!");
-        UNLIKELY_IF (int32_t(slot) > buffer_shaderStorage_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_shaderStorage_count) return;
 
         buffer_shaderStorage_id    [slot] = buffer.id;
         buffer_shaderStorage_offset[slot] = offset;
@@ -330,7 +330,7 @@ namespace glCompact {
     void PipelineInterface::setShaderStorageBuffer(
         uint32_t slot
     ) {
-        if (int32_t(slot) > buffer_shaderStorage_highestActiveBinding) return;
+        UNLIKELY_IF (int32_t(slot) >= buffer_shaderStorage_count) return;
 
         buffer_shaderStorage_id    [slot] = 0;
         buffer_shaderStorage_offset[slot] = 0;
@@ -339,13 +339,13 @@ namespace glCompact {
     }
 
     void PipelineInterface::setShaderStorageBuffer() {
-        for (int i = 0; i <= buffer_shaderStorage_highestActiveBinding; ++i) {
+        for (int i = 0; i < buffer_shaderStorage_count; ++i) {
             buffer_shaderStorage_id    [i] = 0;
             buffer_shaderStorage_offset[i] = 0;
             buffer_shaderStorage_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         }
         buffer_shaderStorage_changedSlotMin = 0;
-        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_highestActiveBinding;
+        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_count - 1;
     }
 
     void PipelineInterface::detachFromThreadContext() {
@@ -1536,31 +1536,31 @@ namespace glCompact {
                 storageBlockList.push_back(sb);
             }
         }
-        sampler_highestActiveBinding               = samplerList.size();
-        for (const auto& ub : uniformBlockList) buffer_uniform_highestActiveBinding = max(buffer_uniform_highestActiveBinding, ub.binding);
-        image_highestActiveBinding                 = imageList.size();
-        buffer_atomicCounter_highestActiveBinding  = atomicCounterBindingList.size();
-        for (const auto& sb : storageBlockList) buffer_shaderStorage_highestActiveBinding = max(buffer_shaderStorage_highestActiveBinding, sb.binding);
+        sampler_count               = samplerList.size();
+        for (const auto& ub : uniformBlockList) buffer_uniform_count = max(buffer_uniform_count, ub.binding + 1);
+        image_count                 = imageList.size();
+        buffer_atomicCounter_count  = atomicCounterBindingList.size();
+        for (const auto& sb : storageBlockList) buffer_shaderStorage_count = max(buffer_shaderStorage_count, sb.binding + 1);
     }
 
     void PipelineInterface::allocateMemory() {
         multiReNew(
-            buffer_uniform_id,              0, buffer_uniform_highestActiveBinding       + 1, 0,
-            buffer_uniform_offset,          0, buffer_uniform_highestActiveBinding       + 1, 0,
-            buffer_uniform_size,            0, buffer_uniform_highestActiveBinding       + 1, 0,
-            buffer_atomicCounter_id,        0, buffer_atomicCounter_highestActiveBinding + 1, 0,
-            buffer_atomicCounter_offset,    0, buffer_atomicCounter_highestActiveBinding + 1, 0,
-            buffer_atomicCounter_size,      0, buffer_atomicCounter_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
-            buffer_shaderStorage_id,        0, buffer_shaderStorage_highestActiveBinding + 1, 0,
-            buffer_shaderStorage_offset,    0, buffer_shaderStorage_highestActiveBinding + 1, 0,
-            buffer_shaderStorage_size,      0, buffer_shaderStorage_highestActiveBinding + 1, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
-            texture_id,                     0, sampler_highestActiveBinding              + 1, 0,
-            texture_target,                 0, sampler_highestActiveBinding              + 1, 0,
-            sampler_id,                     0, sampler_highestActiveBinding              + 1, 0,
-            image_id,                       0, image_highestActiveBinding                + 1, 0,
-            image_format,                   0, image_highestActiveBinding                + 1, 0,
-            image_mipmapLevel,              0, image_highestActiveBinding                + 1, 0,
-            image_layer,                    0, image_highestActiveBinding                + 1, 0
+            buffer_uniform_id,              0, buffer_uniform_count      , 0,
+            buffer_uniform_offset,          0, buffer_uniform_count      , 0,
+            buffer_uniform_size,            0, buffer_uniform_count      , 0,
+            buffer_atomicCounter_id,        0, buffer_atomicCounter_count, 0,
+            buffer_atomicCounter_offset,    0, buffer_atomicCounter_count, 0,
+            buffer_atomicCounter_size,      0, buffer_atomicCounter_count, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            buffer_shaderStorage_id,        0, buffer_shaderStorage_count, 0,
+            buffer_shaderStorage_offset,    0, buffer_shaderStorage_count, 0,
+            buffer_shaderStorage_size,      0, buffer_shaderStorage_count, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            texture_id,                     0, sampler_count             , 0,
+            texture_target,                 0, sampler_count             , 0,
+            sampler_id,                     0, sampler_count             , 0,
+            image_id,                       0, image_count               , 0,
+            image_format,                   0, image_count               , 0,
+            image_mipmapLevel,              0, image_count               , 0,
+            image_layer,                    0, image_count               , 0
         );
     }
 
@@ -1579,28 +1579,28 @@ namespace glCompact {
         threadContext->attributeLayoutChanged = 1;
 
         buffer_uniform_changedSlotMin       = 0;
-        buffer_uniform_changedSlotMax       = buffer_uniform_highestActiveBinding;
+        buffer_uniform_changedSlotMax       = buffer_uniform_count - 1;
         buffer_atomicCounter_changedSlotMin = 0;
-        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_highestActiveBinding;
+        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
         buffer_shaderStorage_changedSlotMin = 0;
-        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_highestActiveBinding;
+        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_count - 1;
         texture_changedSlotMin              = 0;
-        texture_changedSlotMax              = sampler_highestActiveBinding;
+        texture_changedSlotMax              = sampler_count - 1;
         sampler_changedSlotMin              = 0;
-        sampler_changedSlotMax              = sampler_highestActiveBinding;
+        sampler_changedSlotMax              = sampler_count - 1;
         image_changedSlotMin                = 0;
-        image_changedSlotMax                = image_highestActiveBinding;
+        image_changedSlotMax                = image_count - 1;
 
-        auto currentBUCount = threadContext->buffer_uniform_highestActiveBinding            + 1;
-        auto currentBACount = threadContext->buffer_atomicCounter_highestActiveBinding      + 1;
-        auto currentBSCount = threadContext->buffer_shaderStorage_highestActiveBinding      + 1;
-        auto currentSaCount = threadContext->sampler_highestActiveBinding                   + 1;
-        auto currentImCount = threadContext->image_highestActiveBinding                     + 1;
-        auto pendingBUCount = max(currentBUCount, buffer_uniform_highestActiveBinding       + 1);
-        auto pendingBACount = max(currentBACount, buffer_atomicCounter_highestActiveBinding + 1);
-        auto pendingBSCount = max(currentBSCount, buffer_shaderStorage_highestActiveBinding + 1);
-        auto pendingSaCount = max(currentSaCount, sampler_highestActiveBinding              + 1);
-        auto pendingImCount = max(currentImCount, image_highestActiveBinding                + 1);
+        auto& currentBUCount = threadContext->buffer_uniform_count;
+        auto& currentBACount = threadContext->buffer_atomicCounter_count;
+        auto& currentBSCount = threadContext->buffer_shaderStorage_count;
+        auto& currentSaCount = threadContext->sampler_count;
+        auto& currentImCount = threadContext->image_count;
+        auto pendingBUCount = max(currentBUCount, buffer_uniform_count);
+        auto pendingBACount = max(currentBACount, buffer_atomicCounter_count);
+        auto pendingBSCount = max(currentBSCount, buffer_shaderStorage_count);
+        auto pendingSaCount = max(currentSaCount, sampler_count);
+        auto pendingImCount = max(currentImCount, image_count);
 
         if (currentBUCount < pendingBUCount
         ||  currentBACount < pendingBACount
@@ -1626,11 +1626,11 @@ namespace glCompact {
                 threadContext->image_mipmapLevel,              currentImCount, pendingImCount, 0,
                 threadContext->image_layer,                    currentImCount, pendingImCount, 0
             );
-            threadContext->buffer_uniform_highestActiveBinding       = pendingBUCount - 1;
-            threadContext->buffer_atomicCounter_highestActiveBinding = pendingBACount - 1;
-            threadContext->buffer_shaderStorage_highestActiveBinding = pendingBSCount - 1;
-            threadContext->sampler_highestActiveBinding              = pendingSaCount - 1;
-            threadContext->image_highestActiveBinding                = pendingImCount - 1;
+            currentBUCount = pendingBUCount;
+            currentBACount = pendingBACount;
+            currentBSCount = pendingBSCount;
+            currentSaCount = pendingSaCount;
+            currentImCount = pendingImCount;
         }
     }
 

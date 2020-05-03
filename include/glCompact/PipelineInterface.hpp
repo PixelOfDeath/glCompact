@@ -342,7 +342,7 @@ namespace glCompact {
              int32_t   buffer_attribute_changedSlotMax = -1;
 
             //BUFFER UNIFORM
-             int32_t   buffer_uniform_highestActiveBinding = -1;
+             int32_t   buffer_uniform_count = 0;
             void       buffer_uniform_markSlotChange(int32_t slot);
              int32_t   buffer_uniform_changedSlotMin = std::numeric_limits<decltype(buffer_uniform_changedSlotMin)>::max();
              int32_t   buffer_uniform_changedSlotMax = -1;
@@ -351,7 +351,7 @@ namespace glCompact {
             uintptr_t* buffer_uniform_size;
 
             //BUFFER ATOMIC COUNTER
-             int32_t   buffer_atomicCounter_highestActiveBinding = -1;
+             int32_t   buffer_atomicCounter_count = 0;
             void       buffer_atomicCounter_markSlotChange(int32_t slot);
              int32_t   buffer_atomicCounter_changedSlotMin = std::numeric_limits<decltype(buffer_atomicCounter_changedSlotMin)>::max();
              int32_t   buffer_atomicCounter_changedSlotMax = -1;
@@ -360,7 +360,7 @@ namespace glCompact {
             uintptr_t* buffer_atomicCounter_size;
 
             //BUFFER SHADER STORAGE
-             int32_t   buffer_shaderStorage_highestActiveBinding = -1;
+             int32_t   buffer_shaderStorage_count = 0;
             void       buffer_shaderStorage_markSlotChange(int32_t slot);
              int32_t   buffer_shaderStorage_changedSlotMin = std::numeric_limits<decltype(buffer_shaderStorage_changedSlotMin)>::max();
              int32_t   buffer_shaderStorage_changedSlotMax = -1;
@@ -369,7 +369,7 @@ namespace glCompact {
             uintptr_t* buffer_shaderStorage_size;
 
             //TEXTURE
-             int32_t   sampler_highestActiveBinding = -1;
+             int32_t   sampler_count = 0;
             void       texture_markSlotChange(int32_t slot);
              int32_t   texture_changedSlotMin = std::numeric_limits<decltype(texture_changedSlotMin)>::max();
              int32_t   texture_changedSlotMax = -1;
@@ -383,7 +383,7 @@ namespace glCompact {
             uint32_t*  sampler_id;
 
             //IMAGE
-             int32_t   image_highestActiveBinding = -1;
+             int32_t   image_count = 0;
             void       image_markSlotChange(int32_t slot);
              int32_t   image_changedSlotMin = std::numeric_limits<decltype(image_changedSlotMin)>::max();
              int32_t   image_changedSlotMax = -1;
