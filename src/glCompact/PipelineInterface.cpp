@@ -1591,35 +1591,46 @@ namespace glCompact {
         image_changedSlotMin                = 0;
         image_changedSlotMax                = image_highestActiveBinding;
 
-        if (threadContext->buffer_uniform_highestActiveBinding       < buffer_uniform_highestActiveBinding
-        ||  threadContext->buffer_atomicCounter_highestActiveBinding < buffer_atomicCounter_highestActiveBinding
-        ||  threadContext->buffer_shaderStorage_highestActiveBinding < buffer_shaderStorage_highestActiveBinding
-        ||  threadContext->sampler_highestActiveBinding              < sampler_highestActiveBinding
-        ||  threadContext->image_highestActiveBinding                < image_highestActiveBinding
+        auto currentBUCount = threadContext->buffer_uniform_highestActiveBinding            + 1;
+        auto currentBACount = threadContext->buffer_atomicCounter_highestActiveBinding      + 1;
+        auto currentBSCount = threadContext->buffer_shaderStorage_highestActiveBinding      + 1;
+        auto currentSaCount = threadContext->sampler_highestActiveBinding                   + 1;
+        auto currentImCount = threadContext->image_highestActiveBinding                     + 1;
+        auto pendingBUCount = max(currentBUCount, buffer_uniform_highestActiveBinding       + 1);
+        auto pendingBACount = max(currentBACount, buffer_atomicCounter_highestActiveBinding + 1);
+        auto pendingBSCount = max(currentBSCount, buffer_shaderStorage_highestActiveBinding + 1);
+        auto pendingSaCount = max(currentSaCount, sampler_highestActiveBinding              + 1);
+        auto pendingImCount = max(currentImCount, image_highestActiveBinding                + 1);
+
+        if (currentBUCount < pendingBUCount
+        ||  currentBACount < pendingBACount
+        ||  currentBSCount < pendingBSCount
+        ||  currentSaCount < pendingSaCount
+        ||  currentImCount < pendingImCount
         ) {
             multiReNew(
-                threadContext->buffer_uniform_id,              threadContext->buffer_uniform_highestActiveBinding       + 1, max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1), 0,
-                threadContext->buffer_uniform_offset,          threadContext->buffer_uniform_highestActiveBinding       + 1, max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1), 0,
-                threadContext->buffer_uniform_size,            threadContext->buffer_uniform_highestActiveBinding       + 1, max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1), 0,
-                threadContext->buffer_atomicCounter_id,        threadContext->buffer_atomicCounter_highestActiveBinding + 1, max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1), 0,
-                threadContext->buffer_atomicCounter_offset,    threadContext->buffer_atomicCounter_highestActiveBinding + 1, max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1), 0,
-                threadContext->buffer_atomicCounter_size,      threadContext->buffer_atomicCounter_highestActiveBinding + 1, max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1), 0,
-                threadContext->buffer_shaderStorage_id,        threadContext->buffer_shaderStorage_highestActiveBinding + 1, max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1), 0,
-                threadContext->buffer_shaderStorage_offset,    threadContext->buffer_shaderStorage_highestActiveBinding + 1, max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1), 0,
-                threadContext->buffer_shaderStorage_size,      threadContext->buffer_shaderStorage_highestActiveBinding + 1, max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1), 0,
-                threadContext->texture_id,                     threadContext->sampler_highestActiveBinding              + 1, max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1), 0,
-                threadContext->texture_target,                 threadContext->sampler_highestActiveBinding              + 1, max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1), 0,
-                threadContext->sampler_id,                     threadContext->sampler_highestActiveBinding              + 1, max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1), 0,
-                threadContext->image_id,                       threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0,
-                threadContext->image_format,                   threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0,
-                threadContext->image_mipmapLevel,              threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0,
-                threadContext->image_layer,                    threadContext->image_highestActiveBinding                + 1, max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1), 0
+                threadContext->buffer_uniform_id,              currentBUCount, pendingBUCount, 0,
+                threadContext->buffer_uniform_offset,          currentBUCount, pendingBUCount, 0,
+                threadContext->buffer_uniform_size,            currentBUCount, pendingBUCount, 0,
+                threadContext->buffer_atomicCounter_id,        currentBACount, pendingBACount, 0,
+                threadContext->buffer_atomicCounter_offset,    currentBACount, pendingBACount, 0,
+                threadContext->buffer_atomicCounter_size,      currentBACount, pendingBACount, 0,
+                threadContext->buffer_shaderStorage_id,        currentBSCount, pendingBSCount, 0,
+                threadContext->buffer_shaderStorage_offset,    currentBSCount, pendingBSCount, 0,
+                threadContext->buffer_shaderStorage_size,      currentBSCount, pendingBSCount, 0,
+                threadContext->texture_id,                     currentSaCount, pendingSaCount, 0,
+                threadContext->texture_target,                 currentSaCount, pendingSaCount, 0,
+                threadContext->sampler_id,                     currentSaCount, pendingSaCount, 0,
+                threadContext->image_id,                       currentImCount, pendingImCount, 0,
+                threadContext->image_format,                   currentImCount, pendingImCount, 0,
+                threadContext->image_mipmapLevel,              currentImCount, pendingImCount, 0,
+                threadContext->image_layer,                    currentImCount, pendingImCount, 0
             );
-            threadContext->buffer_uniform_highestActiveBinding       = max(threadContext->buffer_uniform_highestActiveBinding       + 1, buffer_uniform_highestActiveBinding        + 1);
-            threadContext->buffer_atomicCounter_highestActiveBinding = max(threadContext->buffer_atomicCounter_highestActiveBinding + 1, buffer_atomicCounter_highestActiveBinding  + 1);
-            threadContext->buffer_shaderStorage_highestActiveBinding = max(threadContext->buffer_shaderStorage_highestActiveBinding + 1, buffer_shaderStorage_highestActiveBinding  + 1);
-            threadContext->sampler_highestActiveBinding              = max(threadContext->sampler_highestActiveBinding              + 1, sampler_highestActiveBinding               + 1);
-            threadContext->image_highestActiveBinding                = max(threadContext->image_highestActiveBinding                + 1, image_highestActiveBinding                 + 1);
+            threadContext->buffer_uniform_highestActiveBinding       = pendingBUCount - 1;
+            threadContext->buffer_atomicCounter_highestActiveBinding = pendingBACount - 1;
+            threadContext->buffer_shaderStorage_highestActiveBinding = pendingBSCount - 1;
+            threadContext->sampler_highestActiveBinding              = pendingSaCount - 1;
+            threadContext->image_highestActiveBinding                = pendingImCount - 1;
         }
     }
 
