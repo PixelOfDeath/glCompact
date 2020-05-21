@@ -2,7 +2,6 @@
 //SHOULD NEVER BE INCLUDED IN HPP FILES TO NOT BLEED MACROS INTO OTHER PROJECTS!
 
 #include <string>
-#include <cstddef> //std::max_align_t
 
 #define LOOPINT(v, m_m) for(int v = 0; v < int(m_m); v++)
 #define LOOPI(m_m) LOOPINT(i,m_m)
@@ -56,60 +55,4 @@ namespace glCompact {
     #endif
 
     [[noreturn]] extern void crash(std::string s);
-
-    template<typename T>
-    T alignTo(T value, T alignTo) {
-        return (value % alignTo) ? (value + (alignTo - (value % alignTo))) : value;
-    }
-
-    //C++11 std::max is NOT constexpr!
-    template<typename T>
-    constexpr T max(T l, T r) {
-        return (l >= r) ? l : r;
-    }
-
-    namespace {
-        template<bool modifyPtr, typename T, typename Tinit>
-        void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
-            if (modifyPtr) {
-                T* oldPtr = reinterpret_cast<T*>(oldCount ? alignTo(oldCurrentOffset, alignof(T)) : oldCurrentOffset);
-                T* newPtr = reinterpret_cast<T*>(newCount ? alignTo(newCurrentOffset, alignof(T)) : newCurrentOffset);
-                uintptr_t i = 0;
-                for (; i < std::min(oldCount, newCount); ++i) new (newPtr + i)T(std::move(oldPtr[i]));
-                for (; i <                    newCount ; ++i) new (newPtr + i)T(initValue);
-                for (; i <                    oldCount ; ++i) oldPtr[i].~T();
-                ptr = newPtr;
-            }
-            if (oldCount) oldCurrentOffset = alignTo(oldCurrentOffset, alignof(T)) + sizeof(T) * oldCount;
-            if (newCount) newCurrentOffset = alignTo(newCurrentOffset, alignof(T)) + sizeof(T) * newCount;
-        }
-
-        template<bool modifyPtr, typename T, typename Tinit, typename... Args>
-        void multiReNewPlacement(uintptr_t& oldCurrentOffset, uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
-            multiReNewPlacement<modifyPtr>(oldCurrentOffset, newCurrentOffset, ptr, oldCount, newCount, initValue);
-            multiReNewPlacement<modifyPtr>(oldCurrentOffset, newCurrentOffset, args...);
-        }
-
-        template<typename T, typename, typename, typename>
-        constexpr uintptr_t multiReNewGetMaxAlign() {
-            return alignof(T);
-        }
-
-        template<typename T, typename, typename, typename, typename Arg0, typename... Args>
-        constexpr uintptr_t multiReNewGetMaxAlign() {
-            return max(alignof(T), multiReNewGetMaxAlign<Arg0, Args...>());
-        }
-    }
-
-    //Currently this function is limited to alignof(std::max_align_t)
-    template<typename T, typename Tinit, typename... Args>
-    void multiReNew(T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
-        void* firstPtr = ptr;
-        uintptr_t oldCurrentOffset, newCurrentOffset;
-        constexpr uintptr_t maxAlign = multiReNewGetMaxAlign<T, uintptr_t, uintptr_t, const Tinit, Args...>();
-        static_assert(maxAlign <= alignof(std::max_align_t), "Only support alignment up to alignof(std::max_align_t)");
-        multiReNewPlacement<0>(oldCurrentOffset = 0,                   newCurrentOffset = 0,                                   ptr, oldCount, newCount, initValue, args...);
-        multiReNewPlacement<1>(oldCurrentOffset = uintptr_t(firstPtr), newCurrentOffset = uintptr_t(malloc(newCurrentOffset)), ptr, oldCount, newCount, initValue, args...);
-        free(firstPtr);
-    }
 }

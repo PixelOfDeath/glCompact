@@ -4,6 +4,7 @@
 #include "glCompact/TextureSelector.hpp"
 #include "glCompact/SurfaceFormat.hpp"
 #include "glCompact/Sampler.hpp"
+#include "glCompact/MultiMalloc11.hpp"
 
 #include <glm/fwd.hpp>
 
@@ -335,6 +336,8 @@ namespace glCompact {
             void getUniform(GLint uniformLocation, glm::dmat4x3& value, int count = 1);
             void getUniform(GLint uniformLocation, glm::dmat4x4& value, int count = 1);*/
 
+            MultiMalloc11 multiMalloc;
+
             //BUFFER ATTRIBUTE
             //attributeLayoutStates.uppermostActiveBufferIndex for highestActiveBinding
             void       buffer_attribute_markSlotChange(int32_t slot);
@@ -346,7 +349,7 @@ namespace glCompact {
             void       buffer_uniform_markSlotChange(int32_t slot);
              int32_t   buffer_uniform_changedSlotMin = (std::numeric_limits<decltype(buffer_uniform_changedSlotMin)>::max)();
              int32_t   buffer_uniform_changedSlotMax = -1;
-            uint32_t*  buffer_uniform_id = 0;
+            uint32_t*  buffer_uniform_id;
             uintptr_t* buffer_uniform_offset;
             uintptr_t* buffer_uniform_size;
 

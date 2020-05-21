@@ -106,7 +106,6 @@ namespace glCompact {
             }
             id = 0;
         }
-        free(buffer_uniform_id);
     }
 
     void PipelineInterface::setTexture(
@@ -1544,7 +1543,7 @@ namespace glCompact {
     }
 
     void PipelineInterface::allocateMemory() {
-        multiReNew(
+        multiMalloc.reNew(
             buffer_uniform_id,              0, buffer_uniform_count      , 0,
             buffer_uniform_offset,          0, buffer_uniform_count      , 0,
             buffer_uniform_size,            0, buffer_uniform_count      , 0,
@@ -1608,7 +1607,7 @@ namespace glCompact {
         ||  currentSaCount < pendingSaCount
         ||  currentImCount < pendingImCount
         ) {
-            multiReNew(
+            threadContext->multiMalloc.reNew(
                 threadContext->buffer_uniform_id,              currentBUCount, pendingBUCount, 0,
                 threadContext->buffer_uniform_offset,          currentBUCount, pendingBUCount, 0,
                 threadContext->buffer_uniform_size,            currentBUCount, pendingBUCount, 0,
