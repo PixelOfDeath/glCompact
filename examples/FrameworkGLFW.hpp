@@ -24,12 +24,20 @@ class FrameworkMain {
 
 class FrameworkWindow {
     public:
-        FrameworkWindow(int sizeX, int sizeY) {
+        FrameworkWindow(int glMayor, int glMinor, bool gles, int sizeX, int sizeY) {
             this->sizeX = sizeX;
             this->sizeY = sizeY;
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+            if (gles) {
+                glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glMayor);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glMinor);
+            } else {
+                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glMayor);
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glMinor);
+            }
+
             window = glfwCreateWindow(sizeX, sizeY, "glCompact GLFW example", NULL, NULL);
             if (!window)
                 crash("Could not create GLFW window");
@@ -83,8 +91,8 @@ class FrameworkWindow {
 
 class Framework {
     public:
-        Framework(int x, int y):
-            frameworkWindow(x, y),
+        Framework(int glMayor, int glMinor, bool gles, int x, int y):
+            frameworkWindow(glMayor, glMinor, gles, x, y),
             contextScope(glfwGetProcAddress)
         {}
         ~Framework(){}

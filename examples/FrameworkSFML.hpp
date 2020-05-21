@@ -1,16 +1,24 @@
 #include <SFML/Graphics.hpp>
 #include <glCompact/glCompact.hpp>
+#include <iostream>
+
+void crash(std::string s){
+    std::cout << s << std::endl;
+    exit(-1);
+}
 
 class FrameworkWindow : private sf::Window {
         friend class Framework;
     public:
         //TODO: something with sf::ContextSettings::Attribute::Core is broken
-        FrameworkWindow(int sizeX, int sizeY) :
+        FrameworkWindow(int glMayor, int glMinor, bool gles, int sizeX, int sizeY) :
             sf::Window(sf::VideoMode(sizeX, sizeY),
                     "glCompact SFML example",
                     sf::Style::Default,
-                    sf::ContextSettings(0, 0, 0, 3, 3, sf::ContextSettings::Attribute::Default))
+                    sf::ContextSettings(0, 0, 0, glMayor, glMinor, sf::ContextSettings::Attribute::Default))
         {
+            if (gles != 0)
+                crash("SFML does not support runtime selection of creating a GLES context! Use GLFW or SDL2 for the examples using GLES!");
             setVerticalSyncEnabled(true);
         }
         void handleEvents() {
@@ -51,8 +59,8 @@ class FrameworkWindow : private sf::Window {
 
 class Framework {
     public:
-        Framework(int x, int y):
-            frameworkWindow(x, y),
+        Framework(int glMayor, int glMinor, bool gles, int x, int y):
+            frameworkWindow(glMayor, glMinor, gles, x, y),
             contextScope(sf::Context::getFunction)
         {}
         ~Framework(){}

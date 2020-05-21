@@ -10,12 +10,18 @@ void crash(std::string s){
 class FrameworkWindow {
         friend class FrameworkMain;
     public:
-        FrameworkWindow(int sizeX, int sizeY) {
+        FrameworkWindow(int glMayor, int glMinor, bool gles, int sizeX, int sizeY) {
             this->sizeX = sizeX;
             this->sizeY = sizeY;
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+            if (gles) {
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, glMayor);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glMinor);
+            } else {
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, glMayor);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glMinor);
+            }
             window = SDL_CreateWindow(
                 "glCompact SDL2 example",
                 SDL_WINDOWPOS_UNDEFINED,
@@ -112,8 +118,8 @@ class FrameworkMain {
 
 class Framework {
     public:
-        Framework(int x, int y):
-            frameworkWindow(x, y),
+        Framework(int glMayor, int glMinor, bool gles, int x, int y):
+            frameworkWindow(glMayor, glMinor, gles, x, y),
             contextScope(SDL_GL_GetProcAddress)
         {}
         ~Framework(){}
