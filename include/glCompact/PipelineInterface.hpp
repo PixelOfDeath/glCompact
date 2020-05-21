@@ -346,7 +346,7 @@ namespace glCompact {
             void       buffer_uniform_markSlotChange(int32_t slot);
              int32_t   buffer_uniform_changedSlotMin = (std::numeric_limits<decltype(buffer_uniform_changedSlotMin)>::max)();
              int32_t   buffer_uniform_changedSlotMax = -1;
-            uint32_t*  buffer_uniform_id;
+            uint32_t*  buffer_uniform_id = 0;
             uintptr_t* buffer_uniform_offset;
             uintptr_t* buffer_uniform_size;
 

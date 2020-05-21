@@ -106,7 +106,7 @@ namespace glCompact {
             }
             id = 0;
         }
-        if (buffer_uniform_id) free(buffer_uniform_id);
+        free(buffer_uniform_id);
     }
 
     void PipelineInterface::setTexture(
