@@ -14,6 +14,10 @@ if (MSVC)
     FIND_PACKAGE(DbgHelp)
 endif()
 
+#this enabled the top project to overwrite glCompact source files. E.g. include/glCompact/config.hpp
+include_directories("${CMAKE_SOURCE_DIR}/include")
+
+#this includes the hpp/cpp files, generated via python scrips from gl.xml
 include_directories("${PROJECT_BINARY_DIR}/include")
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
