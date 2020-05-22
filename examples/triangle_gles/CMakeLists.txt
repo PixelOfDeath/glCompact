@@ -1,0 +1,55 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.7)
+PROJECT(triangle_gles CXX)
+
+#SET(CMAKE_BUILD_TYPE Debug)
+SET(CMAKE_BUILD_TYPE Release)
+SET(CMAKE_CXX_STANDARD 11)
+
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
+
+ADD_EXECUTABLE(triangle_gles
+    main.cpp
+)
+
+SET(GLCOMPACTDIR "../../") #You might want to use an absoloute path here to glCompact
+add_subdirectory(
+    ${GLCOMPACTDIR}
+    ${PROJECT_BINARY_DIR}/glCompact
+)
+
+FIND_PACKAGE(GLM REQUIRED)
+
+FIND_PACKAGE(glfw3 3.2)
+FIND_PACKAGE(SDL2)
+FIND_PACKAGE(SFML 2.5 COMPONENTS graphics)
+
+IF (glfw3_FOUND)
+    MESSAGE(STATUS "Using GLFW")
+    SET(FRAMEWORK_INCLUDE_DIR ${GLFW_INCLUDE_DIRS})
+    SET(FRAMEWORK_LIBRARY     glfw)
+    TARGET_COMPILE_DEFINITIONS(triangle_gles PUBLIC FRAMEWORK_GLFW)
+ELSEIF(SDL2_FOUND)
+    MESSAGE(STATUS "Using SDL2")
+    SET(FRAMEWORK_INCLUDE_DIR ${SDL2_INCLUDE_DIR})
+    SET(FRAMEWORK_LIBRARY     ${SDL2_LIBRARY})
+    TARGET_COMPILE_DEFINITIONS(triangle_gles PUBLIC FRAMEWORK_SDL2)
+ELSEIF(SFML_FOUND)
+    MESSAGE(STATUS "Using SFML >= 2.5")
+    SET(FRAMEWORK_LIBRARY sfml-graphics)
+    TARGET_COMPILE_DEFINITIONS(triangle_gles PUBLIC FRAMEWORK_SFML)
+ELSE()
+    MESSAGE(FATAL_ERROR "Could not find GLFW, SDL2 or SFML >= 2.5! But needed one of them to build examples!")
+ENDIF()
+
+target_include_directories(triangle_gles
+    PUBLIC
+    ${FRAMEWORK_INCLUDE_DIR}
+    ${GLM_INCLUDE_DIR}
+    ${GLCOMPACTDIR}/include/
+)
+
+target_link_libraries(triangle_gles
+    ${FRAMEWORK_LIBRARY}
+    glCompact
+)

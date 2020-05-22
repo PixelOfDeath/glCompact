@@ -11,26 +11,26 @@ class MyPipeline : public PipelineRasterization {
         UniformSetter<vec4> rgba{this, "rgba"};
 };
 
+string vertexShader = R"""(
+    #version 300 es
+    layout(location = 0) in vec2 position;
+    void main() {
+        gl_Position = vec4(position.x, position.y, 0.0, 1.0);
+    }
+)""";
+
+string fragmentShader = R"""(
+    #version 300 es
+    uniform mediump vec4 rgba;
+    out mediump vec4 outputColor;
+    void main() {
+        outputColor = rgba;
+    }
+)""";
+
 int main (int argc, char *argv[]) {
     //glMajor, glMinor, gles, resolutionX, resolutioY
     Framework framework(3, 0, true, 640, 480);
-
-    string vertexShader = R"""(
-        #version 300 es
-        layout(location = 0) in vec2 position;
-        void main() {
-            gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-        }
-    )""";
-
-    string fragmentShader = R"""(
-        #version 300 es
-        uniform mediump vec4 rgba;
-        out mediump vec4 outputColor;
-        void main() {
-            outputColor = rgba;
-        }
-    )""";
 
     AttributeLayout attributeLayout;
     attributeLayout.addBufferIndex();
