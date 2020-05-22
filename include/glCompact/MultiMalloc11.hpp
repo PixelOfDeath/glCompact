@@ -3,24 +3,13 @@
 #include <cstdlib>
 #include <cstddef> //std::max_align_t
 #include <utility>
-#include "glCompact/undefMsvcMinMax.hpp"
+#include "glCompact/minMax.hpp"
 
 namespace glCompact {
     namespace {
         template<typename T>
         T alignTo(T value, T alignTo) {
             return (value % alignTo) ? (value + (alignTo - (value % alignTo))) : value;
-        }
-
-        //C++11 GCC std::max/std::min are NOT constexpr! And MSVC only uses stupid macros that break stuff.
-        template<typename T>
-        constexpr T max(T l, T r) {
-            return (l >= r) ? l : r;
-        }
-
-        template<typename T>
-        constexpr T min(T l, T r) {
-            return (l <= r) ? l : r;
         }
 
         template<typename T, typename, typename, typename>
