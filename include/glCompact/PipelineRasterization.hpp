@@ -106,6 +106,9 @@ namespace glCompact {
             bool hasGeometryStage     ()const{return hasShader[3];}
             bool hasFragmentStage     ()const{return hasShader[4];}
 
+            int32_t           getGeometryMaxPrimitveOutput(){return geometryMaxPrimitveOutput;}
+            PrimitiveTopology getGeometryInputType        (){return geometryInputType;}
+            PrimitiveTopology getGeometryOutputType       (){return geometryOutputType;}
         private:
             virtual std::string getPipelineIdentificationString();
             std::string getPipelineInformationQueryString();
@@ -134,11 +137,9 @@ namespace glCompact {
             const bool loadedFromFiles = false;
             std::string fileName[5];
 
-            //TODO: make this values public const accessable
-            int32_t geometryMaxPrimitveOutput = 0;
-            int32_t geometryInputType         = 0;
-            int32_t geometryOutputType        = 0;
-
+            int32_t           geometryMaxPrimitveOutput = 0;
+            PrimitiveTopology geometryInputType         = static_cast<PrimitiveTopology>(-1);
+            PrimitiveTopology geometryOutputType        = static_cast<PrimitiveTopology>(-1);
 
           //STATES
             PipelineRasterizationStateChange pipelineRasterizationStateChangePending;

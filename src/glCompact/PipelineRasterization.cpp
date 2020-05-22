@@ -935,8 +935,8 @@ namespace glCompact {
         //Core since 3.2
         if (hasGeometryStage()) {
             threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_VERTICES_OUT, &geometryMaxPrimitveOutput);
-            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_INPUT_TYPE,   &geometryInputType);  //=POINTS, LINES, LINES_ADJACENCY, TRIANGLES, TRIANGLES_ADJACENCY
-            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_OUTPUT_TYPE,  &geometryOutputType); //=POINTS, LINE_STRIP, TRIANGLE_STRIP
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_INPUT_TYPE,   reinterpret_cast<int32_t*>(&geometryInputType));  //=POINTS, LINES, LINES_ADJACENCY, TRIANGLES, TRIANGLES_ADJACENCY
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_OUTPUT_TYPE,  reinterpret_cast<int32_t*>(&geometryOutputType)); //=POINTS, LINE_STRIP, TRIANGLE_STRIP
 
             //GEOMETRY_SHADER_INVOCATIONS
         }
