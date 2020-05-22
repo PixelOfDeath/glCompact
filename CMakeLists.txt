@@ -132,20 +132,28 @@ ADD_DEPENDENCIES(
     Extensions_hpp
 )
 
-#While this project only has a minimum dependancy on C++11. With LTO enabled for GCC you may have to set the C++ version higher to prevent linking errors for the final application.
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 11
-    #CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-)
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    #We are the top-level project
+    message("-- glCompact is top level project - enforcing C++11 standard")
+    SET(ENFORCINGCPLUSPLUS11 YES)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+    )
+else()
+    #called from other project with add_subdirectory()
+    message("-- glCompact is NOT top level project - NOT enforcing C++11 standard")
+    SET(ENFORCINGCPLUSPLUS11 NO)
+    #We do not set any C++ version here, because it can cause GCC LTO to break with linking errors if the parent project uses a higher standard
+endif()
 
 if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
     include(CheckIPOSupported)
     check_ipo_supported(RESULT LTOAvailable OUTPUT LtoError)
     if(LTOAvailable)
         message(STATUS "IPO / LTO enabled")
-        #set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+        set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
     else()
         message(STATUS "IPO / LTO not supported: <${LtoError}>")
     endif()
@@ -247,7 +255,7 @@ ELSE()
 ENDIF()
 
 MESSAGE("--")
-MESSAGE("-- glCompact (${BUILDBIT}bit) (${CMAKE_BUILD_TYPE}) (LTO=${LTOAvailable}) build will be INSTALLED in: ${CMAKE_INSTALL_PREFIX}")
+MESSAGE("-- glCompact (${BUILDBIT}bit) (${CMAKE_BUILD_TYPE}) (LTO=${LTOAvailable}) (Enforcing C++11=${ENFORCINGCPLUSPLUS11}) build will be INSTALLED in: ${CMAKE_INSTALL_PREFIX}")
 if(NOT DOXYGEN_FOUND)
 message("-- Could not find Doxygen, install doxygen to be able to use build target doc to generate documentation!")
 endif()
