@@ -25,20 +25,6 @@ include_directories("${GLM_INCLUDE_DIR}")
 if (MSVC AND DBGHELP_FOUND)
     INCLUDE_DIRECTORIES(${DBGHELP_INCLUDE_DIR})
 endif()
-#Test for the stdint.h
-#INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
-#CHECK_INCLUDE_FILE("stdint.h" CMAKE_HAVE_STDINT_H)
-#IF( NOT(CMAKE_HAVE_STDINT_H) )
-#   IF(MSVC)
-#       MESSAGE("Using custom MSVC stdint.h")
-#       #VC++ is not c99 compatibel and does not provide the "stdint.h" file
-#       #So we ship our own :)
-#       INCLUDE_DIRECTORIES("include/stdint")
-#   ELSE()
-#       MESSAGE(FATAL_ERROR "can not locate stdint.h".)
-#   ENDIF()
-#ENDIF()
-
 
 #Under linux, cmake leaves this empty by default. So we set it to release.
 if(NOT CMAKE_BUILD_TYPE)
