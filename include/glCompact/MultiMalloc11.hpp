@@ -42,7 +42,7 @@ namespace glCompact {
                 for (; i < min(oldCount, newCount); ++i) new (newPtr + i)T(std::move(oldPtr[i]));
                 for (; i <               newCount ; ++i) new (newPtr + i)T(initValue);
                 for (; i <               oldCount ; ++i) oldPtr[i].~T();
-                ptr = newPtr;
+                ptr = newCount ? newPtr : 0;
             }
             if (newCount) newCurrentOffset = alignTo(newCurrentOffset, alignof(T)) + sizeof(T) * newCount;
         }
