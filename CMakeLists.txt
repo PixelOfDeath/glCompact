@@ -16,7 +16,7 @@ endif()
 
 include_directories("${PROJECT_BINARY_DIR}/include")
 
-include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${PROJECT_SOURCE_DIR}/include")
 include_directories("${GLM_INCLUDE_DIR}")
 if (MSVC AND DBGHELP_FOUND)
     INCLUDE_DIRECTORIES(${DBGHELP_INCLUDE_DIR})
