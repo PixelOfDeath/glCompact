@@ -237,7 +237,7 @@ namespace glCompact {
         Only checking the extension now is enough!
     */
     void ContextGroup_::setAllCoreExtensionTrue() {
-        if (bool(config::version::glMin)) {
+        if (config::version::glMin != GlVersion::notSupported) {
           //if (version.gl >= GlVersion::v12) {
                 extensions.GL_EXT_texture3D                         = true;
                 //extensions.GL_OES_texture_3D = true;
@@ -442,7 +442,7 @@ namespace glCompact {
             //if (version.gl >= GlVersion::v20) {
                 values.GL_MAX_DRAW_BUFFERS                              = getValue<int32_t>(GL_MAX_DRAW_BUFFERS);
             //}
-            if (extensions.GL_ARB_vertex_shader) {
+            //if (extensions.GL_ARB_vertex_shader) {
                 values.GL_MAX_VERTEX_UNIFORM_COMPONENTS                 = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_COMPONENTS);
                 values.GL_MAX_VARYING_FLOATS                            = getValue<int32_t>(GL_MAX_VARYING_FLOATS);
                 values.GL_MAX_VERTEX_ATTRIBS                            = getValue<int32_t>(GL_MAX_VERTEX_ATTRIBS);
@@ -450,22 +450,22 @@ namespace glCompact {
                 values.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS                = getValue<int32_t>(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
                 values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS              = getValue<int32_t>(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
                 values.GL_MAX_TEXTURE_COORDS                            = getValue<int32_t>(GL_MAX_TEXTURE_COORDS);
-            }
+            //}
 
         //Core since 3.0
-            if (extensions.GL_ARB_framebuffer_object) {
+            //if (extensions.GL_ARB_framebuffer_object) {
                 values.GL_MAX_SAMPLES                                   = getValue<int32_t>(GL_MAX_SAMPLES);
                 values.GL_MAX_COLOR_ATTACHMENTS                         = getValue<int32_t>(GL_MAX_COLOR_ATTACHMENTS);
                 values.GL_MAX_RENDERBUFFER_SIZE                         = getValue<int32_t>(GL_MAX_RENDERBUFFER_SIZE);
-            }
-            if (extensions.GL_EXT_texture_array) {
+            //}
+            //if (extensions.GL_EXT_texture_array) {
                 values.GL_MAX_ARRAY_TEXTURE_LAYERS                      = getValue<int32_t>(GL_MAX_ARRAY_TEXTURE_LAYERS);
-            }
+            //}
         //Core since 3.1
-            if (extensions.GL_ARB_texture_buffer_object) {
+            //if (extensions.GL_ARB_texture_buffer_object) {
                 values.GL_MAX_TEXTURE_BUFFER_SIZE                       = getValue<int32_t>(GL_MAX_TEXTURE_BUFFER_SIZE);
-            }
-            if (extensions.GL_ARB_uniform_buffer_object) {
+            //}
+            //if (extensions.GL_ARB_uniform_buffer_object) {
                 values.GL_MAX_VERTEX_UNIFORM_BLOCKS                     = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_BLOCKS);
                 values.GL_MAX_GEOMETRY_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
                 values.GL_MAX_FRAGMENT_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_FRAGMENT_UNIFORM_BLOCKS);
@@ -476,20 +476,20 @@ namespace glCompact {
                 values.GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS      = getValue<int32_t>(GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS);
                 values.GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS      = getValue<int32_t>(GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS);
                 values.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT               = getValue<int32_t>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
-            }
+            //}
         //Core since 3.2
-            if (extensions.GL_ARB_texture_multisample) {
+            //if (extensions.GL_ARB_texture_multisample) {
                 values.GL_MAX_COLOR_TEXTURE_SAMPLES                     = getValue<int32_t>(GL_MAX_COLOR_TEXTURE_SAMPLES);
                 values.GL_MAX_DEPTH_TEXTURE_SAMPLES                     = getValue<int32_t>(GL_MAX_DEPTH_TEXTURE_SAMPLES);
                 values.GL_MAX_INTEGER_SAMPLES                           = getValue<int32_t>(GL_MAX_INTEGER_SAMPLES);
-            }
-            if (extensions.GL_ARB_sync) {
+            //}
+            //if (extensions.GL_ARB_sync) {
                 values.GL_MAX_SERVER_WAIT_TIMEOUT                       = getValue<int32_t>(GL_MAX_SERVER_WAIT_TIMEOUT);
-            }
+            //}
         //Core since 3.3
-            if (extensions.GL_ARB_blend_func_extended) {
+            //if (extensions.GL_ARB_blend_func_extended) {
                 values.GL_MAX_DUAL_SOURCE_DRAW_BUFFERS                  = getValue<int32_t>(GL_MAX_DUAL_SOURCE_DRAW_BUFFERS);
-            }
+            //}
         //Core since 4.0
             if (extensions.GL_ARB_transform_feedback3) {
                 values.GL_MAX_TRANSFORM_FEEDBACK_BUFFERS                = getValue<int32_t>(GL_MAX_TRANSFORM_FEEDBACK_BUFFERS);
