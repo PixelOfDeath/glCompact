@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.9)
 PROJECT(glCompact CXX C)
 
+#Under linux, cmake leaves this empty by default. So we set it to release. This will not be set if e.g. a top level project already set it.
+#Under Windows nmake this is always defaulted to debug, so we have to set it via parameter to release
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
@@ -25,12 +31,6 @@ include_directories("${GLM_INCLUDE_DIR}")
 if (MSVC AND DBGHELP_FOUND)
     INCLUDE_DIRECTORIES(${DBGHELP_INCLUDE_DIR})
 endif()
-
-#Under linux, cmake leaves this empty by default. So we set it to release.
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
-#Under Windows nmake this is always defaulted to debug, so we have to set it via parameter to release
 
 SET(CMAKE_RELEASE_POSTFIX "${POSTFIX}")
 SET(CMAKE_DEBUG_POSTFIX   "${POSTFIX}_d")
@@ -134,7 +134,7 @@ ADD_DEPENDENCIES(
 
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     #We are the top-level project
-    message("-- glCompact is top level project - enforcing C++11 standard")
+    message(STATUS "glCompact is the top level project - enforcing C++11 standard")
     SET(ENFORCINGCPLUSPLUS11 YES)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 11
@@ -143,9 +143,8 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     )
 else()
     #called from other project with add_subdirectory()
-    message("-- glCompact is NOT top level project - NOT enforcing C++11 standard")
+    message(STATUS "glCompact is NOT the top level project - NOT enforcing C++11 standard to prevent LTO breakage")
     SET(ENFORCINGCPLUSPLUS11 NO)
-    #We do not set any C++ version here, because it can cause GCC LTO to break with linking errors if the parent project uses a higher standard
 endif()
 
 if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
@@ -155,8 +154,11 @@ if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
         message(STATUS "IPO / LTO enabled")
         set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
     else()
-        message(STATUS "IPO / LTO not supported: <${LtoError}>")
+        message(STATUS "IPO / LTO not supported by this build chain: <${LtoError}>")
     endif()
+else()
+    message(STATUS "IPO / LTO disabled in debug build")
+    SET(LTOAvailable NO)
 endif()
 
 message("-- Compiler is ${CMAKE_CXX_COMPILER_ID}")
