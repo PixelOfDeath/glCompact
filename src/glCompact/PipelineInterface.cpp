@@ -1876,24 +1876,6 @@ namespace glCompact {
         }
     }
 
-    /*PipelineInterface::UniformSetterBase::UniformSetterBase(PipelineInterface* const pParent, const std::string& uniformName) {
-        shaderId        = pParent->id;
-        uniformLocation = pParent->getUniformLocation(uniformName);
-        if (uniformLocation == -1) {
-            pParent->warning("UniformSetter did not find uniform with the name \"" + uniformName + "\"\n");
-        }
-    }
-
-    PipelineInterface::UniformArraySetterBase::UniformArraySetterBase(PipelineInterface* const pParent, const std::string& uniformName) {
-        shaderId             = pParent->id;
-        uniformLocation      = pParent->getUniformLocation (uniformName);
-        uniformLocationStep  = pParent->getUniformArraySize(uniformLocation);
-        uniformLocationCount = pParent->getUniformArrayStep(uniformLocation);
-        if (uniformLocation == -1) {
-            pParent->warning("UniformArraySetter did not find uniform with the name \"" + uniformName + "\"\n");
-        }
-    }*/
-
     string PipelineInterface::glTypeToGlslName(int32_t type) {
         return gl::typeToGlslAndCNameString(type);
     }
