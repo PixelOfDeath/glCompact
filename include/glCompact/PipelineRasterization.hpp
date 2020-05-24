@@ -25,6 +25,7 @@ namespace glCompact {
     class PipelineRasterization : public PipelineInterface {
         public:
             PipelineRasterization(
+                PrimitiveTopology  primitiveTopology,
                 const std::string& vertexString,
                 const std::string& tessControlString,
                 const std::string& tessEvalutionString,
@@ -33,6 +34,7 @@ namespace glCompact {
             );
             PipelineRasterization(
                 const std::string& path,
+                PrimitiveTopology  primitiveTopology,
                 const std::string& vertexFile,
                 const std::string& tessControlFile,
                 const std::string& tessEvalutionFile,
@@ -144,7 +146,7 @@ namespace glCompact {
           //STATES
             PipelineRasterizationStateChange pipelineRasterizationStateChangePending;
 
-            PrimitiveTopology vertexStageInputPrimitiveTopology = static_cast<PrimitiveTopology>(0xFFFFFFFF);
+            PrimitiveTopology vertexStageInputPrimitiveTopology;
 
             //TRIANGLE ROTATION AND DRAW FACE
             bool          triangleFrontIsClockwiseRotation = false;

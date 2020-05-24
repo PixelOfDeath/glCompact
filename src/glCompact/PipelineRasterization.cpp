@@ -37,6 +37,7 @@ namespace glCompact {
      * Use PipelineRasterization myPipeline(PipelineRasterizationFromStrings(...));
      */
     PipelineRasterization::PipelineRasterization(
+        PrimitiveTopology  primitiveTopology,
         const std::string& vertexString,
         const std::string& tessControlString,
         const std::string& tessEvalutionString,
@@ -45,6 +46,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!loadStrings_(vertexString, tessControlString, tessEvalutionString, geometryString, fragmentString))
             throw std::runtime_error(infoLog_);
+        vertexStageInputPrimitiveTopology = primitiveTopology;
     }
 
     //TODO: one of the only instances where I depend on catch to work (blocks people form changing throw into a simple crash)
@@ -54,6 +56,7 @@ namespace glCompact {
      */
     PipelineRasterization::PipelineRasterization(
         const std::string& path,
+        PrimitiveTopology  primitiveTopology,
         const std::string& vertexFile,
         const std::string& tessControlFile,
         const std::string& tessEvalutionFile,
@@ -89,6 +92,7 @@ namespace glCompact {
             s += infoLog_;
             throw std::runtime_error(s);
         }
+        vertexStageInputPrimitiveTopology = primitiveTopology;
     }
 
     void PipelineRasterization::setVertexStageInputPrimitiveTopology(

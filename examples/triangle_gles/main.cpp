@@ -43,9 +43,7 @@ int main (int argc, char *argv[]) {
     };
     Buffer attributeBuffer(false, sizeof(attributeData), attributeData);
 
-    MyPipeline myPipeline(vertexShader, "", "", "", fragmentShader);
-
-    myPipeline.setVertexStageInputPrimitiveTopology(PrimitiveTopology::triangleList);
+    MyPipeline myPipeline(PrimitiveTopology::triangleList, vertexShader, "", "", "", fragmentShader);
     myPipeline.setAttributeLayout(attributeLayout);
     myPipeline.setAttributeBuffer(0, attributeBuffer);
     myPipeline.rgba = vec4(1.0f, 0.0f, 0.0f, 0.0f);
