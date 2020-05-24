@@ -77,6 +77,7 @@ namespace glCompact {
             uint32_t getX(){return x;}
             uint32_t getY(){return y;}
             uint32_t getZ(){return z;} //min amount of layers from all targets
+            glm::uvec2 getXY(){return {x, y};}
             uint32_t getSamples(){return samples;}
             bool     isLayered(){return layered;}
             bool     isSrgb(){return srgb;}
