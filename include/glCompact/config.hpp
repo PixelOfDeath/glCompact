@@ -13,9 +13,9 @@ namespace glCompact {
         //#define GLCOMPACT_MULTIPLE_CONTEXT_GROUP
 
         //glCompact requeres at last OpenGL 3.3 (or OpenGL ES 3.2 ?). Running glCompact with anything lower will break stuff!
-        //The minimum version values can be set higher to enable constand folding for extensions that are always present with newer versions.
-        //
-        //FeatureSetting will be ignored for all features that are core since this OpenGL version!
+        //The minimum version values can be set higher to enable constand folding for extensions and values that are always present with later versions.
+        //FeatureSetting will behave like mustBeSupported for all features that are core since this OpenGL version!
+        //While it is possible to enable both gl and gles support here, it will force to only garantie the lowest extensions/values from both selected versions!
         namespace version {
             constexpr GlVersion   glMin   = GlVersion::v33;            //glCompact requires this to be at last v33
             constexpr GlesVersion glesMin = GlesVersion::notSupported; //glCompact requires this to be at last v32 ?
@@ -57,22 +57,10 @@ namespace glCompact {
         //I leave this as an option to always be able to test how different drivers behave. But default will be always off.
         constexpr bool ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS = false;
 
-        //This values are used to size the state tracker arrays. Smaller = more cache friendly.
-        //In the future I will use automaticly compacted data structures in PipelineInterface and maybe even in the Context tracker.
-        constexpr int MAX_SAMPLER_BINDINGS               = 160; //texture/sampler: on modern hardware you get max. 32 units per shader stage (GraphicsShader = 32 * 5 stages = 160)
-
         //Max. amount of vertex buffers/buffer index. Standard: 16/32 - inbuild variables (e.g. r290 limited to 0..28=29 locations!)
         //I guess default variables like gl_position takes take away from 32 locations?
         //vec3/vec4/mat3x?/mat4x? double types can (but not must) use up two times the amount of locations!
         constexpr int MAX_ATTRIBUTES                     = 32;
-
-        constexpr int MAX_IMAGE_BINDINGS                 = 32; //32 per shader max. on modern hardware as far as I know
-
-        constexpr int MAX_ATOMIC_COUNTER_BUFFER_BINDINGS = 32; //Dont know, still have to figure out the limitations of this one
-
-        constexpr int MAX_UNIFORM_BUFFER_BINDINGS        = 91; //biggest GL_MAX_UNIFORM_BUFFER_BINDINGS known to mankind
-        constexpr int MAX_SHADERSTORAGE_BUFFER_BINDINGS  = 96; //nvidia 96, amd 64, mesa intel 72
-
         constexpr int MAX_RGBA_ATTACHMENTS               = 8; //basically MAX_COLOR_ATTACHMENTS, but prefer to use the RGBA naming cheme
 
         namespace Workarounds {
