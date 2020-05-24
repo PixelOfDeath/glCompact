@@ -73,7 +73,7 @@ namespace glCompact {
     void Debug::enableDebugOutput() {
         //There also is ATI_debug_output and ARB_debug_output, but we may never use them because GL_KHR_debug got implemented by all current drivers and is part of core.
         if (threadContextGroup_->extensions.GL_KHR_debug) {
-            cout << "GL_KHR_debug found, registering debug callback function" << endl;
+            //cout << "GL_KHR_debug found, registering debug callback function" << endl;
             threadContextGroup_->functions.glDebugMessageCallback(&coutKhrDebugMessage, 0);
             threadContextGroup_->functions.glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); //supposedly ruins performance, but gives callback in same thread as context after API call. So we are able to get a nice backtrace from where the call came from.
 
@@ -81,7 +81,7 @@ namespace glCompact {
             //In non debug context the driver is free to chose if he enables output at all. Or if the driver even exposes GL_KHR_debug string in the first place.
             threadContextGroup_->functions.glEnable(GL_DEBUG_OUTPUT);
         } else {
-            cout << "GL_KHR_debug not available" << endl;
+            //cout << "GL_KHR_debug not available" << endl;
         }
     }
 
