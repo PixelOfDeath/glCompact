@@ -121,7 +121,9 @@ class Framework {
         Framework(int glMayor, int glMinor, bool gles, int x, int y):
             frameworkWindow(glMayor, glMinor, gles, x, y),
             contextScope(SDL_GL_GetProcAddress)
-        {}
+        {
+            glCompact::setWindowFrameSize(x, y);
+        }
         ~Framework(){}
         void handleEvents() {
             frameworkMain.handleEvents();
