@@ -1,4 +1,5 @@
 #include "glCompact/ThreadContext.hpp"
+#include "glCompact/Context.hpp"
 
 /*TODO
     Big issue still to be solved:
