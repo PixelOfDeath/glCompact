@@ -420,76 +420,92 @@ namespace glCompact {
                 extensions.GL_ARB_texture_filter_anisotropic        = true;
                 extensions.GL_ARB_transform_feedback_overflow_query = true;
             }
-            if (bool(config::version::glesMin)) {
+            if (config::version::glesMin != GlesVersion::notSupported) {
                 //TODO
             }
         }
     }
 
-    void ContextGroup_::getAllValue() {
-        //Core forever?
-            values.GL_MAX_TEXTURE_SIZE                                  = getValue<int32_t>(GL_MAX_TEXTURE_SIZE);
+    template<typename T>
+    inline T ContextGroup_::versionValue(T gl46, T gl45, T gl44, T gl43, T gl42, T gl41, T gl40, T gl33, T gl32, T gl31, T gl30, T gl21,  T gles32, T gles31, T gles30, T gles20, uint32_t glConstName
+    ) {
+        T glValue =
+            (version.gl == GlVersion::v46) ? gl46 :
+            (version.gl == GlVersion::v45) ? gl45 :
+            (version.gl == GlVersion::v44) ? gl44 :
+            (version.gl == GlVersion::v43) ? gl43 :
+            (version.gl == GlVersion::v42) ? gl42 :
+            (version.gl == GlVersion::v41) ? gl41 :
+            (version.gl == GlVersion::v40) ? gl40 :
+            (version.gl == GlVersion::v33) ? gl33 :
+            (version.gl == GlVersion::v32) ? gl32 :
+            (version.gl == GlVersion::v31) ? gl31 :
+            (version.gl == GlVersion::v30) ? gl30 :
+            (version.gl == GlVersion::v21) ? gl21 : 0;
+        T glesValue =
+            (version.gles == GlesVersion::v32) ? gles32 :
+            (version.gles == GlesVersion::v31) ? gles31 :
+            (version.gles == GlesVersion::v30) ? gles30 :
+            (version.gles == GlesVersion::v20) ? gles20 : 0;
+        T value =
+            (version.gl != GlVersion::notSupported && version.gles == GlesVersion::notSupported) ? min(glValue, glesValue) :
+            (version.gl != GlVersion::notSupported)                                              ?     glValue :glesValue;
+        return max(value, getValue<T>(glConstName));
+    }
 
+    void ContextGroup_::getAllValue() {
+        //                                                                      GL                                                                                   GLES
+        //                                                                       4.6,   4.5,   4.4,   4.3,   4.2,   4.1,   4.0,   3.3,   3.2,   3.1,   3.0,   2.1     3.2,   3.1,   3.0,   2.0
+        //Core forever?
+            values.GL_MAX_TEXTURE_SIZE                 = versionValue<int32_t>(16384, 16384, 16384, 16384, 16384, 16384,  1024,  1024,  1024,  1024,  1024,    64,   2048,  2048,  2048,    64, GL_MAX_TEXTURE_SIZE);
         //Core since 1.2
-            if (extensions.GL_EXT_texture3D) {
-                values.GL_MAX_3D_TEXTURE_SIZE                           = getValue<int32_t>(GL_MAX_3D_TEXTURE_SIZE);
-            }
+            //extensions.GL_EXT_texture3D
+            values.GL_MAX_3D_TEXTURE_SIZE              = versionValue<int32_t>( 2048,  2048,  2048,  2048,  2048,  2048,   256,   256,   256,   256,   256,    16,    256,   256,   256,     0, GL_MAX_3D_TEXTURE_SIZE);
         //Core since 1.3
             //GL_ARB_texture_cube_map
-            values.GL_MAX_CUBE_MAP_TEXTURE_SIZE                         = getValue<int32_t>(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
-
+            values.GL_MAX_CUBE_MAP_TEXTURE_SIZE        = versionValue<int32_t>(16384, 16384, 16384, 16384, 16384, 16384,  1024,  1024,  1024,  1024,  1024,    16,   2048,  2048,  2048,    16, GL_MAX_CUBE_MAP_TEXTURE_SIZE);
         //Core since 2.0
-            //if (version.gl >= GlVersion::v20) {
-                values.GL_MAX_DRAW_BUFFERS                              = getValue<int32_t>(GL_MAX_DRAW_BUFFERS);
-            //}
-            //if (extensions.GL_ARB_vertex_shader) {
-                values.GL_MAX_VERTEX_UNIFORM_COMPONENTS                 = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_COMPONENTS);
-                values.GL_MAX_VARYING_FLOATS                            = getValue<int32_t>(GL_MAX_VARYING_FLOATS);
-                values.GL_MAX_VERTEX_ATTRIBS                            = getValue<int32_t>(GL_MAX_VERTEX_ATTRIBS);
-                values.GL_MAX_TEXTURE_IMAGE_UNITS                       = getValue<int32_t>(GL_MAX_TEXTURE_IMAGE_UNITS);
-                values.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS                = getValue<int32_t>(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-                values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS              = getValue<int32_t>(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-                values.GL_MAX_TEXTURE_COORDS                            = getValue<int32_t>(GL_MAX_TEXTURE_COORDS);
-            //}
+            values.GL_MAX_DRAW_BUFFERS                 = versionValue<int32_t>(    8,     8,     8,     8,     8,     8,     8,     8,     8,     8,     8,     1,      4,     4,     4,     0, GL_MAX_DRAW_BUFFERS);
+            values.GL_MAX_VERTEX_UNIFORM_COMPONENTS    = versionValue<int32_t>( 1024,  1024,  1024,  1024,  1024,  1024,  1024,  1024,  1024,  1024,  1024,   512,   1024,  1024,  1024,     0, GL_MAX_VERTEX_UNIFORM_COMPONENTS);
+            //Same constand value as GL_MAX_VARYING_FLOATS
+            //Actuall 64 for 3.0 and 3.1, but it is kind of nonsensical to have a higher minimum max. in a lower GL version:
+            values.GL_MAX_VARYING_COMPONENTS           = versionValue<int32_t>(   60,    60,    60,    60,    60,    60,    60,    60,    60,    60,    60,    32,     60,    60,    60,     0, GL_MAX_VARYING_COMPONENTS);
+            values.GL_MAX_VERTEX_ATTRIBS               = versionValue<int32_t>(   16,    16,    16,    16,    16,    16,    16,    16,    16,    16,    16,    16,     16,    16,    16,     8, GL_MAX_VERTEX_ATTRIBS);
+            values.GL_MAX_TEXTURE_IMAGE_UNITS          = versionValue<int32_t>(   16,    16,    16,    16,    16,    16,    16,    16,    16,    16,    16,     2,     16,    16,    16,     8, GL_MAX_TEXTURE_IMAGE_UNITS);
+            values.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS   = versionValue<int32_t>(   16,    16,    16,    16,    16,    16,    16,    16,    16,    16,    16,     0,     16,    16,    16,     0, GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
 
+            //*actually 96 for 4.3, but it is kind of nonsensical to have a higher minimum max. in a lower GL version:
+            values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS = versionValue<int32_t>(   80,    80,    80,    80,    80,    80,    80,    48,    48,    32,    16,     2,     96,    48,    32,     8, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
         //Core since 3.0
-            //if (extensions.GL_ARB_framebuffer_object) {
-                values.GL_MAX_SAMPLES                                   = getValue<int32_t>(GL_MAX_SAMPLES);
-                values.GL_MAX_COLOR_ATTACHMENTS                         = getValue<int32_t>(GL_MAX_COLOR_ATTACHMENTS);
-                values.GL_MAX_RENDERBUFFER_SIZE                         = getValue<int32_t>(GL_MAX_RENDERBUFFER_SIZE);
-            //}
-            //if (extensions.GL_EXT_texture_array) {
-                values.GL_MAX_ARRAY_TEXTURE_LAYERS                      = getValue<int32_t>(GL_MAX_ARRAY_TEXTURE_LAYERS);
-            //}
+            //extensions.GL_ARB_framebuffer_object
+            //Minimum max. samples for non integer formats
+            values.GL_MAX_SAMPLES                      = versionValue<int32_t>(    4,     4,     4,     4,     4,     4,     4,     4,     4,     4,     4,     0,      4,     4,     4,      0, GL_MAX_SAMPLES);
+            values.GL_MAX_COLOR_ATTACHMENTS            = versionValue<int32_t>(    8,     8,     8,     8,     8,     8,     8,     8,     8,     8,     8,     0,      4,     4,     4,      0, GL_MAX_COLOR_ATTACHMENTS);
+            values.GL_MAX_RENDERBUFFER_SIZE            = versionValue<int32_t>(16384, 16384, 16384, 16384, 16384, 16384,  1024,  1024,  1024,  1024,  1024,     0,   2048,  2048,  2048,      1, GL_MAX_RENDERBUFFER_SIZE);
+            //extensions.GL_EXT_texture_array
+            values.GL_MAX_ARRAY_TEXTURE_LAYERS         = versionValue<int32_t>( 2048,  2048,  2048,  2048,  2048,  2048,   256,   256,   256,   256,   256,     0,    256,   256,   256,      0, GL_MAX_ARRAY_TEXTURE_LAYERS);
         //Core since 3.1
-            //if (extensions.GL_ARB_texture_buffer_object) {
-                values.GL_MAX_TEXTURE_BUFFER_SIZE                       = getValue<int32_t>(GL_MAX_TEXTURE_BUFFER_SIZE);
-            //}
-            //if (extensions.GL_ARB_uniform_buffer_object) {
-                values.GL_MAX_VERTEX_UNIFORM_BLOCKS                     = getValue<int32_t>(GL_MAX_VERTEX_UNIFORM_BLOCKS);
-                values.GL_MAX_GEOMETRY_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
-                values.GL_MAX_FRAGMENT_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_FRAGMENT_UNIFORM_BLOCKS);
-                values.GL_MAX_COMBINED_UNIFORM_BLOCKS                   = getValue<int32_t>(GL_MAX_COMBINED_UNIFORM_BLOCKS);
-                values.GL_MAX_UNIFORM_BUFFER_BINDINGS                   = getValue<int32_t>(GL_MAX_UNIFORM_BUFFER_BINDINGS);
-                values.GL_MAX_UNIFORM_BLOCK_SIZE                        = getValue<int32_t>(GL_MAX_UNIFORM_BLOCK_SIZE);
-                values.GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS        = getValue<int32_t>(GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS);
-                values.GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS      = getValue<int32_t>(GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS);
-                values.GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS      = getValue<int32_t>(GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS);
-                values.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT               = getValue<int32_t>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
-            //}
+            //extensions.GL_ARB_texture_buffer_object
+            //Number of addressable texels:
+            values.GL_MAX_TEXTURE_BUFFER_SIZE          = versionValue<int32_t>(65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536,     0,     0,  65536,     0,     0,      0, GL_MAX_TEXTURE_BUFFER_SIZE);
+            values.GL_MAX_VERTEX_UNIFORM_BLOCKS        = versionValue<int32_t>(   12,    12,    12,    12,    12,    12,    12,    12,    12,    12,     0,     0,     12,    12,    12,      0, GL_MAX_VERTEX_UNIFORM_BLOCKS);
+            values.GL_MAX_GEOMETRY_UNIFORM_BLOCKS      = versionValue<int32_t>(   14,    14,    14,    14,    12,    12,    12,    12,    12,     0,     0,     0,     12,     0,     0,      0, GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
+            values.GL_MAX_FRAGMENT_UNIFORM_BLOCKS      = versionValue<int32_t>(   14,    14,    14,    14,    12,    12,    12,    12,    12,    12,     0,     0,     12,    12,    12,      0, GL_MAX_FRAGMENT_UNIFORM_BLOCKS);
+            values.GL_MAX_COMBINED_UNIFORM_BLOCKS      = versionValue<int32_t>(   70,    70,    70,    70,    60,    60,    60,    36,    36,    24,     0,     0,     60,    24,    24,      0, GL_MAX_COMBINED_UNIFORM_BLOCKS);
+            values.GL_MAX_UNIFORM_BUFFER_BINDINGS      = versionValue<int32_t>(   84,    84,    84,    84,    60,    60,    60,    36,    36,    24,     0,     0,     72,    36,    24,      0, GL_MAX_UNIFORM_BUFFER_BINDINGS);
+            values.GL_MAX_UNIFORM_BLOCK_SIZE           = versionValue<int32_t>(16384, 16384, 16384, 16384, 16384, 16384, 16384, 16384, 16384, 16384,     0,     0,  16384, 16384, 16384,      0, GL_MAX_UNIFORM_BLOCK_SIZE);
+            //Maximum allowed value for offset!
+            values.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT  = versionValue<int32_t>(  256,   256,     1,     1,     1,     1,     1,     1,     1,     1,     0,     0,    256,   256,   256,      0, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
         //Core since 3.2
-            //if (extensions.GL_ARB_texture_multisample) {
-                values.GL_MAX_COLOR_TEXTURE_SAMPLES                     = getValue<int32_t>(GL_MAX_COLOR_TEXTURE_SAMPLES);
-                values.GL_MAX_DEPTH_TEXTURE_SAMPLES                     = getValue<int32_t>(GL_MAX_DEPTH_TEXTURE_SAMPLES);
-                values.GL_MAX_INTEGER_SAMPLES                           = getValue<int32_t>(GL_MAX_INTEGER_SAMPLES);
-            //}
-            //if (extensions.GL_ARB_sync) {
-                values.GL_MAX_SERVER_WAIT_TIMEOUT                       = getValue<int32_t>(GL_MAX_SERVER_WAIT_TIMEOUT);
-            //}
+            //extensions.GL_ARB_texture_multisample
+            values.GL_MAX_COLOR_TEXTURE_SAMPLES        = versionValue<int32_t>(    1,     1,     1,     1,     1,     1,     1,     1,     1,     0,     0,     0,      1,     1,     0,      0, GL_MAX_COLOR_TEXTURE_SAMPLES);
+            values.GL_MAX_DEPTH_TEXTURE_SAMPLES        = versionValue<int32_t>(    1,     1,     1,     1,     1,     1,     1,     1,     1,     0,     0,     0,      1,     1,     0,      0, GL_MAX_DEPTH_TEXTURE_SAMPLES);
+            values.GL_MAX_INTEGER_SAMPLES              = versionValue<int32_t>(    1,     1,     1,     1,     1,     1,     1,     1,     1,     0,     0,     0,      1,     1,     0,      0, GL_MAX_INTEGER_SAMPLES);
+            //extensions.GL_ARB_sync
+            values.GL_MAX_SERVER_WAIT_TIMEOUT          = getValue<int32_t>(GL_MAX_SERVER_WAIT_TIMEOUT); //Standard only defines 0 as max. minimum supported value
         //Core since 3.3
-            //if (extensions.GL_ARB_blend_func_extended) {
-                values.GL_MAX_DUAL_SOURCE_DRAW_BUFFERS                  = getValue<int32_t>(GL_MAX_DUAL_SOURCE_DRAW_BUFFERS);
-            //}
+            //extensions.GL_ARB_blend_func_extended
+            values.GL_MAX_DUAL_SOURCE_DRAW_BUFFERS     = versionValue<int32_t>(    1,     1,     1,     1,     1,     1,     1,     1,     0,     0,     0,     0,      0,     0,     0,      0, GL_MAX_DUAL_SOURCE_DRAW_BUFFERS);
         //Core since 4.0
             if (extensions.GL_ARB_transform_feedback3) {
                 values.GL_MAX_TRANSFORM_FEEDBACK_BUFFERS                = getValue<int32_t>(GL_MAX_TRANSFORM_FEEDBACK_BUFFERS);

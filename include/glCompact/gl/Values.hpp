@@ -24,12 +24,11 @@ namespace glCompact {
 
                     //GL_ARB_vertex_shader
                     int32_t GL_MAX_VERTEX_UNIFORM_COMPONENTS;
-                    int32_t GL_MAX_VARYING_FLOATS;
+                    int32_t GL_MAX_VARYING_COMPONENTS; //before 3.0: GL_MAX_VARYING_FLOATS
                     int32_t GL_MAX_VERTEX_ATTRIBS;
                     int32_t GL_MAX_TEXTURE_IMAGE_UNITS;
                     int32_t GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS;
                     int32_t GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
-                    int32_t GL_MAX_TEXTURE_COORDS;
 
                 //Core since 3.0
                     //GL_ARB_framebuffer_object
@@ -51,9 +50,6 @@ namespace glCompact {
                     int32_t GL_MAX_COMBINED_UNIFORM_BLOCKS;
                     int32_t GL_MAX_UNIFORM_BUFFER_BINDINGS;
                     int32_t GL_MAX_UNIFORM_BLOCK_SIZE;
-                    int32_t GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS;
-                    int32_t GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS;
-                    int32_t GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS;
                     int32_t GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT;
 
                 //Core since 3.2
