@@ -978,7 +978,7 @@ namespace glCompact {
     }
 
     void Frame::detachFromThreadContextStateCurrent() const {
-        assert(!threadContext);
+        assert(threadContext);
 
         int setCurrentValue = 0;
         if (config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO) setCurrentValue = -1;
@@ -989,7 +989,7 @@ namespace glCompact {
     }
 
     void Frame::detachFromThreadContextState() const {
-        assert(!threadContext);
+        assert(threadContext);
 
         detachFromThreadContextStateCurrent();
 
