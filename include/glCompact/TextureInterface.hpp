@@ -29,6 +29,7 @@ namespace glCompact {
             glm::ivec3 getMipmapLevelSize(uint32_t mipmapLevel) const;
         protected:
             TextureInterface() = default;
+            TextureInterface(const TextureInterface& sourceTexture);
             ~TextureInterface();
             void create(int32_t target, SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t z, bool mipmap, uint8_t samples);
             void createView(TextureInterface& srcImages, int32_t target, SurfaceFormat surfaceFormat, uint32_t firstMipmap, bool mipmap, uint32_t firstLayer, uint32_t layerCount);

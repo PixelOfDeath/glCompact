@@ -127,6 +127,17 @@ using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
+    TextureInterface::TextureInterface(const TextureInterface& sourceTexture) {
+        create(sourceTexture.target, sourceTexture.surfaceFormat, sourceTexture.x, sourceTexture.y, sourceTexture.z, sourceTexture.mipmapCount, 0);
+        if (threadContextGroup_->extensions.GL_ARB_copy_image) {
+            LOOPI(sourceTexture.mipmapCount)
+                copyFromSurfaceMemory    (sourceTexture, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
+        } else {
+            LOOPI(sourceTexture.mipmapCount)
+                copyFromSurfaceComponents(sourceTexture, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
+        }
+    }
+
     TextureInterface::~TextureInterface() {
         free();
     }
