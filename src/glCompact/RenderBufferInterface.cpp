@@ -9,6 +9,15 @@ using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
+    RenderBufferInterface::RenderBufferInterface(const RenderBufferInterface& sourceRenderBuffer) {
+        create(sourceRenderBuffer.surfaceFormat, sourceRenderBuffer.x, sourceRenderBuffer.y, sourceRenderBuffer.samples);
+        if (threadContextGroup_->extensions.GL_ARB_copy_image) {
+            copyFromSurfaceMemory    (sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.x, sourceRenderBuffer.y, 1});
+        } else {
+            copyFromSurfaceComponents(sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.x, sourceRenderBuffer.y, 1});
+        }
+    }
+
     void RenderBufferInterface::create(SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t samples) {
         UNLIKELY_IF (surfaceFormat->isCompressed)
             throw runtime_error("SurfaceFormat for RenderBuffer must be uncompressed format!");
