@@ -9,8 +9,7 @@ namespace glCompact {
             friend class TextureInterface;
             friend class Frame;
             friend class PipelineInterface;
-            friend class RenderBuffer2d;
-            friend class RenderBuffer2dMultisample;
+            friend class RenderBufferInterface;
         public:
             enum FormatEnum {
                 R8_UNORM = 1,

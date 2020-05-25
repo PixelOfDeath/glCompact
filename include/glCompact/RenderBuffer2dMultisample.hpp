@@ -8,7 +8,6 @@ namespace glCompact {
             RenderBuffer2dMultisample(SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t samples);
             RenderBuffer2dMultisample& operator=(RenderBuffer2dMultisample&& renderBufferMultisample) = default;
 
-            static uint32_t getMaxXY();
             static uint32_t getMaxSamples();
             static uint32_t getMaxSamplesRgbaInteger();
     };

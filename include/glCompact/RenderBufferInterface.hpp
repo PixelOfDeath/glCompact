@@ -6,5 +6,9 @@ namespace glCompact {
         protected:
             RenderBufferInterface() = default;
             RenderBufferInterface& operator=(RenderBufferInterface&& renderBufferInterface) = default;
+
+            void create(SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t samples);
+
+            static uint32_t getMaxXY();
     };
 }
