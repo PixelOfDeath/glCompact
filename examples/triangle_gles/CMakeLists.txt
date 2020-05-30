@@ -6,7 +6,7 @@ SET(CMAKE_BUILD_TYPE Release)
 SET(CMAKE_CXX_STANDARD 11)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
+LIST(APPEND CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
 ADD_EXECUTABLE(triangle_gles
     main.cpp
@@ -45,7 +45,7 @@ ENDIF()
 target_include_directories(triangle_gles
     PUBLIC
     ${FRAMEWORK_INCLUDE_DIR}
-    ${GLM_INCLUDE_DIR}
+    ${GLM_INCLUDE_DIRS}
     ${GLCOMPACTDIR}/include/
 )
 
