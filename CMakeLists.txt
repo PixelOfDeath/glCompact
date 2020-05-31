@@ -257,9 +257,11 @@ ELSE()
     set(BUILDBIT 32)
 ENDIF()
 
-MESSAGE("--")
 MESSAGE("-- glCompact (${BUILDBIT}bit) (${CMAKE_BUILD_TYPE}) (LTO=${LTOAvailable}) (Enforcing C++11=${ENFORCINGCPLUSPLUS11}) build will be INSTALLED in: ${CMAKE_INSTALL_PREFIX}")
 if(NOT DOXYGEN_FOUND)
 message("-- Could not find Doxygen, install doxygen to be able to use build target doc to generate documentation!")
 endif()
-MESSAGE("--")
+
+#Set cmake variables for the parent project
+SET(GLCOMPACT_INCLUDE_DIRS "${GLM_INCLUDE_DIRS}" "${PROJECT_SOURCE_DIR}/include" PARENT_SCOPE)
+SET(GLCOMPACT_LIBRARY glCompact PARENT_SCOPE)
