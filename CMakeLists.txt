@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
 PROJECT(glCompact CXX C)
 
+#This only should be set when developing glCompact. It can break LTO when the parent project uses a higher C++ standard
+SET(ENFORCINGCPLUSPLUS11 NO)
+
 #Under linux, cmake leaves this empty by default. So we set it to release. This will not be set if e.g. a top level project already set it.
 #Under Windows nmake this is always defaulted to debug, so we have to set it via parameter to release
 if(NOT CMAKE_BUILD_TYPE)
@@ -133,20 +136,25 @@ ADD_DEPENDENCIES(
     Extensions_hpp
 )
 
-if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
-    #We are the top-level project
-    message(STATUS "glCompact is the top level project - enforcing C++11 standard")
-    SET(ENFORCINGCPLUSPLUS11 YES)
+IF (ENFORCINGCPLUSPLUS11)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
     )
-else()
-    #called from other project with add_subdirectory()
-    message(STATUS "glCompact is NOT the top level project - NOT enforcing C++11 standard to prevent LTO breakage")
-    SET(ENFORCINGCPLUSPLUS11 NO)
-endif()
+ENDIF()
+
+IF(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    SET(WEARETOPLEVELPROJECT TRUE)
+ELSE()
+    SET(WEARETOPLEVELPROJECT FALSE)
+ENDIF()
+
+IF(NOT WEARETOPLEVELPROJECT)
+    #Set cmake variables for the parent project
+    SET(GLCOMPACT_INCLUDE_DIRS "${GLM_INCLUDE_DIRS}" "${PROJECT_SOURCE_DIR}/include" PARENT_SCOPE)
+    SET(GLCOMPACT_LIBRARY glCompact PARENT_SCOPE)
+ENDIF()
 
 if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
     include(CheckIPOSupported)
@@ -261,7 +269,3 @@ MESSAGE("-- glCompact (${BUILDBIT}bit) (${CMAKE_BUILD_TYPE}) (LTO=${LTOAvailable
 if(NOT DOXYGEN_FOUND)
 message("-- Could not find Doxygen, install doxygen to be able to use build target doc to generate documentation!")
 endif()
-
-#Set cmake variables for the parent project
-SET(GLCOMPACT_INCLUDE_DIRS "${GLM_INCLUDE_DIRS}" "${PROJECT_SOURCE_DIR}/include" PARENT_SCOPE)
-SET(GLCOMPACT_LIBRARY glCompact PARENT_SCOPE)
