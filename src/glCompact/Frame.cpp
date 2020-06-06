@@ -15,8 +15,9 @@
 #include <algorithm>
 #include <array>
 
-using namespace glCompact::gl;
 using namespace std;
+using namespace glCompact::gl;
+using namespace glm;
 
 /*
     This can be lower min. values without the arb extension!
@@ -166,9 +167,7 @@ namespace glCompact {
         bool foundDifferentSamples = false;
         bool foundSRGB             = false;
         bool foundNonSRGB          = false;
-        uint32_t minX = 0xFFFFFFFF;
-        uint32_t minY = 0xFFFFFFFF;
-        uint32_t minZ = 0xFFFFFFFF;
+        uvec3 minSize(0xFFFFFFFF);
         uint32_t lastSamples = 0xFFFFFFFF;
 
         //bool isLayered;
@@ -180,10 +179,7 @@ namespace glCompact {
 
             foundSingleLayer = isSingleLayer(depthAndOrStencilSurface);
             foundMultiLayer  = isMultiLayer (depthAndOrStencilSurface);
-            minX = min(minX, depthAndOrStencilSurface.surface->getSize().x);
-            minY = min(minY, depthAndOrStencilSurface.surface->getSize().y);
-            if (isMultiLayer(depthAndOrStencilSurface))
-                minZ = min(minZ, depthAndOrStencilSurface.surface->getSize().z);
+            minSize = min(uvec3(1), depthAndOrStencilSurface.surface->getSize());
             lastSamples = depthAndOrStencilSurface.surface->samples;
         }
         for (auto surfaceSelector : rgbaSurfaceList) {
@@ -197,10 +193,7 @@ namespace glCompact {
                 foundMultiLayer  = foundMultiLayer  || isMultiLayer (surfaceSelector);
                 foundSRGB        = foundSRGB        ||  surfaceSelector.surface->surfaceFormat->isSrgb;
                 foundNonSRGB     = foundNonSRGB     || !surfaceSelector.surface->surfaceFormat->isSrgb;
-                minX = min(minX, surfaceSelector.surface->getSize().x);
-                minY = min(minY, surfaceSelector.surface->getSize().y);
-                if (isMultiLayer(surfaceSelector))
-                    minZ = min(minZ, surfaceSelector.surface->getSize().z);
+                minSize = min(uvec3(1), surfaceSelector.surface->getSize());
                 uint32_t sSamples = surfaceSelector.surface->samples;
                 if (lastSamples != 0xFFFFFFFF && lastSamples != sSamples) foundDifferentSamples = true;
                 lastSamples = sSamples;
@@ -218,9 +211,9 @@ namespace glCompact {
         //TODO: Check for max surfaces!
         //LOTS OF Framebuffer Completeness RULES HERE: https://www.khronos.org/opengl/wiki/Framebuffer_Object#Framebuffer_Completeness
 
-        x       = minX;
-        y       = minY;
-        z       = foundMultiLayer ? 1 : minZ;
+        x       = minSize.x;
+        y       = minSize.y;
+        z       = minSize.z;
         layered = foundMultiLayer;
         samples = lastSamples;
         srgb    = foundSRGB;
