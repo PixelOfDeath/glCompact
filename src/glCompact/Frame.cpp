@@ -159,7 +159,7 @@ namespace glCompact {
         SurfaceSelector rgba5,
         SurfaceSelector rgba6,
         SurfaceSelector rgba7
-    ) noexcept(false) {
+    ) {
         array<SurfaceSelector, 8> rgbaSurfaceList = {rgba0, rgba1, rgba2, rgba3, rgba4, rgba5, rgba6, rgba7};
 
         bool foundSingleLayer      = false;

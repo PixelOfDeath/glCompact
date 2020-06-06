@@ -22,7 +22,7 @@ namespace glCompact {
                   SurfaceSelector rgba4 = {},
                   SurfaceSelector rgba5 = {},
                   SurfaceSelector rgba6 = {},
-                  SurfaceSelector rgba7 = {}) noexcept(false);
+                  SurfaceSelector rgba7 = {});
             Frame(uint32_t sizeX, uint32_t sizeY, uint32_t layers, uint32_t samples);
             //Frame           (const Frame& frame);
             //Frame& operator=(const Frame& frame);
