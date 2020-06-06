@@ -180,10 +180,10 @@ namespace glCompact {
 
             foundSingleLayer = isSingleLayer(depthAndOrStencilSurface);
             foundMultiLayer  = isMultiLayer (depthAndOrStencilSurface);
-            minX = min(minX, depthAndOrStencilSurface.surface->x);
-            minY = min(minY, depthAndOrStencilSurface.surface->y);
+            minX = min(minX, depthAndOrStencilSurface.surface->getSize().x);
+            minY = min(minY, depthAndOrStencilSurface.surface->getSize().y);
             if (isMultiLayer(depthAndOrStencilSurface))
-                minZ = min(minZ, depthAndOrStencilSurface.surface->z);
+                minZ = min(minZ, depthAndOrStencilSurface.surface->getSize().z);
             lastSamples = depthAndOrStencilSurface.surface->samples;
         }
         for (auto surfaceSelector : rgbaSurfaceList) {
@@ -197,10 +197,10 @@ namespace glCompact {
                 foundMultiLayer  = foundMultiLayer  || isMultiLayer (surfaceSelector);
                 foundSRGB        = foundSRGB        ||  surfaceSelector.surface->surfaceFormat->isSrgb;
                 foundNonSRGB     = foundNonSRGB     || !surfaceSelector.surface->surfaceFormat->isSrgb;
-                minX = min(minX, surfaceSelector.surface->x);
-                minY = min(minY, surfaceSelector.surface->y);
+                minX = min(minX, surfaceSelector.surface->getSize().x);
+                minY = min(minY, surfaceSelector.surface->getSize().y);
                 if (isMultiLayer(surfaceSelector))
-                    minZ = min(minZ, surfaceSelector.surface->z);
+                    minZ = min(minZ, surfaceSelector.surface->getSize().z);
                 uint32_t sSamples = surfaceSelector.surface->samples;
                 if (lastSamples != 0xFFFFFFFF && lastSamples != sSamples) foundDifferentSamples = true;
                 lastSamples = sSamples;

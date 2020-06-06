@@ -41,7 +41,7 @@ namespace glCompact {
             throw out_of_range    ("Trying to select texture mipmapLevel that does not exist!");
         UNLIKELY_IF (!texture.isLayered())
             throw invalid_argument("Trying to select layer of unlayered texture!");
-        UNLIKELY_IF (layer       > texture.z)
+        UNLIKELY_IF (layer       > texture.size.z)
             throw out_of_range    ("Trying to select texture layer that does not exist!");
     }
 }

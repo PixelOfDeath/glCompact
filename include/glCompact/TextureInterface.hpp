@@ -26,7 +26,7 @@ namespace glCompact {
             void invalidate(uint32_t mipmapLevel);
             void invalidate(uint32_t mipmapLevel, glm::ivec3 offset, glm::ivec3 size);
 
-            glm::ivec3 getMipmapLevelSize(uint32_t mipmapLevel) const;
+            glm::uvec3 getMipmapLevelSize(uint32_t mipmapLevel) const;
         protected:
             TextureInterface() = default;
             TextureInterface(const TextureInterface& sourceTexture);

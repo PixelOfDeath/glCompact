@@ -32,14 +32,13 @@
 
 using namespace std;
 using namespace glCompact::gl;
+using namespace glm;
 
 namespace glCompact {
     SurfaceInterface& SurfaceInterface::operator=(
         SurfaceInterface&& surfaceInterface
     ) {
-        x             = surfaceInterface.x;
-        y             = surfaceInterface.y;
-        z             = surfaceInterface.z;
+        size          = surfaceInterface.size;
         mipmapCount   = surfaceInterface.mipmapCount;
         samples       = surfaceInterface.samples;
         surfaceFormat = surfaceInterface.surfaceFormat;
@@ -82,9 +81,7 @@ namespace glCompact {
         }
         id            = 0;
         target        = 0;
-        x             = 0;
-        y             = 0;
-        z             = 0;
+        size          = uvec3(0);
         mipmapCount   = 0;
         samples       = 0;
         surfaceFormat = static_cast<SurfaceFormat::FormatEnum>(0);

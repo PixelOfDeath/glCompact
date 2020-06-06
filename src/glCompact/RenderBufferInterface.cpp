@@ -7,14 +7,15 @@
 
 using namespace std;
 using namespace glCompact::gl;
+using namespace glm;
 
 namespace glCompact {
     RenderBufferInterface::RenderBufferInterface(const RenderBufferInterface& sourceRenderBuffer) {
-        create(sourceRenderBuffer.surfaceFormat, sourceRenderBuffer.x, sourceRenderBuffer.y, sourceRenderBuffer.samples);
+        create(sourceRenderBuffer.surfaceFormat, sourceRenderBuffer.size.x, sourceRenderBuffer.size.y, sourceRenderBuffer.samples);
         if (threadContextGroup_->extensions.GL_ARB_copy_image) {
-            copyFromSurfaceMemory    (sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.x, sourceRenderBuffer.y, 1});
+            copyFromSurfaceMemory    (sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.size.x, sourceRenderBuffer.size.y, 1});
         } else {
-            copyFromSurfaceComponents(sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.x, sourceRenderBuffer.y, 1});
+            copyFromSurfaceComponents(sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.size.x, sourceRenderBuffer.size.y, 1});
         }
     }
 
@@ -44,9 +45,7 @@ namespace glCompact {
 
         this->target        = GL_RENDERBUFFER;
         this->mipmapCount   = 1;
-        this->x             = x;
-        this->y             = y;
-        this->z             = 1;
+        this->size          = uvec3(x, y, 1);
         this->samples       = samples;
         this->surfaceFormat = surfaceFormat;
     }

@@ -125,10 +125,11 @@ S
 
 using namespace std;
 using namespace glCompact::gl;
+using namespace glm;
 
 namespace glCompact {
     TextureInterface::TextureInterface(const TextureInterface& sourceTexture) {
-        create(sourceTexture.target, sourceTexture.surfaceFormat, sourceTexture.x, sourceTexture.y, sourceTexture.z, sourceTexture.mipmapCount, 0);
+        create(sourceTexture.target, sourceTexture.surfaceFormat, sourceTexture.size.x, sourceTexture.size.y, sourceTexture.size.z, sourceTexture.mipmapCount, 0);
         if (threadContextGroup_->extensions.GL_ARB_copy_image) {
             LOOPI(sourceTexture.mipmapCount)
                 copyFromSurfaceMemory    (sourceTexture, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
@@ -270,12 +271,12 @@ namespace glCompact {
             case GL_TEXTURE_2D_MULTISAMPLE:
             case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: mipmapCount = 1; break;
             case GL_TEXTURE_1D:
-            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(log2(    x             + 1))); break;
+            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(::log2(    x             + 1))); break;
             case GL_TEXTURE_2D:
             case GL_TEXTURE_2D_ARRAY:
             case GL_TEXTURE_CUBE_MAP:
-            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(log2(max(x,     y)     + 1))); break;
-            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(log2(max(x, max(y, z)) + 1))); break;
+            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(::log2(max(x,     y)     + 1))); break;
+            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(::log2(max(x, max(y, z)) + 1))); break;
         }
 
         int mipmapLevelX = x;
@@ -460,9 +461,7 @@ namespace glCompact {
 
         this->mipmapCount   = mipmapCount;
         this->target        = target;
-        this->x             = x;
-        this->y             = y;
-        this->z             = z;
+        this->size          = uvec3(x, y, z);
         this->samples       = samples;
         this->surfaceFormat = surfaceFormat;
     }
@@ -488,9 +487,9 @@ namespace glCompact {
         //TODO: test SurfaceFormat compatibility
 
         target        = newTarget;
-        x             = srcImages.x; //TODO, needs formula for mipmap
-        y             = srcImages.y; //TODO, needs formula for mipmap (and 1d array texture!)
-        z             = min(layerCount, srcImages.z);
+        //TODO, needs formula for mipmap
+        //TODO, needs formula for mipmap (and 1d array texture!)
+        size          = uvec3(srcImages.size.x, srcImages.size.y, min(layerCount, srcImages.size.z));
         mipmapCount   = mipmap ? firstMipmap - srcImages.mipmapCount : 1;
         samples       = 0;
         surfaceFormat = newSurfaceFormat;
@@ -501,16 +500,16 @@ namespace glCompact {
     }
 
     //TODO: shall this always return 1 (what it does right now!) for the "not existing" dimensions? So it can be used in multiplications without checking?
-    glm::ivec3 TextureInterface::getMipmapLevelSize(
+    glm::uvec3 TextureInterface::getMipmapLevelSize(
         uint32_t mipmapLevel
     ) const {
-        glm::ivec3 size(0);
-        if (mipmapLevel >= mipmapCount) return size; //error or just return 0, 0, 0?
+        if (mipmapLevel >= mipmapCount) return uvec3(0); //error or just return 0, 0, 0?
         uint32_t mipmapScale = pow(2, mipmapLevel); //integerPowerOf(2, mipmapLevel);
-        size.x = max<uint32_t>(1, x / mipmapScale);
-        size.y = max<uint32_t>(1, (target != GL_TEXTURE_1D_ARRAY) ? (y / mipmapScale) : y);
-        size.z = max<uint32_t>(1, (target == GL_TEXTURE_3D)       ? (z / mipmapScale) : z);
-        return size;
+        return max(uvec3(1), uvec3(
+                                               size.x / mipmapScale,
+            (target != GL_TEXTURE_1D_ARRAY) ? (size.y / mipmapScale) : size.y,
+            (target == GL_TEXTURE_3D)       ? (size.z / mipmapScale) : size.z
+        ));
     }
 
     /**
@@ -735,7 +734,7 @@ namespace glCompact {
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
                         uintptr_t cubeSideBufferSize = memorySurfaceFormat->bytePerPixelOrBlock * texSize.x * texSize.y;
-                        for (unsigned int i = z; i < z + texSize.z; ++i)
+                        for (unsigned int i = size.z; i < size.z + texSize.z; ++i)
                             threadContextGroup_->functions.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
                         break;
                     }
@@ -779,8 +778,8 @@ namespace glCompact {
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
                         uintptr_t cubeMapSideSize = surfaceFormat->bitsPerPixelOrBlock * 8 * align(mipmapLevelSize.x, blockSizeX) * align(mipmapLevelSize.y, blockSizeY);
-                        for (unsigned i = z; i < z + texSize.z; ++i)
-                            threadContextGroup_->functions.glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, x, y, texSize.x, texSize.y, sizedFormat, uint32_t(cubeMapSideSize), reinterpret_cast<const void*>(dataOffset + cubeMapSideSize * i));
+                        for (unsigned i = size.z; i < size.z + texSize.z; ++i)
+                            threadContextGroup_->functions.glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, size.x, size.y, texSize.x, texSize.y, sizedFormat, uint32_t(cubeMapSideSize), reinterpret_cast<const void*>(dataOffset + cubeMapSideSize * i));
                         break;
                     }
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
@@ -880,7 +879,7 @@ namespace glCompact {
                 } else if (entireXY && target == GL_TEXTURE_CUBE_MAP) {
                     uint32_t cubeMapSideSize = memorySurfaceFormat->bytePerPixelOrBlock * mipmapLevelSize.x * mipmapLevelSize.y;
                     bindTemporal();
-                    for (uint32_t i = z; i < z + texSize.z; ++i)
+                    for (uint32_t i = size.z; i < size.z + texSize.z; ++i)
                         threadContextGroup_->functions.glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, componentsAndArrangement, componentsTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
                 } else if (entireXY && threadContextGroup_->extensions.GL_ARB_texture_view) {
                     uint32_t viewTexId = 0;
