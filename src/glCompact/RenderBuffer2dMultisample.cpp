@@ -1,15 +1,18 @@
 #include "glCompact/RenderBuffer2dMultisample.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
+
+#include <glm/glm.hpp>
+
 #include <stdexcept>
 
 using namespace std;
+using namespace glm;
 
 namespace glCompact {
     RenderBuffer2dMultisample::RenderBuffer2dMultisample(
         SurfaceFormat surfaceFormat,
-        uint32_t      x,
-        uint32_t      y,
+        uvec2         newSize,
         uint32_t      samples
     ) {
         //TODO: throw out sampler = 1 as valid value? Does it has any use case?
@@ -17,7 +20,7 @@ namespace glCompact {
         UNLIKELY_IF (!(samples == 1 || samples == 2 || samples == 4 || samples == 8))
             throw runtime_error("Samples must be 1, 2, 4 or 8!");
 
-        create(surfaceFormat, {x, y}, samples);
+        create(surfaceFormat, newSize, samples);
     }
 
     /*
