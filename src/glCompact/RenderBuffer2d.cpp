@@ -6,6 +6,6 @@ namespace glCompact {
         uint32_t      x,
         uint32_t      y
     ) {
-        create(surfaceFormat, x, y, 0);
+        create(surfaceFormat, {x, y}, 0);
     }
 }

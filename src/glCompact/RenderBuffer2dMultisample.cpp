@@ -17,7 +17,7 @@ namespace glCompact {
         UNLIKELY_IF (!(samples == 1 || samples == 2 || samples == 4 || samples == 8))
             throw runtime_error("Samples must be 1, 2, 4 or 8!");
 
-        create(surfaceFormat, x, y, samples);
+        create(surfaceFormat, {x, y}, samples);
     }
 
     /*
