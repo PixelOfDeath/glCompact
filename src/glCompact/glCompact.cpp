@@ -100,8 +100,8 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!threadContext->isMainContext)
             throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
-        threadContext->frameWindow.x = x;
-        threadContext->frameWindow.y = y;
+        threadContext->frameWindow.size.x = x;
+        threadContext->frameWindow.size.y = y;
         threadContext->frameWindow.viewportOffset = {0, 0};
         threadContext->frameWindow.viewportSize   = {x, y};
     }

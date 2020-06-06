@@ -211,14 +211,12 @@ namespace glCompact {
         //TODO: Check for max surfaces!
         //LOTS OF Framebuffer Completeness RULES HERE: https://www.khronos.org/opengl/wiki/Framebuffer_Object#Framebuffer_Completeness
 
-        x       = minSize.x;
-        y       = minSize.y;
-        z       = minSize.z;
+        size    = minSize;
         layered = foundMultiLayer;
         samples = lastSamples;
         srgb    = foundSRGB;
 
-        viewportSize = {x, y};
+        viewportSize = {minSize};
 
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glCreateFramebuffers(1, &id);
@@ -301,13 +299,11 @@ namespace glCompact {
             threadContextGroup_->functions.glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_FIXED_SAMPLE_LOCATIONS, true);
         }
 
-        x       = sizeX;
-        y       = sizeY;
-        z       = layers;
+        size    = {sizeX, sizeY, layers};
         layered = layers != 0;
         this->samples = samples;
 
-        viewportSize = {x, y};
+        viewportSize = {sizeX, sizeY};
     }
 
     /*Frame::Frame(const Frame& frame) {
@@ -323,9 +319,7 @@ namespace glCompact {
     ) {
         assert(this != &frame);
         id      = frame.id;
-        x       = frame.x;
-        y       = frame.y;
-        z       = frame.z;
+        size    = frame.size;
         samples = frame.samples;
         layered = frame.layered;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
@@ -346,9 +340,7 @@ namespace glCompact {
         if (!id) threadContextGroup_->functions.glDeleteFramebuffers(1, &id);
         detachFromThreadContextStateCurrent();
         id      = frame.id;
-        x       = frame.x;
-        y       = frame.y;
-        z       = frame.z;
+        size    = frame.size;
         samples = frame.samples;
         layered = frame.layered;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
@@ -391,7 +383,7 @@ namespace glCompact {
         //TODO test limits
         scissorOffset  = offset;
         scissorSize    = size;
-        scissorEnabled = offset != glm::uvec2(0, 0) || size != glm::uvec2(x, y);
+        scissorEnabled = offset != glm::uvec2(0, 0) || size != glm::uvec2(this->size);
         threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
@@ -409,7 +401,7 @@ namespace glCompact {
     */
     void Frame::setViewport() {
         viewportOffset = {0, 0};
-        viewportSize   = {x, y};
+        viewportSize   = size;
         threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
@@ -419,7 +411,7 @@ namespace glCompact {
     */
     void Frame::setScissor() {
         scissorOffset  = {0, 0};
-        scissorSize    = {x, y};
+        scissorSize    = size;
         scissorEnabled = false;
         threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
@@ -427,7 +419,7 @@ namespace glCompact {
     void Frame::blitRgba(
         uint32_t slot
     ) {
-        blitRgba(slot, {0, 0}, {0, 0}, {x, y});
+        blitRgba(slot, {0, 0}, {0, 0}, size);
     }
 
     void Frame::blitRgba(
@@ -435,7 +427,7 @@ namespace glCompact {
         glm::uvec2 srcOffset,
         glm::uvec2 dstOffset
     ) {
-        blitRgba(slot, srcOffset, dstOffset, {x, y});
+        blitRgba(slot, srcOffset, dstOffset, size);
     }
 
     void Frame::blitRgba(
@@ -459,14 +451,14 @@ namespace glCompact {
     }
 
     void Frame::blitDepth() {
-        blitDepth({0, 0}, {0, 0}, {x, y});
+        blitDepth({0, 0}, {0, 0}, size);
     }
 
     void Frame::blitDepth(
         glm::uvec2 srcOffset,
         glm::uvec2 dstOffset
     ) {
-        blitDepth(srcOffset, dstOffset, {x, y});
+        blitDepth(srcOffset, dstOffset, size);
     }
 
     void Frame::blitDepth(
@@ -479,14 +471,14 @@ namespace glCompact {
 
     void Frame::blitStencil(
     ) {
-        blitStencil({0, 0}, {0, 0}, {x, y});
+        blitStencil({0, 0}, {0, 0}, size);
     }
 
     void Frame::blitStencil(
         glm::uvec2 srcOffset,
         glm::uvec2 dstOffset
     ) {
-        blitStencil(srcOffset, dstOffset, {x, y});
+        blitStencil(srcOffset, dstOffset, size);
     }
 
     void Frame::blitStencil(
@@ -498,14 +490,14 @@ namespace glCompact {
     }
 
     void Frame::blitDepthStencil() {
-        blitDepthStencil({0, 0}, {0, 0}, {x, y});
+        blitDepthStencil({0, 0}, {0, 0}, size);
     }
 
     void Frame::blitDepthStencil(
         glm::uvec2 srcOffset,
         glm::uvec2 dstOffset
     ) {
-        blitDepthStencil(srcOffset, dstOffset, {x, y});
+        blitDepthStencil(srcOffset, dstOffset, size);
     }
 
     void Frame::blitDepthStencil(

@@ -3,6 +3,7 @@
 #include "glCompact/config.hpp"
 #include "glCompact/SurfaceSelector.hpp"
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 namespace glCompact {
@@ -74,10 +75,7 @@ namespace glCompact {
 
             void setRgbaDrawMapping(int32_t slot0, int32_t slot1 = -1, int32_t slot2 = -1, int32_t slot3 = -1, int32_t slot4 = -1, int32_t slot5 = -1, int32_t slot6 = -1, int32_t slot7 = -1);
 
-            uint32_t getX(){return x;}
-            uint32_t getY(){return y;}
-            uint32_t getZ(){return z;} //min amount of layers from all targets
-            glm::uvec2 getXY(){return {x, y};}
+            glm::uvec3 getSize() const {return size;}
             uint32_t getSamples(){return samples;}
             bool     isLayered(){return layered;}
             bool     isSrgb(){return srgb;}
@@ -86,9 +84,7 @@ namespace glCompact {
         protected:
             uint32_t id      = 0;
 
-            uint32_t x       = 0;
-            uint32_t y       = 0;
-            uint32_t z       = 0;
+            glm::uvec3 size;
             uint32_t samples = 0;
             bool     layered = false;
             bool     srgb    = false;
