@@ -38,7 +38,7 @@ namespace glCompact {
             void setScissor ();
 
             void setConvertSrgb(bool enabled);
-            bool getConvertSrgb(){return convertSrgb;}
+            bool getConvertSrgb() const {return convertSrgb;}
 
             //TODO: negative size to flip axis?
             //TODO: allow negative offsets?
@@ -76,9 +76,9 @@ namespace glCompact {
             void setRgbaDrawMapping(int32_t slot0, int32_t slot1 = -1, int32_t slot2 = -1, int32_t slot3 = -1, int32_t slot4 = -1, int32_t slot5 = -1, int32_t slot6 = -1, int32_t slot7 = -1);
 
             glm::uvec3 getSize() const {return size;}
-            uint32_t getSamples(){return samples;}
-            bool     isLayered(){return layered;}
-            bool     isSrgb(){return srgb;}
+            uint32_t getSamples() const {return samples;}
+            bool     isLayered() const {return layered;}
+            bool     isSrgb() const {return srgb;}
 
             //TODO: And ref of active rgba/depth/stencil attachments?
         protected:
