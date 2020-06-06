@@ -38,6 +38,7 @@ namespace glCompact {
     SurfaceInterface& SurfaceInterface::operator=(
         SurfaceInterface&& surfaceInterface
     ) {
+        free();
         id            = surfaceInterface.id;
         target        = surfaceInterface.target;
         size          = surfaceInterface.size;
