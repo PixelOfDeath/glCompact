@@ -137,6 +137,7 @@ namespace glCompact {
             LOOPI(sourceTexture.mipmapCount)
                 copyFromSurfaceComponents(sourceTexture, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
         }
+        setMipmapBaseLevel(sourceTexture.mipmapBaseLevel);
     }
 
     TextureInterface& TextureInterface::operator=(TextureInterface&& textureInterface) {
