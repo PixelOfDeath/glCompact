@@ -139,6 +139,12 @@ namespace glCompact {
         }
     }
 
+    TextureInterface& TextureInterface::operator=(TextureInterface&& textureInterface) {
+        SurfaceInterface::operator=(move(textureInterface));
+        mipmapBaseLevel = textureInterface.mipmapBaseLevel;
+        return *this;
+    }
+
     TextureInterface::~TextureInterface() {
         free();
     }

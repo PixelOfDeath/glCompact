@@ -38,12 +38,12 @@ namespace glCompact {
     SurfaceInterface& SurfaceInterface::operator=(
         SurfaceInterface&& surfaceInterface
     ) {
+        id            = surfaceInterface.id;
+        target        = surfaceInterface.target;
         size          = surfaceInterface.size;
         mipmapCount   = surfaceInterface.mipmapCount;
         samples       = surfaceInterface.samples;
         surfaceFormat = surfaceInterface.surfaceFormat;
-        id            = surfaceInterface.id;
-        target        = surfaceInterface.target;
         surfaceInterface.id = 0;
         return *this;
     }
