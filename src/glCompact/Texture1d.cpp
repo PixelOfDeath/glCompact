@@ -16,7 +16,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (x > getMaxX())
             throw runtime_error("Trying to create Texture1d with size(x = " + to_string(x) + "), but that is bayond getMaxX(GL_MAX_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_TEXTURE_SIZE) + ")");
-        create(GL_TEXTURE_1D, surfaceFormat, x, 1, 1, mipmaps, 0);
+        create(GL_TEXTURE_1D, surfaceFormat, {x, 1, 1}, mipmaps, 0);
     }
 
     /*

@@ -10,13 +10,24 @@ using namespace glCompact::gl;
 using namespace glm;
 
 namespace glCompact {
-    RenderBufferInterface::RenderBufferInterface(const RenderBufferInterface& sourceRenderBuffer) {
-        create(sourceRenderBuffer.surfaceFormat, sourceRenderBuffer.size, sourceRenderBuffer.samples);
+    RenderBufferInterface::RenderBufferInterface(const RenderBufferInterface& renderBufferInterface) {
+        create(renderBufferInterface.surfaceFormat, renderBufferInterface.size, renderBufferInterface.samples);
         if (threadContextGroup_->extensions.GL_ARB_copy_image) {
-            copyFromSurfaceMemory    (sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.size.x, sourceRenderBuffer.size.y, 1});
+            copyFromSurfaceMemory    (renderBufferInterface, 0, {0, 0, 0}, 0, {0, 0, 0}, renderBufferInterface.size);
         } else {
-            copyFromSurfaceComponents(sourceRenderBuffer, 0, {0, 0, 0}, 0, {0, 0, 0}, {sourceRenderBuffer.size.x, sourceRenderBuffer.size.y, 1});
+            copyFromSurfaceComponents(renderBufferInterface, 0, {0, 0, 0}, 0, {0, 0, 0}, renderBufferInterface.size);
         }
+    }
+
+    RenderBufferInterface& RenderBufferInterface::operator=(const RenderBufferInterface& renderBufferInterface) {
+        free();
+        create(renderBufferInterface.surfaceFormat, renderBufferInterface.size, renderBufferInterface.samples);
+        if (threadContextGroup_->extensions.GL_ARB_copy_image) {
+            copyFromSurfaceMemory    (renderBufferInterface, 0, {0, 0, 0}, 0, {0, 0, 0}, renderBufferInterface.size);
+        } else {
+            copyFromSurfaceComponents(renderBufferInterface, 0, {0, 0, 0}, 0, {0, 0, 0}, renderBufferInterface.size);
+        }
+        return *this;
     }
 
     void RenderBufferInterface::create(SurfaceFormat surfaceFormat, uvec2 newSize, uint32_t samples) {

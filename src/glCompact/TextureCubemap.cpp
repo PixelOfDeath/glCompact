@@ -16,7 +16,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (xy > getMaxXY())
             throw runtime_error("Trying to create TextureCubemap with size(xy = " + to_string(xy) + "), but that is bayond getMaxXY(GL_MAX_CUBE_MAP_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_CUBE_MAP_TEXTURE_SIZE) + ")");
-        create(GL_TEXTURE_CUBE_MAP, surfaceFormat, xy, xy, 1, mipmaps, 0);
+        create(GL_TEXTURE_CUBE_MAP, surfaceFormat, {xy, xy, 1}, mipmaps, 0);
     }
 
     /*

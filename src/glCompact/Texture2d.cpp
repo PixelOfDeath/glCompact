@@ -17,7 +17,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (x > getMaxXY() || y > getMaxXY())
             throw runtime_error("Trying to create Texture2d with size(x = " + to_string(x) + ", y = " + to_string(y) + "), but that is bayond getMaxXY(GL_MAX_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_TEXTURE_SIZE) + ")");
-        create(GL_TEXTURE_2D, surfaceFormat, x, y, 1, mipmaps, 0);
+        create(GL_TEXTURE_2D, surfaceFormat, {x, y, 1}, mipmaps, 0);
     }
 
     /*

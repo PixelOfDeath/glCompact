@@ -6,8 +6,10 @@ namespace glCompact {
     class TextureCubemapArray : public TextureInterface {
         public:
             TextureCubemapArray(SurfaceFormat surfaceFormat, uint32_t xy, uint32_t cubeMapCount, bool mipmaps);
-            TextureCubemapArray(const TextureCubemapArray& sourceTexture) = default;
-            TextureCubemapArray& operator=(TextureCubemapArray&& textureCubemapArray) = default;
+            TextureCubemapArray(           const TextureCubemapArray&  textureCubemapArray) = default;
+            TextureCubemapArray(                 TextureCubemapArray&& textureCubemapArray) = default;
+            TextureCubemapArray& operator=(const TextureCubemapArray&  textureCubemapArray) = default;
+            TextureCubemapArray& operator=(      TextureCubemapArray&& textureCubemapArray) = default;
             //TextureCubemapArray(ImageFormat imageFormat, Texture2dArray&      srcImages, int firstMipmap, bool mipmaps, int layer, int layerCount);
             //TextureCubemapArray(ImageFormat imageFormat, TextureCubemap&      srcImages, int firstMipmap, bool mipmaps, int layer, int layerCount);
             //TextureCubemapArray(ImageFormat imageFormat, TextureCubemapArray& srcImages, int firstMipmap, bool mipmaps, int layer, int layerCount);

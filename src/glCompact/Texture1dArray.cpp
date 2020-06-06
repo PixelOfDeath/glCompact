@@ -22,7 +22,7 @@ namespace glCompact {
             throw runtime_error("Trying to create Texture1dArray with size(x = " + to_string(x) + "), but that is bayond getMaxX(GL_MAX_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_TEXTURE_SIZE) + ")");
         UNLIKELY_IF (yLayers > getMaxLayers())
             throw runtime_error("Trying to create Texture1dArray with size(yLayers = " + to_string(yLayers) + "), but that is bayond getMaxLayers(GL_MAX_ARRAY_TEXTURE_LAYERS = " + to_string(threadContextGroup_->values.GL_MAX_ARRAY_TEXTURE_LAYERS) + ")");
-        create(GL_TEXTURE_1D_ARRAY, surfaceFormat, x, yLayers, 1, mipmaps, 0);
+        create(GL_TEXTURE_1D_ARRAY, surfaceFormat, {x, yLayers, 1}, mipmaps, 0);
     }
 
     /*

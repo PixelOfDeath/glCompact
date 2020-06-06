@@ -18,7 +18,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (x > getMaxXYZ() || y > getMaxXYZ() || z > getMaxXYZ())
             throw runtime_error("Trying to create Texture3d with size(x = " + to_string(x) + ", y = " + to_string(y) + ", z = " + to_string(z) + "), but that is bayond getMaxXY(GL_MAX_3D_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_3D_TEXTURE_SIZE) + ")");
-        create(GL_TEXTURE_3D, surfaceFormat, x, y, z, mipmaps, 0);
+        create(GL_TEXTURE_3D, surfaceFormat, {x, y, z}, mipmaps, 0);
     }
 
     /*

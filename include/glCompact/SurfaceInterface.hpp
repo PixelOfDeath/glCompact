@@ -26,6 +26,7 @@ namespace glCompact {
             bool isLayered() const;
         protected:
             SurfaceInterface() = default;
+            SurfaceInterface(           SurfaceInterface&& surfaceInterface);
             SurfaceInterface& operator=(SurfaceInterface&& surfaceInterface);
 
             uint32_t id          = 0;

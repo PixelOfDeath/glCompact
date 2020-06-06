@@ -35,6 +35,18 @@ using namespace glCompact::gl;
 using namespace glm;
 
 namespace glCompact {
+    SurfaceInterface::SurfaceInterface(
+        SurfaceInterface&& surfaceInterface
+    ) {
+        id            = surfaceInterface.id;
+        target        = surfaceInterface.target;
+        size          = surfaceInterface.size;
+        mipmapCount   = surfaceInterface.mipmapCount;
+        samples       = surfaceInterface.samples;
+        surfaceFormat = surfaceInterface.surfaceFormat;
+        surfaceInterface.id = 0;
+    }
+
     SurfaceInterface& SurfaceInterface::operator=(
         SurfaceInterface&& surfaceInterface
     ) {

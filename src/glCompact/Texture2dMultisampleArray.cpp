@@ -21,7 +21,7 @@ namespace glCompact {
         UNLIKELY_IF (layers > getMaxLayers())
             throw runtime_error("Trying to create Texture2dMultisampleArray with size(layers = " + to_string(layers) + "), but that is bayond getMaxLayers(GL_MAX_ARRAY_TEXTURE_LAYERS = " + to_string(threadContextGroup_->values.GL_MAX_ARRAY_TEXTURE_LAYERS) + ")");
         //TODO: check sample limits
-        create(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, surfaceFormat, x, y, layers, false, samples);
+        create(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, surfaceFormat, {x, y, layers}, false, samples);
     }
 
     /*

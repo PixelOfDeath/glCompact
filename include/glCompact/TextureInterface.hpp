@@ -1,6 +1,8 @@
 #pragma once
 #include "glCompact/SurfaceInterface.hpp"
+
 #include <glm/fwd.hpp>
+#include <glm/vec3.hpp>
 
 namespace glCompact {
     class BufferInterface;
@@ -29,11 +31,12 @@ namespace glCompact {
             glm::uvec3 getMipmapLevelSize(uint32_t mipmapLevel) const;
         protected:
             TextureInterface() = default;
-            TextureInterface& operator=(TextureInterface&& textureInterface);
-
-            TextureInterface(const TextureInterface& sourceTexture);
+            TextureInterface(           const TextureInterface&  textureInterface);
+            TextureInterface(                 TextureInterface&& textureInterface);
+            TextureInterface& operator=(const TextureInterface&  textureInterface);
+            TextureInterface& operator=(      TextureInterface&& textureInterface);
             ~TextureInterface();
-            void create(int32_t target, SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t z, bool mipmap, uint8_t samples);
+            void create(int32_t target, SurfaceFormat surfaceFormat, glm::uvec3 newSize, bool mipmap, uint8_t samples);
             void createView(TextureInterface& srcImages, int32_t target, SurfaceFormat surfaceFormat, uint32_t firstMipmap, bool mipmap, uint32_t firstLayer, uint32_t layerCount);
         private:
             uint8_t mipmapBaseLevel = 0;

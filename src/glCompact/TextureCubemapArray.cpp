@@ -22,7 +22,7 @@ namespace glCompact {
             throw runtime_error("Trying to create TextureCubemapArray with size(xy = " + to_string(xy) + "), but that is bayond getMaxXY(GL_MAX_CUBE_MAP_TEXTURE_SIZE = " + to_string(threadContextGroup_->values.GL_MAX_CUBE_MAP_TEXTURE_SIZE) + ")");
         UNLIKELY_IF (6 * cubeMapCount > getMaxLayers())
             throw runtime_error("Trying to create TextureCubemapArray with size(cubeMapCount * 6 = layers = " + to_string(6 * cubeMapCount) + "), but that is bayond getMaxLayers(GL_MAX_ARRAY_TEXTURE_LAYERS = " + to_string(threadContextGroup_->values.GL_MAX_ARRAY_TEXTURE_LAYERS) + ")");
-        TextureInterface::create(GL_TEXTURE_CUBE_MAP_ARRAY, surfaceFormat, xy, xy, 6 * cubeMapCount, mipmaps, 0);
+        TextureInterface::create(GL_TEXTURE_CUBE_MAP_ARRAY, surfaceFormat, {xy, xy, 6 * cubeMapCount}, mipmaps, 0);
     }
 
     /*

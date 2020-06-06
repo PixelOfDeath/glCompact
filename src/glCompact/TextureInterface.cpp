@@ -128,16 +128,38 @@ using namespace glCompact::gl;
 using namespace glm;
 
 namespace glCompact {
-    TextureInterface::TextureInterface(const TextureInterface& sourceTexture) {
-        create(sourceTexture.target, sourceTexture.surfaceFormat, sourceTexture.size.x, sourceTexture.size.y, sourceTexture.size.z, sourceTexture.mipmapCount, 0);
+    TextureInterface::TextureInterface(const TextureInterface& textureInterface) {
+        create(textureInterface.target, textureInterface.surfaceFormat, textureInterface.size, textureInterface.mipmapCount, 0);
         if (threadContextGroup_->extensions.GL_ARB_copy_image) {
-            LOOPI(sourceTexture.mipmapCount)
-                copyFromSurfaceMemory    (sourceTexture, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
+            LOOPI(textureInterface.mipmapCount)
+                copyFromSurfaceMemory    (textureInterface, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
         } else {
-            LOOPI(sourceTexture.mipmapCount)
-                copyFromSurfaceComponents(sourceTexture, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
+            LOOPI(textureInterface.mipmapCount)
+                copyFromSurfaceComponents(textureInterface, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
         }
-        setMipmapBaseLevel(sourceTexture.mipmapBaseLevel);
+        setMipmapBaseLevel(textureInterface.mipmapBaseLevel);
+    }
+
+    TextureInterface::TextureInterface(
+        TextureInterface&& textureInterface
+    ) :
+        SurfaceInterface(move(textureInterface))
+    {
+        setMipmapBaseLevel(textureInterface.mipmapBaseLevel);
+    }
+
+    TextureInterface& TextureInterface::operator=(const TextureInterface& textureInterface) {
+        free();
+        create(textureInterface.target, textureInterface.surfaceFormat, textureInterface.size, textureInterface.mipmapCount, 0);
+        if (threadContextGroup_->extensions.GL_ARB_copy_image) {
+            LOOPI(textureInterface.mipmapCount)
+                copyFromSurfaceMemory    (textureInterface, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
+        } else {
+            LOOPI(textureInterface.mipmapCount)
+                copyFromSurfaceComponents(textureInterface, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
+        }
+        setMipmapBaseLevel(textureInterface.mipmapBaseLevel);
+        return *this;
     }
 
     TextureInterface& TextureInterface::operator=(TextureInterface&& textureInterface) {
@@ -265,9 +287,7 @@ namespace glCompact {
     void TextureInterface::create(
         int32_t       target,
         SurfaceFormat surfaceFormat,
-        uint32_t      x,
-        uint32_t      y,
-        uint32_t      z,
+        uvec3         newSize,
         bool          mipmap,
         uint8_t       samples
     ) {
@@ -278,17 +298,17 @@ namespace glCompact {
             case GL_TEXTURE_2D_MULTISAMPLE:
             case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: mipmapCount = 1; break;
             case GL_TEXTURE_1D:
-            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(::log2(    x             + 1))); break;
+            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(::log2(    newSize.x                             + 1))); break;
             case GL_TEXTURE_2D:
             case GL_TEXTURE_2D_ARRAY:
             case GL_TEXTURE_CUBE_MAP:
-            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(::log2(max(x,     y)     + 1))); break;
-            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(::log2(max(x, max(y, z)) + 1))); break;
+            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(::log2(max(newSize.x,     newSize.y)             + 1))); break;
+            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(::log2(max(newSize.x, max(newSize.y, newSize.z)) + 1))); break;
         }
 
-        int mipmapLevelX = x;
-        int mipmapLevelY = y;
-        int mipmapLevelZ = z;
+        int mipmapLevelX = newSize.x;
+        int mipmapLevelY = newSize.y;
+        int mipmapLevelZ = newSize.z;
 
         bool isMultiSample =
                target == GL_TEXTURE_2D_MULTISAMPLE
@@ -311,16 +331,16 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access && threadContextGroup_->extensions.GL_ARB_texture_storage && threadContextGroup_->extensions.GL_ARB_texture_storage_multisample) {
             threadContextGroup_->functions.glCreateTextures(target, 1, &id);
             switch (target) {
-                case GL_TEXTURE_1D                  : threadContextGroup_->functions.glTextureStorage1D                   (id, mipmapCount, sizedFormat, x);       break;
-                case GL_TEXTURE_1D_ARRAY            : threadContextGroup_->functions.glTextureStorage2D                   (id, mipmapCount, sizedFormat, x, y);    break;
-                case GL_TEXTURE_2D                  : threadContextGroup_->functions.glTextureStorage2D                   (id, mipmapCount, sizedFormat, x, y);    break;
-                case GL_TEXTURE_2D_ARRAY            : threadContextGroup_->functions.glTextureStorage3D                   (id, mipmapCount, sizedFormat, x, y, z); break;
-                case GL_TEXTURE_CUBE_MAP            : threadContextGroup_->functions.glTextureStorage2D                   (id, mipmapCount, sizedFormat, x, y);    break;
-                case GL_TEXTURE_CUBE_MAP_ARRAY      : threadContextGroup_->functions.glTextureStorage3D                   (id, mipmapCount, sizedFormat, x, y, z); break;
-                case GL_TEXTURE_3D                  : threadContextGroup_->functions.glTextureStorage3D                   (id, mipmapCount, sizedFormat, x, y, z); break;
+                case GL_TEXTURE_1D                  : threadContextGroup_->functions.glTextureStorage1D                   (id, mipmapCount, sizedFormat, newSize.x);                       break;
+                case GL_TEXTURE_1D_ARRAY            : threadContextGroup_->functions.glTextureStorage2D                   (id, mipmapCount, sizedFormat, newSize.x, newSize.y);            break;
+                case GL_TEXTURE_2D                  : threadContextGroup_->functions.glTextureStorage2D                   (id, mipmapCount, sizedFormat, newSize.x, newSize.y);            break;
+                case GL_TEXTURE_2D_ARRAY            : threadContextGroup_->functions.glTextureStorage3D                   (id, mipmapCount, sizedFormat, newSize.x, newSize.y, newSize.z); break;
+                case GL_TEXTURE_CUBE_MAP            : threadContextGroup_->functions.glTextureStorage2D                   (id, mipmapCount, sizedFormat, newSize.x, newSize.y);            break;
+                case GL_TEXTURE_CUBE_MAP_ARRAY      : threadContextGroup_->functions.glTextureStorage3D                   (id, mipmapCount, sizedFormat, newSize.x, newSize.y, newSize.z); break;
+                case GL_TEXTURE_3D                  : threadContextGroup_->functions.glTextureStorage3D                   (id, mipmapCount, sizedFormat, newSize.x, newSize.y, newSize.z); break;
 
-                case GL_TEXTURE_2D_MULTISAMPLE      : threadContextGroup_->functions.glTextureStorage2DMultisample        (id, samples,     sizedFormat, x, y,    fixedSampleLocations); break;
-                case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: threadContextGroup_->functions.glTextureStorage3DMultisample        (id, samples,     sizedFormat, x, y, z, fixedSampleLocations); break;
+                case GL_TEXTURE_2D_MULTISAMPLE      : threadContextGroup_->functions.glTextureStorage2DMultisample        (id, samples,     sizedFormat, newSize.x, newSize.y,            fixedSampleLocations); break;
+                case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: threadContextGroup_->functions.glTextureStorage3DMultisample        (id, samples,     sizedFormat, newSize.x, newSize.y, newSize.z, fixedSampleLocations); break;
             }
             usingTexStorage = true;
         } else {
@@ -334,19 +354,19 @@ namespace glCompact {
 
             if (!isMultiSample && threadContextGroup_->extensions.GL_ARB_texture_storage) {
                 switch (target) {
-                    case GL_TEXTURE_1D                  : threadContextGroup_->functions.glTexStorage1D           (target, mipmapCount, sizedFormat, x);       break;
-                    case GL_TEXTURE_1D_ARRAY            : threadContextGroup_->functions.glTexStorage2D           (target, mipmapCount, sizedFormat, x, y);    break;
-                    case GL_TEXTURE_2D                  : threadContextGroup_->functions.glTexStorage2D           (target, mipmapCount, sizedFormat, x, y);    break;
-                    case GL_TEXTURE_2D_ARRAY            : threadContextGroup_->functions.glTexStorage3D           (target, mipmapCount, sizedFormat, x, y, z); break;
-                    case GL_TEXTURE_CUBE_MAP            : threadContextGroup_->functions.glTexStorage2D           (target, mipmapCount, sizedFormat, x, y);    break;
-                    case GL_TEXTURE_CUBE_MAP_ARRAY      : threadContextGroup_->functions.glTexStorage3D           (target, mipmapCount, sizedFormat, x, y, z); break;
-                    case GL_TEXTURE_3D                  : threadContextGroup_->functions.glTexStorage3D           (target, mipmapCount, sizedFormat, x, y, z); break;
+                    case GL_TEXTURE_1D                  : threadContextGroup_->functions.glTexStorage1D           (target, mipmapCount, sizedFormat, newSize.x);                       break;
+                    case GL_TEXTURE_1D_ARRAY            : threadContextGroup_->functions.glTexStorage2D           (target, mipmapCount, sizedFormat, newSize.x, newSize.y);            break;
+                    case GL_TEXTURE_2D                  : threadContextGroup_->functions.glTexStorage2D           (target, mipmapCount, sizedFormat, newSize.x, newSize.y);            break;
+                    case GL_TEXTURE_2D_ARRAY            : threadContextGroup_->functions.glTexStorage3D           (target, mipmapCount, sizedFormat, newSize.x, newSize.y, newSize.z); break;
+                    case GL_TEXTURE_CUBE_MAP            : threadContextGroup_->functions.glTexStorage2D           (target, mipmapCount, sizedFormat, newSize.x, newSize.y);            break;
+                    case GL_TEXTURE_CUBE_MAP_ARRAY      : threadContextGroup_->functions.glTexStorage3D           (target, mipmapCount, sizedFormat, newSize.x, newSize.y, newSize.z); break;
+                    case GL_TEXTURE_3D                  : threadContextGroup_->functions.glTexStorage3D           (target, mipmapCount, sizedFormat, newSize.x, newSize.y, newSize.z); break;
                 }
                 usingTexStorage = true;
             } else if (isMultiSample && threadContextGroup_->extensions.GL_ARB_texture_storage_multisample) {
                 switch (target) {
-                    case GL_TEXTURE_2D_MULTISAMPLE      : threadContextGroup_->functions.glTexStorage2DMultisample(target, samples, sizedFormat, x, y,    fixedSampleLocations); break;
-                    case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: threadContextGroup_->functions.glTexStorage3DMultisample(target, samples, sizedFormat, x, y, z, fixedSampleLocations); break;
+                    case GL_TEXTURE_2D_MULTISAMPLE      : threadContextGroup_->functions.glTexStorage2DMultisample(target, samples, sizedFormat, newSize.x, newSize.y,            fixedSampleLocations); break;
+                    case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: threadContextGroup_->functions.glTexStorage3DMultisample(target, samples, sizedFormat, newSize.x, newSize.y, newSize.z, fixedSampleLocations); break;
                 }
                 usingTexStorage = true;
             } else {
@@ -373,7 +393,7 @@ namespace glCompact {
                     case GL_TEXTURE_1D_ARRAY:
                         LOOPI(mipmapCount) {
                             //TODO test layers parameter
-                            threadContextGroup_->functions.glTexImage2D(target, i, sizedFormat, mipmapLevelX, y, border, components, componentsTypes, 0);
+                            threadContextGroup_->functions.glTexImage2D(target, i, sizedFormat, mipmapLevelX, newSize.y, border, components, componentsTypes, 0);
                             mipmapLevelX = max(1, mipmapLevelX / 2);
                         }
                         break;
@@ -385,18 +405,18 @@ namespace glCompact {
                         }
                         break;
                     case GL_TEXTURE_2D_MULTISAMPLE:
-                        threadContextGroup_->functions.glTexImage2DMultisample(target, samples, sizedFormat, x, y, fixedSampleLocations);
+                        threadContextGroup_->functions.glTexImage2DMultisample(target, samples, sizedFormat, newSize.x, newSize.y, fixedSampleLocations);
                         break;
                     case GL_TEXTURE_2D_ARRAY:
                         LOOPI(mipmapCount) {
                             //TODO test layers parameter
-                            threadContextGroup_->functions.glTexImage3D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, z, border, components, componentsTypes, 0);
+                            threadContextGroup_->functions.glTexImage3D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, newSize.z, border, components, componentsTypes, 0);
                             mipmapLevelX = max(1, mipmapLevelX / 2);
                             mipmapLevelY = max(1, mipmapLevelY / 2);
                         }
                         break;
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
-                        threadContextGroup_->functions.glTexImage3DMultisample(target, samples, sizedFormat, x, y, z, fixedSampleLocations);
+                        threadContextGroup_->functions.glTexImage3DMultisample(target, samples, sizedFormat, newSize.x, newSize.y, newSize.z, fixedSampleLocations);
                         break;
                     //TODO test cube map and cube map array creation
                     //TODO: documentation is shit again and says nothing about the non array version...
@@ -419,7 +439,7 @@ namespace glCompact {
                                 //glTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, i, sizedFormat, mipmapLevelX, mipmapLevelY, layers, border, GL_RED, GL_UNSIGNED_BYTE, 0);
                                 //glTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, i, sizedFormat, mipmapLevelX, mipmapLevelY, layers, border, GL_RED, GL_UNSIGNED_BYTE, 0);
                                 //glTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, i, sizedFormat, mipmapLevelX, mipmapLevelY, layers, border, GL_RED, GL_UNSIGNED_BYTE, 0);
-                            threadContextGroup_->functions.glTexImage3D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, z, border, components, componentsTypes, 0);
+                            threadContextGroup_->functions.glTexImage3D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, newSize.z, border, components, componentsTypes, 0);
                             mipmapLevelX = max(1, mipmapLevelX / 2);
                             mipmapLevelY = max(1, mipmapLevelY / 2);
                         }
@@ -468,7 +488,7 @@ namespace glCompact {
 
         this->mipmapCount   = mipmapCount;
         this->target        = target;
-        this->size          = uvec3(x, y, z);
+        this->size          = newSize;
         this->samples       = samples;
         this->surfaceFormat = surfaceFormat;
     }

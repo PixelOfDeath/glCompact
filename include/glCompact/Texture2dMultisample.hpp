@@ -5,8 +5,10 @@ namespace glCompact {
     class Texture2dMultisample : public TextureInterface {
         public:
             Texture2dMultisample(SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t samples);
-            Texture2dMultisample(const Texture2dMultisample& sourceTexture) = default;
-            Texture2dMultisample& operator=(Texture2dMultisample&& texture2dMultisample) = default;
+            Texture2dMultisample(           const Texture2dMultisample&  texture2dMultisample) = default;
+            Texture2dMultisample(                 Texture2dMultisample&& texture2dMultisample) = default;
+            Texture2dMultisample& operator=(const Texture2dMultisample&  texture2dMultisample) = default;
+            Texture2dMultisample& operator=(      Texture2dMultisample&& texture2dMultisample) = default;
             //Texture2dMultisample(ImageFormat imageFormat, Texture2dMultisample&      srcImages);
             //Texture2dMultisample(ImageFormat imageFormat, Texture2dMultisampleArray& srcImages, int layer);
 
