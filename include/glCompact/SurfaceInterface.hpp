@@ -19,11 +19,11 @@ namespace glCompact {
             void copyFromSurfaceMemory    (const SurfaceInterface& srcSurface, uint32_t srcMipmapLevel, glm::ivec3 srcOffset, uint32_t dstMipmapLevel, glm::ivec3 dstOffset, glm::ivec3 size);
 
             glm::uvec3 getSize() const {return size;}
-            uint32_t getMipmapCount()       {return mipmapCount;}
-            uint32_t getSamples()           {return samples;}
-            SurfaceFormat getSurfaceFormat(){return surfaceFormat;}
+            uint32_t getMipmapCount() const {return mipmapCount;}
+            uint32_t getSamples() const {return samples;}
+            SurfaceFormat getSurfaceFormat() const {return surfaceFormat;}
 
-            bool isLayered();
+            bool isLayered() const;
         protected:
             SurfaceInterface() = default;
             SurfaceInterface& operator=(SurfaceInterface&& surfaceInterface);

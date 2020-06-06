@@ -431,7 +431,7 @@ namespace glCompact {
         threadContext->current_frame_readId = -1; //TODO: Do some drivers also fuck around with setting the readFbo to 0 when deleting the current fbo? Or can I set this one to 0?
     }
 
-    bool SurfaceInterface::isLayered() {
+    bool SurfaceInterface::isLayered() const {
         switch (target) {
             case GL_TEXTURE_2D_ARRAY:
             case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
