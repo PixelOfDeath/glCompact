@@ -1,33 +1,31 @@
 #pragma once
 #include "glCompact/BufferInterface.hpp"
 
+#include <vector>
+
 namespace glCompact {
     class BufferSparse;
     class BufferSparse : public BufferInterface {
         public:
             BufferSparse           () = default;
             BufferSparse           (bool clientMemoryCopyable, uintptr_t size);
-            BufferSparse           (const BufferSparse&  buffer);
-            BufferSparse           (      BufferSparse&& buffer);
-            BufferSparse& operator=(const BufferSparse&  buffer);
-            BufferSparse& operator=(      BufferSparse&& buffer);
-            ~BufferSparse();
+            BufferSparse           (const BufferSparse&  bufferSparse);
+            BufferSparse           (      BufferSparse&& bufferSparse);
+            BufferSparse& operator=(const BufferSparse&  bufferSparse);
+            BufferSparse& operator=(      BufferSparse&& bufferSparse);
+            ~BufferSparse() = default;
             void free();
 
-            static uintptr_t getPageSize();
-            void commitment(uintptr_t offset, uintptr_t size, bool commit);
-        private:
-            void create(bool clientMemoryCopyable, uintptr_t size);
+            void setCommitment(uintptr_t offset, uintptr_t size, bool commit);
+            uintptr_t getCommitmentSize() const {return commitmentSize;}
 
-            //uintptr_t commitedSize;
-            //std::bitset commitMap //to store what pages are commited. So we always can accuratly calcualte what the current commit size is and also can copy this objects
-            //uint64* commitMap;
-            /*
-                x86 only
-                GCC?
-                __builtin_popcount = int
-                __builtin_popcountl = long int
-                __builtin_popcountll = long long
-            */
+            static constexpr uintptr_t pageSize = 65536;
+        private:
+            uintptr_t commitmentSize = 0;
+            std::vector<bool> commitmentMap;
+
+            void setCommitment_(uintptr_t offset, uintptr_t size, bool commit);
+            void copyCommitment(const BufferSparse& bufferSparse);
+            void copyFromBufferCommitmentRegionOnly(const BufferSparse& bufferSparse);
     };
 }
