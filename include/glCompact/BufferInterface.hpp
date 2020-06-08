@@ -42,13 +42,13 @@ namespace glCompact {
 
             bool isClientMemoryCopyable() const {return clientMemoryCopyable;}
 
-            uintptr_t getSize() const {return size_;}
+            uintptr_t getSize() const {return size;}
         protected:
             BufferInterface() = default;
             virtual ~BufferInterface() = default;
 
-            uint32_t  id    = 0;
-            uintptr_t size_ = 0;
+            uint32_t  id   = 0;
+            uintptr_t size = 0;
             bool clientMemoryCopyable = false;
 
             void* create(bool clientMemoryCopyable, uintptr_t size, bool stagingBuffer, bool sparseBuffer, const void* data = 0);

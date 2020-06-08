@@ -704,11 +704,11 @@ namespace glCompact {
             : memorySurfaceFormat->bytePerPixelOrBlock * std::max(1, texSize.x) * std::max(1, texSize.y) * std::max(1, texSize.z);
 
         if (bufferInterface) {
-            UNLIKELY_IF (bufferInterface->size_ == 0)
+            UNLIKELY_IF (bufferInterface->size == 0)
                 throw runtime_error("Buffer has no memory allocated");
-            UNLIKELY_IF (dataOffset >= bufferInterface->size_)
+            UNLIKELY_IF (dataOffset >= bufferInterface->size)
                 throw runtime_error("Buffer offset outside of buffer size");
-            UNLIKELY_IF (bufferInterface->size_ - dataOffset < requiredBufferSize)
+            UNLIKELY_IF (bufferInterface->size - dataOffset < requiredBufferSize)
                 throw runtime_error("Buffer size to small");
         }
         UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
@@ -866,7 +866,7 @@ namespace glCompact {
         if (bufferInterface) {
             UNLIKELY_IF (!bufferInterface->id)
                 throw runtime_error("Buffer has no allocated memory");
-            UNLIKELY_IF (dataOffset >= bufferInterface->size_)
+            UNLIKELY_IF (dataOffset >= bufferInterface->size)
                 throw runtime_error("Buffer offset outside of buffer size");
         }
 

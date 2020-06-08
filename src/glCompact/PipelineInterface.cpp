@@ -307,7 +307,7 @@ namespace glCompact {
             throw std::runtime_error("does not take empty Buffer!");
         UNLIKELY_IF (int32_t(slot) >= buffer_shaderStorage_count) return;
 
-        setShaderStorageBuffer(slot, buffer, offset, buffer.size_);
+        setShaderStorageBuffer(slot, buffer, offset, buffer.size);
     }
 
     void PipelineInterface::setShaderStorageBuffer(

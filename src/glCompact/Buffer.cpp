@@ -53,18 +53,18 @@ namespace glCompact {
     Buffer::Buffer(
         const Buffer& buffer
     ) {
-        create(buffer.clientMemoryCopyable, buffer.size_, false, false);
-        copyFromBuffer(buffer, 0, 0, buffer.size_);
+        create(buffer.clientMemoryCopyable, buffer.size, false, false);
+        copyFromBuffer(buffer, 0, 0, buffer.size);
     }
 
     Buffer::Buffer(
         Buffer&& buffer
     ) {
         id                   = buffer.id;
-        size_                = buffer.size_;
+        size                 = buffer.size;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
         buffer.id                   = 0;
-        buffer.size_                = 0;
+        buffer.size                 = 0;
         buffer.clientMemoryCopyable = false;
     }
 
@@ -73,8 +73,8 @@ namespace glCompact {
         const Buffer& buffer
     ) {
         if (this != &buffer) {
-            create(buffer.clientMemoryCopyable, buffer.size_, false, false);
-            copyFromBuffer(buffer, 0, 0, buffer.size_);
+            create(buffer.clientMemoryCopyable, buffer.size, false, false);
+            copyFromBuffer(buffer, 0, 0, buffer.size);
         }
         return *this;
     }
@@ -84,10 +84,10 @@ namespace glCompact {
     ) {
         free();
         id                   = buffer.id ;
-        size_                = buffer.size_;
+        size                 = buffer.size;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
         buffer.id                   = 0;
-        buffer.size_                = 0;
+        buffer.size                 = 0;
         buffer.clientMemoryCopyable = false;
         return *this;
     }

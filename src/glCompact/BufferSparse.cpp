@@ -31,9 +31,9 @@ namespace glCompact {
     BufferSparse::BufferSparse(
         const BufferSparse& buffer
     ) {
-        create(buffer.clientMemoryCopyable, buffer.size_, false, true);
+        create(buffer.clientMemoryCopyable, buffer.size, false, true);
         copyCommitment(buffer);
-        //copyFromBuffer(buffer, 0, 0, buffer.size_);
+        //copyFromBuffer(buffer, 0, 0, buffer.size);
         copyFromBufferCommitmentRegionOnly(buffer);
     }
 
@@ -41,12 +41,12 @@ namespace glCompact {
         BufferSparse&& buffer
     ) {
         id                   = buffer.id;
-        size_                = buffer.size_;
+        size                 = buffer.size;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
         commitmentSize       = buffer.commitmentSize;
         commitmentMap        = move(buffer.commitmentMap);
         buffer.id                   = 0;
-        buffer.size_                = 0;
+        buffer.size                 = 0;
         buffer.clientMemoryCopyable = false;
         buffer.commitmentSize       = 0;
     }
@@ -56,9 +56,9 @@ namespace glCompact {
     ) {
         if (this != &buffer) {
             free();
-            create(buffer.clientMemoryCopyable, buffer.size_, false, true);
+            create(buffer.clientMemoryCopyable, buffer.size, false, true);
             copyCommitment(buffer);
-            //copyFromBuffer(buffer, 0, 0, buffer.size_);
+            //copyFromBuffer(buffer, 0, 0, buffer.size);
             copyFromBufferCommitmentRegionOnly(buffer);
         }
         return *this;
@@ -69,12 +69,12 @@ namespace glCompact {
     ) {
         free();
         id                   = buffer.id;
-        size_                = buffer.size_;
+        size                 = buffer.size;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
         commitmentSize       = buffer.commitmentSize;
         commitmentMap        = move(buffer.commitmentMap);
         buffer.id                   = 0;
-        buffer.size_                = 0;
+        buffer.size                 = 0;
         buffer.clientMemoryCopyable = false;
         buffer.commitmentSize       = 0;
         return *this;
@@ -139,7 +139,7 @@ namespace glCompact {
         const BufferSparse& buffer
     ) {
         int currentPos = 0;
-        int endPos = buffer.size_ / pageSize;
+        int endPos = buffer.size / pageSize;
 
         while (currentPos < endPos) {
             while (buffer.commitmentMap[currentPos] == false && currentPos < endPos) currentPos++;
@@ -157,7 +157,7 @@ namespace glCompact {
         const BufferSparse& buffer
     ) {
         int currentPos = 0;
-        int endPos = buffer.size_ / pageSize;
+        int endPos = buffer.size / pageSize;
 
         while (currentPos < endPos) {
             while (buffer.commitmentMap[currentPos] == false && currentPos < endPos) currentPos++;

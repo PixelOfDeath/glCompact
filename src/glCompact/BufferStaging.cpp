@@ -70,8 +70,8 @@ namespace glCompact {
     BufferStaging::BufferStaging(
         const BufferStaging& buffer
     ) {
-        mem = create(true, buffer.size_, true, false);
-        copyFromBuffer(buffer, 0, 0, size_);
+        mem = create(true, buffer.size, true, false);
+        copyFromBuffer(buffer, 0, 0, size);
     }
 
     BufferStaging::BufferStaging(
@@ -80,11 +80,11 @@ namespace glCompact {
         BufferInterface(move(buffer))
     {
         id                   = buffer.id;
-        size_                = buffer.size_;
+        size                 = buffer.size;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
         mem                  = buffer.mem;
         buffer.id                   = 0;
-        buffer.size_                = 0;
+        buffer.size                 = 0;
         buffer.clientMemoryCopyable = false;
         buffer.mem                  = 0;
     }
@@ -93,8 +93,8 @@ namespace glCompact {
         const BufferStaging& buffer
     ) {
         if (this != &buffer) {
-            mem = create(true, buffer.size_, true, false);
-            copyFromBuffer(buffer, 0, 0, buffer.size_);
+            mem = create(true, buffer.size, true, false);
+            copyFromBuffer(buffer, 0, 0, buffer.size);
         }
         return *this;
     }
@@ -104,11 +104,11 @@ namespace glCompact {
     ) {
         free();
         id                   = buffer.id ;
-        size_                = buffer.size_;
+        size                 = buffer.size;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
         mem                  = buffer.mem;
         buffer.id                   = 0;
-        buffer.size_                = 0;
+        buffer.size                 = 0;
         buffer.clientMemoryCopyable = false;
         buffer.mem                  = 0;
         return *this;

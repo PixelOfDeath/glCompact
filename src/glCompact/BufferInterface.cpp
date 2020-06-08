@@ -37,13 +37,13 @@ namespace glCompact {
             throw std::runtime_error("Source buffer has no memory allocated");
         UNLIKELY_IF (!this->id)
             throw std::runtime_error("Target buffer has no memory allocated");
-        UNLIKELY_IF (srcOffset > srcBuffer.size_)
+        UNLIKELY_IF (srcOffset > srcBuffer.size)
             throw std::runtime_error("Source offset is bayond source buffer size");
-        UNLIKELY_IF (dstOffset > this->size_)
+        UNLIKELY_IF (dstOffset > this->size)
             throw std::runtime_error("Target offset is bayond target buffer size");
-        UNLIKELY_IF (srcOffset + copySize > srcBuffer.size_)
+        UNLIKELY_IF (srcOffset + copySize > srcBuffer.size)
             throw std::runtime_error("Offset and size is bayond source buffer size");
-        UNLIKELY_IF (dstOffset + copySize > this->size_)
+        UNLIKELY_IF (dstOffset + copySize > this->size)
             throw std::runtime_error("Offset and size is bayond target buffer size");
 
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
@@ -70,9 +70,9 @@ namespace glCompact {
             return;
         UNLIKELY_IF (!this->id)
             throw std::runtime_error("Target buffer has no memory allocated");
-        UNLIKELY_IF (thisOffset >= this->size_)
+        UNLIKELY_IF (thisOffset >= this->size)
             throw std::runtime_error("Offset is bayond buffer size");
-        UNLIKELY_IF (thisOffset + copySize > this->size_)
+        UNLIKELY_IF (thisOffset + copySize > this->size)
             throw std::runtime_error("Memory copy is bayond buffer size");
         UNLIKELY_IF (!clientMemoryCopyable)
             throw std::runtime_error("Buffer is not clientMemoryCopyable!");
@@ -95,9 +95,9 @@ namespace glCompact {
             return;
         UNLIKELY_IF (!this->id)
             throw std::runtime_error("Source buffer has no memory allocated");
-        UNLIKELY_IF (thisOffset >= this->size_)
+        UNLIKELY_IF (thisOffset >= this->size)
             throw std::runtime_error("Offset is bayond buffer size");
-        UNLIKELY_IF (thisOffset + copySize > this->size_)
+        UNLIKELY_IF (thisOffset + copySize > this->size)
             throw std::runtime_error("Memory copy is bayond buffer size");
         UNLIKELY_IF (!clientMemoryCopyable)
             throw std::runtime_error("Buffer is not clientMemoryCopyable!");
@@ -126,7 +126,7 @@ namespace glCompact {
                 threadContextGroup_->functions.glClearBufferData(GL_COPY_WRITE_BUFFER, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
             }
         } else {
-            clear(0, this->size_);
+            clear(0, this->size);
         }
     }
 
@@ -173,9 +173,9 @@ namespace glCompact {
             throw std::runtime_error("clearSize must be aligned to size of fillValue!");
         UNLIKELY_IF (!this->id)
             throw std::runtime_error("Buffer can't be cleared because there is no memory allocated");
-        UNLIKELY_IF (offset >= this->size_)
+        UNLIKELY_IF (offset >= this->size)
             throw std::runtime_error("Offset is bayond size of buffer");
-        UNLIKELY_IF (offset + clearSize > this->size_)
+        UNLIKELY_IF (offset + clearSize > this->size)
             throw std::runtime_error("Trying to clear bayond buffer size");
 
         if (threadContextGroup_->extensions.GL_ARB_clear_buffer_object) {
@@ -278,10 +278,10 @@ namespace glCompact {
             //and with a NULL data​ parameter. This is an older method (hack) of invalidation, and it should only be used when the others are not available.
             GLenum usageHint = GL_DYNAMIC_DRAW;
             if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
-                threadContextGroup_->functions.glNamedBufferData(id, size_, 0, usageHint);
+                threadContextGroup_->functions.glNamedBufferData(id, size, 0, usageHint);
             } else {
                 threadContext->cachedBindCopyWriteBuffer(id);
-                threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size_, 0, usageHint);
+                threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, 0, usageHint);
             }
         } else {
             //just ignore call, it is just a hind anyway...
@@ -436,7 +436,7 @@ namespace glCompact {
                 threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, data, usageHint);
             }
         }
-        this->size_                = size;
+        this->size                = size;
         this->clientMemoryCopyable = clientMemoryCopyable;
         return 0;
     }
@@ -457,7 +457,7 @@ namespace glCompact {
             threadContextGroup_->functions.glDeleteBuffers(1, &id);
 
             id    = 0;
-            size_ = 0;
+            size = 0;
             clientMemoryCopyable = false;
         }
     }
