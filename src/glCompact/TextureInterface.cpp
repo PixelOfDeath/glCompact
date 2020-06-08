@@ -168,10 +168,6 @@ namespace glCompact {
         return *this;
     }
 
-    TextureInterface::~TextureInterface() {
-        free();
-    }
-
     /*TextureInterface::TextureInterface(const TextureInterface& srcTextureInterface) {
         create(srcTextureInterface.target_, srcTextureInterface.imageFormat, srcTextureInterface.x, srcTextureInterface.y, srcTextureInterface.z, srcTextureInterface.mipmapCount > 1, srcTextureInterface.samples);
         LOOPI(srcTextureInterface.mipmapCount)

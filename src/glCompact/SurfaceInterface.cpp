@@ -35,6 +35,10 @@ using namespace glCompact::gl;
 using namespace glm;
 
 namespace glCompact {
+    SurfaceInterface::~SurfaceInterface() {
+        free();
+    }
+
     SurfaceInterface::SurfaceInterface(
         SurfaceInterface&& surfaceInterface
     ) {

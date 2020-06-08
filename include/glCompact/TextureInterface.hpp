@@ -35,7 +35,7 @@ namespace glCompact {
             TextureInterface(                 TextureInterface&& textureInterface);
             TextureInterface& operator=(const TextureInterface&  textureInterface);
             TextureInterface& operator=(      TextureInterface&& textureInterface);
-            ~TextureInterface();
+
             void create(int32_t target, SurfaceFormat surfaceFormat, glm::uvec3 newSize, bool mipmap, uint8_t samples);
             void createView(TextureInterface& srcImages, int32_t target, SurfaceFormat surfaceFormat, uint32_t firstMipmap, bool mipmap, uint32_t firstLayer, uint32_t layerCount);
         private:

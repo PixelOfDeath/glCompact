@@ -10,6 +10,8 @@ namespace glCompact {
             friend class SurfaceSelector;
             friend class Frame;
         public:
+            ~SurfaceInterface();
+
             void detachFromThreadContext();
             void free();
 
