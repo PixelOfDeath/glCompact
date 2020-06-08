@@ -1,6 +1,10 @@
 #include "glCompact/BufferStaging.hpp"
 #include "glCompact/gl/Constants.hpp"
 
+#include <utility>
+
+using namespace std;
+
 /*
     needs GL_ARB_buffer_storage (Core since 4.4)
 
@@ -47,7 +51,6 @@
 */
 
 namespace glCompact {
-
     /**
         Creates a new client side mapped buffer. The memory can be directly accessed via the mem pointer.
 
@@ -61,32 +64,36 @@ namespace glCompact {
     BufferStaging::BufferStaging(
         uintptr_t size
     ) {
-        create(size);
+        mem = create(true, size, true, false);
     }
 
     BufferStaging::BufferStaging(
         const BufferStaging& buffer
     ) {
-        create(buffer.size_);
+        mem = create(true, buffer.size_, true, false);
         copyFromBuffer(buffer, 0, 0, size_);
     }
 
     BufferStaging::BufferStaging(
         BufferStaging&& buffer
-    ) {
-        id           = buffer.id;
-        size_        = buffer.size_;
-        mem_         = buffer.mem_;
-        buffer.id    = 0;
-        buffer.size_ = 0;
-        buffer.mem_  = 0;
+    ) :
+        BufferInterface(move(buffer))
+    {
+        id                   = buffer.id;
+        size_                = buffer.size_;
+        clientMemoryCopyable = buffer.clientMemoryCopyable;
+        mem                  = buffer.mem;
+        buffer.id                   = 0;
+        buffer.size_                = 0;
+        buffer.clientMemoryCopyable = false;
+        buffer.mem                  = 0;
     }
 
     BufferStaging& BufferStaging::operator=(
         const BufferStaging& buffer
     ) {
         if (this != &buffer) {
-            create(buffer.size_); //TODO: don't create new one if current buffer is big enough but not to large? Could be an issue with ID still beeing pointed at by OpenGL?
+            mem = create(true, buffer.size_, true, false);
             copyFromBuffer(buffer, 0, 0, buffer.size_);
         }
         return *this;
@@ -95,15 +102,15 @@ namespace glCompact {
     BufferStaging& BufferStaging::operator=(
         BufferStaging&& buffer
     ) {
-        if (this != &buffer) {
-            free();
-            id           = buffer.id;
-            size_        = buffer.size_;
-            mem_         = buffer.mem_;
-            buffer.id    = 0;
-            buffer.size_ = 0;
-            buffer.mem_  = 0;
-        }
+        free();
+        id                   = buffer.id ;
+        size_                = buffer.size_;
+        clientMemoryCopyable = buffer.clientMemoryCopyable;
+        mem                  = buffer.mem;
+        buffer.id                   = 0;
+        buffer.size_                = 0;
+        buffer.clientMemoryCopyable = false;
+        buffer.mem                  = 0;
         return *this;
     }
 
@@ -113,13 +120,6 @@ namespace glCompact {
 
     void BufferStaging::free() {
         BufferInterface::free();
-        mem_ = 0;
-    }
-
-    void BufferStaging::create(
-        uintptr_t size
-    ) {
-        free();
-        mem_ = create_(true, size, true, false);
+        mem = 0;
     }
 }

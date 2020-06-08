@@ -24,56 +24,64 @@ namespace glCompact {
         commitmentMap((size + pageSize - 1) / pageSize)
     {
         UNLIKELY_IF (size % pageSize)
-            crash("size must be a multiple pageSize(" + to_string(pageSize) + ")");
-        create_(clientMemoryCopyable, align(size, pageSize), false, true);
+            crash("size must be a multiple of pageSize(" + to_string(pageSize) + ")");
+        create(clientMemoryCopyable, align(size, pageSize), false, true);
     }
 
     BufferSparse::BufferSparse(
-        const BufferSparse& bufferSparse
+        const BufferSparse& buffer
     ) {
-        create_(bufferSparse.clientMemoryCopyable, bufferSparse.size_, false, true);
-        copyCommitment(bufferSparse);
-        //copyFromBuffer(bufferSparse, 0, 0, bufferSparse.size_);
-        copyFromBufferCommitmentRegionOnly(bufferSparse);
+        create(buffer.clientMemoryCopyable, buffer.size_, false, true);
+        copyCommitment(buffer);
+        //copyFromBuffer(buffer, 0, 0, buffer.size_);
+        copyFromBufferCommitmentRegionOnly(buffer);
     }
 
     BufferSparse::BufferSparse(
         BufferSparse&& buffer
     ) {
-        id             = buffer.id;
-        size_          = buffer.size_;
-        commitmentSize = buffer.commitmentSize;
-        commitmentMap  = move(buffer.commitmentMap);
-        buffer.id             = 0;
-        buffer.size_          = 0;
-        buffer.commitmentSize = 0;
+        id                   = buffer.id;
+        size_                = buffer.size_;
+        clientMemoryCopyable = buffer.clientMemoryCopyable;
+        commitmentSize       = buffer.commitmentSize;
+        commitmentMap        = move(buffer.commitmentMap);
+        buffer.id                   = 0;
+        buffer.size_                = 0;
+        buffer.clientMemoryCopyable = false;
+        buffer.commitmentSize       = 0;
     }
 
     BufferSparse& BufferSparse::operator=(
-        const BufferSparse& bufferSparse
+        const BufferSparse& buffer
     ) {
-        if (this != &bufferSparse) {
+        if (this != &buffer) {
             free();
-            create_(bufferSparse.clientMemoryCopyable, bufferSparse.size_, false, true);
-            copyCommitment(bufferSparse);
-            //copyFromBuffer(bufferSparse, 0, 0, bufferSparse.size_);
-            copyFromBufferCommitmentRegionOnly(bufferSparse);
+            create(buffer.clientMemoryCopyable, buffer.size_, false, true);
+            copyCommitment(buffer);
+            //copyFromBuffer(buffer, 0, 0, buffer.size_);
+            copyFromBufferCommitmentRegionOnly(buffer);
         }
         return *this;
     }
 
     BufferSparse& BufferSparse::operator=(
-        BufferSparse&& bufferSparse
+        BufferSparse&& buffer
     ) {
         free();
-        id             = bufferSparse.id;
-        size_          = bufferSparse.size_;
-        commitmentSize = bufferSparse.commitmentSize;
-        commitmentMap  = move(bufferSparse.commitmentMap);
-        bufferSparse.id             = 0;
-        bufferSparse.size_          = 0;
-        bufferSparse.commitmentSize = 0;
+        id                   = buffer.id;
+        size_                = buffer.size_;
+        clientMemoryCopyable = buffer.clientMemoryCopyable;
+        commitmentSize       = buffer.commitmentSize;
+        commitmentMap        = move(buffer.commitmentMap);
+        buffer.id                   = 0;
+        buffer.size_                = 0;
+        buffer.clientMemoryCopyable = false;
+        buffer.commitmentSize       = 0;
         return *this;
+    }
+
+    BufferSparse::~BufferSparse() {
+        free();
     }
 
     void BufferSparse::free() {
@@ -128,36 +136,36 @@ namespace glCompact {
     }
 
     void BufferSparse::copyCommitment(
-        const BufferSparse& bufferSparse
+        const BufferSparse& buffer
     ) {
         int currentPos = 0;
-        int endPos = bufferSparse.size_ / pageSize;
+        int endPos = buffer.size_ / pageSize;
 
         while (currentPos < endPos) {
-            while (bufferSparse.commitmentMap[currentPos] == false && currentPos < endPos) currentPos++;
+            while (buffer.commitmentMap[currentPos] == false && currentPos < endPos) currentPos++;
             int commitRegionStart = currentPos;
-            while (bufferSparse.commitmentMap[currentPos] == true  && currentPos < endPos) currentPos++;
+            while (buffer.commitmentMap[currentPos] == true  && currentPos < endPos) currentPos++;
             int commitRegionEnd   = currentPos;
             if (commitRegionStart != commitRegionEnd)
                 setCommitment_(commitRegionStart * pageSize, (commitRegionEnd - commitRegionStart) * pageSize, true);
         }
-        commitmentSize = bufferSparse.commitmentSize;
-        commitmentMap  = bufferSparse.commitmentMap;
+        commitmentSize = buffer.commitmentSize;
+        commitmentMap  = buffer.commitmentMap;
     }
 
     void BufferSparse::copyFromBufferCommitmentRegionOnly(
-        const BufferSparse& bufferSparse
+        const BufferSparse& buffer
     ) {
         int currentPos = 0;
-        int endPos = bufferSparse.size_ / pageSize;
+        int endPos = buffer.size_ / pageSize;
 
         while (currentPos < endPos) {
-            while (bufferSparse.commitmentMap[currentPos] == false && currentPos < endPos) currentPos++;
+            while (buffer.commitmentMap[currentPos] == false && currentPos < endPos) currentPos++;
             int commitRegionStart = currentPos;
-            while (bufferSparse.commitmentMap[currentPos] == true  && currentPos < endPos) currentPos++;
+            while (buffer.commitmentMap[currentPos] == true  && currentPos < endPos) currentPos++;
             int commitRegionEnd   = currentPos;
             if (commitRegionStart != commitRegionEnd)
-                copyFromBuffer(bufferSparse, commitRegionStart * pageSize, commitRegionStart * pageSize, (commitRegionEnd - commitRegionStart) * pageSize);
+                copyFromBuffer(buffer, commitRegionStart * pageSize, commitRegionStart * pageSize, (commitRegionEnd - commitRegionStart) * pageSize);
         }
     }
 }

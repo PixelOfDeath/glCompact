@@ -138,7 +138,7 @@ namespace glCompact {
         uintptr_t size
     ) {
         Context::assertThreadHasActiveGlContext();
-        clear_(offset, size, 1, 0);
+        clear(offset, size, 1, 0);
     }
 
     /*
@@ -158,7 +158,7 @@ namespace glCompact {
 
         TODO: Can GL_BUFFER_UPDATE_BARRIER_BIT be used for both paths?
     */
-    void BufferInterface::clear_(
+    void BufferInterface::clear(
         uintptr_t   offset,
         uintptr_t   clearSize,
         uintptr_t   fillValueSize,
@@ -360,7 +360,7 @@ namespace glCompact {
         }
     }*/
 
-    void* BufferInterface::create_(
+    void* BufferInterface::create(
         bool        clientMemoryCopyable,
         uintptr_t   size,
         bool        stagingBuffer,

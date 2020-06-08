@@ -12,9 +12,7 @@ namespace glCompact {
             Buffer           (      Buffer&& buffer);
             Buffer& operator=(const Buffer&  buffer);
             Buffer& operator=(      Buffer&& buffer);
-            ~Buffer          ();
+            virtual ~Buffer() final;
             void free();
-        private:
-            void create(bool clientMemoryCopyable, uintptr_t size, const void* data = 0);
     };
 }

@@ -9,11 +9,11 @@ namespace glCompact {
         public:
             BufferSparse           () = default;
             BufferSparse           (bool clientMemoryCopyable, uintptr_t size);
-            BufferSparse           (const BufferSparse&  bufferSparse);
-            BufferSparse           (      BufferSparse&& bufferSparse);
-            BufferSparse& operator=(const BufferSparse&  bufferSparse);
-            BufferSparse& operator=(      BufferSparse&& bufferSparse);
-            ~BufferSparse() = default;
+            BufferSparse           (const BufferSparse&  buffer);
+            BufferSparse           (      BufferSparse&& buffer);
+            BufferSparse& operator=(const BufferSparse&  buffer);
+            BufferSparse& operator=(      BufferSparse&& buffer);
+            virtual ~BufferSparse() final;
             void free();
 
             void setCommitment(uintptr_t offset, uintptr_t size, bool commit);
@@ -25,7 +25,7 @@ namespace glCompact {
             std::vector<bool> commitmentMap;
 
             void setCommitment_(uintptr_t offset, uintptr_t size, bool commit);
-            void copyCommitment(const BufferSparse& bufferSparse);
-            void copyFromBufferCommitmentRegionOnly(const BufferSparse& bufferSparse);
+            void copyCommitment(const BufferSparse& buffer);
+            void copyFromBufferCommitmentRegionOnly(const BufferSparse& buffer);
     };
 }

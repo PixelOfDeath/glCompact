@@ -31,7 +31,7 @@ namespace glCompact {
                     ||  sizeof(T) == 16,
                     "fillValue type must have a size of 1, 2, 4, 8, 12 or 16 bytes!"
                 );
-                clear_(offset, size, sizeof(T), &fillValue);
+                clear(offset, size, sizeof(T), &fillValue);
             }
 
             void invalidate();
@@ -40,20 +40,19 @@ namespace glCompact {
             void detachFromThreadContext() const;
             //void setDebugLabel(const std::string& label);
 
-            bool isClientMemoryCopyable()const{return clientMemoryCopyable;}
+            bool isClientMemoryCopyable() const {return clientMemoryCopyable;}
 
-            uintptr_t getSize()const{return size_;}
+            uintptr_t getSize() const {return size_;}
         protected:
             BufferInterface() = default;
-            ~BufferInterface() = default;
+            virtual ~BufferInterface() = default;
 
             uint32_t  id    = 0;
             uintptr_t size_ = 0;
             bool clientMemoryCopyable = false;
 
-            void* create_(bool clientMemoryCopyable, uintptr_t size, bool stagingBuffer, bool sparseBuffer, const void* data = 0);
-            void clear_(uintptr_t offset, uintptr_t size, uintptr_t fillValueSize, const void* fillValue);
+            void* create(bool clientMemoryCopyable, uintptr_t size, bool stagingBuffer, bool sparseBuffer, const void* data = 0);
+            void clear(uintptr_t offset, uintptr_t size, uintptr_t fillValueSize, const void* fillValue);
             void free();
-        private:
     };
 }

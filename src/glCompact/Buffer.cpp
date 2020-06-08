@@ -26,7 +26,7 @@ namespace glCompact {
         bool      clientMemoryCopyable,
         uintptr_t size
     ) {
-        create(clientMemoryCopyable, size);
+        create(clientMemoryCopyable, size, false, false);
     }
 
     /**
@@ -42,7 +42,7 @@ namespace glCompact {
         uintptr_t   size,
         const void* data
     ) {
-        create(clientMemoryCopyable, size, data);
+        create(clientMemoryCopyable, size, false, false, data);
     }
 
     /**
@@ -53,7 +53,7 @@ namespace glCompact {
     Buffer::Buffer(
         const Buffer& buffer
     ) {
-        create(buffer.clientMemoryCopyable, buffer.size_);
+        create(buffer.clientMemoryCopyable, buffer.size_, false, false);
         copyFromBuffer(buffer, 0, 0, buffer.size_);
     }
 
@@ -63,8 +63,9 @@ namespace glCompact {
         id                   = buffer.id;
         size_                = buffer.size_;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
-        buffer.id            = 0;
-        buffer.size_         = 0;
+        buffer.id                   = 0;
+        buffer.size_                = 0;
+        buffer.clientMemoryCopyable = false;
     }
 
     //TODO: don't create new one if current buffer is big enough but not to large? Could be an issue with ID still beeing pointed at by OpenGL? Maybe forced unbing/remove from context?
@@ -72,7 +73,7 @@ namespace glCompact {
         const Buffer& buffer
     ) {
         if (this != &buffer) {
-            create(buffer.clientMemoryCopyable, buffer.size_);
+            create(buffer.clientMemoryCopyable, buffer.size_, false, false);
             copyFromBuffer(buffer, 0, 0, buffer.size_);
         }
         return *this;
@@ -81,13 +82,13 @@ namespace glCompact {
     Buffer& Buffer::operator=(
         Buffer&& buffer
     ) {
-        assert(this != &buffer);
         free();
         id                   = buffer.id ;
         size_                = buffer.size_;
         clientMemoryCopyable = buffer.clientMemoryCopyable;
-        buffer.id            = 0;
-        buffer.size_         = 0;
+        buffer.id                   = 0;
+        buffer.size_                = 0;
+        buffer.clientMemoryCopyable = false;
         return *this;
     }
 
@@ -97,14 +98,5 @@ namespace glCompact {
 
     void Buffer::free() {
         BufferInterface::free();
-    }
-
-    void Buffer::create(
-        bool        clientMemoryCopyable,
-        uintptr_t   size,
-        const void* data
-    ) {
-        free();
-        create_(clientMemoryCopyable, size, false, false, data);
     }
 }
