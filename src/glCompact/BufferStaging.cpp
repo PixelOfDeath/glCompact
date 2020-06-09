@@ -1,5 +1,6 @@
 #include "glCompact/BufferStaging.hpp"
 #include "glCompact/gl/Constants.hpp"
+#include "glCompact/ToolsInternal.hpp"
 
 #include <utility>
 
@@ -79,39 +80,22 @@ namespace glCompact {
     ) :
         BufferInterface(move(buffer))
     {
-        id                   = buffer.id;
-        size                 = buffer.size;
-        clientMemoryCopyable = buffer.clientMemoryCopyable;
-        mem                  = buffer.mem;
-        buffer.id                   = 0;
-        buffer.size                 = 0;
-        buffer.clientMemoryCopyable = false;
-        buffer.mem                  = 0;
+        mem = buffer.mem;
+        buffer.mem = 0;
     }
 
     BufferStaging& BufferStaging::operator=(
         const BufferStaging& buffer
     ) {
-        if (this != &buffer) {
-            mem = create(true, buffer.size, true, false);
-            copyFromBuffer(buffer, 0, 0, buffer.size);
-        }
-        return *this;
+        UNLIKELY_IF (&buffer == this) return *this;
+        return *new(this)BufferStaging(buffer);
     }
 
     BufferStaging& BufferStaging::operator=(
         BufferStaging&& buffer
     ) {
         free();
-        id                   = buffer.id ;
-        size                 = buffer.size;
-        clientMemoryCopyable = buffer.clientMemoryCopyable;
-        mem                  = buffer.mem;
-        buffer.id                   = 0;
-        buffer.size                 = 0;
-        buffer.clientMemoryCopyable = false;
-        buffer.mem                  = 0;
-        return *this;
+        return *new(this)BufferStaging(move(buffer));
     }
 
     BufferStaging::~BufferStaging() {

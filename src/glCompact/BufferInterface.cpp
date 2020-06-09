@@ -347,6 +347,15 @@ namespace glCompact {
         }
     }
 
+    BufferInterface::BufferInterface(BufferInterface&& buffer) {
+        id                   = buffer.id;
+        size                 = buffer.size;
+        clientMemoryCopyable = buffer.clientMemoryCopyable;
+        buffer.id                   = 0;
+        buffer.size                 = 0;
+        buffer.clientMemoryCopyable = false;
+    }
+
     /*void BufferInterface::setDebugLabel(const std::string& label) {
         Context::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_KHR_debug) {

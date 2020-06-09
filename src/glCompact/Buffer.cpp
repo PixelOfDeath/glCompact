@@ -1,7 +1,10 @@
 #include "glCompact/Buffer.hpp"
 #include "glCompact/ThreadContext.hpp"
+#include "glCompact/ToolsInternal.hpp"
 
 #include <assert.h>
+
+using namespace std;
 
 namespace glCompact {
     /**
@@ -59,37 +62,23 @@ namespace glCompact {
 
     Buffer::Buffer(
         Buffer&& buffer
-    ) {
-        id                   = buffer.id;
-        size                 = buffer.size;
-        clientMemoryCopyable = buffer.clientMemoryCopyable;
-        buffer.id                   = 0;
-        buffer.size                 = 0;
-        buffer.clientMemoryCopyable = false;
-    }
+    ) :
+        BufferInterface(move(buffer))
+    {}
 
     //TODO: don't create new one if current buffer is big enough but not to large? Could be an issue with ID still beeing pointed at by OpenGL? Maybe forced unbing/remove from context?
     Buffer& Buffer::operator=(
         const Buffer& buffer
     ) {
-        if (this != &buffer) {
-            create(buffer.clientMemoryCopyable, buffer.size, false, false);
-            copyFromBuffer(buffer, 0, 0, buffer.size);
-        }
-        return *this;
+        UNLIKELY_IF (&buffer == this) return *this;
+        return *new(this)Buffer(buffer);
     }
 
     Buffer& Buffer::operator=(
         Buffer&& buffer
     ) {
         free();
-        id                   = buffer.id ;
-        size                 = buffer.size;
-        clientMemoryCopyable = buffer.clientMemoryCopyable;
-        buffer.id                   = 0;
-        buffer.size                 = 0;
-        buffer.clientMemoryCopyable = false;
-        return *this;
+        return *new(this)Buffer(move(buffer));
     }
 
     Buffer::~Buffer() {

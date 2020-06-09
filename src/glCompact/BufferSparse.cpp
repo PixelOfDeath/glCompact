@@ -39,45 +39,26 @@ namespace glCompact {
 
     BufferSparse::BufferSparse(
         BufferSparse&& buffer
-    ) {
-        id                   = buffer.id;
-        size                 = buffer.size;
-        clientMemoryCopyable = buffer.clientMemoryCopyable;
-        commitmentSize       = buffer.commitmentSize;
-        commitmentMap        = move(buffer.commitmentMap);
-        buffer.id                   = 0;
-        buffer.size                 = 0;
-        buffer.clientMemoryCopyable = false;
-        buffer.commitmentSize       = 0;
+    ) :
+        BufferInterface(move(buffer))
+    {
+        commitmentSize = buffer.commitmentSize;
+        commitmentMap  = move(buffer.commitmentMap);
+        buffer.commitmentSize = 0;
     }
 
     BufferSparse& BufferSparse::operator=(
         const BufferSparse& buffer
     ) {
-        if (this != &buffer) {
-            free();
-            create(buffer.clientMemoryCopyable, buffer.size, false, true);
-            copyCommitment(buffer);
-            //copyFromBuffer(buffer, 0, 0, buffer.size);
-            copyFromBufferCommitmentRegionOnly(buffer);
-        }
-        return *this;
+        UNLIKELY_IF (&buffer == this) return *this;
+        return *new(this)BufferSparse(buffer);
     }
 
     BufferSparse& BufferSparse::operator=(
         BufferSparse&& buffer
     ) {
         free();
-        id                   = buffer.id;
-        size                 = buffer.size;
-        clientMemoryCopyable = buffer.clientMemoryCopyable;
-        commitmentSize       = buffer.commitmentSize;
-        commitmentMap        = move(buffer.commitmentMap);
-        buffer.id                   = 0;
-        buffer.size                 = 0;
-        buffer.clientMemoryCopyable = false;
-        buffer.commitmentSize       = 0;
-        return *this;
+        return *new(this)BufferSparse(move(buffer));
     }
 
     BufferSparse::~BufferSparse() {

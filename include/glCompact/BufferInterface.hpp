@@ -47,6 +47,7 @@ namespace glCompact {
             uintptr_t getSize() const {return size;}
         protected:
             BufferInterface() = default;
+            BufferInterface(BufferInterface&& buffer);
 
             uint32_t  id   = 0;
             uintptr_t size = 0;
