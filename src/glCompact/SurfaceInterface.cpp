@@ -51,20 +51,6 @@ namespace glCompact {
         surfaceInterface.id = 0;
     }
 
-    SurfaceInterface& SurfaceInterface::operator=(
-        SurfaceInterface&& surfaceInterface
-    ) {
-        free();
-        id            = surfaceInterface.id;
-        target        = surfaceInterface.target;
-        size          = surfaceInterface.size;
-        mipmapCount   = surfaceInterface.mipmapCount;
-        samples       = surfaceInterface.samples;
-        surfaceFormat = surfaceInterface.surfaceFormat;
-        surfaceInterface.id = 0;
-        return *this;
-    }
-
     void SurfaceInterface::detachFromThreadContext() {
         if (!id) return;
         //TODO

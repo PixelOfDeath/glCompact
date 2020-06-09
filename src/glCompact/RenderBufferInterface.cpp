@@ -10,7 +10,9 @@ using namespace glCompact::gl;
 using namespace glm;
 
 namespace glCompact {
-    RenderBufferInterface::RenderBufferInterface(const RenderBufferInterface& renderBufferInterface) {
+    RenderBufferInterface::RenderBufferInterface(
+        const RenderBufferInterface& renderBufferInterface
+    ) {
         create(renderBufferInterface.surfaceFormat, renderBufferInterface.size, renderBufferInterface.samples);
         if (threadContextGroup_->extensions.GL_ARB_copy_image) {
             copyFromSurfaceMemory    (renderBufferInterface, 0, {0, 0, 0}, 0, {0, 0, 0}, renderBufferInterface.size);
@@ -19,15 +21,11 @@ namespace glCompact {
         }
     }
 
-    RenderBufferInterface& RenderBufferInterface::operator=(const RenderBufferInterface& renderBufferInterface) {
+    RenderBufferInterface& RenderBufferInterface::operator=(
+        const RenderBufferInterface& renderBufferInterface
+    ) {
         free();
-        create(renderBufferInterface.surfaceFormat, renderBufferInterface.size, renderBufferInterface.samples);
-        if (threadContextGroup_->extensions.GL_ARB_copy_image) {
-            copyFromSurfaceMemory    (renderBufferInterface, 0, {0, 0, 0}, 0, {0, 0, 0}, renderBufferInterface.size);
-        } else {
-            copyFromSurfaceComponents(renderBufferInterface, 0, {0, 0, 0}, 0, {0, 0, 0}, renderBufferInterface.size);
-        }
-        return *this;
+        return *new(this)RenderBufferInterface(renderBufferInterface);
     }
 
     void RenderBufferInterface::create(SurfaceFormat surfaceFormat, uvec2 newSize, uint32_t samples) {

@@ -128,7 +128,9 @@ using namespace glCompact::gl;
 using namespace glm;
 
 namespace glCompact {
-    TextureInterface::TextureInterface(const TextureInterface& textureInterface) {
+    TextureInterface::TextureInterface(
+        const TextureInterface& textureInterface
+    ) {
         create(textureInterface.target, textureInterface.surfaceFormat, textureInterface.size, textureInterface.mipmapCount, 0);
         if (threadContextGroup_->extensions.GL_ARB_copy_image) {
             LOOPI(textureInterface.mipmapCount)
@@ -145,73 +147,22 @@ namespace glCompact {
     ) :
         SurfaceInterface(move(textureInterface))
     {
-        setMipmapBaseLevel(textureInterface.mipmapBaseLevel);
-    }
-
-    TextureInterface& TextureInterface::operator=(const TextureInterface& textureInterface) {
-        free();
-        create(textureInterface.target, textureInterface.surfaceFormat, textureInterface.size, textureInterface.mipmapCount, 0);
-        if (threadContextGroup_->extensions.GL_ARB_copy_image) {
-            LOOPI(textureInterface.mipmapCount)
-                copyFromSurfaceMemory    (textureInterface, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
-        } else {
-            LOOPI(textureInterface.mipmapCount)
-                copyFromSurfaceComponents(textureInterface, i, {0, 0, 0}, i, {0, 0, 0}, getMipmapLevelSize(i));
-        }
-        setMipmapBaseLevel(textureInterface.mipmapBaseLevel);
-        return *this;
-    }
-
-    TextureInterface& TextureInterface::operator=(TextureInterface&& textureInterface) {
-        SurfaceInterface::operator=(move(textureInterface));
         mipmapBaseLevel = textureInterface.mipmapBaseLevel;
-        return *this;
     }
 
-    /*TextureInterface::TextureInterface(const TextureInterface& srcTextureInterface) {
-        create(srcTextureInterface.target_, srcTextureInterface.imageFormat, srcTextureInterface.x, srcTextureInterface.y, srcTextureInterface.z, srcTextureInterface.mipmapCount > 1, srcTextureInterface.samples);
-        LOOPI(srcTextureInterface.mipmapCount)
-            copyFromImageComponents(srcTextureInterface, i, {0, 0, 0}, i, {0, 0, 0}, {srcTextureInterface.x, srcTextureInterface.y, srcTextureInterface.z});
+    TextureInterface& TextureInterface::operator=(
+        const TextureInterface& textureInterface
+    ) {
+        free();
+        return *new(this)TextureInterface(textureInterface);
     }
 
-    TextureInterface& TextureInterface::operator=(const TextureInterface& srcImages) {
-        if (this != &srcImages) {
-            create(srcImages.target_, srcImages.imageFormat, srcImages.x, srcImages.y, srcImages.z, srcImages.mipmapCount > 1, srcImages.samples);
-            LOOPI(srcImages.mipmapCount)
-                copyFromImageComponents(srcImages, i, {0, 0, 0}, i, {0, 0, 0}, {srcImages.x, srcImages.y, srcImages.z});
-        }
-        return *this;
+    TextureInterface& TextureInterface::operator=(
+        TextureInterface&& textureInterface
+    ) {
+        free();
+        return *new(this)TextureInterface(move(textureInterface));
     }
-
-    TextureInterface::TextureInterface(TextureInterface&& images) {
-        this->id_          = images.id_;
-        this->target_      = images.target_;
-        this->x_           = images.x_;
-        this->y_           = images.y_;
-        this->z_           = images.z_;
-        this->mipmapCount_ = images.mipmapCount_;
-        this->samples_     = images.samples_;
-        this->imageFormat_ = images.imageFormat_;
-        images.id_         = 0;
-    }
-
-    TextureInterface& TextureInterface::operator=(TextureInterface&& images) {
-        if (this != &images) {
-            free();
-            this->id_          = images.id_;
-            this->target_      = images.target_;
-            this->x_           = images.x_;
-            this->y_           = images.y_;
-            this->z_           = images.z_;
-            this->mipmapCount_ = images.mipmapCount_;
-            this->samples_     = images.samples_;
-            this->imageFormat_ = images.imageFormat_;
-            images.id_         = 0;
-        }
-        return *this;
-    }*/
-
-
 
     /**
         Create a view from an existing texture.
