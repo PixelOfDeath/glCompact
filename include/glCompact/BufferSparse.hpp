@@ -13,7 +13,7 @@ namespace glCompact {
             BufferSparse           (      BufferSparse&& buffer);
             BufferSparse& operator=(const BufferSparse&  buffer);
             BufferSparse& operator=(      BufferSparse&& buffer);
-            virtual ~BufferSparse() final;
+            virtual ~BufferSparse();
             void free();
 
             void setCommitment(uintptr_t offset, uintptr_t size, bool commit);
