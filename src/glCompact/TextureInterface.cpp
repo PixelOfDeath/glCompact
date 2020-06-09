@@ -153,6 +153,7 @@ namespace glCompact {
     TextureInterface& TextureInterface::operator=(
         const TextureInterface& textureInterface
     ) {
+        UNLIKELY_IF (&textureInterface == this) return *this;
         free();
         return *new(this)TextureInterface(textureInterface);
     }

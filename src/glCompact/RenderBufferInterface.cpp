@@ -24,6 +24,7 @@ namespace glCompact {
     RenderBufferInterface& RenderBufferInterface::operator=(
         const RenderBufferInterface& renderBufferInterface
     ) {
+        UNLIKELY_IF (&renderBufferInterface == this) return *this;
         free();
         return *new(this)RenderBufferInterface(renderBufferInterface);
     }
