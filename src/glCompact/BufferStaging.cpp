@@ -88,6 +88,7 @@ namespace glCompact {
         const BufferStaging& buffer
     ) {
         UNLIKELY_IF (&buffer == this) return *this;
+        free();
         return *new(this)BufferStaging(buffer);
     }
 

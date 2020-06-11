@@ -51,6 +51,7 @@ namespace glCompact {
         const BufferSparse& buffer
     ) {
         UNLIKELY_IF (&buffer == this) return *this;
+        free();
         return *new(this)BufferSparse(buffer);
     }
 
