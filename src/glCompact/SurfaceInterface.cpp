@@ -97,6 +97,8 @@ namespace glCompact {
 
         This is a function to copy raw data between surface objects (textures and/or renderbuffers). It only can copy between formats where the sample count is
         the same and where the pixel byte size (in case of compressed textures the block byte size) is the same!
+
+        TODO: Copying between compressed (block) and uncompressed (texel) formats.
     */
     void SurfaceInterface::copyFromSurfaceMemory(
         const SurfaceInterface& srcSurface,
