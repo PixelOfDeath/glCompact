@@ -39,7 +39,6 @@ namespace glCompact {
             void invalidate();
             void invalidate(uintptr_t offset, uintptr_t size);
 
-            void detachFromThreadContext() const;
             //void setDebugLabel(const std::string& label);
 
             bool isClientMemoryCopyable() const {return clientMemoryCopyable;}

@@ -249,6 +249,8 @@ namespace glCompact {
             float current_depthMultiplicator   = 0.0f;
             float current_addMinimumDepthUnits = 0.0f;
 
+            void forgetBufferId(uint32_t bufferId);
+
             //helper
             void cachedBindTextureCompatibleOrFirstTime(uint32_t texSlot, int32_t texTarget, uint32_t texId);
             void cachedBindTexture                     (uint32_t texSlot, int32_t texTarget, uint32_t texId);

@@ -155,6 +155,43 @@ namespace glCompact {
         return image_highestIndexNonNull;
     }
 
+    void Context::forgetBufferId(uint32_t bufferId) {
+        LOOPI(buffer_attribute_getHighestIndexNonNull()) if (buffer_attribute_id[i] == bufferId) {
+            buffer_attribute_id    [i] = 0;
+            buffer_attribute_offset[i] = 0;
+        }
+        if (buffer_attribute_index_id   == bufferId) buffer_attribute_index_id   = 0;
+        if (buffer_draw_indirect_id     == bufferId) buffer_draw_indirect_id     = 0;
+        if (buffer_dispatch_indirect_id == bufferId) buffer_dispatch_indirect_id = 0;
+        if (buffer_parameter_id         == bufferId) buffer_parameter_id         = 0;
+
+        LOOPI(buffer_uniform_getHighestIndexNonNull()) if (buffer_uniform_id[i] == bufferId) {
+            buffer_uniform_id    [i] = 0;
+            buffer_uniform_offset[i] = 0;
+            buffer_uniform_size  [i] = 0;
+        }
+
+        LOOPI(buffer_atomicCounter_getHighestIndexNonNull()) if (buffer_atomicCounter_id[i] == bufferId) {
+            buffer_atomicCounter_id    [i] = 0;
+            buffer_atomicCounter_offset[i] = 0;
+            buffer_atomicCounter_size  [i] = 0;
+        }
+
+        LOOPI(buffer_shaderStorage_getHighestIndexNonNull()) if (buffer_shaderStorage_id[i] == bufferId) {
+            buffer_shaderStorage_id    [i] = 0;
+            buffer_shaderStorage_offset[i] = 0;
+            buffer_shaderStorage_size  [i] = 0;
+        }
+
+        if (buffer_pixelPackId          == bufferId) buffer_pixelPackId          = 0;
+        if (buffer_pixelUnpackId        == bufferId) buffer_pixelUnpackId        = 0;
+
+        if (buffer_copyReadId           == bufferId) buffer_copyReadId           = 0;
+        if (buffer_copyWriteId          == bufferId) buffer_copyWriteId          = 0;
+
+        if (boundArrayBuffer            == bufferId) boundArrayBuffer            = 0;
+    }
+
     /**
         This bind the texture on the specified unit for changes with non-DSA functions.
 

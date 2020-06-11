@@ -300,53 +300,6 @@ namespace glCompact {
         }
     }
 
-    //TODO: we need two different functions for this, one that just removes the ID from the context states and another one that unbinds them actively!
-    void BufferInterface::detachFromThreadContext() const {
-        Context::assertThreadHasActiveGlContext();
-        /*
-            TODO
-
-            must actually be unbind if found in any current value!
-
-            move this all into threadContext, something like
-              detachBufferFromThreadContext(GLuint id);
-            and make this function call it.
-
-            should we make different functions for destructor and manual calls from users for when they want to give this object to some other thread?
-              detachAndUnbindBufferFromThreadContext
-        */
-        if (threadContext) {
-            LOOPI(threadContext->buffer_attribute_getHighestIndexNonNull()) {
-                if (threadContext->buffer_attribute_id    [i] == id) {
-                    threadContext->buffer_attribute_id    [i] = 0;
-                    threadContext->buffer_attribute_offset[i] = 0;
-                }
-            }
-            if (threadContext->boundArrayBuffer) threadContext->cachedBindArrayBuffer(0);
-
-            if (threadContext->buffer_attribute_index_id == id) {
-                threadContext->buffer_attribute_index_id = 0;
-            }
-
-            if (threadContext->buffer_draw_indirect_id     == id) threadContext->buffer_draw_indirect_id     = 0;
-            if (threadContext->buffer_dispatch_indirect_id == id) threadContext->buffer_dispatch_indirect_id = 0;
-            if (threadContext->buffer_parameter_id         == id) threadContext->buffer_parameter_id         = 0;
-
-            LOOPI(threadContext->buffer_uniform_getHighestIndexNonNull()) {
-                if (threadContext->buffer_uniform_id    [i] == id) {
-                    threadContext->buffer_uniform_id    [i] = 0;
-                    threadContext->buffer_uniform_offset[i] = 0;
-                    threadContext->buffer_uniform_size  [i] = 0;
-                }
-            }
-
-            if (threadContext->buffer_pixelPackId   == id) threadContext->buffer_pixelPackId   = 0;
-            if (threadContext->buffer_pixelUnpackId == id) threadContext->buffer_pixelUnpackId = 0;
-            if (threadContext->buffer_copyReadId    == id) threadContext->buffer_copyReadId    = 0;
-            if (threadContext->buffer_copyWriteId   == id) threadContext->buffer_copyWriteId   = 0;
-        }
-    }
-
     BufferInterface::BufferInterface(BufferInterface&& buffer) {
         id                   = buffer.id;
         size                 = buffer.size;
@@ -462,7 +415,7 @@ namespace glCompact {
                     crash("glCompact::Buffer destructor called but thread has no active OpenGL context! glDeleteBuffers without effect! Leaking OpenGL object!");
             #endif
 
-            if (threadContext) detachFromThreadContext();
+            if (threadContext) threadContext->forgetBufferId(id);
             threadContextGroup_->functions.glDeleteBuffers(1, &id);
 
             id    = 0;
