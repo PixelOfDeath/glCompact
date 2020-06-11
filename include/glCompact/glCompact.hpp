@@ -32,4 +32,5 @@ namespace glCompact {
     extern Frame& getDrawFrame      ();
     extern void   setWindowFrameSize(uint32_t x, uint32_t y);
     extern Frame& getWindowFrame    ();
+    //TODO: Add unbind all buffers/surfaces to cleanly move them to other threads
 }
