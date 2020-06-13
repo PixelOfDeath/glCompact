@@ -25,3 +25,16 @@
 #include "glCompact/Frame.hpp"
 #include "glCompact/Fence.hpp"
 #include "glCompact/MemoryBarrier.hpp"
+
+namespace glCompact {
+    void   setDrawFrame      (Frame& frame);
+    void   setDrawFrame      ();
+    Frame& getDrawFrame      ();
+    void   setWindowFrameSize(uint32_t x, uint32_t y);
+    Frame& getWindowFrame    ();
+
+    //TODO: Add unbind all buffers/surfaces to cleanly move them to other threads
+
+    void flush();
+    void finish();
+}

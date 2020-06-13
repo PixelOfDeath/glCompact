@@ -21,7 +21,6 @@ namespace glCompact {
 
     class Context_ {
             friend class ContextScope;
-            friend class Context;
             friend class Debug;
             friend class PipelineInterface;
             friend class PipelineRasterization;
@@ -34,6 +33,15 @@ namespace glCompact {
             friend class TextureInterface;
             friend class Sampler;
             friend class Frame;
+
+            friend void   setDrawFrame      (Frame& frame);
+            friend void   setDrawFrame      ();
+            friend Frame& getDrawFrame      ();
+            friend void   setWindowFrameSize(uint32_t x, uint32_t y);
+            friend Frame& getWindowFrame    ();
+
+            friend void flush();
+            friend void finish();
 
             //Memory Barrier commands
             friend class MemoryBarrier;
