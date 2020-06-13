@@ -4,7 +4,7 @@
 #include "glCompact/TextureSelector.hpp"
 #include "glCompact/SurfaceFormat.hpp"
 #include "glCompact/Sampler.hpp"
-#include "glCompact/MultiMalloc11.hpp"
+#include "glCompact/MultiNew11.hpp"
 
 #include <glm/fwd.hpp>
 
@@ -336,7 +336,7 @@ namespace glCompact {
             void getUniform(GLint uniformLocation, glm::dmat4x3& value, int count = 1);
             void getUniform(GLint uniformLocation, glm::dmat4x4& value, int count = 1);*/
 
-            MultiMalloc11 multiMalloc;
+            MultiNew11 multiNew;
 
             //BUFFER ATTRIBUTE
             //attributeLayoutStates.uppermostActiveBufferIndex for highestActiveBinding

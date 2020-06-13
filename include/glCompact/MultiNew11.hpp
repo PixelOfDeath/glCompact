@@ -13,17 +13,17 @@ namespace glCompact {
         }
 
         template<typename T, typename, typename, typename>
-        constexpr uintptr_t MultiMalloc11ReNewGetMaxAlign() {
+        constexpr uintptr_t MultiNew11ReNewGetMaxAlign() {
             return alignof(T);
         }
 
         template<typename T, typename, typename, typename, typename Arg0, typename... Args>
-        constexpr uintptr_t MultiMalloc11ReNewGetMaxAlign() {
-            return max(alignof(T), MultiMalloc11ReNewGetMaxAlign<Arg0, Args...>());
+        constexpr uintptr_t MultiNew11ReNewGetMaxAlign() {
+            return max(alignof(T), MultiNew11ReNewGetMaxAlign<Arg0, Args...>());
         }
 
         template<bool modifyPtr, typename T, typename Tinit>
-        void MultiMalloc11ReNewPlacement(uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
+        void MultiNew11ReNewPlacement(uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue) {
             if (modifyPtr) {
                 T* oldPtr = ptr;
                 T* newPtr = reinterpret_cast<T*>(newCount ? alignTo(newCurrentOffset, alignof(T)) : newCurrentOffset);
@@ -37,23 +37,23 @@ namespace glCompact {
         }
 
         template<bool modifyPtr, typename T, typename Tinit, typename... Args>
-        void MultiMalloc11ReNewPlacement(uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
-            MultiMalloc11ReNewPlacement<modifyPtr>(newCurrentOffset, ptr, oldCount, newCount, initValue);
-            MultiMalloc11ReNewPlacement<modifyPtr>(newCurrentOffset, args...);
+        void MultiNew11ReNewPlacement(uintptr_t& newCurrentOffset, T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
+            MultiNew11ReNewPlacement<modifyPtr>(newCurrentOffset, ptr, oldCount, newCount, initValue);
+            MultiNew11ReNewPlacement<modifyPtr>(newCurrentOffset, args...);
         }
     }
 
-    class MultiMalloc11 {
+    class MultiNew11 {
         public:
-            MultiMalloc11() = default;
-            ~MultiMalloc11();
+            MultiNew11() = default;
+            ~MultiNew11();
             template<typename T, typename Tinit, typename... Args>
             void reNew(T*& ptr, uintptr_t oldCount, uintptr_t newCount, const Tinit initValue, Args&&... args) {
                 uintptr_t newCurrentOffset;
-                constexpr uintptr_t maxAlign = MultiMalloc11ReNewGetMaxAlign<T, uintptr_t, uintptr_t, const Tinit, Args...>();
-                MultiMalloc11ReNewPlacement<0>(newCurrentOffset = 0,                     ptr, oldCount, newCount, initValue, args...);
+                constexpr uintptr_t maxAlign = MultiNew11ReNewGetMaxAlign<T, uintptr_t, uintptr_t, const Tinit, Args...>();
+                MultiNew11ReNewPlacement<0>(newCurrentOffset = 0,                     ptr, oldCount, newCount, initValue, args...);
                 void* newBasePtr = aligned_alloc(maxAlign, newCurrentOffset);
-                MultiMalloc11ReNewPlacement<1>(newCurrentOffset = uintptr_t(newBasePtr), ptr, oldCount, newCount, initValue, args...);
+                MultiNew11ReNewPlacement<1>(newCurrentOffset = uintptr_t(newBasePtr), ptr, oldCount, newCount, initValue, args...);
                 free();
                 basePtr = newBasePtr;
             }

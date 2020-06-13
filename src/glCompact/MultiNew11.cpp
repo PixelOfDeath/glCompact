@@ -1,4 +1,4 @@
-#include "glCompact/MultiMalloc11.hpp"
+#include "glCompact/MultiNew11.hpp"
 
 #if __cplusplus >= 201703L //C++17 or higher
     #include <cstdlib> //For aligned_alloc
@@ -7,7 +7,7 @@
 #endif
 
 namespace glCompact {
-    void* MultiMalloc11::aligned_alloc(std::size_t alignment, std::size_t size) {
+    void* MultiNew11::aligned_alloc(std::size_t alignment, std::size_t size) {
         #if __cplusplus >= 201703L //C++17 or higher
             return aligned_alloc(alignment, size);
         #elif defined(__GNUC__) || defined(__clang__)
@@ -18,11 +18,11 @@ namespace glCompact {
         #endif
     }
 
-    MultiMalloc11::~MultiMalloc11() {
+    MultiNew11::~MultiNew11() {
         free();
     }
 
-    void MultiMalloc11::free() {
+    void MultiNew11::free() {
         ::free(basePtr);
         basePtr = 0;
     }

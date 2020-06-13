@@ -1543,7 +1543,7 @@ namespace glCompact {
     }
 
     void PipelineInterface::allocateMemory() {
-        multiMalloc.reNew(
+        multiNew.reNew(
             buffer_uniform_id,              0, buffer_uniform_count      , 0,
             buffer_uniform_offset,          0, buffer_uniform_count      , 0,
             buffer_uniform_size,            0, buffer_uniform_count      , 0,
@@ -1607,7 +1607,7 @@ namespace glCompact {
         ||  currentSaCount < pendingSaCount
         ||  currentImCount < pendingImCount
         ) {
-            threadContext_->multiMalloc.reNew(
+            threadContext_->multiNew.reNew(
                 threadContext_->buffer_uniform_id,              currentBUCount, pendingBUCount, 0,
                 threadContext_->buffer_uniform_offset,          currentBUCount, pendingBUCount, 0,
                 threadContext_->buffer_uniform_size,            currentBUCount, pendingBUCount, 0,

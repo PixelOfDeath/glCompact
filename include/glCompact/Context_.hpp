@@ -9,7 +9,7 @@
 #include "glCompact/StencilOperator.hpp"
 #include "glCompact/BlendFactors.hpp"
 #include "glCompact/BlendEquations.hpp"
-#include "glCompact/MultiMalloc11.hpp"
+#include "glCompact/MultiNew11.hpp"
 
 #include <glm/fwd.hpp>
 
@@ -69,7 +69,7 @@ namespace glCompact {
             bool       attributeLayoutChanged = false; //TODO: make this one of the state bits
             AttributeLayoutStates attributeLayoutStates;
 
-            MultiMalloc11 multiMalloc;
+            MultiNew11 multiNew;
 
             //BUFFER ATTRIBUTE
              int32_t   buffer_attribute_getHighestIndexNonNull();
