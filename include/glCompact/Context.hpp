@@ -17,19 +17,8 @@
 #include <vector>
 
 namespace glCompact {
-    class Debug;
     class PipelineInterface;
-    class PipelineRasterization;
-    class PipelineCompute;
-    class BufferInterface;
-    class Buffer;
-    class BufferStaging;
-    class BufferSparse;
-    class TextureInterface;
-    class Sampler;
-    class Frame;
 
-    class Context;
     class Context {
             friend class ContextScope;
             friend class Debug;
