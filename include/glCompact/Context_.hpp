@@ -20,31 +20,6 @@ namespace glCompact {
     class PipelineInterface;
 
     class Context_ {
-            friend class ContextScope;
-            friend class Debug;
-            friend class PipelineInterface;
-            friend class PipelineRasterization;
-            friend class PipelineCompute;
-            friend class BufferInterface;
-            friend class Buffer;
-            friend class BufferStaging;
-            friend class BufferSparse;
-            friend class SurfaceInterface;
-            friend class TextureInterface;
-            friend class Sampler;
-            friend class Frame;
-
-            friend void   setDrawFrame      (Frame& frame);
-            friend void   setDrawFrame      ();
-            friend Frame& getDrawFrame      ();
-            friend void   setWindowFrameSize(uint32_t x, uint32_t y);
-            friend Frame& getWindowFrame    ();
-
-            friend void flush();
-            friend void finish();
-
-            //Memory Barrier commands
-            friend class MemoryBarrier;
         public:
             Context_();
             //prevent  copy constructor/Assignment operators
@@ -59,7 +34,7 @@ namespace glCompact {
             //if an external gl library is used this functions will set some GL states back to default
             void defaultStatesActivate();
             void defaultStatesDeactivate();
-        private:
+
             static void assertThreadHasActiveGlContext();
 
             uint32_t contextId;
@@ -165,6 +140,7 @@ namespace glCompact {
             uint32_t*  image_format;
             uint32_t*  image_mipmapLevel;
              int32_t*  image_layer;
+        public:
 
             //Graphics pipeline state
             PipelineRasterizationStateChange pipelineRasterizationStateChangePending;
