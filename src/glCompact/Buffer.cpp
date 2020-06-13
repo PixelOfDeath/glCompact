@@ -1,5 +1,5 @@
 #include "glCompact/Buffer.hpp"
-#include "glCompact/ThreadContext_.hpp"
+#include "glCompact/threadContext_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
 #include <assert.h>

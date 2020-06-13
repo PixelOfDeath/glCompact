@@ -1,8 +1,8 @@
 #include "glCompact/Sampler.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext_.hpp"
+#include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/PipelineInterface.hpp"
 
 #include "glCompact/ToolsInternal.hpp"

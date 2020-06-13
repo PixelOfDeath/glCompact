@@ -1,6 +1,6 @@
 #include "glCompact/Debug.hpp"
 #include "glCompact/ContextGroup_.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/threadContextGroup_.hpp"
 #include <iostream>
 
 using namespace std;

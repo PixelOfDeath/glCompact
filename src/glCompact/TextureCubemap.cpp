@@ -1,7 +1,7 @@
 #include "glCompact/TextureCubemap.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/ContextGroup_.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include <stdexcept>
 

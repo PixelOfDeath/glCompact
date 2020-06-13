@@ -1,6 +1,6 @@
 #include "glCompact/MemoryBarrier.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext_.hpp"
+#include "glCompact/threadContext_.hpp"
 #include "glCompact/gl/Constants.hpp"
 
 /**

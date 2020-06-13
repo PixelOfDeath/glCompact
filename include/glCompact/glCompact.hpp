@@ -1,9 +1,12 @@
 #pragma once
 #include "glCompact/ContextScope.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/threadContext.hpp"
+#include "glCompact/threadContextGroup.hpp"
 #include "glCompact/GlTools.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Buffer.hpp"
+#include "glCompact/BufferStating.hpp"
+#include "glCompact/BufferSparse.hpp"
 #include "glCompact/RenderBuffer2d.hpp"
 #include "glCompact/RenderBuffer2dMultisample.hpp"
 #include "glCompact/TextureInterface.hpp"
@@ -22,15 +25,3 @@
 #include "glCompact/Frame.hpp"
 #include "glCompact/Fence.hpp"
 #include "glCompact/MemoryBarrier.hpp"
-
-namespace glCompact {
-    extern void flush();
-    extern void finish();
-
-    extern void   setDrawFrame      (Frame& frame);
-    extern void   setDrawFrame      ();
-    extern Frame& getDrawFrame      ();
-    extern void   setWindowFrameSize(uint32_t x, uint32_t y);
-    extern Frame& getWindowFrame    ();
-    //TODO: Add unbind all buffers/surfaces to cleanly move them to other threads
-}

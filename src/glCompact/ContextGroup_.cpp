@@ -1,7 +1,7 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/gl/ConstantsCustom.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
 #include <string>

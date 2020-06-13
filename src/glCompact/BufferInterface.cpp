@@ -2,9 +2,9 @@
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/Buffer.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext_.hpp"
+#include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include <algorithm> //min/max
 

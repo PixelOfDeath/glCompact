@@ -1,6 +1,6 @@
 #include "glCompact/RenderBuffer2dMultisample.hpp"
 #include "glCompact/ContextGroup_.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
+#include "glCompact/threadContextGroup_.hpp"
 
 #include <glm/glm.hpp>
 

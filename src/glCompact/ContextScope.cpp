@@ -1,11 +1,14 @@
 #include "glCompact/ContextScope.hpp"
-#include "glCompact/Context_.hpp"
-#include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/config.hpp"
-#include "glCompact/ThreadContext_.hpp"
-#include "glCompact/ThreadContextGroup_.hpp"
-#include "glCompact/ThreadContextGroup.hpp"
+#include "glCompact/Context_.hpp"
+#include "glCompact/Context.hpp"
+#include "glCompact/ContextGroup_.hpp"
+#include "glCompact/ContextGroup.hpp"
+#include "glCompact/threadContext_.hpp"
+#include "glCompact/threadContext.hpp"
+#include "glCompact/threadContextGroup_.hpp"
+#include "glCompact/threadContextGroup.hpp"
 
 namespace glCompact {
     /**
@@ -53,7 +56,7 @@ namespace glCompact {
             UNLIKELY_IF (threadContext_ != 0)
                 crash("This thread already has a glCompact::Context object registered!");
         #else
-            UNLIKELY_IF (threadContextConstructed)
+            UNLIKELY_IF (threadContextConstructed_)
                 crash("A glCompact::Context object is already registered!\nNote: config.hpp GLCOMPACT_MULTIPLE_CONTEXT is not defined! Define it if you want to use more then one context!");
         #endif
     }
@@ -90,9 +93,12 @@ namespace glCompact {
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             threadContext_ = new Context_;
+            threadContext  = new Context;
         #else
-            new (threadContext)Context_;
-            threadContextConstructed = true;
+            new (threadContext_)Context_;
+            new (threadContext )Context;
+            threadContextConstructed_ = true;
+            threadContextConstructed  = true;
         #endif
         threadContext_->isMainContext = true;
     }
@@ -124,26 +130,31 @@ namespace glCompact {
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             threadContext_ = new Context_;
+            threadContext  = new Context;
         #else
-            new (threadContext)Context_;
-            threadContextConstructed = true;
+            new (threadContext_)Context_;
+            new (threadContext )Context;
+            threadContextConstructed_ = true;
+            threadContextConstructed  = true;
         #endif
     }
 
     ContextScope::~ContextScope() {
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             delete threadContext_;
+            delete threadContext;
             threadContext_ = 0;
+            threadContext  = 0;
         #else
-            threadContextConstructed = false;
+            threadContextConstructed_ = false;
         #endif
 
         threadContextGroup_->contextCount--;
         if (threadContextGroup_->contextCount == 0) {
             #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
                 delete threadContextGroup_;
-                threadContextGroup_ = 0;
                 delete threadContextGroup;
+                threadContextGroup_ = 0;
                 threadContextGroup  = 0;
             #else
                 threadContextGroupConstructed_ = false;
