@@ -1,7 +1,7 @@
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
@@ -54,15 +54,15 @@ namespace glCompact {
     void SurfaceInterface::detachFromThreadContext() {
         if (!id) return;
         //TODO
-        if (threadContext) {
-            LOOPI(threadContext->texture_getHighestIndexNonNull()) {
-                if (threadContext->texture_id[i] == id) {
-                    threadContext->texture_id[i] = 0;
+        if (threadContext_) {
+            LOOPI(threadContext_->texture_getHighestIndexNonNull()) {
+                if (threadContext_->texture_id[i] == id) {
+                    threadContext_->texture_id[i] = 0;
                 }
             }
-            LOOPI(threadContext->image_getHighestIndexNonNull()) {
-                if (threadContext->image_id[i] == id) {
-                    threadContext->image_id[i] = 0;
+            LOOPI(threadContext_->image_getHighestIndexNonNull()) {
+                if (threadContext_->image_id[i] == id) {
+                    threadContext_->image_id[i] = 0;
                     //TODO: set the rest values to NULL, too?
                 }
             }
@@ -75,8 +75,8 @@ namespace glCompact {
         //If this texture/renderBuffer is part of the currently bound FBO then it would be unbound by OpenGL.
         //To prevent this we always set the default FBO. Still being bound to any FBO will act like a hard link (like a texture view) to the underlaying surface memory.
         //This gives a consistend behavior for FBOs and also prevents them from being changed and possibly made incomplete!
-        threadContext->cachedBindDrawFbo(0);
-        threadContext->cachedBindReadFbo(0); //TODO read fbo relevant? I guess yes.
+        threadContext_->cachedBindDrawFbo(0);
+        threadContext_->cachedBindReadFbo(0); //TODO read fbo relevant? I guess yes.
         if (target == GL_RENDERBUFFER) {
             threadContextGroup_->functions.glDeleteRenderbuffers(1, &id);
         } else {
@@ -429,11 +429,11 @@ namespace glCompact {
         if (targetFboId) {
             int setCurrentDrawId = config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO ? -1 : 0;
             threadContextGroup_->functions.glDeleteFramebuffers(1, &targetFboId);
-            threadContext->current_frame_drawId = setCurrentDrawId;
+            threadContext_->current_frame_drawId = setCurrentDrawId;
         }
 
         threadContextGroup_->functions.glDeleteFramebuffers(1, &srcFboId);
-        threadContext->current_frame_readId = -1; //TODO: Do some drivers also fuck around with setting the readFbo to 0 when deleting the current fbo? Or can I set this one to 0?
+        threadContext_->current_frame_readId = -1; //TODO: Do some drivers also fuck around with setting the readFbo to 0 when deleting the current fbo? Or can I set this one to 0?
     }
 
     bool SurfaceInterface::isLayered() const {
@@ -454,10 +454,10 @@ namespace glCompact {
             target
     */
     void SurfaceInterface::bindTemporalFirstTime() const {
-        threadContext->cachedBindTextureCompatibleOrFirstTime(0, target, id);
+        threadContext_->cachedBindTextureCompatibleOrFirstTime(0, target, id);
     }
 
     void SurfaceInterface::bindTemporal() const {
-        threadContext->cachedBindTexture(0, target, id);
+        threadContext_->cachedBindTexture(0, target, id);
     }
 }

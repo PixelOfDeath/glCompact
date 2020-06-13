@@ -1,6 +1,6 @@
 #include "glCompact/Frame.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
@@ -222,7 +222,7 @@ namespace glCompact {
             threadContextGroup_->functions.glCreateFramebuffers(1, &id);
         } else {
             threadContextGroup_->functions.glGenFramebuffers(1, &id);
-            threadContext->cachedBindDrawFbo(id);
+            threadContext_->cachedBindDrawFbo(id);
         }
 
         if (depthAndOrStencilSurface.surface) setDepthAndOrStencilAttachment(depthAndOrStencilSurface);
@@ -291,7 +291,7 @@ namespace glCompact {
             threadContextGroup_->functions.glNamedFramebufferParameteri(id, GL_FRAMEBUFFER_DEFAULT_FIXED_SAMPLE_LOCATIONS, true);
         } else {
             threadContextGroup_->functions.glGenFramebuffers(1, &id);
-            threadContext->cachedBindDrawFbo(id);
+            threadContext_->cachedBindDrawFbo(id);
             threadContextGroup_->functions.glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH,                  sizeX);
             threadContextGroup_->functions.glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT,                 sizeY);
             threadContextGroup_->functions.glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_LAYERS,                 layers);
@@ -373,7 +373,7 @@ namespace glCompact {
         //TODO test limits
         viewportOffset = offset;
         viewportSize   = size;
-        threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
     void Frame::setScissor(
@@ -384,7 +384,7 @@ namespace glCompact {
         scissorOffset  = offset;
         scissorSize    = size;
         scissorEnabled = offset != glm::uvec2(0, 0) || size != glm::uvec2(this->size);
-        threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
     //If this Frame is using sRGB targets, then this will enable automatic translation between the sRGBA and the linear color space when writing to it
@@ -402,7 +402,7 @@ namespace glCompact {
     void Frame::setViewport() {
         viewportOffset = {0, 0};
         viewportSize   = size;
-        threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
     /**
@@ -413,7 +413,7 @@ namespace glCompact {
         scissorOffset  = {0, 0};
         scissorSize    = size;
         scissorEnabled = false;
-        threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
     void Frame::blitRgba(
@@ -447,7 +447,7 @@ namespace glCompact {
         glm::ivec2 dstSize,
         bool       filterLinear
     ) {
-        blit(GL_COLOR_BUFFER_BIT, slot, threadContext->pending_frame->id, srcOffset, dstOffset, srcSize, dstSize, filterLinear);
+        blit(GL_COLOR_BUFFER_BIT, slot, threadContext_->pending_frame->id, srcOffset, dstOffset, srcSize, dstSize, filterLinear);
     }
 
     void Frame::blitDepth() {
@@ -466,7 +466,7 @@ namespace glCompact {
         glm::uvec2 dstOffset,
         glm::ivec2 size
     ) {
-        blit(GL_DEPTH_BUFFER_BIT, 0, threadContext->pending_frame->id, srcOffset, dstOffset, size, size, false);
+        blit(GL_DEPTH_BUFFER_BIT, 0, threadContext_->pending_frame->id, srcOffset, dstOffset, size, size, false);
     }
 
     void Frame::blitStencil(
@@ -486,7 +486,7 @@ namespace glCompact {
         glm::uvec2 dstOffset,
         glm::ivec2 size
     ) {
-        blit(GL_STENCIL_BUFFER_BIT, 0, threadContext->pending_frame->id, srcOffset, dstOffset, size, size, false);
+        blit(GL_STENCIL_BUFFER_BIT, 0, threadContext_->pending_frame->id, srcOffset, dstOffset, size, size, false);
     }
 
     void Frame::blitDepthStencil() {
@@ -505,7 +505,7 @@ namespace glCompact {
         glm::uvec2 dstOffset,
         glm::ivec2 size
     ) {
-        blit(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, 0, threadContext->pending_frame->id, srcOffset, dstOffset, size, size, false);
+        blit(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, 0, threadContext_->pending_frame->id, srcOffset, dstOffset, size, size, false);
     }
 
     /** BLock Image Transfer (blit)
@@ -551,10 +551,10 @@ namespace glCompact {
                 threadContextGroup_->functions.glNamedFramebufferReadBuffer(srcFboId, GL_COLOR_ATTACHMENT0 + srcRgbaSlot);
             threadContextGroup_->functions.glBlitNamedFramebuffer(srcFboId, dstFboId, srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
         } else {
-            threadContext->cachedBindReadFbo(srcFboId);
+            threadContext_->cachedBindReadFbo(srcFboId);
             if (mask == GL_COLOR_BUFFER_BIT)
                 threadContextGroup_->functions.glReadBuffer(GL_COLOR_ATTACHMENT0 + srcRgbaSlot);
-            threadContext->cachedBindDrawFbo(dstFboId);
+            threadContext_->cachedBindDrawFbo(dstFboId);
             threadContextGroup_->functions.glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
         }
     }
@@ -654,7 +654,7 @@ namespace glCompact {
         uint32_t  slot,
         glm::vec4 rgba
     ) {
-        threadContext->processPendingChangesDrawFrame(this);
+        threadContext_->processPendingChangesDrawFrame(this);
 
       //if (threadContext->extensions.GL_ARB_direct_state_access) {
       //    threadContextGroup_->functions.glClearNamedFramebufferfv(id, GL_COLOR, slot, &rgba[0]);
@@ -673,7 +673,7 @@ namespace glCompact {
         uint32_t   slot,
         glm::uvec4 rgba
     ) {
-        threadContext->processPendingChangesDrawFrame(this);
+        threadContext_->processPendingChangesDrawFrame(this);
       //if (threadContext->extensions.GL_ARB_direct_state_access) {
       //    threadContextGroup_->functions.glClearNamedFramebufferuiv(id, GL_COLOR, slot, &rgba[0]);
       //} else {
@@ -685,7 +685,7 @@ namespace glCompact {
         uint32_t   slot,
         glm::ivec4 rgba
     ) {
-        threadContext->processPendingChangesDrawFrame(this);
+        threadContext_->processPendingChangesDrawFrame(this);
       //if (threadContext->extensions.GL_ARB_direct_state_access) {
       //    threadContextGroup_->functions.glClearNamedFramebufferiv(id, GL_COLOR, slot, &rgba[0]);
       //} else {
@@ -699,7 +699,7 @@ namespace glCompact {
     void Frame::clearDepth(
         float depth
     ) {
-        threadContext->processPendingChangesDrawFrame(this);
+        threadContext_->processPendingChangesDrawFrame(this);
 
       //if (threadContext->extensions.GL_ARB_direct_state_access) {
       //    threadContextGroup_->functions.glClearNamedFramebufferfv(id, GL_DEPTH, 0, &depth);
@@ -711,7 +711,7 @@ namespace glCompact {
     void Frame::clearStencil(
         uint32_t stencil
     ) {
-        threadContext->processPendingChangesDrawFrame(this);
+        threadContext_->processPendingChangesDrawFrame(this);
 
       //if (threadContext->extensions.GL_ARB_direct_state_access) {
       //    threadContextGroup_->functions.glClearNamedFramebufferuiv(id, GL_STENCIL, 0, &stencil);
@@ -727,7 +727,7 @@ namespace glCompact {
         float    depth,
         uint32_t stencil
     ) {
-        threadContext->processPendingChangesDrawFrame(this);
+        threadContext_->processPendingChangesDrawFrame(this);
 
       //if (threadContext->extensions.GL_ARB_direct_state_access) {
       //    threadContextGroup_->functions.glClearNamedFramebufferfi(id, GL_DEPTH_STENCIL, 0, depth, stencil);
@@ -763,10 +763,10 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glInvalidateNamedFramebufferData(id, 1, &attachment);
         } else if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
-            threadContext->cachedBindDrawFbo(id);
+            threadContext_->cachedBindDrawFbo(id);
             threadContextGroup_->functions.glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, 1, &attachment);
         } else if (threadContextGroup_->extensions.GL_EXT_discard_framebuffer) {
-            threadContext->cachedBindDrawFbo(id);
+            threadContext_->cachedBindDrawFbo(id);
             threadContextGroup_->functions.glDiscardFramebufferEXT(GL_DRAW_FRAMEBUFFER, 1, &attachment);
         }
     }
@@ -842,8 +842,8 @@ namespace glCompact {
         GLenum format = memorySurfaceFormat->componentsAndArrangement;
         GLenum type   = memorySurfaceFormat->componentsTypes;
 
-        threadContext->cachedBindReadFbo(id);
-        threadContext->cachedBindPixelPackBuffer(0);
+        threadContext_->cachedBindReadFbo(id);
+        threadContext_->cachedBindPixelPackBuffer(0);
         //only needed for RGBA copy; TODO: test if this works for the windows frame buffer on older GL implementations, or if I need to use GL_FRONT/GL_BACK
         //Not sure how much SDL2 intercepts in terms of default frame buffer, probably have to test with glfw
         threadContextGroup_->functions.glReadBuffer(GL_COLOR_ATTACHMENT0 + rgbaSlot);
@@ -888,7 +888,7 @@ namespace glCompact {
             } else
                 threadContextGroup_->functions.glNamedFramebufferRenderbuffer(id, attachmentType, GL_RENDERBUFFER, surfaceId);
         } else {
-            threadContext->cachedBindDrawFbo(id);
+            threadContext_->cachedBindDrawFbo(id);
             if (isTexture) {
                 if (isLayerSelection)
                     threadContextGroup_->functions.glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachmentType, surfaceId, mipmapLevel, layer);
@@ -963,26 +963,26 @@ namespace glCompact {
     }
 
     void Frame::detachFromThreadContextStateCurrent() const {
-        assert(threadContext);
+        assert(threadContext_);
 
         int setCurrentValue = 0;
         if (config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO) setCurrentValue = -1;
 
-        if (threadContext->current_frame        == this) threadContext->current_frame        = 0;
-        if (threadContext->current_frame_drawId ==   id) threadContext->current_frame_drawId = setCurrentValue;
-        if (threadContext->current_frame_readId ==   id) threadContext->current_frame_readId = setCurrentValue;
+        if (threadContext_->current_frame        == this) threadContext_->current_frame        = 0;
+        if (threadContext_->current_frame_drawId ==   id) threadContext_->current_frame_drawId = setCurrentValue;
+        if (threadContext_->current_frame_readId ==   id) threadContext_->current_frame_readId = setCurrentValue;
     }
 
     void Frame::detachFromThreadContextState() const {
-        assert(threadContext);
+        assert(threadContext_);
 
         detachFromThreadContextStateCurrent();
 
         //int setCurrentValue = 0;
         //if (Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO) setCurrentValue = -1;
 
-        if (threadContext->pending_frame        == this) threadContext->pending_frame        = 0;
-        if (threadContext->pending_frame_drawId ==   id) threadContext->pending_frame_drawId = 0;
+        if (threadContext_->pending_frame        == this) threadContext_->pending_frame        = 0;
+        if (threadContext_->pending_frame_drawId ==   id) threadContext_->pending_frame_drawId = 0;
         //if (threadContext->pending_frame_readId ==   id) threadContext->pending_frame_readId = 0;
     }
 
@@ -1072,7 +1072,7 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glNamedFramebufferDrawBuffers(id, highestMapping, &mappingList[0]);
         } else {
-            threadContext->cachedBindDrawFbo(id);
+            threadContext_->cachedBindDrawFbo(id);
             threadContextGroup_->functions.glDrawBuffers(highestMapping, &mappingList[0]);
         }
 

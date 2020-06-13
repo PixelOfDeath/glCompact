@@ -2,7 +2,7 @@
 #include "glCompact/config.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/TextureInterface.hpp"
@@ -98,7 +98,7 @@ namespace glCompact {
         //if (!SDL_GL_GetCurrentContext())
         //    cout << "WARNING: glCompact::PipelineInterface destructor called but no active OpenGL context in this thread to delete it! Leaking OpenGL object!" << endl;
         if (id) {
-            if (threadContext) {
+            if (threadContext_) {
                 detachFromThreadContext();
             }
             if (threadContextGroup_) {
@@ -348,9 +348,9 @@ namespace glCompact {
     }
 
     void PipelineInterface::detachFromThreadContext() {
-        if (threadContext) {
+        if (threadContext_) {
             //TODO: also remove VAO that buffers vertex layout, because they only exist in the creator context
-            if (threadContext->pipeline == this) threadContext->pipeline = 0;
+            if (threadContext_->pipeline == this) threadContext_->pipeline = 0;
         }
     }
 
@@ -519,8 +519,8 @@ namespace glCompact {
         const string& message
     ) {
         string s;
-        if (threadContext->pipelineThatCausedLastWarning != this) {
-            threadContext->pipelineThatCausedLastWarning = this;
+        if (threadContext_->pipelineThatCausedLastWarning != this) {
+            threadContext_->pipelineThatCausedLastWarning = this;
             s += "Warning in " + getPipelineIdentificationString();
         }
         s += " " + message;
@@ -548,7 +548,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform1f(shaderId , uniformLocation, value);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1f(uniformLocation, value);
         }
     }
@@ -557,7 +557,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform2f(shaderId , uniformLocation, value[0], value[1]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2f(uniformLocation, value[0], value[1]);
         }
     }
@@ -566,7 +566,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform3f(shaderId , uniformLocation, value[0], value[1], value[2]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3f(uniformLocation, value[0], value[1], value[2]);
         }
     }
@@ -575,7 +575,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform4f(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4f(uniformLocation, value[0], value[1], value[2], value[3]);
         }
     }
@@ -584,7 +584,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform1d(shaderId , uniformLocation, value);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1d(uniformLocation, value);
         }
     }
@@ -593,7 +593,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform2d(shaderId , uniformLocation, value[0], value[1]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2d(uniformLocation, value[0], value[1]);
         }
     }
@@ -602,7 +602,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform3d(shaderId , uniformLocation, value[0], value[1], value[2]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3d(uniformLocation, value[0], value[1], value[2]);
         }
     }
@@ -611,7 +611,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform4d(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4d(uniformLocation, value[0], value[1], value[2], value[3]);
         }
     }
@@ -620,7 +620,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform1i(shaderId , uniformLocation, value);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1i(uniformLocation, value);
         }
     }
@@ -629,7 +629,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform2i(shaderId , uniformLocation, value[0], value[1]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2i(uniformLocation, value[0], value[1]);
         }
     }
@@ -638,7 +638,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform3i(shaderId , uniformLocation, value[0], value[1], value[2]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3i(uniformLocation, value[0], value[1], value[2]);
         }
     }
@@ -647,7 +647,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform4i(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4i(uniformLocation, value[0], value[1], value[2], value[3]);
         }
     }
@@ -656,7 +656,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform1ui(shaderId , uniformLocation, value);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1ui(uniformLocation, value);
         }
     }
@@ -665,7 +665,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform2ui(shaderId , uniformLocation, value[0], value[1]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2ui(uniformLocation, value[0], value[1]);
         }
     }
@@ -674,7 +674,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform3ui(shaderId , uniformLocation, value[0], value[1], value[2]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3ui(uniformLocation, value[0], value[1], value[2]);
         }
     }
@@ -683,7 +683,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects) {
             threadContextGroup_->functions.glProgramUniform4ui(shaderId , uniformLocation, value[0], value[1], value[2], value[3]);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4ui(uniformLocation, value[0], value[1], value[2], value[3]);
         }
     }
@@ -692,7 +692,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform1fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -701,7 +701,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform2fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -710,7 +710,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform3fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -719,7 +719,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4fv(shaderId, uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4fv(uniformLocation, count, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -729,7 +729,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform1dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -738,7 +738,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform2dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -747,7 +747,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform3dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -756,7 +756,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4dv(shaderId, uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4dv(uniformLocation, count, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -765,7 +765,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform1iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
@@ -774,7 +774,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform2iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
@@ -783,7 +783,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform3iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
@@ -792,7 +792,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4iv(shaderId, uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4iv(uniformLocation, count, reinterpret_cast<const GLint*>(&value));
         }
     }
@@ -801,7 +801,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform1uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform1uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
@@ -810,7 +810,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform2uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform2uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
@@ -819,7 +819,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform3uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform3uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
@@ -828,7 +828,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniform4uiv(shaderId, uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniform4uiv(uniformLocation, count, reinterpret_cast<const GLuint*>(&value));
         }
     }
@@ -839,7 +839,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -848,7 +848,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -857,7 +857,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -866,7 +866,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -875,7 +875,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -884,7 +884,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3x4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3x4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -893,7 +893,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4x2fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4x2fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -902,7 +902,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4x3fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4x3fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -911,7 +911,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4fv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4fv(uniformLocation, count, false, reinterpret_cast<const GLfloat*>(&value));
         }
     }
@@ -921,7 +921,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -930,7 +930,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2x3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2x3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -939,7 +939,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix2x4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix2x4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -948,7 +948,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3x2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3x2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -957,7 +957,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -966,7 +966,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix3x4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix3x4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -975,7 +975,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4x2dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4x2dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -984,7 +984,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4x3dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4x3dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -993,7 +993,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS && threadContextGroup_->extensions.GL_ARB_separate_shader_objects)
             threadContextGroup_->functions.glProgramUniformMatrix4dv(shaderId, uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformMatrix4dv(uniformLocation, count, false, reinterpret_cast<const GLdouble*>(&value));
         }
     }
@@ -1003,7 +1003,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS) {
             threadContextGroup_->functions.glProgramUniformHandleui64ARB(shaderId, uniformLocation, value);
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformHandleui64ARB(uniformLocation, value);
         }
     }
@@ -1013,7 +1013,7 @@ namespace glCompact {
         if (config::ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS) {
             threadContextGroup_->functions.glProgramUniformHandleui64vARB(shaderId, uniformLocation, count, reinterpret_cast<const GLuint64*>(&value));
         } else {
-            threadContext->cachedBindShader(shaderId);
+            threadContext_->cachedBindShader(shaderId);
             threadContextGroup_->functions.glUniformHandleui64vARB(uniformLocation, count, reinterpret_cast<const GLuint64*>(&value));
         }
     }
@@ -1570,12 +1570,12 @@ namespace glCompact {
         processPendingChangesTextures();
         processPendingChangesSamplers();
         processPendingChangesImages();
-        threadContext->processPendingChangesMemoryBarriers();
+        threadContext_->processPendingChangesMemoryBarriers();
     }
 
 
     void PipelineInterface::processPendingChangesPipeline() {
-        threadContext->attributeLayoutChanged = 1;
+        threadContext_->attributeLayoutChanged = 1;
 
         buffer_uniform_changedSlotMin       = 0;
         buffer_uniform_changedSlotMax       = buffer_uniform_count - 1;
@@ -1590,11 +1590,11 @@ namespace glCompact {
         image_changedSlotMin                = 0;
         image_changedSlotMax                = image_count - 1;
 
-        auto& currentBUCount = threadContext->buffer_uniform_count;
-        auto& currentBACount = threadContext->buffer_atomicCounter_count;
-        auto& currentBSCount = threadContext->buffer_shaderStorage_count;
-        auto& currentSaCount = threadContext->sampler_count;
-        auto& currentImCount = threadContext->image_count;
+        auto& currentBUCount = threadContext_->buffer_uniform_count;
+        auto& currentBACount = threadContext_->buffer_atomicCounter_count;
+        auto& currentBSCount = threadContext_->buffer_shaderStorage_count;
+        auto& currentSaCount = threadContext_->sampler_count;
+        auto& currentImCount = threadContext_->image_count;
         auto pendingBUCount = max(currentBUCount, buffer_uniform_count);
         auto pendingBACount = max(currentBACount, buffer_atomicCounter_count);
         auto pendingBSCount = max(currentBSCount, buffer_shaderStorage_count);
@@ -1607,23 +1607,23 @@ namespace glCompact {
         ||  currentSaCount < pendingSaCount
         ||  currentImCount < pendingImCount
         ) {
-            threadContext->multiMalloc.reNew(
-                threadContext->buffer_uniform_id,              currentBUCount, pendingBUCount, 0,
-                threadContext->buffer_uniform_offset,          currentBUCount, pendingBUCount, 0,
-                threadContext->buffer_uniform_size,            currentBUCount, pendingBUCount, 0,
-                threadContext->buffer_atomicCounter_id,        currentBACount, pendingBACount, 0,
-                threadContext->buffer_atomicCounter_offset,    currentBACount, pendingBACount, 0,
-                threadContext->buffer_atomicCounter_size,      currentBACount, pendingBACount, 0,
-                threadContext->buffer_shaderStorage_id,        currentBSCount, pendingBSCount, 0,
-                threadContext->buffer_shaderStorage_offset,    currentBSCount, pendingBSCount, 0,
-                threadContext->buffer_shaderStorage_size,      currentBSCount, pendingBSCount, 0,
-                threadContext->texture_id,                     currentSaCount, pendingSaCount, 0,
-                threadContext->texture_target,                 currentSaCount, pendingSaCount, 0,
-                threadContext->sampler_id,                     currentSaCount, pendingSaCount, 0,
-                threadContext->image_id,                       currentImCount, pendingImCount, 0,
-                threadContext->image_format,                   currentImCount, pendingImCount, 0,
-                threadContext->image_mipmapLevel,              currentImCount, pendingImCount, 0,
-                threadContext->image_layer,                    currentImCount, pendingImCount, 0
+            threadContext_->multiMalloc.reNew(
+                threadContext_->buffer_uniform_id,              currentBUCount, pendingBUCount, 0,
+                threadContext_->buffer_uniform_offset,          currentBUCount, pendingBUCount, 0,
+                threadContext_->buffer_uniform_size,            currentBUCount, pendingBUCount, 0,
+                threadContext_->buffer_atomicCounter_id,        currentBACount, pendingBACount, 0,
+                threadContext_->buffer_atomicCounter_offset,    currentBACount, pendingBACount, 0,
+                threadContext_->buffer_atomicCounter_size,      currentBACount, pendingBACount, 0,
+                threadContext_->buffer_shaderStorage_id,        currentBSCount, pendingBSCount, 0,
+                threadContext_->buffer_shaderStorage_offset,    currentBSCount, pendingBSCount, 0,
+                threadContext_->buffer_shaderStorage_size,      currentBSCount, pendingBSCount, 0,
+                threadContext_->texture_id,                     currentSaCount, pendingSaCount, 0,
+                threadContext_->texture_target,                 currentSaCount, pendingSaCount, 0,
+                threadContext_->sampler_id,                     currentSaCount, pendingSaCount, 0,
+                threadContext_->image_id,                       currentImCount, pendingImCount, 0,
+                threadContext_->image_format,                   currentImCount, pendingImCount, 0,
+                threadContext_->image_mipmapLevel,              currentImCount, pendingImCount, 0,
+                threadContext_->image_layer,                    currentImCount, pendingImCount, 0
             );
             currentBUCount = pendingBUCount;
             currentBACount = pendingBACount;
@@ -1641,15 +1641,15 @@ namespace glCompact {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->buffer_uniform_id    [changedSlotMin] != buffer_uniform_id    [changedSlotMin]
-                    ||  threadContext->buffer_uniform_offset[changedSlotMin] != buffer_uniform_offset[changedSlotMin]
-                    ||  threadContext->buffer_uniform_size  [changedSlotMin] != buffer_uniform_size  [changedSlotMin]) break;
+                    if (threadContext_->buffer_uniform_id    [changedSlotMin] != buffer_uniform_id    [changedSlotMin]
+                    ||  threadContext_->buffer_uniform_offset[changedSlotMin] != buffer_uniform_offset[changedSlotMin]
+                    ||  threadContext_->buffer_uniform_size  [changedSlotMin] != buffer_uniform_size  [changedSlotMin]) break;
                     changedSlotMin++;
                 }
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->buffer_uniform_id    [changedSlotMax] != buffer_uniform_id    [changedSlotMax]
-                    ||  threadContext->buffer_uniform_offset[changedSlotMax] != buffer_uniform_offset[changedSlotMax]
-                    ||  threadContext->buffer_uniform_size  [changedSlotMax] != buffer_uniform_size  [changedSlotMax]) break;
+                    if (threadContext_->buffer_uniform_id    [changedSlotMax] != buffer_uniform_id    [changedSlotMax]
+                    ||  threadContext_->buffer_uniform_offset[changedSlotMax] != buffer_uniform_offset[changedSlotMax]
+                    ||  threadContext_->buffer_uniform_size  [changedSlotMax] != buffer_uniform_size  [changedSlotMax]) break;
                     changedSlotMax--;
                 }
 
@@ -1662,16 +1662,16 @@ namespace glCompact {
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    if (threadContext->buffer_uniform_id    [i] != buffer_uniform_id    [i]
-                    ||  threadContext->buffer_uniform_offset[i] != buffer_uniform_offset[i]
-                    ||  threadContext->buffer_uniform_size  [i] != buffer_uniform_size  [i])
+                    if (threadContext_->buffer_uniform_id    [i] != buffer_uniform_id    [i]
+                    ||  threadContext_->buffer_uniform_offset[i] != buffer_uniform_offset[i]
+                    ||  threadContext_->buffer_uniform_size  [i] != buffer_uniform_size  [i])
                         threadContextGroup_->functions.glBindBufferRange(GL_UNIFORM_BUFFER, i, buffer_uniform_id[i], buffer_uniform_offset[i], buffer_uniform_size[i]);
                 }
             }
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                threadContext->buffer_uniform_id    [i] = buffer_uniform_id    [i];
-                threadContext->buffer_uniform_offset[i] = buffer_uniform_offset[i];
-                threadContext->buffer_uniform_size  [i] = buffer_uniform_size  [i];
+                threadContext_->buffer_uniform_id    [i] = buffer_uniform_id    [i];
+                threadContext_->buffer_uniform_offset[i] = buffer_uniform_offset[i];
+                threadContext_->buffer_uniform_size  [i] = buffer_uniform_size  [i];
             }
             buffer_uniform_changedSlotMin = std::numeric_limits<decltype(buffer_uniform_changedSlotMin)>::max();
             buffer_uniform_changedSlotMax = -1;
@@ -1686,15 +1686,15 @@ namespace glCompact {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->buffer_atomicCounter_id    [changedSlotMin] != buffer_atomicCounter_id    [changedSlotMin]
-                    ||  threadContext->buffer_atomicCounter_offset[changedSlotMin] != buffer_atomicCounter_offset[changedSlotMin]
-                    ||  threadContext->buffer_atomicCounter_size  [changedSlotMin] != buffer_atomicCounter_size  [changedSlotMin]) break;
+                    if (threadContext_->buffer_atomicCounter_id    [changedSlotMin] != buffer_atomicCounter_id    [changedSlotMin]
+                    ||  threadContext_->buffer_atomicCounter_offset[changedSlotMin] != buffer_atomicCounter_offset[changedSlotMin]
+                    ||  threadContext_->buffer_atomicCounter_size  [changedSlotMin] != buffer_atomicCounter_size  [changedSlotMin]) break;
                     changedSlotMin++;
                 }
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->buffer_atomicCounter_id    [changedSlotMax] != buffer_atomicCounter_id    [changedSlotMax]
-                    ||  threadContext->buffer_atomicCounter_offset[changedSlotMax] != buffer_atomicCounter_offset[changedSlotMax]
-                    ||  threadContext->buffer_atomicCounter_size  [changedSlotMax] != buffer_atomicCounter_size  [changedSlotMax]) break;
+                    if (threadContext_->buffer_atomicCounter_id    [changedSlotMax] != buffer_atomicCounter_id    [changedSlotMax]
+                    ||  threadContext_->buffer_atomicCounter_offset[changedSlotMax] != buffer_atomicCounter_offset[changedSlotMax]
+                    ||  threadContext_->buffer_atomicCounter_size  [changedSlotMax] != buffer_atomicCounter_size  [changedSlotMax]) break;
                     changedSlotMax--;
                 }
 
@@ -1707,16 +1707,16 @@ namespace glCompact {
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    if (threadContext->buffer_atomicCounter_id    [i] != buffer_atomicCounter_id    [i]
-                    ||  threadContext->buffer_atomicCounter_offset[i] != buffer_atomicCounter_offset[i]
-                    ||  threadContext->buffer_atomicCounter_size  [i] != buffer_atomicCounter_size  [i])
+                    if (threadContext_->buffer_atomicCounter_id    [i] != buffer_atomicCounter_id    [i]
+                    ||  threadContext_->buffer_atomicCounter_offset[i] != buffer_atomicCounter_offset[i]
+                    ||  threadContext_->buffer_atomicCounter_size  [i] != buffer_atomicCounter_size  [i])
                         threadContextGroup_->functions.glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, i, buffer_atomicCounter_id[i], buffer_atomicCounter_offset[i], buffer_atomicCounter_size[i]);
                 }
             }
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                threadContext->buffer_atomicCounter_id    [i] = buffer_atomicCounter_id    [i];
-                threadContext->buffer_atomicCounter_offset[i] = buffer_atomicCounter_offset[i];
-                threadContext->buffer_atomicCounter_size  [i] = buffer_atomicCounter_size  [i];
+                threadContext_->buffer_atomicCounter_id    [i] = buffer_atomicCounter_id    [i];
+                threadContext_->buffer_atomicCounter_offset[i] = buffer_atomicCounter_offset[i];
+                threadContext_->buffer_atomicCounter_size  [i] = buffer_atomicCounter_size  [i];
             }
             buffer_atomicCounter_changedSlotMin = std::numeric_limits<decltype(buffer_atomicCounter_changedSlotMin)>::max();
             buffer_atomicCounter_changedSlotMax = -1;
@@ -1746,16 +1746,16 @@ namespace glCompact {
                 threadContextGroup_->functions.glBindBuffersRange(GL_SHADER_STORAGE_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    if (threadContext->buffer_shaderStorage_id    [i] != buffer_shaderStorage_id    [i]
-                    ||  threadContext->buffer_shaderStorage_offset[i] != buffer_shaderStorage_offset[i]
-                    ||  threadContext->buffer_shaderStorage_size  [i] != buffer_shaderStorage_size  [i])
+                    if (threadContext_->buffer_shaderStorage_id    [i] != buffer_shaderStorage_id    [i]
+                    ||  threadContext_->buffer_shaderStorage_offset[i] != buffer_shaderStorage_offset[i]
+                    ||  threadContext_->buffer_shaderStorage_size  [i] != buffer_shaderStorage_size  [i])
                         threadContextGroup_->functions.glBindBufferRange(GL_SHADER_STORAGE_BUFFER, i, buffer_shaderStorage_id[i], buffer_shaderStorage_offset[i], buffer_shaderStorage_size[i]);
                 }
             }
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                threadContext->buffer_shaderStorage_id    [i] = buffer_shaderStorage_id    [i];
-                threadContext->buffer_shaderStorage_offset[i] = buffer_shaderStorage_offset[i];
-                threadContext->buffer_shaderStorage_size  [i] = buffer_shaderStorage_size  [i];
+                threadContext_->buffer_shaderStorage_id    [i] = buffer_shaderStorage_id    [i];
+                threadContext_->buffer_shaderStorage_offset[i] = buffer_shaderStorage_offset[i];
+                threadContext_->buffer_shaderStorage_size  [i] = buffer_shaderStorage_size  [i];
             }
             buffer_shaderStorage_changedSlotMin = std::numeric_limits<decltype(buffer_shaderStorage_changedSlotMin)>::max();
             buffer_shaderStorage_changedSlotMax = -1;
@@ -1773,11 +1773,11 @@ namespace glCompact {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->texture_id[changedSlotMin] != texture_id[changedSlotMin]) break;
+                    if (threadContext_->texture_id[changedSlotMin] != texture_id[changedSlotMin]) break;
                     changedSlotMin++;
                 }
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->texture_id[changedSlotMax] != texture_id[changedSlotMax]) break;
+                    if (threadContext_->texture_id[changedSlotMax] != texture_id[changedSlotMax]) break;
                     changedSlotMax--;
                 }
 
@@ -1786,12 +1786,12 @@ namespace glCompact {
                     const uint32_t* textureList = &texture_id[changedSlotMin];
                     threadContextGroup_->functions.glBindTextures(changedSlotMin, count, textureList);
                     for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                        threadContext->texture_id[i] = texture_id[i];
+                        threadContext_->texture_id[i] = texture_id[i];
                     }
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i)
-                    threadContext->cachedBindTextureCompatibleOrFirstTime(i, texture_target[i], texture_id[i]);
+                    threadContext_->cachedBindTextureCompatibleOrFirstTime(i, texture_target[i], texture_id[i]);
             }
             texture_changedSlotMin = std::numeric_limits<decltype(texture_changedSlotMin)>::max();
             texture_changedSlotMax = -1;
@@ -1806,11 +1806,11 @@ namespace glCompact {
             if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                 //Filter out unchanged slots at the beginning and end of the list
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->sampler_id[changedSlotMin] != sampler_id[changedSlotMin]) break;
+                    if (threadContext_->sampler_id[changedSlotMin] != sampler_id[changedSlotMin]) break;
                     changedSlotMin++;
                 }
                 while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext->sampler_id[changedSlotMax] != sampler_id[changedSlotMax]) break;
+                    if (threadContext_->sampler_id[changedSlotMax] != sampler_id[changedSlotMax]) break;
                     changedSlotMax--;
                 }
 
@@ -1819,13 +1819,13 @@ namespace glCompact {
                     const uint32_t* samplerList = &sampler_id[changedSlotMin];
                     threadContextGroup_->functions.glBindSamplers(changedSlotMin, count, samplerList);
                     for (int i = changedSlotMin; i <= changedSlotMax; ++i)
-                        threadContext->sampler_id[i] = sampler_id[i];
+                        threadContext_->sampler_id[i] = sampler_id[i];
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    if (threadContext->sampler_id[i] != sampler_id[i]) {
+                    if (threadContext_->sampler_id[i] != sampler_id[i]) {
                         threadContextGroup_->functions.glBindSampler(i, sampler_id[i]);
-                        threadContext->sampler_id[i] = sampler_id[i];
+                        threadContext_->sampler_id[i] = sampler_id[i];
                     }
                 }
             }
@@ -1851,10 +1851,10 @@ namespace glCompact {
 
         if (changedSlotMin <= changedSlotMax) {
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                if (threadContext->image_id         [i] != image_id         [i]
-                ||  threadContext->image_format     [i] != image_format     [i]
-                ||  threadContext->image_mipmapLevel[i] != image_mipmapLevel[i]
-                ||  threadContext->image_layer      [i] != image_layer      [i]) {
+                if (threadContext_->image_id         [i] != image_id         [i]
+                ||  threadContext_->image_format     [i] != image_format     [i]
+                ||  threadContext_->image_mipmapLevel[i] != image_mipmapLevel[i]
+                ||  threadContext_->image_layer      [i] != image_layer      [i]) {
                     if (image_id[i]) {
                         if (image_layer[i] == -1) {
                             threadContextGroup_->functions.glBindImageTexture(i, image_id[i], image_mipmapLevel[i], 0,              0, GL_READ_WRITE, image_format[i]);
@@ -1865,10 +1865,10 @@ namespace glCompact {
                         //Mesa does not like the format to be 0 even when the texture is 0, so we use GL_R8!
                         threadContextGroup_->functions.glBindImageTexture(i, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8);
                     }
-                    threadContext->image_id         [i] = image_id         [i];
-                    threadContext->image_format     [i] = image_format     [i];
-                    threadContext->image_mipmapLevel[i] = image_mipmapLevel[i];
-                    threadContext->image_layer      [i] = image_layer      [i];
+                    threadContext_->image_id         [i] = image_id         [i];
+                    threadContext_->image_format     [i] = image_format     [i];
+                    threadContext_->image_mipmapLevel[i] = image_mipmapLevel[i];
+                    threadContext_->image_layer      [i] = image_layer      [i];
                 }
             }
             image_changedSlotMin = std::numeric_limits<decltype(image_changedSlotMin)>::max();

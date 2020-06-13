@@ -1,6 +1,6 @@
 #include "glCompact/PipelineCompute.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/config.hpp"
@@ -174,7 +174,7 @@ namespace glCompact {
         UNLIKELY_IF (!buffer.id)
             throw std::runtime_error("does not take empty buffer!");
         processPendingChanges();
-        threadContext->cachedBindDispatchIndirectBuffer(buffer.id);
+        threadContext_->cachedBindDispatchIndirectBuffer(buffer.id);
         threadContextGroup_->functions.glDispatchComputeIndirect(offset);
     }
 
@@ -219,10 +219,10 @@ namespace glCompact {
     }
 
     void PipelineCompute::processPendingChangesPipeline() {
-        threadContext->cachedBindShader(id);
-        if (threadContext->pipeline != this) {
+        threadContext_->cachedBindShader(id);
+        if (threadContext_->pipeline != this) {
             PipelineInterface::processPendingChangesPipeline();
-            threadContext->pipeline = this;
+            threadContext_->pipeline = this;
         }
     }
 }

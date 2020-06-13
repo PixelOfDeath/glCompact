@@ -1,5 +1,5 @@
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
@@ -416,8 +416,8 @@ namespace glCompact {
             pending_frame_drawId = pendingFrame->id;
             current_frame = pendingFrame;
         }
-        threadContext->cachedBindDrawFbo(threadContext->pending_frame_drawId);
-        threadContext->cachedConvertSrgb(current_frame->convertSrgb);
+        threadContext_->cachedBindDrawFbo(threadContext_->pending_frame_drawId);
+        threadContext_->cachedConvertSrgb(current_frame->convertSrgb);
         cachedViewport(pendingFrame->viewportOffset, pendingFrame->viewportSize);
 
         if (!pendingFrame->scissorEnabled) {

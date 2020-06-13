@@ -2,7 +2,7 @@
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/Buffer.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
@@ -49,8 +49,8 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glCopyNamedBufferSubData(srcBuffer.id, id, srcOffset, dstOffset, copySize);
         else {
-            threadContext->cachedBindCopyReadBuffer(srcBuffer.id);
-            threadContext->cachedBindCopyWriteBuffer(id);
+            threadContext_->cachedBindCopyReadBuffer(srcBuffer.id);
+            threadContext_->cachedBindCopyWriteBuffer(id);
             threadContextGroup_->functions.glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, srcOffset, dstOffset, copySize);
         }
     }
@@ -80,7 +80,7 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glNamedBufferSubData(id, thisOffset, copySize, srcMem);
         else {
-            threadContext->cachedBindCopyWriteBuffer(id);
+            threadContext_->cachedBindCopyWriteBuffer(id);
             threadContextGroup_->functions.glBufferSubData(GL_COPY_WRITE_BUFFER, thisOffset, copySize, srcMem);
         }
     }
@@ -105,7 +105,7 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glGetNamedBufferSubData(id, thisOffset, copySize, destMem);
         else {
-            threadContext->cachedBindCopyReadBuffer(this->id);
+            threadContext_->cachedBindCopyReadBuffer(this->id);
             threadContextGroup_->functions.glGetBufferSubData(GL_COPY_READ_BUFFER, thisOffset, copySize, destMem);
         }
     }
@@ -122,7 +122,7 @@ namespace glCompact {
             if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
                 threadContextGroup_->functions.glClearNamedBufferData       (this->id, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
             else {
-                threadContext->cachedBindCopyWriteBuffer(this->id);
+                threadContext_->cachedBindCopyWriteBuffer(this->id);
                 threadContextGroup_->functions.glClearBufferData(GL_COPY_WRITE_BUFFER, GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE, 0);
             }
         } else {
@@ -220,7 +220,7 @@ namespace glCompact {
                 if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
                     threadContextGroup_->functions.glClearNamedBufferSubData       (this->id, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
                 else {
-                    threadContext->cachedBindCopyWriteBuffer(this->id);
+                    threadContext_->cachedBindCopyWriteBuffer(this->id);
                     threadContextGroup_->functions.glClearBufferSubData(GL_COPY_WRITE_BUFFER, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
                 }
             }
@@ -280,7 +280,7 @@ namespace glCompact {
             if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                 threadContextGroup_->functions.glNamedBufferData(id, size, 0, usageHint);
             } else {
-                threadContext->cachedBindCopyWriteBuffer(id);
+                threadContext_->cachedBindCopyWriteBuffer(id);
                 threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, 0, usageHint);
             }
         } else {
@@ -390,7 +390,7 @@ namespace glCompact {
             }
         } else {
             threadContextGroup_->functions.glGenBuffers(1, &id);
-            threadContext->cachedBindCopyWriteBuffer(id);
+            threadContext_->cachedBindCopyWriteBuffer(id);
             if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
                 threadContextGroup_->functions.glBufferStorage(GL_COPY_WRITE_BUFFER, size, data, flags);
                 if (stagingBuffer) return threadContextGroup_->functions.glMapBufferRange(GL_COPY_WRITE_BUFFER, 0, size, stagingBufferAccessFlags);
@@ -415,7 +415,7 @@ namespace glCompact {
                     crash("glCompact::Buffer destructor called but thread has no active OpenGL context! glDeleteBuffers without effect! Leaking OpenGL object!");
             #endif
 
-            if (threadContext) threadContext->forgetBufferId(id);
+            if (threadContext_) threadContext_->forgetBufferId(id);
             threadContextGroup_->functions.glDeleteBuffers(1, &id);
 
             id    = 0;

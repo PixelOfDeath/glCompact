@@ -1,6 +1,6 @@
 #include "glCompact/Sampler.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/PipelineInterface.hpp"
@@ -48,8 +48,8 @@ namespace glCompact {
             threadContextGroup_->functions.glGenSamplers(1, &id);
             //this needs to be bound once before OpenGL creates the sampler for real, and before we can use operations on it like setting parameters
             threadContextGroup_->functions.glBindSampler(0, id);
-            threadContext->sampler_id[0] = id;
-            if (threadContext->pipeline) threadContext->pipeline->sampler_markSlotChange(0);
+            threadContext_->sampler_id[0] = id;
+            if (threadContext_->pipeline) threadContext_->pipeline->sampler_markSlotChange(0);
         }
     }
 
@@ -194,8 +194,8 @@ namespace glCompact {
 
     void Sampler::detachFromThreadContext() {
         //TODO: also unbind here? (Should be unbound automaticly from active VAO when deleting it)
-        LOOPI(threadContext->sampler_count) {
-            if (threadContext->sampler_id[i] == id) threadContext->sampler_id[i] = 0;
+        LOOPI(threadContext_->sampler_count) {
+            if (threadContext_->sampler_id[i] == id) threadContext_->sampler_id[i] = 0;
         }
     }
 }

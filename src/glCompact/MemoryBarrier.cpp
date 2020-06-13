@@ -1,6 +1,6 @@
 #include "glCompact/MemoryBarrier.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/gl/Constants.hpp"
 
 /**
@@ -88,48 +88,48 @@ namespace glCompact {
     //read access after barrier
 
     void MemoryBarrier::attributeBuffer() {
-        threadContext->memoryBarrierMask |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
     }
 
     void MemoryBarrier::attributeIndexBuffer() {
-        threadContext->memoryBarrierMask |= GL_ELEMENT_ARRAY_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_ELEMENT_ARRAY_BARRIER_BIT;
     }
 
     //GL_DRAW_INDIRECT_BUFFER and GL_DISPATCH_INDIRECT_BUFFER
     //Also GL_PARAMETER_BUFFER_ARB if the extension GL_ARB_indirect_parameters (Not part of Core) is present
     void MemoryBarrier::parameterBuffer() {
-        threadContext->memoryBarrierMask |= GL_COMMAND_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_COMMAND_BARRIER_BIT;
     }
 
     void MemoryBarrier::uniformBuffer() {
-        threadContext->memoryBarrierMask |= GL_UNIFORM_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_UNIFORM_BARRIER_BIT;
     }
 
     //This also affects bufferTexture objects!
     //NOT for glTex(Sub)Image*, glCopyTex(Sub)Image*, glClearTex*Image, glCompressedTex(Sub)Image* !
     void MemoryBarrier::texture() {
-        threadContext->memoryBarrierMask |= GL_TEXTURE_FETCH_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_TEXTURE_FETCH_BARRIER_BIT;
     }
 
     //read/write access after barrier
 
     void MemoryBarrier::image() {
-        threadContext->memoryBarrierMask |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
     }
 
     //needs GL_ARB_shader_storage_buffer_object (Core since 4.3) or throws error if glMemoryBarrier is called with it
     void MemoryBarrier::shaderStorageBuffer() {
-        threadContext->memoryBarrierMask |= GL_SHADER_STORAGE_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_SHADER_STORAGE_BARRIER_BIT;
     }
 
     //the barrier is for buffers only, that are involved in copys from/to images
     void MemoryBarrier::bufferImageTransfer() {
-        threadContext->memoryBarrierMask |= GL_PIXEL_BUFFER_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_PIXEL_BUFFER_BARRIER_BIT;
     }
 
     //also delete?; Only copy from/to other buffers?!
     void MemoryBarrier::bufferCreateClearCopyInvalidate() {
-        threadContext->memoryBarrierMask |= GL_BUFFER_UPDATE_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_BUFFER_UPDATE_BARRIER_BIT;
     }
 
     //Barrier for textures that was or will be changed by:
@@ -137,23 +137,23 @@ namespace glCompact {
     //TODO: also need this as a barrier in the image download function! (glGetTexImage)
     //not sure if glGetTexImage needs its own explecite barrier or if a previous barrier on a shader call is enough?!?!?!
     void MemoryBarrier::imageUploadDownloadClear() {
-        threadContext->memoryBarrierMask |= GL_TEXTURE_UPDATE_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_TEXTURE_UPDATE_BARRIER_BIT;
     }
 
     void MemoryBarrier::frame() {
-        threadContext->memoryBarrierMask |= GL_FRAMEBUFFER_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_FRAMEBUFFER_BARRIER_BIT;
     }
 
     void MemoryBarrier::transformFeedback() {
-        threadContext->memoryBarrierMask |= GL_TRANSFORM_FEEDBACK_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_TRANSFORM_FEEDBACK_BARRIER_BIT;
     }
 
     void MemoryBarrier::query() {
-        threadContext->memoryBarrierMask |= GL_QUERY_BUFFER_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_QUERY_BUFFER_BARRIER_BIT;
     }
 
     void MemoryBarrier::atomicCounterBuffer() {
-        threadContext->memoryBarrierMask |= GL_ATOMIC_COUNTER_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_ATOMIC_COUNTER_BARRIER_BIT;
     }
 
     /*
@@ -161,39 +161,39 @@ namespace glCompact {
         For client->server data without MAP_COHERENT_BIT one must use a FlushMapped*BufferRange command before issuing commands using the data changed by the client side.
     */
     void MemoryBarrier::mappedMemoryClientRead() {
-        threadContext->memoryBarrierMask |= GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT;
+        threadContext_->memoryBarrierMask |= GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT;
     }
 
     void MemoryBarrier::all() {
-        threadContext->memoryBarrierMask |= GL_ALL_BARRIER_BITS;
+        threadContext_->memoryBarrierMask |= GL_ALL_BARRIER_BITS;
     }
 
 
     void MemoryBarrier::RasterizationRegion::uniformBuffer() {
-        threadContext->memoryBarrierRasterizationRegionMask |= GL_UNIFORM_BARRIER_BIT;
+        threadContext_->memoryBarrierRasterizationRegionMask |= GL_UNIFORM_BARRIER_BIT;
     }
 
     void MemoryBarrier::RasterizationRegion::texture() {
-        threadContext->memoryBarrierRasterizationRegionMask |= GL_TEXTURE_FETCH_BARRIER_BIT;
+        threadContext_->memoryBarrierRasterizationRegionMask |= GL_TEXTURE_FETCH_BARRIER_BIT;
     }
 
     void MemoryBarrier::RasterizationRegion::image() {
-        threadContext->memoryBarrierRasterizationRegionMask |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+        threadContext_->memoryBarrierRasterizationRegionMask |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
     }
 
     void MemoryBarrier::RasterizationRegion::shaderStorageBuffer() {
-        threadContext->memoryBarrierRasterizationRegionMask |= GL_SHADER_STORAGE_BARRIER_BIT;
+        threadContext_->memoryBarrierRasterizationRegionMask |= GL_SHADER_STORAGE_BARRIER_BIT;
     }
 
     void MemoryBarrier::RasterizationRegion::atomicCounterBuffer() {
-        threadContext->memoryBarrierRasterizationRegionMask |= GL_ATOMIC_COUNTER_BARRIER_BIT;
+        threadContext_->memoryBarrierRasterizationRegionMask |= GL_ATOMIC_COUNTER_BARRIER_BIT;
     }
 
     void MemoryBarrier::RasterizationRegion::frame() {
-        threadContext->memoryBarrierRasterizationRegionMask |= GL_FRAMEBUFFER_BARRIER_BIT;
+        threadContext_->memoryBarrierRasterizationRegionMask |= GL_FRAMEBUFFER_BARRIER_BIT;
     }
 
     void MemoryBarrier::RasterizationRegion::all() {
-        threadContext->memoryBarrierRasterizationRegionMask |= GL_ALL_BARRIER_BITS;
+        threadContext_->memoryBarrierRasterizationRegionMask |= GL_ALL_BARRIER_BITS;
     }
 }

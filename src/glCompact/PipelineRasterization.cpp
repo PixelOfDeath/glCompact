@@ -1,6 +1,6 @@
 #include "glCompact/PipelineRasterization.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/config.hpp"
@@ -230,8 +230,8 @@ namespace glCompact {
                 attributeLayoutStates.instancing[i] = attributeLayout.bufferIndex[attributeLayout.location[i].bufferIndex].instancing;
         }
 
-        if (this == threadContext->pipeline) {
-            threadContext->attributeLayoutChanged = true;
+        if (this == threadContext_->pipeline) {
+            threadContext_->attributeLayoutChanged = true;
         }
         buffer_attribute_markSlotChange(0);
         buffer_attribute_markSlotChange(attributeLayout.uppermostActiveBufferIndex);
@@ -242,8 +242,8 @@ namespace glCompact {
             if (attributeLayoutStates.location[i].usage != AttributeLayoutStates::Usage::indifferent)
                 attributeLayoutStates.location[i].usage = AttributeLayoutStates::Usage::disabled;
         }
-        if (this == threadContext->pipeline) {
-            threadContext->attributeLayoutChanged = true;
+        if (this == threadContext_->pipeline) {
+            threadContext_->attributeLayoutChanged = true;
         }
     }
 
@@ -731,22 +731,22 @@ namespace glCompact {
     void PipelineRasterization::activateAttributeIndex(
         IndexType indexType
     ) {
-        if (threadContext->buffer_attribute_index_id != buffer_attribute_index_id) {
+        if (threadContext_->buffer_attribute_index_id != buffer_attribute_index_id) {
             threadContextGroup_->functions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_attribute_index_id);
-            threadContext->buffer_attribute_index_id = buffer_attribute_index_id;
+            threadContext_->buffer_attribute_index_id = buffer_attribute_index_id;
         }
         if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) return;
-        if (threadContext->buffer_attribute_index_type != indexType) {
+        if (threadContext_->buffer_attribute_index_type != indexType) {
             switch (indexType) {
                 case IndexType::UINT16: threadContextGroup_->functions.glPrimitiveRestartIndex(    0xFFFF); break;
                 case IndexType::UINT32: threadContextGroup_->functions.glPrimitiveRestartIndex(0xFFFFFFFF); break;
               //case IndexType::UINT8 : threadContextGroup_->functions.glPrimitiveRestartIndex(      0xFF); break;
             }
-            threadContext->buffer_attribute_index_type = indexType;
+            threadContext_->buffer_attribute_index_type = indexType;
         }
-        if (!threadContext->buffer_attribute_index_enabled) {
+        if (!threadContext_->buffer_attribute_index_enabled) {
             threadContextGroup_->functions.glEnable(GL_PRIMITIVE_RESTART);
-            threadContext->buffer_attribute_index_enabled = true;
+            threadContext_->buffer_attribute_index_enabled = true;
         }
     }
 
@@ -769,9 +769,9 @@ namespace glCompact {
     */
     void PipelineRasterization::deactivateAttributeIndex() {
         if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) return;
-        if (threadContext->buffer_attribute_index_enabled) {
+        if (threadContext_->buffer_attribute_index_enabled) {
             threadContextGroup_->functions.glDisable(GL_PRIMITIVE_RESTART);
-            threadContext->buffer_attribute_index_enabled = false;
+            threadContext_->buffer_attribute_index_enabled = false;
         }
     }
 
@@ -1085,7 +1085,7 @@ namespace glCompact {
         deactivateAttributeIndex(); //does GL_ARB_draw_indirect/GL_ARB_multi_draw_indirect really need this?
 
         //threadContext->cachedBindDrawIndirectBuffer(buffer_parameter_id);
-        threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
+        threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
 
         if (threadContextGroup_->extensions.GL_ARB_multi_draw_indirect) {
             threadContextGroup_->functions.glMultiDrawArraysIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
@@ -1131,7 +1131,7 @@ namespace glCompact {
 
         processPendingChanges();
         activateAttributeIndex(indexType);
-        threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
+        threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
 
         if (threadContextGroup_->extensions.GL_ARB_multi_draw_indirect) {
             threadContextGroup_->functions.glMultiDrawElementsIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
@@ -1185,8 +1185,8 @@ namespace glCompact {
 
         processPendingChanges();
         //deactivateAttributeIndex(); //does GL_ARB_indirect_parameters need this?
-        threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
-        threadContext->cachedBindParameterBuffer(countBuffer.id);
+        threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
+        threadContext_->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
         if (threadContextGroup_->version.gl >= GlVersion::v46) {
             threadContextGroup_->functions.glMultiDrawArraysIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
@@ -1217,8 +1217,8 @@ namespace glCompact {
 
         processPendingChanges();
         activateAttributeIndex(indexType);
-        threadContext->cachedBindDrawIndirectBuffer(parameterBuffer.id);
-        threadContext->cachedBindParameterBuffer(countBuffer.id);
+        threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
+        threadContext_->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
         if (threadContextGroup_->version.gl >= GlVersion::v46) {
             threadContextGroup_->functions.glMultiDrawElementsIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
@@ -1231,19 +1231,19 @@ namespace glCompact {
         processPendingChangesPipeline();
         PipelineInterface::processPendingChanges();
         processPendingChangesAttributeLayoutAndBuffers();
-        threadContext->processPendingChangesDrawFrame();
+        threadContext_->processPendingChangesDrawFrame();
         processPendingChangesPipelineRasterization();
-        threadContext->processPendingChangesMemoryBarriersRasterizationRegion();
+        threadContext_->processPendingChangesMemoryBarriersRasterizationRegion();
     }
 
     void PipelineRasterization::processPendingChangesPipeline() {
-        threadContext->cachedBindShader(id); //pipelineShaderID and pipeline activation are independent! (e.g. setting a uniform will bind the shaderId in the background)
-        if (threadContext->pipeline != this) {
+        threadContext_->cachedBindShader(id); //pipelineShaderID and pipeline activation are independent! (e.g. setting a uniform will bind the shaderId in the background)
+        if (threadContext_->pipeline != this) {
             PipelineInterface::processPendingChangesPipeline();
             buffer_attribute_changedSlotMin = 0;
             buffer_attribute_changedSlotMax = attributeLayoutStates.uppermostActiveBufferIndex;
             pipelineRasterizationStateChangePending = PipelineRasterizationStateChange::all;
-            threadContext->pipeline = this;
+            threadContext_->pipeline = this;
         }
     }
 
@@ -1287,9 +1287,9 @@ namespace glCompact {
             glLogicOp(LogicOperation logicOperation);
     */
     void PipelineRasterization::processPendingChangesPipelineRasterization() {
-        PipelineRasterizationStateChange change = pipelineRasterizationStateChangePending | threadContext->pipelineRasterizationStateChangePending;
+        PipelineRasterizationStateChange change = pipelineRasterizationStateChangePending | threadContext_->pipelineRasterizationStateChangePending;
         pipelineRasterizationStateChangePending                        = PipelineRasterizationStateChange::none;
-        threadContext->pipelineRasterizationStateChangePending = PipelineRasterizationStateChange::none;
+        threadContext_->pipelineRasterizationStateChangePending = PipelineRasterizationStateChange::none;
 
         //Check if PrimitiveTopology is set
         UNLIKELY_IF (vertexStageInputPrimitiveTopology == static_cast<PrimitiveTopology>(0xFFFFFFFF))
@@ -1321,11 +1321,11 @@ namespace glCompact {
         */
 
         //FACE FRONT AND CULLING
-        if (threadContext->triangleFrontIsClockwiseRotation != triangleFrontIsClockwiseRotation) {
+        if (threadContext_->triangleFrontIsClockwiseRotation != triangleFrontIsClockwiseRotation) {
             threadContextGroup_->functions.glFrontFace(triangleFrontIsClockwiseRotation ? GL_CW : GL_CCW);
-            threadContext->triangleFrontIsClockwiseRotation = triangleFrontIsClockwiseRotation;
+            threadContext_->triangleFrontIsClockwiseRotation = triangleFrontIsClockwiseRotation;
         }
-        if (threadContext->faceToDraw != faceToDraw) {
+        if (threadContext_->faceToDraw != faceToDraw) {
             if (faceToDraw == FaceSelection::frontAndBack) {
                 threadContextGroup_->functions.glDisable(GL_CULL_FACE);
             } else {
@@ -1336,42 +1336,42 @@ namespace glCompact {
                     threadContextGroup_->functions.glCullFace(GL_FRONT);
                 }
             }
-            threadContext->faceToDraw = faceToDraw;
+            threadContext_->faceToDraw = faceToDraw;
         }
 
         //DEPTH
         if (bool(change & PipelineRasterizationStateChange::depth)) {
             bool depthEnabled = depthWriteEnabled || depthCompareOperator != CompareOperator::disabled;
 
-            if (threadContext->depthEnabled != depthEnabled) {
+            if (threadContext_->depthEnabled != depthEnabled) {
                 if (depthEnabled) {
                     threadContextGroup_->functions.glEnable(GL_DEPTH_TEST);
-                    threadContext->depthEnabled = true;
+                    threadContext_->depthEnabled = true;
                 } else {
                     threadContextGroup_->functions.glDisable(GL_DEPTH_TEST);
-                    threadContext->depthEnabled = false;
+                    threadContext_->depthEnabled = false;
                 }
             }
 
             if (depthEnabled) {
-                if (threadContext->depthCompareOperator != depthCompareOperator) {
+                if (threadContext_->depthCompareOperator != depthCompareOperator) {
                     threadContextGroup_->functions.glDepthFunc(static_cast<GLenum>(depthCompareOperator));
-                    threadContext->depthCompareOperator = depthCompareOperator;
+                    threadContext_->depthCompareOperator = depthCompareOperator;
                 }
-                if (threadContext->depthWriteEnabled != depthWriteEnabled) {
+                if (threadContext_->depthWriteEnabled != depthWriteEnabled) {
                     threadContextGroup_->functions.glDepthMask(depthWriteEnabled);
-                    threadContext->depthWriteEnabled = depthWriteEnabled;
+                    threadContext_->depthWriteEnabled = depthWriteEnabled;
                 }
 
                 //TODO: maybe just always enable this states???
-                if (threadContext->depthBiasConstantFactor != depthBiasConstantFactor
-                ||  threadContext->depthBiasClamp          != depthBiasClamp
-                ||  threadContext->depthBiasSlopeFactor    != depthBiasSlopeFactor
+                if (threadContext_->depthBiasConstantFactor != depthBiasConstantFactor
+                ||  threadContext_->depthBiasClamp          != depthBiasClamp
+                ||  threadContext_->depthBiasSlopeFactor    != depthBiasSlopeFactor
                 ) {
                     bool current_usingDepthOffset =
-                            threadContext->depthBiasConstantFactor != 0
-                        ||  threadContext->depthBiasClamp          != 0
-                        ||  threadContext->depthBiasSlopeFactor    != 0;
+                            threadContext_->depthBiasConstantFactor != 0
+                        ||  threadContext_->depthBiasClamp          != 0
+                        ||  threadContext_->depthBiasSlopeFactor    != 0;
 
                     bool pending_usingDepthOffset =
                             depthBiasConstantFactor != 0
@@ -1396,27 +1396,27 @@ namespace glCompact {
                             threadContextGroup_->functions.glDisable(GL_POLYGON_OFFSET_POINT);
                         }
                     }
-                    threadContext->depthBiasConstantFactor = depthBiasConstantFactor;
-                    threadContext->depthBiasClamp          = depthBiasClamp;
-                    threadContext->depthBiasSlopeFactor    = depthBiasSlopeFactor;
+                    threadContext_->depthBiasConstantFactor = depthBiasConstantFactor;
+                    threadContext_->depthBiasClamp          = depthBiasClamp;
+                    threadContext_->depthBiasSlopeFactor    = depthBiasSlopeFactor;
                 }
 
-                if (threadContext->depthNearMapping != depthNearMapping
-                ||  threadContext->depthFarMapping  != depthFarMapping
+                if (threadContext_->depthNearMapping != depthNearMapping
+                ||  threadContext_->depthFarMapping  != depthFarMapping
                 ) {
                     //There also is glDepthRangef, Core since 4.1
                     threadContextGroup_->functions.glDepthRange(depthNearMapping, depthFarMapping);
-                    threadContext->depthNearMapping = depthNearMapping;
-                    threadContext->depthFarMapping  = depthFarMapping;
+                    threadContext_->depthNearMapping = depthNearMapping;
+                    threadContext_->depthFarMapping  = depthFarMapping;
                 }
 
-                if (threadContext->depthClippingToClamping != depthClippingToClamping) {
+                if (threadContext_->depthClippingToClamping != depthClippingToClamping) {
                     if (depthClippingToClamping) {
                         threadContextGroup_->functions.glDisable(GL_DEPTH_CLAMP);
                     } else {
                         threadContextGroup_->functions.glEnable(GL_DEPTH_CLAMP);
                     }
-                    threadContext->depthClippingToClamping = depthClippingToClamping;
+                    threadContext_->depthClippingToClamping = depthClippingToClamping;
                 }
             }
         }
@@ -1470,78 +1470,78 @@ namespace glCompact {
             ||  stencilWriteBack.stencilPassDepthPassOrAbsentOperator  != StencilOperator::keep;
 
             if (stencilEnabled) {
-                if (!threadContext->stencilEnabled) {
+                if (!threadContext_->stencilEnabled) {
                     threadContextGroup_->functions.glEnable(GL_STENCIL_TEST);
-                    threadContext->stencilEnabled = true;
+                    threadContext_->stencilEnabled = true;
                 }
                 if (faceToDraw == FaceSelection::frontAndBack || faceToDraw == FaceSelection::front) {
-                    if (    threadContext->stencilTestFront.refValue        != stencilTestFront.refValue
-                        ||  threadContext->stencilTestFront.compareOperator != stencilTestFront.compareOperator
-                        ||  threadContext->stencilTestFront.readMask        != stencilTestFront.readMask
+                    if (    threadContext_->stencilTestFront.refValue        != stencilTestFront.refValue
+                        ||  threadContext_->stencilTestFront.compareOperator != stencilTestFront.compareOperator
+                        ||  threadContext_->stencilTestFront.readMask        != stencilTestFront.readMask
                     ) {
                         threadContextGroup_->functions.glStencilFuncSeparate(
                             GL_FRONT,
                             static_cast<GLenum>(stencilTestFront.compareOperator),
                             stencilTestFront.refValue,
                             stencilTestFront.readMask);
-                        threadContext->stencilTestFront.refValue        = stencilTestFront.refValue;
-                        threadContext->stencilTestFront.compareOperator = stencilTestFront.compareOperator;
-                        threadContext->stencilTestFront.readMask        = stencilTestFront.readMask;
+                        threadContext_->stencilTestFront.refValue        = stencilTestFront.refValue;
+                        threadContext_->stencilTestFront.compareOperator = stencilTestFront.compareOperator;
+                        threadContext_->stencilTestFront.readMask        = stencilTestFront.readMask;
                     }
-                    if (threadContext->stencilWriteFront.writeMask != stencilWriteFront.writeMask) {
+                    if (threadContext_->stencilWriteFront.writeMask != stencilWriteFront.writeMask) {
                         threadContextGroup_->functions.glStencilMaskSeparate(GL_FRONT, stencilWriteFront.writeMask);
-                        threadContext->stencilWriteFront.writeMask = stencilWriteFront.writeMask;
+                        threadContext_->stencilWriteFront.writeMask = stencilWriteFront.writeMask;
                     }
-                    if (    threadContext->stencilWriteFront.stencilFailOperator                  != stencilWriteFront.stencilFailOperator
-                        ||  threadContext->stencilWriteFront.stencilPassDepthFailOperator         != stencilWriteFront.stencilPassDepthFailOperator
-                        ||  threadContext->stencilWriteFront.stencilPassDepthPassOrAbsentOperator != stencilWriteFront.stencilPassDepthPassOrAbsentOperator
+                    if (    threadContext_->stencilWriteFront.stencilFailOperator                  != stencilWriteFront.stencilFailOperator
+                        ||  threadContext_->stencilWriteFront.stencilPassDepthFailOperator         != stencilWriteFront.stencilPassDepthFailOperator
+                        ||  threadContext_->stencilWriteFront.stencilPassDepthPassOrAbsentOperator != stencilWriteFront.stencilPassDepthPassOrAbsentOperator
                     ) {
                         threadContextGroup_->functions.glStencilOpSeparate(
                             GL_FRONT,
                             static_cast<GLenum>(stencilWriteFront.stencilFailOperator),
                             static_cast<GLenum>(stencilWriteFront.stencilPassDepthFailOperator),
                             static_cast<GLenum>(stencilWriteFront.stencilPassDepthPassOrAbsentOperator));
-                        threadContext->stencilWriteFront.stencilFailOperator                  = stencilWriteFront.stencilFailOperator;
-                        threadContext->stencilWriteFront.stencilPassDepthFailOperator         = stencilWriteFront.stencilPassDepthFailOperator;
-                        threadContext->stencilWriteFront.stencilPassDepthPassOrAbsentOperator = stencilWriteFront.stencilPassDepthPassOrAbsentOperator;
+                        threadContext_->stencilWriteFront.stencilFailOperator                  = stencilWriteFront.stencilFailOperator;
+                        threadContext_->stencilWriteFront.stencilPassDepthFailOperator         = stencilWriteFront.stencilPassDepthFailOperator;
+                        threadContext_->stencilWriteFront.stencilPassDepthPassOrAbsentOperator = stencilWriteFront.stencilPassDepthPassOrAbsentOperator;
                     }
                 }
                 if (faceToDraw == FaceSelection::frontAndBack || faceToDraw == FaceSelection::back) {
-                    if (    threadContext->stencilTestBack.refValue        != stencilTestBack.refValue
-                        ||  threadContext->stencilTestBack.compareOperator != stencilTestBack.compareOperator
-                        ||  threadContext->stencilTestBack.readMask        != stencilTestBack.readMask
+                    if (    threadContext_->stencilTestBack.refValue        != stencilTestBack.refValue
+                        ||  threadContext_->stencilTestBack.compareOperator != stencilTestBack.compareOperator
+                        ||  threadContext_->stencilTestBack.readMask        != stencilTestBack.readMask
                     ) {
                         threadContextGroup_->functions.glStencilFuncSeparate(
                             GL_BACK,
                             static_cast<GLenum>(stencilTestBack.compareOperator),
                             stencilTestBack.refValue,
                             stencilTestBack.readMask);
-                        threadContext->stencilTestBack.refValue        = stencilTestBack.refValue;
-                        threadContext->stencilTestBack.compareOperator = stencilTestBack.compareOperator;
-                        threadContext->stencilTestBack.readMask        = stencilTestBack.readMask;
+                        threadContext_->stencilTestBack.refValue        = stencilTestBack.refValue;
+                        threadContext_->stencilTestBack.compareOperator = stencilTestBack.compareOperator;
+                        threadContext_->stencilTestBack.readMask        = stencilTestBack.readMask;
                     }
-                    if (threadContext->stencilWriteBack.writeMask != stencilWriteBack.writeMask) {
+                    if (threadContext_->stencilWriteBack.writeMask != stencilWriteBack.writeMask) {
                         threadContextGroup_->functions.glStencilMaskSeparate(GL_BACK, stencilWriteBack.writeMask);
-                        threadContext->stencilWriteBack.writeMask = stencilWriteBack.writeMask;
+                        threadContext_->stencilWriteBack.writeMask = stencilWriteBack.writeMask;
                     }
-                    if (    threadContext->stencilWriteBack.stencilFailOperator                  != stencilWriteBack.stencilFailOperator
-                        ||  threadContext->stencilWriteBack.stencilPassDepthFailOperator         != stencilWriteBack.stencilPassDepthFailOperator
-                        ||  threadContext->stencilWriteBack.stencilPassDepthPassOrAbsentOperator != stencilWriteBack.stencilPassDepthPassOrAbsentOperator
+                    if (    threadContext_->stencilWriteBack.stencilFailOperator                  != stencilWriteBack.stencilFailOperator
+                        ||  threadContext_->stencilWriteBack.stencilPassDepthFailOperator         != stencilWriteBack.stencilPassDepthFailOperator
+                        ||  threadContext_->stencilWriteBack.stencilPassDepthPassOrAbsentOperator != stencilWriteBack.stencilPassDepthPassOrAbsentOperator
                     ) {
                         threadContextGroup_->functions.glStencilOpSeparate(
                             GL_BACK,
                             static_cast<GLenum>(stencilWriteBack.stencilFailOperator),
                             static_cast<GLenum>(stencilWriteBack.stencilPassDepthFailOperator),
                             static_cast<GLenum>(stencilWriteBack.stencilPassDepthPassOrAbsentOperator));
-                        threadContext->stencilWriteBack.stencilFailOperator                  = stencilWriteBack.stencilFailOperator;
-                        threadContext->stencilWriteBack.stencilPassDepthFailOperator         = stencilWriteBack.stencilPassDepthFailOperator;
-                        threadContext->stencilWriteBack.stencilPassDepthPassOrAbsentOperator = stencilWriteBack.stencilPassDepthPassOrAbsentOperator;
+                        threadContext_->stencilWriteBack.stencilFailOperator                  = stencilWriteBack.stencilFailOperator;
+                        threadContext_->stencilWriteBack.stencilPassDepthFailOperator         = stencilWriteBack.stencilPassDepthFailOperator;
+                        threadContext_->stencilWriteBack.stencilPassDepthPassOrAbsentOperator = stencilWriteBack.stencilPassDepthPassOrAbsentOperator;
                     }
                 }
             } else {
-                if (threadContext->stencilEnabled) {
+                if (threadContext_->stencilEnabled) {
                     threadContextGroup_->functions.glDisable(GL_STENCIL_TEST);
-                    threadContext->stencilEnabled = false;
+                    threadContext_->stencilEnabled = false;
                 }
             }
         }
@@ -1550,16 +1550,16 @@ namespace glCompact {
         //glColorMask  core since 2.0
         //glColorMaski core since 3.0
         if (singleRgbaWriteMaskState) {
-            if (!threadContext->singleRgbaWriteMaskState || threadContext->rgbaWriteMask[0].value != rgbaWriteMask[0].value) {
+            if (!threadContext_->singleRgbaWriteMaskState || threadContext_->rgbaWriteMask[0].value != rgbaWriteMask[0].value) {
                 threadContextGroup_->functions.glColorMask(rgbaWriteMask[0].r, rgbaWriteMask[0].g, rgbaWriteMask[0].b, rgbaWriteMask[0].a);
                 LOOPI(config::MAX_RGBA_ATTACHMENTS) {
-                    threadContext->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
+                    threadContext_->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
                 }
             }
         } else {
-            LOOPI(config::MAX_RGBA_ATTACHMENTS) if (threadContext->rgbaWriteMask[i].value != rgbaWriteMask[i].value) {
+            LOOPI(config::MAX_RGBA_ATTACHMENTS) if (threadContext_->rgbaWriteMask[i].value != rgbaWriteMask[i].value) {
                 threadContextGroup_->functions.glColorMaski(i, rgbaWriteMask[i].r, rgbaWriteMask[i].g, rgbaWriteMask[i].b, rgbaWriteMask[i].a);
-                threadContext->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
+                threadContext_->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
             }
         }
 
@@ -1579,16 +1579,16 @@ namespace glCompact {
         if (bool(change & PipelineRasterizationStateChange::blend)) {
             blendEnabledAny = any_of(begin(blendEnabled), end(blendEnabled), [](bool b){return b;});
             if (blendEnabledAny.isTrue()) {
-                threadContext->blendEnabledAny = true;
+                threadContext_->blendEnabledAny = true;
                 if (blendEnabledAll.isUnknown())
                     blendEnabledAll = all_of(begin(blendEnabled), end(blendEnabled), [](bool b){return b;});
                 if (blendEnabledAll.isTrue()) {
-                    for (bool& e : threadContext->blendEnabled) e = true;
+                    for (bool& e : threadContext_->blendEnabled) e = true;
                     threadContextGroup_->functions.glEnable(GL_BLEND);
                 } else {
                     LOOPI(config::MAX_RGBA_ATTACHMENTS) {
-                        if (threadContext->blendEnabled[i] != blendEnabled[i]) {
-                            threadContext->blendEnabled[i] = blendEnabled[i];
+                        if (threadContext_->blendEnabled[i] != blendEnabled[i]) {
+                            threadContext_->blendEnabled[i] = blendEnabled[i];
                             if (blendEnabled[i])
                                 threadContextGroup_->functions.glEnablei(GL_BLEND, i);
                             else
@@ -1596,8 +1596,8 @@ namespace glCompact {
                         }
                     }
                 }
-                if (threadContext->blendConstRgba != blendConstRgba) {
-                    threadContext->blendConstRgba = blendConstRgba;
+                if (threadContext_->blendConstRgba != blendConstRgba) {
+                    threadContext_->blendConstRgba = blendConstRgba;
                     threadContextGroup_->functions.glBlendColor(blendConstRgba.r, blendConstRgba.g, blendConstRgba.b, blendConstRgba.a);
                 }
                 int firstActiveIndex = 0;
@@ -1620,13 +1620,13 @@ namespace glCompact {
                 if (blendModesUniform.isTrue()) {
                     bool blendFactorsChanged   = true;
                     bool blendEquationsChanged = true;
-                    if (threadContext->blendModesUniform) {
-                        if (threadContext->blendFactors  [0] == blendFactors  [firstActiveIndex]) blendFactorsChanged   = false;
-                        if (threadContext->blendEquations[0] == blendEquations[firstActiveIndex]) blendEquationsChanged = false;
+                    if (threadContext_->blendModesUniform) {
+                        if (threadContext_->blendFactors  [0] == blendFactors  [firstActiveIndex]) blendFactorsChanged   = false;
+                        if (threadContext_->blendEquations[0] == blendEquations[firstActiveIndex]) blendEquationsChanged = false;
                     }
                     if (blendFactorsChanged) {
                         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-                            threadContext->blendFactors[i] = blendFactors[i];
+                            threadContext_->blendFactors[i] = blendFactors[i];
                         threadContextGroup_->functions.glBlendFuncSeparate(
                             static_cast<GLenum>(blendFactors[firstActiveIndex].srcRgb),
                             static_cast<GLenum>(blendFactors[firstActiveIndex].srcA),
@@ -1636,13 +1636,13 @@ namespace glCompact {
                     }
                     if (blendEquationsChanged) {
                         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-                            threadContext->blendEquations[i] = blendEquations[i];
+                            threadContext_->blendEquations[i] = blendEquations[i];
                         threadContextGroup_->functions.glBlendEquationSeparate(
                             static_cast<GLenum>(blendEquations[firstActiveIndex].rgb),
                             static_cast<GLenum>(blendEquations[firstActiveIndex].a)
                         );
                     }
-                    threadContext->blendModesUniform = true;
+                    threadContext_->blendModesUniform = true;
                 } else {
                     //TODO: implement ARB version, too
                     //UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_draw_buffers_blend)
@@ -1650,8 +1650,8 @@ namespace glCompact {
                     UNLIKELY_IF (!(threadContextGroup_->version.gl >= GlVersion::v40))
                         throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing OpenGL 4.0 or higher)");
                     for (int i = firstActiveIndex; i < config::MAX_RGBA_ATTACHMENTS; i++) {
-                        if (threadContext->blendFactors[i] != blendFactors[i]) {
-                            threadContext->blendFactors[i] = blendFactors[i];
+                        if (threadContext_->blendFactors[i] != blendFactors[i]) {
+                            threadContext_->blendFactors[i] = blendFactors[i];
                             threadContextGroup_->functions.glBlendFuncSeparatei(
                                 i,
                                 static_cast<GLenum>(blendFactors[i].srcRgb),
@@ -1660,8 +1660,8 @@ namespace glCompact {
                                 static_cast<GLenum>(blendFactors[i].dstA)
                             );
                         }
-                        if (threadContext->blendEquations[i] != blendEquations[i]) {
-                            threadContext->blendEquations[i] = blendEquations[i];
+                        if (threadContext_->blendEquations[i] != blendEquations[i]) {
+                            threadContext_->blendEquations[i] = blendEquations[i];
                             threadContextGroup_->functions.glBlendEquationSeparatei(
                                 i,
                                 static_cast<GLenum>(blendEquations[i].rgb),
@@ -1669,21 +1669,21 @@ namespace glCompact {
                             );
                         }
                     }
-                    threadContext->blendModesUniform = false;
+                    threadContext_->blendModesUniform = false;
                 }
             } else {
-                if (threadContext->blendEnabledAny) {
-                    threadContext->blendEnabledAny = false;
+                if (threadContext_->blendEnabledAny) {
+                    threadContext_->blendEnabledAny = false;
                     LOOPI(config::MAX_RGBA_ATTACHMENTS)
-                        threadContext->blendEnabled[i] = false;
+                        threadContext_->blendEnabled[i] = false;
                     threadContextGroup_->functions.glDisable(GL_BLEND);
                 }
             }
         }
 
         //MULTISAMPLE
-        if (threadContext->multiSample != multiSample) {
-            threadContext->multiSample = multiSample;
+        if (threadContext_->multiSample != multiSample) {
+            threadContext_->multiSample = multiSample;
             if (multiSample)
                 threadContextGroup_->functions.glEnable(GL_MULTISAMPLE);
             else
@@ -1712,11 +1712,11 @@ namespace glCompact {
     */
     void PipelineRasterization::processPendingChangesAttributeLayoutAndBuffers() {
         if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
-            if (threadContext->attributeLayoutChanged) {
+            if (threadContext_->attributeLayoutChanged) {
               //int uppermostActiveBufferIndex = max(threadContext->attributeLayoutStates.uppermostActiveBufferIndex, attributeLayoutStates.uppermostActiveBufferIndex);
                 int uppermostActiveBufferIndex = attributeLayoutStates.uppermostActiveBufferIndex;
                 LOOPI(uppermostActiveBufferIndex + 1) {
-                    auto& currentInstancing = threadContext->attributeLayoutStates.instancing[i];
+                    auto& currentInstancing = threadContext_->attributeLayoutStates.instancing[i];
                     auto& pendingInstancing =                        attributeLayoutStates.instancing[i];
                     if (currentInstancing != pendingInstancing) {
                         threadContextGroup_->functions.glVertexBindingDivisor(i, pendingInstancing);
@@ -1726,7 +1726,7 @@ namespace glCompact {
               //int uppermostActiveLocation = max(threadContext->attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation);
                 int uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
                 LOOPI(uppermostActiveLocation + 1) {
-                    auto& currentLoc = threadContext->attributeLayoutStates.location[i];
+                    auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
                     auto& pendingLoc =                        attributeLayoutStates.location[i];
                     if (pendingLoc.usage == AttributeLayoutStates::Usage::enabled) {
                         if (currentLoc.usage != AttributeLayoutStates::Usage::enabled) {
@@ -1762,7 +1762,7 @@ namespace glCompact {
                     }
                 }
               //threadContext->attributeLayoutStates.uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
-                threadContext->attributeLayoutChanged = false;
+                threadContext_->attributeLayoutChanged = false;
             }
 
             int8_t changedSlotMin = buffer_attribute_changedSlotMin;
@@ -1815,19 +1815,19 @@ namespace glCompact {
                         threadContextGroup_->functions.glBindVertexBuffers(first, count, bufferIdList, offsetList, strideList);
 
                         for (int i = first; i <= last; ++i) {
-                            threadContext->buffer_attribute_id    [i] = buffer_attribute_id    [i];
-                            threadContext->buffer_attribute_offset[i] = buffer_attribute_offset[i];
+                            threadContext_->buffer_attribute_id    [i] = buffer_attribute_id    [i];
+                            threadContext_->buffer_attribute_offset[i] = buffer_attribute_offset[i];
                         }
                     }
                 } else {
                     for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                        if (threadContext->buffer_attribute_id                    [i] != buffer_attribute_id                    [i]
-                        ||  threadContext->buffer_attribute_offset                [i] != buffer_attribute_offset                [i]
-                        ||  threadContext->attributeLayoutStates.bufferIndexStride[i] != attributeLayoutStates.bufferIndexStride[i]) {
+                        if (threadContext_->buffer_attribute_id                    [i] != buffer_attribute_id                    [i]
+                        ||  threadContext_->buffer_attribute_offset                [i] != buffer_attribute_offset                [i]
+                        ||  threadContext_->attributeLayoutStates.bufferIndexStride[i] != attributeLayoutStates.bufferIndexStride[i]) {
                             threadContextGroup_->functions.glBindVertexBuffer(i, buffer_attribute_id[i], buffer_attribute_offset[i], attributeLayoutStates.bufferIndexStride[i]);
-                            threadContext->buffer_attribute_id                    [i] = buffer_attribute_id                     [i];
-                            threadContext->buffer_attribute_offset                [i] = buffer_attribute_offset                 [i];
-                            threadContext->attributeLayoutStates.bufferIndexStride[i] = attributeLayoutStates.bufferIndexStride [i];
+                            threadContext_->buffer_attribute_id                    [i] = buffer_attribute_id                     [i];
+                            threadContext_->buffer_attribute_offset                [i] = buffer_attribute_offset                 [i];
+                            threadContext_->attributeLayoutStates.bufferIndexStride[i] = attributeLayoutStates.bufferIndexStride [i];
                         }
                     }
                 }
@@ -1842,24 +1842,24 @@ namespace glCompact {
             //ignore states of buffer index if not used by shader layout
             changedSlotMax = std::min(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
 
-            if (threadContext->attributeLayoutChanged) {
+            if (threadContext_->attributeLayoutChanged) {
               //int uppermostActiveLocation = max(max(attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation), changedSlotMax);
                 int uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
                 LOOPI(uppermostActiveLocation + 1) {
-                          auto& currentLoc = threadContext->attributeLayoutStates.location[i];
-                    const auto& pendingLoc =                        attributeLayoutStates.location[i];
+                          auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
+                    const auto& pendingLoc =                 attributeLayoutStates.location[i];
 
                     if (pendingLoc.usage == AttributeLayoutStates::Usage::enabled) {
                         if (currentLoc.usage != AttributeLayoutStates::Usage::enabled) {
                             threadContextGroup_->functions.glEnableVertexAttribArray(i);
                             currentLoc.usage = AttributeLayoutStates::Usage::enabled;
                         }
-                        const uint32_t pendingBufferId =                        buffer_attribute_id                    [pendingLoc.bufferIndex];
-                        const intptr_t pendingOffset   =                        buffer_attribute_offset                [pendingLoc.bufferIndex] + pendingLoc.offset;
-                        const uint32_t pendingStride   =                        attributeLayoutStates.bufferIndexStride[pendingLoc.bufferIndex];
-                        const uint32_t currentBufferId = threadContext->buffer_attribute_id                    [currentLoc.bufferIndex];
-                        const intptr_t currentOffset   = threadContext->buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
-                        const uint32_t currentStride   = threadContext->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex];
+                        const uint32_t pendingBufferId =                 buffer_attribute_id                    [pendingLoc.bufferIndex];
+                        const intptr_t pendingOffset   =                 buffer_attribute_offset                [pendingLoc.bufferIndex] + pendingLoc.offset;
+                        const uint32_t pendingStride   =                 attributeLayoutStates.bufferIndexStride[pendingLoc.bufferIndex];
+                        const uint32_t currentBufferId = threadContext_->buffer_attribute_id                    [currentLoc.bufferIndex];
+                        const intptr_t currentOffset   = threadContext_->buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
+                        const uint32_t currentStride   = threadContext_->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex];
                         if (currentLoc.attributeFormat != pendingLoc.attributeFormat
                         ||  currentLoc.gpuType         != pendingLoc.gpuType
                         ||  currentBufferId            != pendingBufferId
@@ -1867,7 +1867,7 @@ namespace glCompact {
                         ||  currentStride              != pendingStride)
                         {
                             const auto& af = pendingLoc.attributeFormat;
-                            threadContext->cachedBindArrayBuffer(pendingBufferId);
+                            threadContext_->cachedBindArrayBuffer(pendingBufferId);
                             switch (pendingLoc.gpuType) {
                                 case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
                                 case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
@@ -1875,12 +1875,12 @@ namespace glCompact {
                                 case AttributeLayoutStates::GpuType::unknown: break;
                             }
                             currentLoc = pendingLoc;
-                            threadContext->buffer_attribute_id                    [currentLoc.bufferIndex] =                       buffer_attribute_id    [pendingLoc.bufferIndex];
-                            threadContext->buffer_attribute_offset                [currentLoc.bufferIndex] =                       buffer_attribute_offset[pendingLoc.bufferIndex];
-                            threadContext->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex] = attributeLayoutStates.bufferIndexStride      [pendingLoc.bufferIndex];
+                            threadContext_->buffer_attribute_id                    [currentLoc.bufferIndex] =                       buffer_attribute_id    [pendingLoc.bufferIndex];
+                            threadContext_->buffer_attribute_offset                [currentLoc.bufferIndex] =                       buffer_attribute_offset[pendingLoc.bufferIndex];
+                            threadContext_->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex] = attributeLayoutStates.bufferIndexStride      [pendingLoc.bufferIndex];
                         }
-                              auto& currentInstancing = threadContext->attributeLayoutStates.instancing[i];
-                        const auto& pendingInstancing =                        attributeLayoutStates.instancing[i];
+                              auto& currentInstancing = threadContext_->attributeLayoutStates.instancing[i];
+                        const auto& pendingInstancing =                 attributeLayoutStates.instancing[i];
                         if (currentInstancing != pendingInstancing) {
                             threadContextGroup_->functions.glVertexAttribDivisor(i, pendingInstancing);
                             currentInstancing = pendingInstancing;
@@ -1896,27 +1896,27 @@ namespace glCompact {
                 }
                 buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
                 buffer_attribute_changedSlotMax = -1;
-                threadContext->attributeLayoutChanged = false;
+                threadContext_->attributeLayoutChanged = false;
             } else if (changedSlotMax >= changedSlotMin) {
                 LOOPI(attributeLayoutStates.uppermostActiveLocation + 1) {
-                    const auto& currentLoc = threadContext->attributeLayoutStates.location[i];
-                    const auto& pendingLoc =                        attributeLayoutStates.location[i];
+                    const auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
+                    const auto& pendingLoc =                 attributeLayoutStates.location[i];
 
                     if (pendingLoc.usage == AttributeLayoutStates::Usage::indifferent) continue;
 
-                    const GLintptr pendingOffset   =                        buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
-                    const GLintptr currentOffset   = threadContext->buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
-                    const GLsizei  currentStride   = threadContext->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex];
+                    const GLintptr pendingOffset   =                 buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
+                    const GLintptr currentOffset   = threadContext_->buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
+                    const GLsizei  currentStride   = threadContext_->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex];
 
-                    const uint32_t currentBufferId = threadContext->buffer_attribute_id                    [currentLoc.bufferIndex];
-                    const uint32_t pendingBufferId =                        buffer_attribute_id                    [currentLoc.bufferIndex];
+                    const uint32_t currentBufferId = threadContext_->buffer_attribute_id                    [currentLoc.bufferIndex];
+                    const uint32_t pendingBufferId =                 buffer_attribute_id                    [currentLoc.bufferIndex];
 
                     if ((currentLoc.bufferIndex >= changedSlotMin && currentLoc.bufferIndex <= changedSlotMax)
                         ||  currentBufferId != pendingBufferId
                         ||  currentOffset   != pendingOffset)
                     {
                         const auto& af = pendingLoc.attributeFormat;
-                        threadContext->cachedBindArrayBuffer(pendingBufferId);
+                        threadContext_->cachedBindArrayBuffer(pendingBufferId);
                         switch (currentLoc.gpuType) {
                             case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
                             case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
@@ -1926,8 +1926,8 @@ namespace glCompact {
                     }
                 }
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    threadContext->buffer_attribute_id    [i] = buffer_attribute_id    [i];
-                    threadContext->buffer_attribute_offset[i] = buffer_attribute_offset[i];
+                    threadContext_->buffer_attribute_id    [i] = buffer_attribute_id    [i];
+                    threadContext_->buffer_attribute_offset[i] = buffer_attribute_offset[i];
                 }
                 buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
                 buffer_attribute_changedSlotMax = -1;

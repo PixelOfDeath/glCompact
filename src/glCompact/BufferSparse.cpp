@@ -1,7 +1,7 @@
 #include "glCompact/BufferSparse.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 
@@ -112,7 +112,7 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glNamedBufferPageCommitmentARB(id, offset, size, commit);
         } else {
-            threadContext->cachedBindCopyWriteBuffer(id);
+            threadContext_->cachedBindCopyWriteBuffer(id);
             threadContextGroup_->functions.glBufferPageCommitmentARB(GL_COPY_WRITE_BUFFER, offset, size, commit);
         }
     }

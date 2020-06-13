@@ -1,4 +1,4 @@
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/Context_.hpp"
 
 /*TODO
@@ -15,10 +15,10 @@
 
 namespace glCompact {
     #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-        thread_local Context_*      __restrict threadContext;
+        thread_local Context_*      __restrict threadContext_;
     #else
         static       char                      contextMem[sizeof(Context)] alignas(Context);
-                     Context_*const __restrict threadContext = reinterpret_cast<Context*>(&contextMem);
+                     Context_*const __restrict threadContext_ = reinterpret_cast<Context*>(&contextMem);
                      bool                      threadContextConstructed = false;
     #endif
 }

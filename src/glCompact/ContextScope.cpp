@@ -3,7 +3,7 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/config.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup.hpp"
 
@@ -50,7 +50,7 @@ namespace glCompact {
 
     static void checkContext() {
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-            UNLIKELY_IF (threadContext != 0)
+            UNLIKELY_IF (threadContext_ != 0)
                 crash("This thread already has a glCompact::Context object registered!");
         #else
             UNLIKELY_IF (threadContextConstructed)
@@ -89,12 +89,12 @@ namespace glCompact {
         #endif
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-            threadContext = new Context_;
+            threadContext_ = new Context_;
         #else
             new (threadContext)Context_;
             threadContextConstructed = true;
         #endif
-        threadContext->isMainContext = true;
+        threadContext_->isMainContext = true;
     }
 
     /**
@@ -123,7 +123,7 @@ namespace glCompact {
         threadContextGroup_->contextCount++;
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-            threadContext = new Context_;
+            threadContext_ = new Context_;
         #else
             new (threadContext)Context_;
             threadContextConstructed = true;
@@ -132,8 +132,8 @@ namespace glCompact {
 
     ContextScope::~ContextScope() {
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-            delete threadContext;
-            threadContext = 0;
+            delete threadContext_;
+            threadContext_ = 0;
         #else
             threadContextConstructed = false;
         #endif

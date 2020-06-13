@@ -108,7 +108,7 @@ S
 #include "glCompact/BufferInterface.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/GlTools.hpp"
@@ -666,7 +666,7 @@ namespace glCompact {
             throw runtime_error("Coordinates outside of texture limit");
 
         //now we actually do something
-        threadContext->cachedBindPixelUnpackBuffer(bufferInterface ? bufferInterface->id : 0);
+        threadContext_->cachedBindPixelUnpackBuffer(bufferInterface ? bufferInterface->id : 0);
 
         const int32_t componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
         const int32_t componentsTypes          = memorySurfaceFormat->componentsTypes;
@@ -839,7 +839,7 @@ namespace glCompact {
         const int32_t componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
         const int32_t componentsTypes          = memorySurfaceFormat->componentsTypes;
 
-        threadContext->cachedBindPixelPackBuffer(bufferInterface ? bufferInterface->id : 0);
+        threadContext_->cachedBindPixelPackBuffer(bufferInterface ? bufferInterface->id : 0);
         if (!memorySurfaceFormat->isCompressed) {
             if (entireXYZ) {
                 if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
@@ -864,9 +864,9 @@ namespace glCompact {
                     if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                         threadContextGroup_->functions.glGetTextureImage(viewTexId, mipmapLevel, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
                     } else {
-                        threadContext->cachedBindTexture(0, viewTarget, viewTexId);
+                        threadContext_->cachedBindTexture(0, viewTarget, viewTexId);
                         threadContextGroup_->functions.glGetTexImage(viewTarget, mipmapLevel, componentsAndArrangement, componentsTypes, offsetPointer);
-                        threadContext->cachedBindTexture(0, viewTarget, 0);
+                        threadContext_->cachedBindTexture(0, viewTarget, 0);
                     }
                     threadContextGroup_->functions.glDeleteTextures(1, &viewTexId);
                 } else {
@@ -1029,7 +1029,7 @@ namespace glCompact {
     ) {
         clearCheck(mipmapLevel);
 
-        threadContext->cachedBindPixelUnpackBuffer(0);
+        threadContext_->cachedBindPixelUnpackBuffer(0);
         threadContextGroup_->functions.glClearTexImage(this->id, mipmapLevel, 0, 0, 0);
     }
 
@@ -1041,7 +1041,7 @@ namespace glCompact {
     ) {
         clearCheck(mipmapLevel);
 
-        threadContext->cachedBindPixelUnpackBuffer(buffer ? buffer->id : 0);
+        threadContext_->cachedBindPixelUnpackBuffer(buffer ? buffer->id : 0);
         threadContextGroup_->functions.glClearTexImage(this->id, mipmapLevel, memorySurfaceFormat->componentsAndArrangement, memorySurfaceFormat->componentsTypes, ptr);
     }
 
@@ -1052,7 +1052,7 @@ namespace glCompact {
     ) {
         clearCheck(mipmapLevel);
 
-        threadContext->cachedBindPixelUnpackBuffer(0);
+        threadContext_->cachedBindPixelUnpackBuffer(0);
         threadContextGroup_->functions.glClearTexSubImage(this->id, mipmapLevel, offset.x, offset.y, offset.z, size.x, size.y, size.z, 0, 0, 0);
     }
 
@@ -1066,7 +1066,7 @@ namespace glCompact {
     ) {
         clearCheck(mipmapLevel);
 
-        threadContext->cachedBindPixelUnpackBuffer(buffer ? buffer->id : 0);
+        threadContext_->cachedBindPixelUnpackBuffer(buffer ? buffer->id : 0);
         threadContextGroup_->functions.glClearTexSubImage(this->id, mipmapLevel, offset.x, offset.y, offset.z, size.x, size.y, size.z, memorySurfaceFormat->componentsAndArrangement, memorySurfaceFormat->componentsTypes, ptr);
     }
 

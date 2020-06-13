@@ -1,6 +1,6 @@
 #include "glCompact/glCompact.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/ThreadContext.hpp"
+#include "glCompact/ThreadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
 #include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
@@ -20,13 +20,13 @@ namespace glCompact {
     //control/flush commands
     void flush() {
         //TODO: set all pending changes
-        threadContext->processPendingChangesMemoryBarriers();
+        threadContext_->processPendingChangesMemoryBarriers();
         threadContextGroup_->functions.glFlush();
     }
 
     void finish() {
         //TODO: set all pending changes
-        threadContext->processPendingChangesMemoryBarriers();
+        threadContext_->processPendingChangesMemoryBarriers();
         threadContextGroup_->functions.glFinish();
     }
 
@@ -55,10 +55,10 @@ namespace glCompact {
     void setDrawFrame(
         Frame& frame
     ) {
-        UNLIKELY_IF (frame.id == 0 && &frame != &threadContext->frameWindow)
+        UNLIKELY_IF (frame.id == 0 && &frame != &threadContext_->frameWindow)
             throw runtime_error("Trying to set empty Frame as drawFrame!");
-        threadContext->pending_frame = &frame;
-        threadContext->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->pending_frame = &frame;
+        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
     }
 
     /**
@@ -66,7 +66,7 @@ namespace glCompact {
         \brief Set target Frame object for PiepelineRasterization draw calls and blit operations to NULL
     */
     void setDrawFrame() {
-        threadContext->pending_frame = NULL;
+        threadContext_->pending_frame = NULL;
     }
 
     /**
@@ -80,9 +80,9 @@ namespace glCompact {
             getDrawFrame().clearRgba();
     */
     Frame& getDrawFrame() {
-        UNLIKELY_IF (!threadContext->pending_frame)
+        UNLIKELY_IF (!threadContext_->pending_frame)
             throw runtime_error("No draw frame set!");
-        return *threadContext->pending_frame;
+        return *threadContext_->pending_frame;
     }
 
     /**
@@ -98,12 +98,12 @@ namespace glCompact {
         uint32_t x,
         uint32_t y
     ) {
-        UNLIKELY_IF (!threadContext->isMainContext)
+        UNLIKELY_IF (!threadContext_->isMainContext)
             throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
-        threadContext->frameWindow.size.x = x;
-        threadContext->frameWindow.size.y = y;
-        threadContext->frameWindow.viewportOffset = {0, 0};
-        threadContext->frameWindow.viewportSize   = {x, y};
+        threadContext_->frameWindow.size.x = x;
+        threadContext_->frameWindow.size.y = y;
+        threadContext_->frameWindow.viewportOffset = {0, 0};
+        threadContext_->frameWindow.viewportSize   = {x, y};
     }
 
     /**
@@ -117,9 +117,9 @@ namespace glCompact {
             getDrawFrame(getWindowFrame());
     */
     Frame& getWindowFrame() {
-        UNLIKELY_IF (!threadContext->isMainContext)
+        UNLIKELY_IF (!threadContext_->isMainContext)
             throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
-        return threadContext->frameWindow;
+        return threadContext_->frameWindow;
     }
 
     //transform feedback
