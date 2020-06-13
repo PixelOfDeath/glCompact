@@ -1,5 +1,5 @@
 #include "glCompact/ContextScope.hpp"
-#include "glCompact/Context.hpp"
+#include "glCompact/Context_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/config.hpp"
@@ -89,9 +89,9 @@ namespace glCompact {
         #endif
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-            threadContext = new Context;
+            threadContext = new Context_;
         #else
-            new (threadContext)Context;
+            new (threadContext)Context_;
             threadContextConstructed = true;
         #endif
         threadContext->isMainContext = true;
@@ -123,9 +123,9 @@ namespace glCompact {
         threadContextGroup_->contextCount++;
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-            threadContext = new Context;
+            threadContext = new Context_;
         #else
-            new (threadContext)Context;
+            new (threadContext)Context_;
             threadContextConstructed = true;
         #endif
     }

@@ -1,4 +1,4 @@
-#include "glCompact/Context.hpp"
+#include "glCompact/Context_.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
@@ -36,7 +36,7 @@ namespace glCompact {
             GL_ARB_shading_language_420pack (core in 4.2)
             DONE: replaced need for this extension via naming postfix: NAME_bindingX;
     */
-    Context::Context() {
+    Context_::Context_() {
         frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
         contextId = nextContextId.fetch_add(1);
 
@@ -69,16 +69,16 @@ namespace glCompact {
         defaultStatesActivate();
     }
 
-    Context::~Context() {
+    Context_::~Context_() {
         if (defaultVaoId) threadContextGroup_->functions.glDeleteVertexArrays(1, &defaultVaoId);
         threadContextGroup_->functions.glFinish(); //TODO: not sure if I need this here
     }
 
-    uint32_t Context::getContextId() const {
+    uint32_t Context_::getContextId() const {
         return contextId;
     }
 
-    void Context::assertThreadHasActiveGlContext() {
+    void Context_::assertThreadHasActiveGlContext() {
         #ifdef GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
             UNLIKELY_IF (!threadContextGroup_->functions.glGetString(GL_VERSION))
                 crash("Trying to use OpenGL functions in a thread without active context!");
@@ -86,7 +86,7 @@ namespace glCompact {
     }
 
     //TODO: maybe also use a bool that enables brute force setting all values to known, just in case any other libs fuck up?!
-    void Context::defaultStatesActivate() {
+    void Context_::defaultStatesActivate() {
         threadContextGroup_->functions.glBindVertexArray(defaultVaoId);
         if (threadContextGroup_->extensions.GL_ARB_compatibility) {
             //TODO: set everything to default, or set the state tracker to all unknown for the default VAO states
@@ -99,7 +99,7 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) threadContextGroup_->functions.glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
     }
 
-    void Context::defaultStatesDeactivate() {
+    void Context_::defaultStatesDeactivate() {
         if (threadContextGroup_->extensions.GL_ARB_compatibility) {
             //TODO: set all attribute values to default? Maybe just disable them?
         } else {
@@ -120,42 +120,42 @@ namespace glCompact {
         buffer_copyWriteId   = 0;
     }
 
-    int32_t Context::buffer_attribute_getHighestIndexNonNull() {
+    int32_t Context_::buffer_attribute_getHighestIndexNonNull() {
         while (buffer_attribute_highestIndexNonNull >= 0 && buffer_attribute_id[buffer_attribute_highestIndexNonNull] == 0) buffer_attribute_highestIndexNonNull--;
         return buffer_attribute_highestIndexNonNull;
     }
 
-    int32_t Context::buffer_uniform_getHighestIndexNonNull() {
+    int32_t Context_::buffer_uniform_getHighestIndexNonNull() {
         while (buffer_uniform_highestIndexNonNull >= 0 && buffer_uniform_id[buffer_uniform_highestIndexNonNull] == 0) buffer_uniform_highestIndexNonNull--;
         return buffer_uniform_highestIndexNonNull;
     }
 
-    int32_t Context::buffer_atomicCounter_getHighestIndexNonNull() {
+    int32_t Context_::buffer_atomicCounter_getHighestIndexNonNull() {
         while (buffer_atomicCounter_highestIndexNonNull >= 0 && buffer_atomicCounter_id[buffer_atomicCounter_highestIndexNonNull] == 0) buffer_atomicCounter_highestIndexNonNull--;
         return buffer_atomicCounter_highestIndexNonNull;
     }
 
-    int32_t Context::buffer_shaderStorage_getHighestIndexNonNull() {
+    int32_t Context_::buffer_shaderStorage_getHighestIndexNonNull() {
         while (buffer_shaderStorage_highestIndexNonNull >= 0 && buffer_shaderStorage_id[buffer_shaderStorage_highestIndexNonNull] == 0) buffer_shaderStorage_highestIndexNonNull--;
         return buffer_shaderStorage_highestIndexNonNull;
     }
 
-    int32_t Context::texture_getHighestIndexNonNull() {
+    int32_t Context_::texture_getHighestIndexNonNull() {
         while (texture_highestIndexNonNull >= 0 && texture_id[texture_highestIndexNonNull] == 0) texture_highestIndexNonNull--;
         return texture_highestIndexNonNull;
     }
 
-    int32_t Context::sampler_getHighestIndexNonNull() {
+    int32_t Context_::sampler_getHighestIndexNonNull() {
         while (sampler_highestIndexNonNull >= 0 && sampler_id[sampler_highestIndexNonNull] == 0) sampler_highestIndexNonNull--;
         return sampler_highestIndexNonNull;
     }
 
-    int32_t Context::image_getHighestIndexNonNull() {
+    int32_t Context_::image_getHighestIndexNonNull() {
         while (image_highestIndexNonNull >= 0 && image_id[image_highestIndexNonNull] == 0) image_highestIndexNonNull--;
         return image_highestIndexNonNull;
     }
 
-    void Context::forgetBufferId(uint32_t bufferId) {
+    void Context_::forgetBufferId(uint32_t bufferId) {
         LOOPI(buffer_attribute_getHighestIndexNonNull()) if (buffer_attribute_id[i] == bufferId) {
             buffer_attribute_id    [i] = 0;
             buffer_attribute_offset[i] = 0;
@@ -202,7 +202,7 @@ namespace glCompact {
         Only ARB DSA/storage functions can create texture or buffer objects without binding the ID at last once.
         This is why we may also need to use this old stile binding for new textures if we create them without ARB DSA/storage functions
     */
-    void Context::cachedBindTextureCompatibleOrFirstTime(
+    void Context_::cachedBindTextureCompatibleOrFirstTime(
         uint32_t texSlot,
          int32_t texTarget,
         uint32_t texId
@@ -226,7 +226,7 @@ namespace glCompact {
     /**
         This binds the texture on the specified unit for changes with non-DSA functions.
     */
-    void Context::cachedBindTexture(
+    void Context_::cachedBindTexture(
         uint32_t texSlot,
          int32_t texTarget,
         uint32_t texId
@@ -242,7 +242,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindShader(
+    void Context_::cachedBindShader(
         uint32_t pipelineShaderId
     ) {
         if (this->pipelineShaderId != pipelineShaderId) {
@@ -251,7 +251,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindArrayBuffer(
+    void Context_::cachedBindArrayBuffer(
         uint32_t bufferId
     ) {
         if (boundArrayBuffer != bufferId) {
@@ -261,7 +261,7 @@ namespace glCompact {
     }
 
     //takes i and sets GL_TEXTURE0 + i
-    void Context::cachedSetActiveTextureUnit(
+    void Context_::cachedSetActiveTextureUnit(
         uint32_t slot
     ) {
         //TODO: debug test for values over GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS-1
@@ -273,7 +273,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindDrawFbo(
+    void Context_::cachedBindDrawFbo(
         uint32_t fboId
     ) {
         if (current_frame_drawId != fboId) {
@@ -282,7 +282,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindReadFbo(
+    void Context_::cachedBindReadFbo(
         uint32_t fboId
     ) {
         if (current_frame_readId != fboId) {
@@ -291,7 +291,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedConvertSrgb(bool enabled) {
+    void Context_::cachedConvertSrgb(bool enabled) {
         if (current_convertSrgb != enabled) {
             if ( enabled) threadContextGroup_->functions.glEnable (GL_FRAMEBUFFER_SRGB);
             if (!enabled) threadContextGroup_->functions.glDisable(GL_FRAMEBUFFER_SRGB);
@@ -299,7 +299,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedViewport(
+    void Context_::cachedViewport(
         glm::uvec2 offset,
         glm::uvec2 size
     ) {
@@ -312,7 +312,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedScissorEnabled(
+    void Context_::cachedScissorEnabled(
         bool enabled
     ) {
         if (current_scissor_enabled != enabled) {
@@ -324,7 +324,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedScissor(
+    void Context_::cachedScissor(
         glm::uvec2 offset,
         glm::uvec2 size
     ) {
@@ -337,7 +337,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindPixelPackBuffer(
+    void Context_::cachedBindPixelPackBuffer(
         uint32_t bufferId
     ) {
         if (buffer_pixelPackId != bufferId) {
@@ -346,7 +346,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindPixelUnpackBuffer(
+    void Context_::cachedBindPixelUnpackBuffer(
         uint32_t bufferId
     ) {
         if (buffer_pixelUnpackId != bufferId) {
@@ -355,7 +355,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindCopyReadBuffer(
+    void Context_::cachedBindCopyReadBuffer(
         uint32_t bufferId
     ) {
         if (buffer_copyReadId != bufferId) {
@@ -364,7 +364,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindCopyWriteBuffer(
+    void Context_::cachedBindCopyWriteBuffer(
         uint32_t bufferId
     ) {
         if (buffer_copyWriteId != bufferId) {
@@ -375,7 +375,7 @@ namespace glCompact {
 
     //Different kind of parameter buffer
     //DRAW_INDIRECT_BUFFER, DISPATCH_INDIRECT_BUFFER, PARAMETER_BUFFER_ARB
-    void Context::cachedBindDrawIndirectBuffer(
+    void Context_::cachedBindDrawIndirectBuffer(
         uint32_t bufferId
     ) {
         if (buffer_draw_indirect_id != bufferId) {
@@ -384,7 +384,7 @@ namespace glCompact {
         }
     }
 
-    void Context::cachedBindDispatchIndirectBuffer(
+    void Context_::cachedBindDispatchIndirectBuffer(
         uint32_t bufferId
     ) {
         if (buffer_dispatch_indirect_id != bufferId) {
@@ -394,7 +394,7 @@ namespace glCompact {
     }
 
     //GL_PARAMETER_BUFFER is the smae as GL_PARAMETER_BUFFER_ARB!
-    void Context::cachedBindParameterBuffer(
+    void Context_::cachedBindParameterBuffer(
         uint32_t bufferId
     ) {
         if (buffer_parameter_id != bufferId) {
@@ -403,13 +403,13 @@ namespace glCompact {
         }
     }
 
-    void Context::processPendingChangesDrawFrame() {
+    void Context_::processPendingChangesDrawFrame() {
         UNLIKELY_IF(!pending_frame)
             throw runtime_error("No draw frame is set!");
         processPendingChangesDrawFrame(pending_frame);
     }
 
-    void Context::processPendingChangesDrawFrame(Frame* pendingFrame) {
+    void Context_::processPendingChangesDrawFrame(Frame* pendingFrame) {
         UNLIKELY_IF (!pendingFrame)
             throw runtime_error("This command needs an valid Frame set via setFrame()!");
         if (current_frame != pendingFrame) {
@@ -428,14 +428,14 @@ namespace glCompact {
         }
     }
 
-    void Context::processPendingChangesMemoryBarriers() {
+    void Context_::processPendingChangesMemoryBarriers() {
         if (memoryBarrierMask) {
             threadContextGroup_->functions.glMemoryBarrier(memoryBarrierMask);
             memoryBarrierMask = 0;
         }
     }
 
-    void Context::processPendingChangesMemoryBarriersRasterizationRegion() {
+    void Context_::processPendingChangesMemoryBarriersRasterizationRegion() {
         if (memoryBarrierRasterizationRegionMask) {
             threadContextGroup_->functions.glMemoryBarrierByRegion(memoryBarrierRasterizationRegionMask);
             memoryBarrierRasterizationRegionMask = 0;

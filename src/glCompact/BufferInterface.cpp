@@ -1,7 +1,7 @@
 #include "glCompact/BufferInterface.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/Buffer.hpp"
-#include "glCompact/Context.hpp"
+#include "glCompact/Context_.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"
@@ -31,7 +31,7 @@ namespace glCompact {
         uintptr_t              dstOffset,
         uintptr_t              copySize
     ) {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         UNLIKELY_IF (copySize == 0) return;
         UNLIKELY_IF (!srcBuffer.id)
             throw std::runtime_error("Source buffer has no memory allocated");
@@ -65,7 +65,7 @@ namespace glCompact {
         uintptr_t   thisOffset,
         uintptr_t   copySize
     ) {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         UNLIKELY_IF (copySize == 0)
             return;
         UNLIKELY_IF (!this->id)
@@ -90,7 +90,7 @@ namespace glCompact {
         uintptr_t thisOffset,
         uintptr_t copySize
     ) const {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         UNLIKELY_IF (copySize == 0)
             return;
         UNLIKELY_IF (!this->id)
@@ -114,7 +114,7 @@ namespace glCompact {
         \brief Set the whole buffer content to the value 0
     */
     void BufferInterface::clear() {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         //glClearBufferData -> If data is NULL , then the pointer is ignored and the sub-range of the buffer is filled with zeros.
         //Not sure if standard needs parameters when pointer is 0, but some drivers may fuck around otherwise!
         //GL_R8UI is core since 3.0.
@@ -137,7 +137,7 @@ namespace glCompact {
         uintptr_t offset,
         uintptr_t size
     ) {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         clear(offset, size, 1, 0);
     }
 
@@ -164,7 +164,7 @@ namespace glCompact {
         uintptr_t   fillValueSize,
         const void* fillValue
     ) {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         UNLIKELY_IF (clearSize == 0)
             return;
         UNLIKELY_IF (offset % fillValueSize != 0)
@@ -270,7 +270,7 @@ namespace glCompact {
     //Invalidating for example allows OpenGL to deallocate, to lower the memory pressure
     //and/or allocate new memory to start new rendering commands when the old target still is in use (indirect sync)
     void BufferInterface::invalidate() {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
             threadContextGroup_->functions.glInvalidateBufferData(id);
         } else if (!threadContextGroup_->extensions.GL_ARB_buffer_storage) {
@@ -292,7 +292,7 @@ namespace glCompact {
         uintptr_t offset,
         uintptr_t invalidateSize
     ) {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
             threadContextGroup_->functions.glInvalidateBufferSubData(id, offset, invalidateSize);
         } else {
@@ -310,7 +310,7 @@ namespace glCompact {
     }
 
     /*void BufferInterface::setDebugLabel(const std::string& label) {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_KHR_debug) {
             GLsizei lenght = std::min(GLsizei(label.size()), GLsizei(threadContextGroup_->values.GL_MAX_LABEL_LENGTH));
             threadContextGroup_->functions.glObjectLabel(GL_BUFFER, id, lenght, label.c_str());
@@ -329,7 +329,7 @@ namespace glCompact {
         bool        sparseBuffer,
         const void* data
     ) {
-        Context::assertThreadHasActiveGlContext();
+        Context_::assertThreadHasActiveGlContext();
         UNLIKELY_IF (stagingBuffer && !threadContextGroup_->extensions.GL_ARB_buffer_storage)
             throw std::runtime_error("Staging buffer not supported (missing GL_ARB_buffer_storage)");
         UNLIKELY_IF (sparseBuffer  && !threadContextGroup_->extensions.GL_ARB_sparse_buffer )

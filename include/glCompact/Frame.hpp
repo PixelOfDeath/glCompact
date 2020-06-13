@@ -9,7 +9,7 @@
 namespace glCompact {
     class Frame;
     class Frame {
-            friend class Context;
+            friend class Context_;
             friend class GraphicsPipeline;
             friend void setDrawFrame(Frame& frame);
             friend void setWindowFrameSize(uint32_t x, uint32_t y);

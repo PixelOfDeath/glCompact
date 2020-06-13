@@ -1,5 +1,5 @@
 #include "glCompact/PipelineCompute.hpp"
-#include "glCompact/Context.hpp"
+#include "glCompact/Context_.hpp"
 #include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ThreadContextGroup_.hpp"

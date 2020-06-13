@@ -19,7 +19,7 @@
 namespace glCompact {
     class PipelineInterface;
 
-    class Context {
+    class Context_ {
             friend class ContextScope;
             friend class Debug;
             friend class PipelineInterface;
@@ -46,14 +46,14 @@ namespace glCompact {
             //Memory Barrier commands
             friend class MemoryBarrier;
         public:
-            Context();
+            Context_();
             //prevent  copy constructor/Assignment operators
-            Context(const Context &c)          = delete;
-            Context& operator=(const Context&) = delete;
+            Context_(const Context_ &c)          = delete;
+            Context_& operator=(const Context_&) = delete;
             //prevent  Move constructors/Move assignment (C++11).
-            Context(Context&&)                 = delete;
-            Context& operator=(Context&&)      = delete;
-            ~Context();
+            Context_(Context_&&)                 = delete;
+            Context_& operator=(Context_&&)      = delete;
+            ~Context_();
 
             uint32_t getContextId() const;
             //if an external gl library is used this functions will set some GL states back to default

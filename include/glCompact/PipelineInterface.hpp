@@ -15,7 +15,7 @@
 
 namespace glCompact {
     class PipelineInterface {
-            friend class Context;
+            friend class Context_;
             friend class Sampler;
         public:
             void setTexture              (uint32_t slot, const TextureInterface& texture);

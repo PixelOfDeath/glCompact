@@ -1,5 +1,5 @@
 #include "glCompact/ThreadContext.hpp"
-#include "glCompact/Context.hpp"
+#include "glCompact/Context_.hpp"
 
 /*TODO
     Big issue still to be solved:
@@ -15,10 +15,10 @@
 
 namespace glCompact {
     #ifdef GLCOMPACT_MULTIPLE_CONTEXT
-        thread_local Context*      __restrict threadContext;
+        thread_local Context_*      __restrict threadContext;
     #else
-        static       char                     contextMem[sizeof(Context)] alignas(Context);
-                     Context*const __restrict threadContext = reinterpret_cast<Context*>(&contextMem);
-                     bool                     threadContextConstructed = false;
+        static       char                      contextMem[sizeof(Context)] alignas(Context);
+                     Context_*const __restrict threadContext = reinterpret_cast<Context*>(&contextMem);
+                     bool                      threadContextConstructed = false;
     #endif
 }
