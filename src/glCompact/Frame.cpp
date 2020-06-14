@@ -3,7 +3,6 @@
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
@@ -373,7 +372,8 @@ namespace glCompact {
         //TODO test limits
         viewportOffset = offset;
         viewportSize   = size;
-        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->stateChange.viewportScissor = true;
+
     }
 
     void Frame::setScissor(
@@ -384,7 +384,7 @@ namespace glCompact {
         scissorOffset  = offset;
         scissorSize    = size;
         scissorEnabled = offset != glm::uvec2(0, 0) || size != glm::uvec2(this->size);
-        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->stateChange.viewportScissor = true;
     }
 
     //If this Frame is using sRGB targets, then this will enable automatic translation between the sRGBA and the linear color space when writing to it
@@ -402,7 +402,7 @@ namespace glCompact {
     void Frame::setViewport() {
         viewportOffset = {0, 0};
         viewportSize   = size;
-        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->stateChange.viewportScissor = true;
     }
 
     /**
@@ -413,7 +413,7 @@ namespace glCompact {
         scissorOffset  = {0, 0};
         scissorSize    = size;
         scissorEnabled = false;
-        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->stateChange.viewportScissor = true;
     }
 
     void Frame::blitRgba(

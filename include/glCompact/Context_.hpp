@@ -141,9 +141,8 @@ namespace glCompact {
             uint32_t*  image_mipmapLevel;
              int32_t*  image_layer;
         public:
-
             //Graphics pipeline state
-            PipelineRasterizationStateChange pipelineRasterizationStateChangePending;
+            PipelineRasterizationStateChange stateChange;
 
             //TRIANGLE ROTATION AND DRAW FACE
             bool          triangleFrontIsClockwiseRotation = false;

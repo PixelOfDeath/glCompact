@@ -1,7 +1,6 @@
 #include "glCompact/glCompact.hpp"
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
 #include <glm/glm.hpp>
@@ -43,7 +42,7 @@ namespace glCompact {
         UNLIKELY_IF (frame.id == 0 && &frame != &threadContext_->frameWindow)
             throw runtime_error("Trying to set empty Frame as drawFrame!");
         threadContext_->pending_frame = &frame;
-        threadContext_->pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::viewportScissor;
+        threadContext_->stateChange.viewportScissor = true;
     }
 
     /**

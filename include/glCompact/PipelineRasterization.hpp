@@ -144,7 +144,7 @@ namespace glCompact {
             PrimitiveTopology geometryOutputType        = static_cast<PrimitiveTopology>(-1);
 
           //STATES
-            PipelineRasterizationStateChange pipelineRasterizationStateChangePending;
+            PipelineRasterizationStateChange stateChange;
 
             PrimitiveTopology vertexStageInputPrimitiveTopology;
 

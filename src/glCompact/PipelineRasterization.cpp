@@ -5,7 +5,6 @@
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/config.hpp"
 #include "glCompact/Buffer.hpp"
-#include "glCompact/PipelineRasterizationStateChangeInternal.hpp"
 
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/gl/Helper.hpp"
@@ -313,8 +312,7 @@ namespace glCompact {
         bool clockwise
     ) {
         this->triangleFrontIsClockwiseRotation = clockwise;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::triangleFace;
+        stateChange.triangleFace = true;
     }
 
     /**
@@ -325,8 +323,7 @@ namespace glCompact {
         FaceSelection faceSelection
     ) {
         this->faceToDraw = faceSelection;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::triangleFace;
+        stateChange.triangleFace = true;
     }
 
     /** \brief Sets if writing is enabled for all RGBA slots
@@ -347,8 +344,7 @@ namespace glCompact {
         rgbaWriteMask[0].b = b;
         rgbaWriteMask[0].a = a;
         singleRgbaWriteMaskState = true;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::rgbaMask;
+        stateChange.rgbaMask = true;
     }
 
     //core since 3.0
@@ -379,8 +375,7 @@ namespace glCompact {
         rgbaWriteMask[slot].b = b;
         rgbaWriteMask[slot].a = a;
         singleRgbaWriteMaskState = false;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::rgbaMask;
+        stateChange.rgbaMask = true;
     }
 
     /*
@@ -396,8 +391,7 @@ namespace glCompact {
         CompareOperator compareOperator
     ) {
         depthCompareOperator = compareOperator;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
+        stateChange.depth = true;
     }
 
     /*
@@ -407,8 +401,7 @@ namespace glCompact {
         bool enabled
     ) {
         depthWriteEnabled = enabled;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
+        stateChange.depth = true;
     }
 
     //TODO: add GL_EXT_polygon_offset_clamp support?
@@ -437,7 +430,7 @@ namespace glCompact {
         this->depthBiasClamp          = depthBiasClamp;
         this->depthBiasSlopeFactor    = depthBiasSlopeFactor;
 
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
+        stateChange.depth = true;
     }
 
     /*
@@ -456,7 +449,7 @@ namespace glCompact {
     ) {
         depthNearMapping = near;
         depthFarMapping  = far;
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
+        stateChange.depth = true;
     }
 
     /*
@@ -470,7 +463,7 @@ namespace glCompact {
         bool enabled
     ) {
         depthClippingToClamping = enabled;
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::depth;
+        stateChange.depth = true;
     }
 
     /*
@@ -488,7 +481,7 @@ namespace glCompact {
         if (faceSelection == FaceSelection::frontAndBack || faceSelection == FaceSelection::back) {
             stencilTestBack.refValue        = refValue;
         }
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::stencil;
+        stateChange.stencil = true;
     }
 
     /*
@@ -513,7 +506,7 @@ namespace glCompact {
             stencilTestBack.compareOperator = compareOperator;
             stencilTestBack.readMask        = readMask;
         }
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::stencil;
+        stateChange.stencil = true;
     }
 
     /*
@@ -540,7 +533,7 @@ namespace glCompact {
             stencilWriteBack.stencilPassDepthFailOperator         = stencilPassDepthFailOperator;
             stencilWriteBack.stencilPassDepthPassOrAbsentOperator = stencilPassDepthPassOrAbsentOperator;
         }
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::stencil;
+        stateChange.stencil = true;
     }
 
     /*
@@ -586,7 +579,7 @@ namespace glCompact {
         glm::vec4 rgba
     ) {
         blendConstRgba = rgba;
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
+        stateChange.blend = true;
     }
 
     /** \brief Setup a single blend mode and enable it for all Rgba targets that have a normalized or floatingpoint format
@@ -619,8 +612,7 @@ namespace glCompact {
             blendEquations[i].rgb    = equationRgb;
             blendEquations[i].a      = equationA;
         }
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
+        stateChange.blend = true;
     }
 
     /** \brief Set a single blend mode for all rgba slots
@@ -662,8 +654,7 @@ namespace glCompact {
         blendFactors  [rgbaSlot].dstA   = dstFactorA;
         blendEquations[rgbaSlot].rgb    = equationRgb;
         blendEquations[rgbaSlot].a      = equationA;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
+        stateChange.blend = true;
     }
 
     /** \brief disables rgba blend for a specific rgba slot (Rgba blend is disabled for all slots by default)
@@ -675,8 +666,7 @@ namespace glCompact {
         blendEnabledAny = {};
         blendEnabledAll = false;
         blendEnabled[rgbaSlot] = false;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
+        stateChange.blend = true;
     }
 
     /** \brief disables rgba blend for all rgba slots (Rgba blend is disabled for all slots by default)
@@ -685,8 +675,7 @@ namespace glCompact {
         blendEnabledAny = false;
         blendEnabledAll = false;
         LOOPI(config::MAX_RGBA_ATTACHMENTS) blendEnabled[i] = false;
-
-        pipelineRasterizationStateChangePending |= PipelineRasterizationStateChange::blend;
+        stateChange.blend = true;
     }
 
     //LOGIC OPERATION
@@ -1242,7 +1231,7 @@ namespace glCompact {
             PipelineInterface::processPendingChangesPipeline();
             buffer_attribute_changedSlotMin = 0;
             buffer_attribute_changedSlotMax = attributeLayoutStates.uppermostActiveBufferIndex;
-            pipelineRasterizationStateChangePending = PipelineRasterizationStateChange::all;
+            stateChange.all = ~0;
             threadContext_->pipeline = this;
         }
     }
@@ -1287,9 +1276,10 @@ namespace glCompact {
             glLogicOp(LogicOperation logicOperation);
     */
     void PipelineRasterization::processPendingChangesPipelineRasterization() {
-        PipelineRasterizationStateChange change = pipelineRasterizationStateChangePending | threadContext_->pipelineRasterizationStateChangePending;
-        pipelineRasterizationStateChangePending                        = PipelineRasterizationStateChange::none;
-        threadContext_->pipelineRasterizationStateChangePending = PipelineRasterizationStateChange::none;
+        PipelineRasterizationStateChange stateChangeBoth;
+        stateChangeBoth.all = threadContext_->stateChange.all | stateChange.all;
+        threadContext_->stateChange.all = 0;
+                        stateChange.all = 0;
 
         //Check if PrimitiveTopology is set
         UNLIKELY_IF (vertexStageInputPrimitiveTopology == static_cast<PrimitiveTopology>(0xFFFFFFFF))
@@ -1340,7 +1330,7 @@ namespace glCompact {
         }
 
         //DEPTH
-        if (bool(change & PipelineRasterizationStateChange::depth)) {
+        if (bool(stateChangeBoth.depth)) {
             bool depthEnabled = depthWriteEnabled || depthCompareOperator != CompareOperator::disabled;
 
             if (threadContext_->depthEnabled != depthEnabled) {
@@ -1458,7 +1448,7 @@ namespace glCompact {
                 Decrements the current stencil buffer value. Wraps stencil buffer value to the maximum representable unsigned value when decrementing a stencil buffer value of zero.
             GL_INVERT
         */
-        if (bool(change & PipelineRasterizationStateChange::stencil)) {
+        if (bool(stateChangeBoth.stencil)) {
             bool stencilEnabled =
                 stencilTestFront.compareOperator                       != CompareOperator::disabled
             ||  stencilTestBack.compareOperator                        != CompareOperator::disabled
@@ -1576,7 +1566,7 @@ namespace glCompact {
             Note that the glEnablei/glDisablei functions are not part of this functionality. The ability to enable/disable blending to specific buffers is core 3.0 functionality.
             Whereas draw buffers blend is about the ability to specify different blend parameters for different buffers.
         */
-        if (bool(change & PipelineRasterizationStateChange::blend)) {
+        if (bool(stateChangeBoth.blend)) {
             blendEnabledAny = any_of(begin(blendEnabled), end(blendEnabled), [](bool b){return b;});
             if (blendEnabledAny.isTrue()) {
                 threadContext_->blendEnabledAny = true;
