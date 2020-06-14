@@ -22,12 +22,6 @@ namespace glCompact {
     class Context_ {
         public:
             Context_();
-            //prevent  copy constructor/Assignment operators
-            Context_(const Context_ &c)          = delete;
-            Context_& operator=(const Context_&) = delete;
-            //prevent  Move constructors/Move assignment (C++11).
-            Context_(Context_&&)                 = delete;
-            Context_& operator=(Context_&&)      = delete;
             ~Context_();
 
             uint32_t getContextId() const;
