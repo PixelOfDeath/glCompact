@@ -479,11 +479,10 @@ namespace glCompact {
         uint32_t mipmapLevel
     ) const {
         if (mipmapLevel >= mipmapCount) return uvec3(0); //error or just return 0, 0, 0?
-        uint32_t mipmapScale = pow(2, mipmapLevel); //integerPowerOf(2, mipmapLevel);
         return max(uvec3(1), uvec3(
-                                               size.x / mipmapScale,
-            (target != GL_TEXTURE_1D_ARRAY) ? (size.y / mipmapScale) : size.y,
-            (target == GL_TEXTURE_3D)       ? (size.z / mipmapScale) : size.z
+                                               size.x >> mipmapLevel,
+            (target != GL_TEXTURE_1D_ARRAY) ? (size.y >> mipmapLevel) : size.y,
+            (target == GL_TEXTURE_3D)       ? (size.z >> mipmapLevel) : size.z
         ));
     }
 
