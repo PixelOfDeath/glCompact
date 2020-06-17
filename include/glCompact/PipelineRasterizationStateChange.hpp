@@ -1,6 +1,9 @@
 #pragma once
 #include <cstdint> //C++11
 
+//Note: BitFiels (and union) from the view of the C++ standard bring a lot of undefined behavior
+//It just so happens that all compilers that I target do behave like I want to use them.
+
 namespace glCompact {
     struct PipelineRasterizationStateChange {
         union {
