@@ -14,7 +14,7 @@ namespace glCompact {
                     depth:1,
                     blend:1,
                     attributeLayout:1;
-            }
+            };
         };
     };
 }
