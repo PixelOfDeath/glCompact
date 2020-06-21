@@ -2,8 +2,6 @@
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
-#include <assert.h>
-
 using namespace std;
 
 namespace glCompact {
