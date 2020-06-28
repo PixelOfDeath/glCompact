@@ -10,6 +10,7 @@
 #include "glCompact/minMax.hpp"
 #include <stdexcept>
 
+using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
