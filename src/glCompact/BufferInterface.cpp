@@ -26,8 +26,6 @@ namespace glCompact {
 
     /**
        \brief Copy data from another buffer object.
-
-        GL_ARB_copy_buffer (Core since 3.1)
     */
     void BufferInterface::copyFromBuffer(
         const BufferInterface& srcBuffer,
@@ -64,9 +62,11 @@ namespace glCompact {
     }
 
     /**
-        Most drivers will copy the memory block to OpenGL managed system memory and then return from this functions.
-        Then the transfer between this OpenGL managed system memory and the final memory (vram in most cases) will happen.
-        Unlike copyFromBuffer this function might limit the copying to the GPU VRam, so it runs in paralel/in chunks and does not completely block Rasterization/Compute shaders.
+        \brief Copy data from client memory to a buffer object.
+
+        This copy command takes care of any kind of syncronisation in this threads OpenGL context.
+        Drivers might copy the client memory to OpenGL managed system memory to return from this function as fast as possible. To then continue to copy the data to device memory as soon
+        after any other workload reading or writing to this buffer is done.
     */
     void BufferInterface::copyFromMemory(
         const void* srcMem,
@@ -98,6 +98,13 @@ namespace glCompact {
         }
     }
 
+    /**
+        \brief Copy data from this buffer object to client memory
+
+        This copy command takes care of any kind of synchronisation inside this threads OpenGL context.
+        If any issued commands still write to the buffer, this function will stall until it can safely copy the data.
+        For performance reasons it is best to use a fence after the last command writing to the buffer. And only after the fence signals, call this copy function.
+    */
     void BufferInterface::copyToMemory(
         void*     destMem,
         uintptr_t thisOffset,
@@ -264,11 +271,18 @@ namespace glCompact {
         }
     }
 
-    //If GL_ARB_invalidate_subdata (core in GL4.3) is not support this function will just do nothing
-    //invalidating could be emulated by recreating the buffer object if using non-immutable?
-    //this is basically just a hint, so we always can "support" this function without doing anything
-    //Invalidating for example allows OpenGL to deallocate, to lower the memory pressure
-    //and/or allocate new memory to start new rendering commands when the old target still is in use (indirect sync)
+    /**
+        \brief invalidate the content of this buffer
+
+        This is a performance hint that depends on GL_ARB_invalidate_subdata (core since GL4.3) being present. Without the extension this function will currently do nothing.
+        TODO: Might emulte invalidating by recreating the buffer object if using non-immutable buffers?
+
+        It allowes the driver:
+            - to free the memory when under memory pressure
+            - to allocate new memory to immediately start following commands when the buffer is still in use by previous commands
+
+        After this the content of the buffer is undefined until something is written to it.
+    */
     void BufferInterface::invalidate() {
         Context_::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
