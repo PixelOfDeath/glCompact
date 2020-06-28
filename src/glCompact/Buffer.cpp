@@ -12,15 +12,15 @@ namespace glCompact {
         \brief OpenGL managed memory object
 
         \details If the GPU has didicated memory, this buffer can be considered to be located on it.
-        Aside from OpenGL driver lazy initalisation (create and copy on first use) and memory pressure that may cause
-        the driver to move the buffers content back to system memory.
+        Aside from OpenGL driver lazy initalisation (create and/or copy on first use) and memory pressure that may cause
+        the driver to move the buffer content back to system memory.
     */
 
     /**
         \brief Creates a new buffer
 
-        \param clientMemoryCopyable if set to true, the CPU can directly copy memory from and to this buffer via copyFromMemory/copyToMemory.
-        For optimal performance, this should bet set to false. (Even on GPUs that share system memory with the CPU!)
+        \param clientMemoryCopyable If set to true, the CPU can directly copy memory from and to this buffer via copyFromMemory/copyToMemory.
+        For optimal performance, this should bet set to false if no direct CPU access is needed. Including on APUs that share system memory with the CPU!
         \param size size in byte
     */
     Buffer::Buffer(
@@ -33,8 +33,8 @@ namespace glCompact {
     /**
         \brief Creates a new buffer with initial memory content
 
-        \param clientMemoryCopyable if set to true, the CPU can directly copy memory from and to this buffer via copyFromMemory/copyToMemory.
-        For optimal performance, this should bet set to false. (Even on GPUs that share system memory with the CPU!)
+        \param clientMemoryCopyable If set to true, the CPU can directly copy memory from and to this buffer via copyFromMemory/copyToMemory.
+        For optimal performance, this should bet set to false if no direct CPU access is needed. Including on APUs that share system memory with the CPU!
         \param size size in byte
         \param data data that gets copied into this buffer object
     */
@@ -47,7 +47,7 @@ namespace glCompact {
     }
 
     /**
-        \brief Create new buffer by copying another buffer object
+        \brief Create new buffer by copying another buffer size and content
 
         \param buffer object to be copied
     */
