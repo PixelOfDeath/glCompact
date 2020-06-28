@@ -10,16 +10,19 @@
 #include "glCompact/minMax.hpp"
 #include <stdexcept>
 
-    //#include <string>
-
-//This can just change the content of any buffer, but not change the buffer itself!
-/*
-    The buffer classes automaticly use GL_ARB_buffer_storage if it is available. (Except for BufferStaging that depends on GL_ARB_buffer_storage to be present to work at all!)
-*/
-
 using namespace glCompact::gl;
 
 namespace glCompact {
+    /**
+        \ingroup API
+        \class glCompact::BufferInterface
+
+        \brief OpenGL managed memory object
+
+        \details This is the interface for all glCompact Buffer classes.
+        It can manipulate the content of any buffer, but not the buffer allocation itself.
+    */
+
     /**
        \brief Copy data from another buffer object.
 
