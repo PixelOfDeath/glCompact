@@ -179,49 +179,27 @@ namespace glCompact {
             throw std::runtime_error("Trying to clear bayond buffer size");
 
         if (threadContextGroup_->extensions.GL_ARB_clear_buffer_object) {
-            GLenum internalFormat;
-            GLenum componentArrangement;
-            GLenum componentTypes;
+            struct {
+                GLenum internalFormat;
+                GLenum componentArrangement;
+                GLenum componentTypes;
+            } param;
             switch (fillValueSize) {
-                case 1:
-                    internalFormat       = GL_R8;
-                    componentArrangement = GL_RED;
-                    componentTypes       = GL_UNSIGNED_BYTE;
-                    break;
-                case 2:
-                    internalFormat       = GL_RG8;
-                    componentArrangement = GL_RG;
-                    componentTypes       = GL_UNSIGNED_BYTE;
-                    break;
-                case 4:
-                    internalFormat       = GL_RGBA8;
-                    componentArrangement = GL_RGBA;
-                    componentTypes       = GL_UNSIGNED_BYTE;
-                    break;
-                case 8:
-                    internalFormat       = GL_RGBA16;
-                    componentArrangement = GL_RGBA;
-                    componentTypes       = GL_UNSIGNED_SHORT;
-                    break;
-                case 12:
-                    internalFormat       = GL_RGB32UI;
-                    componentArrangement = GL_RGB_INTEGER; //does not exist in 3.0, is there a non integer format with 12 bytes?
-                    componentTypes       = GL_UNSIGNED_INT;
-                    break;
-                case 16:
-                    internalFormat       = GL_RGBA32UI;
-                    componentArrangement = GL_RGBA_INTEGER;
-                    componentTypes       = GL_UNSIGNED_INT;
-                    break;
+                case  1: param = {GL_R8,       GL_RED,          GL_UNSIGNED_BYTE }; break;
+                case  2: param = {GL_RG8,      GL_RED,          GL_UNSIGNED_BYTE }; break;
+                case  4: param = {GL_RGBA8,    GL_RGBA,         GL_UNSIGNED_BYTE }; break;
+                case  8: param = {GL_RGBA16,   GL_RGBA,         GL_UNSIGNED_SHORT}; break;
+                case 12: param = {GL_RGB32UI,  GL_RGB_INTEGER,  GL_UNSIGNED_INT  }; break; //GL_RGB_INTEGER: does not exist in 3.0, is there a non integer format with 12 bytes?
+                case 16: param = {GL_RGBA32UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT  }; break;
                 default:
                     throw std::runtime_error("fillValueSize must be 1, 2, 4, 8, 12 or 16!");
             }
             if (threadContextGroup_->extensions.GL_ARB_clear_buffer_object) {
                 if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
-                    threadContextGroup_->functions.glClearNamedBufferSubData       (this->id, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
+                    threadContextGroup_->functions.glClearNamedBufferSubData       (this->id, param.internalFormat, offset, clearSize, param.componentArrangement, param.componentTypes, fillValue);
                 else {
                     threadContext_->cachedBindCopyWriteBuffer(this->id);
-                    threadContextGroup_->functions.glClearBufferSubData(GL_COPY_WRITE_BUFFER, internalFormat, offset, clearSize, componentArrangement, componentTypes, fillValue);
+                    threadContextGroup_->functions.glClearBufferSubData(GL_COPY_WRITE_BUFFER, param.internalFormat, offset, clearSize, param.componentArrangement, param.componentTypes, fillValue);
                 }
             }
         } else {
