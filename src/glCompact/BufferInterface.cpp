@@ -32,19 +32,23 @@ namespace glCompact {
         uintptr_t              copySize
     ) {
         Context_::assertThreadHasActiveGlContext();
+        auto throwWithInfo = [&](string error) {
+            throw runtime_error(string() + "Error in\n"
+                + "BufferInterface\n"
+                + " .size = " + to_string(size) + "\n"
+                + "::copyFromBuffer(\n"
+                + " srcBuffer (.size = " + to_string(srcBuffer.size) + "),\n"
+                + " srcOffset = " + to_string(srcOffset) + ",\n"
+                + " dstOffset = " + to_string(dstOffset) + ",\n"
+                + " copySize  = " + to_string(copySize) + "\n"
+                + ")\n"
+                + error);
+        };
+        UNLIKELY_IF (srcOffset            > srcBuffer.size) throwWithInfo("source offset is bayond source buffer size");
+        UNLIKELY_IF (dstOffset            > this->size)     throwWithInfo("destination offset is bayond destination buffer size");
+        UNLIKELY_IF (srcOffset + copySize > srcBuffer.size) throwWithInfo("offset + size is bayond source buffer size");
+        UNLIKELY_IF (dstOffset + copySize > this->size)     throwWithInfo("offset + size is bayond destination buffer size");
         UNLIKELY_IF (copySize == 0) return;
-        UNLIKELY_IF (!srcBuffer.id)
-            throw std::runtime_error("Source buffer has no memory allocated");
-        UNLIKELY_IF (!this->id)
-            throw std::runtime_error("Target buffer has no memory allocated");
-        UNLIKELY_IF (srcOffset > srcBuffer.size)
-            throw std::runtime_error("Source offset is bayond source buffer size");
-        UNLIKELY_IF (dstOffset > this->size)
-            throw std::runtime_error("Target offset is bayond target buffer size");
-        UNLIKELY_IF (srcOffset + copySize > srcBuffer.size)
-            throw std::runtime_error("Offset and size is bayond source buffer size");
-        UNLIKELY_IF (dstOffset + copySize > this->size)
-            throw std::runtime_error("Offset and size is bayond target buffer size");
 
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glCopyNamedBufferSubData(srcBuffer.id, id, srcOffset, dstOffset, copySize);
@@ -66,16 +70,21 @@ namespace glCompact {
         uintptr_t   copySize
     ) {
         Context_::assertThreadHasActiveGlContext();
-        UNLIKELY_IF (copySize == 0)
-            return;
-        UNLIKELY_IF (!this->id)
-            throw std::runtime_error("Target buffer has no memory allocated");
-        UNLIKELY_IF (thisOffset >= this->size)
-            throw std::runtime_error("Offset is bayond buffer size");
-        UNLIKELY_IF (thisOffset + copySize > this->size)
-            throw std::runtime_error("Memory copy is bayond buffer size");
-        UNLIKELY_IF (!clientMemoryCopyable)
-            throw std::runtime_error("Buffer is not clientMemoryCopyable!");
+        auto throwWithInfo = [&](string error) {
+            throw runtime_error(string() + "Error in\n"
+                + "BufferInterface\n"
+                + " .size = " + to_string(size) + "\n"
+                + "::copyFromMemory(\n"
+                + " srcMem     = " + to_string(uintptr_t(srcMem)) + ",\n"
+                + " thisOffset = " + to_string(thisOffset) + ",\n"
+                + " copySize   = " + to_string(copySize) + "\n"
+                + ")\n"
+                + error);
+        };
+        UNLIKELY_IF (thisOffset            >= this->size) throwWithInfo("offset is bayond buffer size");
+        UNLIKELY_IF (thisOffset + copySize >  this->size) throwWithInfo("memory copy is bayond buffer size");
+        UNLIKELY_IF (!clientMemoryCopyable)               throwWithInfo("buffer is not clientMemoryCopyable!");
+        UNLIKELY_IF (copySize == 0) return;
 
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glNamedBufferSubData(id, thisOffset, copySize, srcMem);
@@ -91,16 +100,21 @@ namespace glCompact {
         uintptr_t copySize
     ) const {
         Context_::assertThreadHasActiveGlContext();
-        UNLIKELY_IF (copySize == 0)
-            return;
-        UNLIKELY_IF (!this->id)
-            throw std::runtime_error("Source buffer has no memory allocated");
-        UNLIKELY_IF (thisOffset >= this->size)
-            throw std::runtime_error("Offset is bayond buffer size");
-        UNLIKELY_IF (thisOffset + copySize > this->size)
-            throw std::runtime_error("Memory copy is bayond buffer size");
-        UNLIKELY_IF (!clientMemoryCopyable)
-            throw std::runtime_error("Buffer is not clientMemoryCopyable!");
+        auto throwWithInfo = [&](string error) {
+            throw runtime_error(string() + "Error in\n"
+                + "BufferInterface\n"
+                + " .size = " + to_string(size) + "\n"
+                + "::copyToMemory(\n"
+                + " destMem    = " + to_string(uintptr_t(destMem)) + ",\n"
+                + " thisOffset = " + to_string(thisOffset) + ",\n"
+                + " copySize   = " + to_string(copySize) + "\n"
+                + ")\n"
+                + error);
+        };
+        UNLIKELY_IF (thisOffset            >= this->size) throwWithInfo("offset is bayond buffer size");
+        UNLIKELY_IF (thisOffset + copySize >  this->size) throwWithInfo("memory copy is bayond buffer size");
+        UNLIKELY_IF (!clientMemoryCopyable)               throwWithInfo("buffer is not clientMemoryCopyable!");
+        UNLIKELY_IF (copySize == 0) return;
 
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glGetNamedBufferSubData(id, thisOffset, copySize, destMem);
@@ -165,18 +179,22 @@ namespace glCompact {
         const void* fillValue
     ) {
         Context_::assertThreadHasActiveGlContext();
-        UNLIKELY_IF (clearSize == 0)
-            return;
-        UNLIKELY_IF (offset % fillValueSize != 0)
-            throw std::runtime_error("offset must be aligned to size of fillValue!");
-        UNLIKELY_IF (clearSize   % fillValueSize != 0)
-            throw std::runtime_error("clearSize must be aligned to size of fillValue!");
-        UNLIKELY_IF (!this->id)
-            throw std::runtime_error("Buffer can't be cleared because there is no memory allocated");
-        UNLIKELY_IF (offset >= this->size)
-            throw std::runtime_error("Offset is bayond size of buffer");
-        UNLIKELY_IF (offset + clearSize > this->size)
-            throw std::runtime_error("Trying to clear bayond buffer size");
+        auto throwWithInfo = [&](string error) {
+            throw runtime_error(string() + "Error in\n"
+                + "BufferInterface\n"
+                + " .size = " + to_string(size) + "\n"
+                + "::clear(\n"
+                + " offset        = " + to_string(offset) + ",\n"
+                + " clearSize     = " + to_string(clearSize) + ",\n"
+                + " fillValueSize = " + to_string(fillValueSize) + ")\n"
+                + " fillValue     = " + to_string(uintptr_t(fillValue)) + ")\n"
+                + error);
+        };
+        UNLIKELY_IF (offset      % fillValueSize != 0) throwWithInfo("offset must be aligned to size of fillValue!");
+        UNLIKELY_IF (clearSize   % fillValueSize != 0) throwWithInfo("clearSize must be aligned to size of fillValue!");
+        UNLIKELY_IF (offset             >= this->size) throwWithInfo("offset is bayond size of buffer");
+        UNLIKELY_IF (offset + clearSize >  this->size) throwWithInfo("trying to clear bayond buffer size");
+        UNLIKELY_IF (clearSize == 0) return;
 
         if (threadContextGroup_->extensions.GL_ARB_clear_buffer_object) {
             struct {
