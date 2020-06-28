@@ -11,7 +11,7 @@ namespace glCompact {
             BufferStaging           (      BufferStaging&& buffer);
             BufferStaging& operator=(const BufferStaging&  buffer);
             BufferStaging& operator=(      BufferStaging&& buffer);
-            virtual ~BufferStaging();
+            ~BufferStaging();
             void free();
 
             void* getMem() const {return mem;}

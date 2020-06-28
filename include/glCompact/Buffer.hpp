@@ -12,7 +12,7 @@ namespace glCompact {
             Buffer           (      Buffer&& buffer);
             Buffer& operator=(const Buffer&  buffer);
             Buffer& operator=(      Buffer&& buffer);
-            virtual ~Buffer();
+            ~Buffer();
             void free();
     };
 }
