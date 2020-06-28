@@ -6,8 +6,8 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
-#include <algorithm> //min/max
 
+#include "glCompact/minMax.hpp"
 #include <stdexcept>
 
     //#include <string>
