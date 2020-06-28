@@ -344,10 +344,8 @@ namespace glCompact {
         const void* data
     ) {
         Context_::assertThreadHasActiveGlContext();
-        UNLIKELY_IF (stagingBuffer && !threadContextGroup_->extensions.GL_ARB_buffer_storage)
-            throw std::runtime_error("Staging buffer not supported (missing GL_ARB_buffer_storage)");
-        UNLIKELY_IF (sparseBuffer  && !threadContextGroup_->extensions.GL_ARB_sparse_buffer )
-            throw std::runtime_error("Sparse buffer is not supported (missing GL_ARB_sparse_buffer)");
+        UNLIKELY_IF (stagingBuffer && !threadContextGroup_->extensions.GL_ARB_buffer_storage) crash("Staging buffer not supported (missing GL_ARB_buffer_storage)");
+        UNLIKELY_IF (sparseBuffer  && !threadContextGroup_->extensions.GL_ARB_sparse_buffer ) crash("Sparse buffer is not supported (missing GL_ARB_sparse_buffer)");
         //UNLIKELY_IF (stagingBuffer && sparseBuffer)
         //    throw std::runtime_error("Sparse buffer and staging buffer functionality can not be mixed");
 
@@ -422,11 +420,9 @@ namespace glCompact {
         //so I can ignore destructors from static objects, because the application is termination anyway and driver will clean up!
         //TODO: When do static objects from a closing thread get destroyed when the application keeps running?
         if (id) {
-            UNLIKELY_IF (!threadContextGroup_)
-                crash("glCompact::Buffer destructor called but thread has no reference to threadContextGroup_! Leaking OpenGL object!");
+            UNLIKELY_IF (!threadContextGroup_) crash("glCompact::Buffer destructor called but thread has no reference to threadContextGroup_! Leaking OpenGL object!");
             #ifdef GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
-                UNLIKELY_IF (!threadContextGroup_->functions.glGetString(GL_VERSION))
-                    crash("glCompact::Buffer destructor called but thread has no active OpenGL context! glDeleteBuffers without effect! Leaking OpenGL object!");
+                UNLIKELY_IF (!threadContextGroup_->functions.glGetString(GL_VERSION)) crash("glCompact::Buffer destructor called but thread has no active OpenGL context! glDeleteBuffers without effect! Leaking OpenGL object!");
             #endif
 
             if (threadContext_) threadContext_->forgetBufferId(id);
