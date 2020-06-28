@@ -201,7 +201,7 @@ namespace glCompact {
             s += " loaded from this file:\n";
             s += "  " + fileName + "\n";
         } else {
-            s += " loaded from string";
+            s += " loaded from string\n";
             //TODO: Output whole shader here? No real other way to identificate and be clear about what caused error/warnings.
             //Could be an issue with spamming to much on screen/log. Or make full output a one-time event for the application runtime?
             //Also would need clear documentation for users that may not want to output glsl to the world.
