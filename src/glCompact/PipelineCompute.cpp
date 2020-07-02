@@ -224,10 +224,18 @@ namespace glCompact {
         threadContextGroup_->functions.glDispatchComputeIndirect(offset);
     }
 
+    /*
+        Maximum allowed group dispatch count.
+        This value is at least: 65535, 65535, 65535
+    */
     glm::ivec3 PipelineCompute::getMaxWorkGroupCount() {
         return threadContextGroup_->values.GL_MAX_COMPUTE_WORK_GROUP_COUNT;
     }
 
+    /*
+        Maximum allowed size of a workgroup. (This size is set in the GLSL source code!)
+        This value is at least: 1024, 1024, 64
+    */
     glm::ivec3 PipelineCompute::getMaxWorkGroupSize() {
         return threadContextGroup_->values.GL_MAX_COMPUTE_WORK_GROUP_SIZE;
     }
