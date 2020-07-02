@@ -298,6 +298,9 @@ namespace glCompact {
         buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
     }
 
+    /*
+        offset must be aligned to GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT (max. 256)
+    */
     void PipelineInterface::setShaderStorageBuffer(
         uint32_t         slot,
         BufferInterface& buffer,
