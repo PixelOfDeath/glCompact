@@ -412,7 +412,7 @@ namespace glCompact {
                 threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, data, usageHint);
             }
         }
-        this->size                = size;
+        this->size                 = size;
         this->clientMemoryCopyable = clientMemoryCopyable;
         return ptr;
     }
