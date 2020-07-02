@@ -1,5 +1,6 @@
 #pragma once
 #include "glCompact/BufferInterface.hpp"
+#include "glCompact/CastAnyPtr.hpp"
 
 namespace glCompact {
     class BufferStaging;
@@ -14,9 +15,10 @@ namespace glCompact {
             ~BufferStaging();
             void free();
 
-            void* getMem() const {return mem;}
             void flush();
             void flush(uintptr_t offset, uintptr_t size);
+
+            CastAnyPtr getPtr() const {return mem;}
         private:
             void* mem = 0;
     };
