@@ -392,11 +392,13 @@ namespace glCompact {
         if ( writeAccess || !clientStorageHint) usageHint = GL_DYNAMIC_DRAW;
         if (!writeAccess || !clientStorageHint) usageHint = GL_STATIC_DRAW;*/
 
+        void* ptr = 0;
+
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glCreateBuffers(1, &id);
             if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
                 threadContextGroup_->functions.glNamedBufferStorage(id, size, data, flags);
-                if (stagingBuffer) return threadContextGroup_->functions.glMapNamedBufferRange(id, 0, size, stagingBufferAccessFlags);
+                if (stagingBuffer) ptr = threadContextGroup_->functions.glMapNamedBufferRange(id, 0, size, stagingBufferAccessFlags);
             } else {
                 threadContextGroup_->functions.glNamedBufferData(id, size, data, usageHint);
             }
@@ -405,14 +407,14 @@ namespace glCompact {
             threadContext_->cachedBindCopyWriteBuffer(id);
             if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
                 threadContextGroup_->functions.glBufferStorage(GL_COPY_WRITE_BUFFER, size, data, flags);
-                if (stagingBuffer) return threadContextGroup_->functions.glMapBufferRange(GL_COPY_WRITE_BUFFER, 0, size, stagingBufferAccessFlags);
+                if (stagingBuffer) ptr = threadContextGroup_->functions.glMapBufferRange(GL_COPY_WRITE_BUFFER, 0, size, stagingBufferAccessFlags);
             } else {
                 threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, data, usageHint);
             }
         }
         this->size                = size;
         this->clientMemoryCopyable = clientMemoryCopyable;
-        return 0;
+        return ptr;
     }
 
     void BufferInterface::free() {
