@@ -13,6 +13,7 @@ namespace glCompact {
             PipelineCompute(const std::string& path, const std::string& fileName);
 
             void dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
+            void dispatchMinGroupCount(uint64_t groupCount);
             void dispatchIndirect(const BufferInterface& buffer, uintptr_t offset);
 
             glm::ivec3 getWorkGroupSize()const{return workGroupSize;}

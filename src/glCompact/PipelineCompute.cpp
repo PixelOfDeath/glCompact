@@ -4,6 +4,7 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/config.hpp"
+#include "glCompact/minMax.hpp"
 
     #include "glCompact/ToolsInternal.hpp"
     #include "glCompact/GlTools.hpp"
@@ -152,6 +153,51 @@ namespace glCompact {
         processPendingChanges();
         threadContextGroup_->functions.glDispatchCompute(groupCountX, groupCountY, groupCountZ);
     }
+
+    /** \brief This is a helper function to dispatch a minimum amount of work groups
+
+        The work group count results from the multiplication of the x, y and z dispatch paremeter. Each axis parameter only has a min. supported value of 65535. Therefore it can be fiddly when running compute shaders on very large 1d datasets.
+
+        This helper function takes care of dispatching enough work groups to cover the requested count.
+
+        In most cases this will dispatch more work groups then needed, this excessive work groups can be discarded in the shader with:
+
+            if (groupIndex > X) return; //where X could be the groupCount value given to the function
+
+        The linear groupIndex, localIndex and globalIndex can be calculate in GLSL with:
+
+            const uint groupIndex =
+                gl_WorkGroupID.z * gl_NumWorkGroups.y * gl_NumWorkGroups.x +
+                gl_WorkGroupID.y * gl_NumWorkGroups.x +
+                gl_WorkGroupID.x;
+
+            const uint localIndex = //same as build in gl_LocalInvocationIndex
+                gl_LocalInvocationID.z * gl_WorkGroupSize.y * gl_WorkGroupSize.x +
+                gl_LocalInvocationID.y * gl_WorkGroupSize.x +
+                gl_LocalInvocationID.x;
+
+            const uint globalIndex =
+                localIndex +
+                groupIndex * (gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z);
+
+        \param groupCount The minimum amount of work groups to dispatch. The currently maximum supported value is 281462092005375 (65535 * 65535 * 65535)
+    */
+    void PipelineCompute::dispatchMinGroupCount(
+        uint64_t groupCount
+    ) {
+        UNLIKELY_IF (groupCount > 281462092005375) throw runtime_error("groupCount max. value is 281462092005375");
+
+        int32_t count1 =                  groupCount;
+        int32_t count2 = max<uint64_t>(1, groupCount / uint64_t(65535));
+        int32_t count3 = max<uint64_t>(1, groupCount / uint64_t(65535) / uint64_t(65535));
+
+        dispatch(
+             count1 < 65535 ? count1 : 65535,
+             count2 < 65535 ? count2 : 65535,
+             count3 < 65535 ? count3 : 65535
+        );
+    }
+
 
     /** \brief dispatch compute shader, getting group count parameters from a buffer
      *
