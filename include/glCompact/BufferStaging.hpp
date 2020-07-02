@@ -15,6 +15,8 @@ namespace glCompact {
             void free();
 
             void* getMem() const {return mem;}
+            void flush();
+            void flush(uintptr_t offset, uintptr_t size);
         private:
             void* mem = 0;
     };

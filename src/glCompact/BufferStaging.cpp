@@ -1,14 +1,15 @@
 #include "glCompact/BufferStaging.hpp"
 #include "glCompact/gl/Constants.hpp"
+#include "glCompact/threadContextGroup_.hpp"
+#include "glCompact/threadContext_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
 #include <utility>
 
 using namespace std;
+using namespace glCompact::gl;
 
 /*
-    needs GL_ARB_buffer_storage (Core since 4.4)
-
     Classical mapping/unmapping is an anti patern on modern drivers. It hurts performance because it forces syncing betwin the application side API and driver thread.
     So we only support a persisten mapped client buffer as staging buffer.
 
@@ -106,5 +107,18 @@ namespace glCompact {
     void BufferStaging::free() {
         BufferInterface::free();
         mem = 0;
+    }
+
+    void BufferStaging::flush() {
+        flush(0, size);
+    }
+
+    void BufferStaging::flush(uintptr_t offset, uintptr_t size) {
+        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+            threadContextGroup_->functions.glFlushMappedNamedBufferRange(id, offset, size);
+        } else {
+            threadContext_->cachedBindCopyWriteBuffer(id);
+            threadContextGroup_->functions.glFlushMappedBufferRange(GL_COPY_WRITE_BUFFER, offset, size);
+        }
     }
 }
