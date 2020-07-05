@@ -109,8 +109,8 @@ namespace glCompact {
         mem = 0;
     }
 
-        flush(0, size);
     void BufferCpu::flushCpuCache() {
+        flushCpuCache(0, size);
     }
 
     void BufferCpu::flushCpuCache(uintptr_t offset, uintptr_t size) {
