@@ -18,6 +18,7 @@
 
 namespace glCompact {
     class PipelineInterface;
+    class PipelineCompute;
 
     class Context_ {
         public:
@@ -210,6 +211,8 @@ namespace glCompact {
             void forgetBufferId(uint32_t bufferId);
 
             //helper
+            PipelineCompute* pipelineComputeCopy = nullptr;
+
             void cachedBindTextureCompatibleOrFirstTime(uint32_t texSlot, int32_t texTarget, uint32_t texId);
             void cachedBindTexture                     (uint32_t texSlot, int32_t texTarget, uint32_t texId);
 

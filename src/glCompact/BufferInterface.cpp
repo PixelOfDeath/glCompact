@@ -6,6 +6,7 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/ToolsInternal.hpp"
+#include "glCompact/PipelineCompute.hpp"
 
 #include "glCompact/minMax.hpp"
 #include <stdexcept>
@@ -59,6 +60,121 @@ namespace glCompact {
             threadContext_->cachedBindCopyWriteBuffer(id);
             threadContextGroup_->functions.glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, srcOffset, dstOffset, copySize);
         }
+    }
+
+    string pipelineComputeCopyShader32String = R"""(#version 430
+layout(local_size_x = 1024) in;
+
+uniform uint srcOffset;
+uniform uint dstOffset;
+uniform uint size;
+
+readonly layout(std430, binding=0) buffer srcBuffer {
+    uint src[];
+};
+layout(std430, binding=1) buffer dstBuffer {
+    uint dst[];
+};
+
+void main() {
+    const uint groupIndex =
+        gl_WorkGroupID.z * gl_NumWorkGroups.y * gl_NumWorkGroups.x +
+        gl_WorkGroupID.y * gl_NumWorkGroups.x +
+        gl_WorkGroupID.x;
+
+    const uint localIndex =
+        gl_LocalInvocationID.z * gl_WorkGroupSize.y * gl_WorkGroupSize.x +
+        gl_LocalInvocationID.y * gl_WorkGroupSize.x +
+        gl_LocalInvocationID.x;
+
+    const uint globalIndex =
+        localIndex +
+        groupIndex * (gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z);
+
+    const uint dstOffsetUint      = dstOffset / 4;
+    const uint newSrcOffset       = srcOffset - (dstOffset % 4);
+    const uint srcOffsetUint      = newSrcOffset / 4;
+    const uint srcToDstRightShift = newSrcOffset % 4 * 8;
+    const uint dstOffsetUintLast  = (dstOffset + size - 1) / 4;
+
+    if (dstOffsetUint + globalIndex > dstOffsetUintLast) return;
+
+    uint value;
+    if (srcToDstRightShift == 0) {
+        value = src[srcOffsetUint + globalIndex    ] >> (     srcToDstRightShift);
+    } else {
+        value = src[srcOffsetUint + globalIndex    ] >> (     srcToDstRightShift)
+              | src[srcOffsetUint + globalIndex + 1] << (32 - srcToDstRightShift);
+    }
+
+    const uint maskFirstOffset = (dstOffset       ) % 4 * 8;
+    const uint maskLastOffset  = (dstOffset + size) % 4 * 8;
+    const bool maskFirst = (                globalIndex ==                 0) && (maskFirstOffset != 0);
+    const bool maskLast  = (dstOffsetUint + globalIndex == dstOffsetUintLast) && (maskLastOffset  != 0);
+
+    if (maskFirst || maskLast) {
+        uint mask = 0xFFFFFFFF;
+        if (maskFirst) mask =        uint(0xFFFFFFFF) << (     maskFirstOffset);
+        if (maskLast ) mask = mask & uint(0xFFFFFFFF) >> (32 - maskLastOffset );
+        if (mask != 0xFFFFFFFF)
+            value = (value & mask) + (dst[dstOffsetUint + globalIndex] & ~mask);
+    }
+
+    dst[dstOffsetUint + globalIndex] = value;
+})""";
+
+    class PipelineComputeCopy32 : public PipelineCompute {
+        public:
+            using PipelineCompute::PipelineCompute;
+            UniformSetter<uint32_t> srcOffset{this, "srcOffset"};
+            UniformSetter<uint32_t> dstOffset{this, "dstOffset"};
+            UniformSetter<uint32_t> size     {this, "size"};
+    };
+
+    /**
+        \brief Copy data from another buffer object via compute shader
+
+        GPUs often contain didicated parts for data transfer between system memory and VRAM. (BufferStaging and Buffer objects)
+        This enables them to stream data from/to system memory while executing other workload in parallel.
+
+        If no other workload is executed, it can be significantly faster bypassing this didicated parts and instead use the compute parts to directly copy the memory.
+
+        Note that this is just a polished interface for a compute shader. This command depends on memory barriers to work correctly!
+    */
+    void BufferInterface::copyFromBufferViaPipelineCompute(
+        const BufferInterface& srcBuffer,
+        uintptr_t              srcOffset,
+        uintptr_t              dstOffset,
+        uintptr_t              copySize
+    ) {
+        Context_::assertThreadHasActiveGlContext();
+        auto throwWithInfo = [&](string error) {
+            throw runtime_error(string() + "Error in\n"
+                + "BufferInterface\n"
+                + " .size = " + to_string(size) + "\n"
+                + "::copyFromBufferViaPipelineCompute(\n"
+                + " srcBuffer (.size = " + to_string(srcBuffer.size) + "),\n"
+                + " srcOffset = " + to_string(srcOffset) + ",\n"
+                + " dstOffset = " + to_string(dstOffset) + ",\n"
+                + " copySize  = " + to_string(copySize) + "\n"
+                + ")\n"
+                + error);
+        };
+        //TODO: Check for compute shader support
+        UNLIKELY_IF (srcOffset            > srcBuffer.size) throwWithInfo("source offset is bayond source buffer size");
+        UNLIKELY_IF (dstOffset            > this->size)     throwWithInfo("destination offset is bayond destination buffer size");
+        UNLIKELY_IF (srcOffset + copySize > srcBuffer.size) throwWithInfo("offset + size is bayond source buffer size");
+        UNLIKELY_IF (dstOffset + copySize > this->size)     throwWithInfo("offset + size is bayond destination buffer size");
+        UNLIKELY_IF (copySize == 0) return;
+
+        if (!threadContext_->pipelineComputeCopy) threadContext_->pipelineComputeCopy = new PipelineComputeCopy32(pipelineComputeCopyShader32String);
+        PipelineComputeCopy32* pipelineComputeCopy32 = reinterpret_cast<PipelineComputeCopy32*>(threadContext_->pipelineComputeCopy);
+        pipelineComputeCopy32->setShaderStorageBuffer(0, const_cast<BufferInterface&>(srcBuffer));
+        pipelineComputeCopy32->setShaderStorageBuffer(1, *this);
+        pipelineComputeCopy32->srcOffset = srcOffset;
+        pipelineComputeCopy32->dstOffset = dstOffset;
+        pipelineComputeCopy32->size      = copySize;
+        pipelineComputeCopy32->dispatchMinGroupCount((copySize + 4096 - 1) / 4 / 1024);
     }
 
     /**
