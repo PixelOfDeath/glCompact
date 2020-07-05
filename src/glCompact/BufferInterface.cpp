@@ -476,7 +476,6 @@ void main() {
         |   GL_MAP_READ_BIT
         |   GL_MAP_PERSISTENT_BIT
         |   GL_CLIENT_STORAGE_BIT;
-        //| GL_MAP_COHERENT_BIT;
 
         if (sparseBuffer) flags |= GL_SPARSE_STORAGE_BIT_ARB;
 
@@ -492,9 +491,7 @@ void main() {
             GL_MAP_WRITE_BIT
         |   GL_MAP_READ_BIT
         |   GL_MAP_PERSISTENT_BIT
-        |   GL_MAP_FLUSH_EXPLICIT_BIT //TODO !?
-            //| GL_MAP_COHERENT_BIT
-        ;
+        |   GL_MAP_FLUSH_EXPLICIT_BIT;
 
         /*
             This are just hints... and the most significant hiden property is where the memory resists (system memory or vram)
