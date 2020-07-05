@@ -7,7 +7,7 @@
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/TextureInterface.hpp"
 #include "glCompact/Sampler.hpp"
-#include "glCompact/Buffer.hpp"
+#include "glCompact/BufferGpu.hpp"
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/gl/Helper.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"

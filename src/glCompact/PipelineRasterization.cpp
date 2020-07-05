@@ -4,7 +4,7 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/config.hpp"
-#include "glCompact/Buffer.hpp"
+#include "glCompact/BufferGpu.hpp"
 
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/gl/Helper.hpp"

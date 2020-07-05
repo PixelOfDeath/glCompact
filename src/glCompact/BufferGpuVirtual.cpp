@@ -1,4 +1,4 @@
-#include "glCompact/BufferSparse.hpp"
+#include "glCompact/BufferGpuVirtual.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/Context_.hpp"
 #include "glCompact/threadContext_.hpp"
@@ -17,7 +17,7 @@ using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
-    BufferSparse::BufferSparse(
+    BufferGpuVirtual::BufferGpuVirtual(
         bool      clientMemoryCopyable,
         uintptr_t size
     ) :
@@ -28,8 +28,8 @@ namespace glCompact {
         create(clientMemoryCopyable, align(size, pageSize), false, true);
     }
 
-    BufferSparse::BufferSparse(
-        const BufferSparse& buffer
+    BufferGpuVirtual::BufferGpuVirtual(
+        const BufferGpuVirtual& buffer
     ) {
         create(buffer.clientMemoryCopyable, buffer.size, false, true);
         copyCommitment(buffer);
@@ -37,8 +37,8 @@ namespace glCompact {
         copyFromBufferCommitmentRegionOnly(buffer);
     }
 
-    BufferSparse::BufferSparse(
-        BufferSparse&& buffer
+    BufferGpuVirtual::BufferGpuVirtual(
+        BufferGpuVirtual&& buffer
     ) :
         BufferInterface(move(buffer))
     {
@@ -47,32 +47,32 @@ namespace glCompact {
         buffer.commitmentSize = 0;
     }
 
-    BufferSparse& BufferSparse::operator=(
-        const BufferSparse& buffer
+    BufferGpuVirtual& BufferGpuVirtual::operator=(
+        const BufferGpuVirtual& buffer
     ) {
         UNLIKELY_IF (&buffer == this) return *this;
         free();
-        return *new(this)BufferSparse(buffer);
+        return *new(this)BufferGpuVirtual(buffer);
     }
 
-    BufferSparse& BufferSparse::operator=(
-        BufferSparse&& buffer
+    BufferGpuVirtual& BufferGpuVirtual::operator=(
+        BufferGpuVirtual&& buffer
     ) {
         free();
-        return *new(this)BufferSparse(move(buffer));
+        return *new(this)BufferGpuVirtual(move(buffer));
     }
 
-    BufferSparse::~BufferSparse() {
+    BufferGpuVirtual::~BufferGpuVirtual() {
         free();
     }
 
-    void BufferSparse::free() {
+    void BufferGpuVirtual::free() {
         BufferInterface::free();
         commitmentSize = 0;
         commitmentMap.clear();
     }
 
-    void BufferSparse::setCommitment(
+    void BufferGpuVirtual::setCommitment(
         uintptr_t offset,
         uintptr_t size,
         bool      commit
@@ -104,7 +104,7 @@ namespace glCompact {
         }
     }
 
-    void BufferSparse::setCommitment_(
+    void BufferGpuVirtual::setCommitment_(
         uintptr_t offset,
         uintptr_t size,
         bool      commit
@@ -117,8 +117,8 @@ namespace glCompact {
         }
     }
 
-    void BufferSparse::copyCommitment(
-        const BufferSparse& buffer
+    void BufferGpuVirtual::copyCommitment(
+        const BufferGpuVirtual& buffer
     ) {
         int currentPos = 0;
         int endPos = buffer.size / pageSize;
@@ -135,8 +135,8 @@ namespace glCompact {
         commitmentMap  = buffer.commitmentMap;
     }
 
-    void BufferSparse::copyFromBufferCommitmentRegionOnly(
-        const BufferSparse& buffer
+    void BufferGpuVirtual::copyFromBufferCommitmentRegionOnly(
+        const BufferGpuVirtual& buffer
     ) {
         int currentPos = 0;
         int endPos = buffer.size / pageSize;

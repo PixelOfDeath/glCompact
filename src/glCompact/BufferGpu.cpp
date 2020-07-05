@@ -1,4 +1,4 @@
-#include "glCompact/Buffer.hpp"
+#include "glCompact/BufferGpu.hpp"
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ToolsInternal.hpp"
 
@@ -7,7 +7,7 @@ using namespace std;
 namespace glCompact {
     /**
         \ingroup API
-        \class glCompact::Buffer
+        \class glCompact::BufferGpu
 
         \brief OpenGL managed memory object
 
@@ -23,7 +23,7 @@ namespace glCompact {
         For optimal performance, this should bet set to false if no direct CPU access is needed. Including on APUs that share system memory with the CPU!
         \param size size in byte
     */
-    Buffer::Buffer(
+    BufferGpu::BufferGpu(
         bool      clientMemoryCopyable,
         uintptr_t size
     ) {
@@ -38,7 +38,7 @@ namespace glCompact {
         \param size size in byte
         \param data data that gets copied into this buffer object
     */
-    Buffer::Buffer(
+    BufferGpu::BufferGpu(
         bool        clientMemoryCopyable,
         uintptr_t   size,
         const void* data
@@ -51,40 +51,40 @@ namespace glCompact {
 
         \param buffer object to be copied
     */
-    Buffer::Buffer(
-        const Buffer& buffer
+    BufferGpu::BufferGpu(
+        const BufferGpu& buffer
     ) {
         create(buffer.clientMemoryCopyable, buffer.size, false, false);
         copyFromBuffer(buffer, 0, 0, buffer.size);
     }
 
-    Buffer::Buffer(
-        Buffer&& buffer
+    BufferGpu::BufferGpu(
+        BufferGpu&& buffer
     ) :
         BufferInterface(move(buffer))
     {}
 
     //TODO: don't create new one if current buffer is big enough but not to large? Could be an issue with ID still beeing pointed at by OpenGL? Maybe forced unbing/remove from context?
-    Buffer& Buffer::operator=(
-        const Buffer& buffer
+    BufferGpu& BufferGpu::operator=(
+        const BufferGpu& buffer
     ) {
         UNLIKELY_IF (&buffer == this) return *this;
         free();
-        return *new(this)Buffer(buffer);
+        return *new(this)BufferGpu(buffer);
     }
 
-    Buffer& Buffer::operator=(
-        Buffer&& buffer
+    BufferGpu& BufferGpu::operator=(
+        BufferGpu&& buffer
     ) {
         free();
-        return *new(this)Buffer(move(buffer));
+        return *new(this)BufferGpu(move(buffer));
     }
 
-    Buffer::~Buffer() {
+    BufferGpu::~BufferGpu() {
         free();
     }
 
-    void Buffer::free() {
+    void BufferGpu::free() {
         BufferInterface::free();
     }
 }

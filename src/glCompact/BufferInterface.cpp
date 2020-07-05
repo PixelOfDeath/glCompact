@@ -1,6 +1,6 @@
 #include "glCompact/BufferInterface.hpp"
 #include "glCompact/gl/Constants.hpp"
-#include "glCompact/Buffer.hpp"
+#include "glCompact/BufferGpu.hpp"
 #include "glCompact/Context_.hpp"
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
@@ -373,7 +373,7 @@ void main() {
                 copyFromMemory(fillValue, offset, fillValueSize);
             } else {
                 //TODO make one buffer per context? Lazy init?
-                Buffer buffer(false, fillValueSize, fillValue);
+                BufferGpu buffer(false, fillValueSize, fillValue);
                 copyFromBuffer(buffer, 0, offset, fillValueSize);
             }
             uintptr_t writeOffset  = offset    + fillValueSize;

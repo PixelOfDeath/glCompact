@@ -1,4 +1,4 @@
-#include "glCompact/BufferStaging.hpp"
+#include "glCompact/BufferCpu.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/threadContext_.hpp"
@@ -63,21 +63,21 @@ namespace glCompact {
         \brief Creates a new OpenGL buffer in client memory that can be directly accessed.
         \param size Buffer size in byte
     */
-    BufferStaging::BufferStaging(
+    BufferCpu::BufferCpu(
         uintptr_t size
     ) {
         mem = create(true, size, true, false);
     }
 
-    BufferStaging::BufferStaging(
-        const BufferStaging& buffer
+    BufferCpu::BufferCpu(
+        const BufferCpu& buffer
     ) {
         mem = create(true, buffer.size, true, false);
         copyFromBuffer(buffer, 0, 0, size);
     }
 
-    BufferStaging::BufferStaging(
-        BufferStaging&& buffer
+    BufferCpu::BufferCpu(
+        BufferCpu&& buffer
     ) :
         BufferInterface(move(buffer))
     {
@@ -85,35 +85,35 @@ namespace glCompact {
         buffer.mem = 0;
     }
 
-    BufferStaging& BufferStaging::operator=(
-        const BufferStaging& buffer
+    BufferCpu& BufferCpu::operator=(
+        const BufferCpu& buffer
     ) {
         UNLIKELY_IF (&buffer == this) return *this;
         free();
-        return *new(this)BufferStaging(buffer);
+        return *new(this)BufferCpu(buffer);
     }
 
-    BufferStaging& BufferStaging::operator=(
-        BufferStaging&& buffer
+    BufferCpu& BufferCpu::operator=(
+        BufferCpu&& buffer
     ) {
         free();
-        return *new(this)BufferStaging(move(buffer));
+        return *new(this)BufferCpu(move(buffer));
     }
 
-    BufferStaging::~BufferStaging() {
+    BufferCpu::~BufferCpu() {
         free();
     }
 
-    void BufferStaging::free() {
+    void BufferCpu::free() {
         BufferInterface::free();
         mem = 0;
     }
 
-    void BufferStaging::flushCpuCache() {
         flush(0, size);
+    void BufferCpu::flushCpuCache() {
     }
 
-    void BufferStaging::flushCpuCache(uintptr_t offset, uintptr_t size) {
+    void BufferCpu::flushCpuCache(uintptr_t offset, uintptr_t size) {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glFlushMappedNamedBufferRange(id, offset, size);
         } else {
