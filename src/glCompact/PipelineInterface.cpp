@@ -176,7 +176,7 @@ namespace glCompact {
 
         buffer_uniform_id    [slot] = buffer.id;
         buffer_uniform_offset[slot] = offset;
-        buffer_uniform_size  [slot] = 0;
+        buffer_uniform_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         buffer_uniform_markSlotChange(slot);
     }
 
@@ -201,12 +201,18 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (int32_t(slot) >= buffer_uniform_count) return;
 
-        buffer_uniform_id[slot] = 0;
+        buffer_uniform_id    [slot] = 0;
+        buffer_uniform_offset[slot] = 0;
+        buffer_uniform_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
         buffer_uniform_markSlotChange(slot);
     }
 
     void PipelineInterface::setUniformBuffer() {
-        for (int32_t i = 0; i < buffer_uniform_count; ++i) buffer_uniform_id[i] = 0;
+        for (int32_t i = 0; i < buffer_uniform_count; ++i) {
+            buffer_uniform_id    [i] = 0;
+            buffer_uniform_offset[i] = 0;
+            buffer_uniform_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        }
         buffer_uniform_changedSlotMin = 0;
         buffer_uniform_changedSlotMax = buffer_uniform_count - 1;
     }
@@ -1549,7 +1555,7 @@ namespace glCompact {
         multiNew.reNew(
             buffer_uniform_id,              0, buffer_uniform_count      , 0,
             buffer_uniform_offset,          0, buffer_uniform_count      , 0,
-            buffer_uniform_size,            0, buffer_uniform_count      , 0,
+            buffer_uniform_size,            0, buffer_uniform_count      , DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
             buffer_atomicCounter_id,        0, buffer_atomicCounter_count, 0,
             buffer_atomicCounter_offset,    0, buffer_atomicCounter_count, 0,
             buffer_atomicCounter_size,      0, buffer_atomicCounter_count, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
