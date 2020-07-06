@@ -109,11 +109,11 @@ namespace glCompact {
         mem = 0;
     }
 
-    void BufferCpu::flushCpuCache() {
-        flushCpuCache(0, size);
+    void BufferCpu::flushCpuWrites() {
+        flushCpuWrites(0, size);
     }
 
-    void BufferCpu::flushCpuCache(uintptr_t offset, uintptr_t size) {
+    void BufferCpu::flushCpuWrites(uintptr_t offset, uintptr_t size) {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glFlushMappedNamedBufferRange(id, offset, size);
         } else {

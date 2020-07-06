@@ -15,8 +15,8 @@ namespace glCompact {
             ~BufferCpu();
             void free();
 
-            void flushCpuCache();
-            void flushCpuCache(uintptr_t offset, uintptr_t size);
+            void flushCpuWrites();
+            void flushCpuWrites(uintptr_t offset, uintptr_t size);
 
             CastAnyPtr getPtr() const {return mem;}
         private:
