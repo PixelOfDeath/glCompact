@@ -2,11 +2,9 @@
 #include "glCompact/ToolsInternal.hpp"
 #include "glCompact/config.hpp"
 #include "glCompact/Context_.hpp"
-#include "glCompact/Context.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/ContextGroup.hpp"
 #include "glCompact/threadContext_.hpp"
-#include "glCompact/threadContext.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/threadContextGroup.hpp"
 
@@ -93,7 +91,6 @@ namespace glCompact {
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             threadContext_ = new Context_;
-            threadContext  = new Context;
         #else
             new (threadContext_)Context_;
             new (threadContext )Context;
@@ -130,7 +127,6 @@ namespace glCompact {
 
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             threadContext_ = new Context_;
-            threadContext  = new Context;
         #else
             new (threadContext_)Context_;
             new (threadContext )Context;
@@ -142,9 +138,7 @@ namespace glCompact {
     ContextScope::~ContextScope() {
         #ifdef GLCOMPACT_MULTIPLE_CONTEXT
             delete threadContext_;
-            delete threadContext;
             threadContext_ = 0;
-            threadContext  = 0;
         #else
             threadContextConstructed_ = false;
         #endif
