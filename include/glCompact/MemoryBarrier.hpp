@@ -23,7 +23,7 @@ namespace glCompact {
             static void transformFeedback();
             static void query();
 
-            static void mappedMemoryClientRead();
+            static void mappedMemoryFlushWrites();
             static void all();
 
             class RasterizationRegion {

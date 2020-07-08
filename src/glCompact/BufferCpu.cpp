@@ -9,58 +9,42 @@
 using namespace std;
 using namespace glCompact::gl;
 
-/*
-    Classical mapping/unmapping is an anti patern on modern drivers. It hurts performance because it forces syncing betwin the application side API and driver thread.
-    So we only support a persisten mapped client buffer as staging buffer.
-
-    Memory barrier usage patern:<br>
-        MAP_COHERENT_BIT is not used and syncing is always needed after writing/reading raw to the buffer:
-        after  writing: glMemoryBarrier(CLIENT_MAPPED_BUFFER_BARRIER_BIT);
-        before reading: glMemoryBarrier(CLIENT_MAPPED_BUFFER_BARRIER_BIT) and (glFenceSync(SYNC_GPU_COMMANDS_COMPLETE, 0) and wait for it OR glFinish())
-
-        <br>
-        After writing there needs to be a memory barrier before using OpenGL commands on the new buffer data. Otherwise the behaviour is undefined.<br>
-        <b><i>write to memory...</i><br>
-        glMemoryBarrier(CLIENT_MAPPED_BUFFER_BARRIER_BIT)<br>
-        <i>OpenGL commands that use new buffer data</i></b>
-
-        After OpenGL commands chang the data there needs to be a memory barrier and sync with a fance or glFinish befor reading from it. Otherwise the behavior is undefined.<br>
-        <b><i>OpenGL command changing the buffer data</i><br>
-        glMemoryBarrier(CLIENT_MAPPED_BUFFER_BARRIER_BIT)<br>
-        GLsync fence = glFenceSync(SYNC_GPU_COMMANDS_COMPLETE, 0)<br>
-        ...<br>
-        glClientWaitSync(fence)<br>
-        <i>read from memory</i></b>
-        \return pointer to buffer memory
-
-
-        //GL_MAP_FLUSH_EXPLICIT_BIT and glFlushMappedBufferRange() ?
-        //void glFlushMappedBufferRange( enum target, intptr offset, sizeiptr length );
-        //void glFlushMappedNamedBufferRange( uint buffer, intptr offset, sizeiptr length );
-
-
-    Note:
-        GL_ARB_buffer_storage will NOT give you a unambiguous way to set the buffer memory location (system ram or vram).
-        There is just a probability by usage and hints that MAYBE influences it enough to do what we want it to do...
-
-    TODO:
-        For debuging GetWriteWatch (or others) could be used to catch if trying to use buffer after write without memory barrier!
-
-        Maybe also use AMD_pinned_memory, problem: to free memory save a sync point is needed to make sure no more gpu access happens
-
-        Older Intel drivers may not support GL_ARB_buffer_storage, but in non core mode they allow (non standard conform) to map memory directly as buffer.
-        So one could use it like pinned memory.
-*/
-
 namespace glCompact {
     /**
-        Creates a new client side mapped buffer. The memory can be directly accessed via the mem pointer.
+        \ingroup API
+        \class glCompact::BufferCpu
 
-        Needs GL_ARB_buffer_storage (Core since OpenGL 4.4)
+        \brief OpenGL managed buffer object that is located in CPU memory. It can be directly accessed by the CPU and the GPU.
 
-        This buffers are basicly normal system memory. But the driver manages the memory so you can call copy commands on it to other buffers/textures.
+        \details Synchronisation of reads, writes and cache flushing is done manually.
+        This buffer can be used as staging buffer to stream data to and from BufferGpu. Or for data that is only used once after modification.
 
-        \brief Creates a new OpenGL buffer in client memory that can be directly accessed.
+        CPU to GPU
+        \code{.cpp}
+            BufferCpu bufferCpu(1024);
+            uint32_t* data = bufferCpu.getPtr();
+            data[0] = 123;
+            bufferCpu.mappedMemoryFlushWrites();
+            //All modifications are now visible to the GPU<br>
+        \endcode
+        GPU to CPU
+        \code{.cpp}
+            BufferCpu bufferCpu(1024);
+            uint32_t* data = bufferCpu.getPtr();
+            //GPU command that writes to the buffer
+            MemoryBarrier::mappedMemoryFlushWrites();
+            Fence fence;
+            fence.insert();
+            fence.isSignaledOrWait();
+            //All modifications are now visible to the CPU
+            cout << data[0] < endl;
+        \endcode
+        This type of buffer depends on the extension GL_ARB_buffer_storage (Core since 4.4)
+    */
+
+    /**
+        \brief Creates the staging buffer
+
         \param size Buffer size in byte
     */
     BufferCpu::BufferCpu(
@@ -109,11 +93,14 @@ namespace glCompact {
         mem = 0;
     }
 
-    void BufferCpu::flushCpuWrites() {
-        flushCpuWrites(0, size);
+    void BufferCpu::mappedMemoryFlushWrites() {
+        mappedMemoryFlushWrites(0, size);
     }
 
-    void BufferCpu::flushCpuWrites(uintptr_t offset, uintptr_t size) {
+    void BufferCpu::mappedMemoryFlushWrites(
+        uintptr_t offset,
+        uintptr_t size
+    ) {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glFlushMappedNamedBufferRange(id, offset, size);
         } else {
