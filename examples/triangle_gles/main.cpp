@@ -41,7 +41,7 @@ int main (int argc, char *argv[]) {
          0.0f,  1.0f,
          1.0f, -1.0f
     };
-    Buffer attributeBuffer(false, sizeof(attributeData), attributeData);
+    BufferGpu attributeBuffer(false, sizeof(attributeData), attributeData);
 
     MyPipeline myPipeline(PrimitiveTopology::triangleList, vertexShader, "", "", "", fragmentShader);
     myPipeline.setAttributeLayout(attributeLayout);
