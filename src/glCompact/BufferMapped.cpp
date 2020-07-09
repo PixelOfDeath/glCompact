@@ -1,4 +1,4 @@
-#include "glCompact/BufferCpu.hpp"
+#include "glCompact/BufferMapped.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/threadContext_.hpp"
@@ -12,25 +12,25 @@ using namespace glCompact::gl;
 namespace glCompact {
     /**
         \ingroup API
-        \class glCompact::BufferCpu
+        \class glCompact::BufferMapped
 
-        \brief OpenGL managed buffer object that is located in CPU memory. It can be directly accessed by the CPU and the GPU.
+        \brief OpenGL managed buffer object that can be directly accessed by the CPU and the GPU.
 
         \details Synchronisation of reads, writes and cache flushing is done manually.
-        This buffer can be used as staging buffer to stream data to and from BufferGpu. Or for data that is only used once after modification.
+        This buffer can be used as staging buffer to stream data to and from other Buffer objects. Or for data that is only written once by the producer and and read once by the consumer.
 
         CPU to GPU
         \code{.cpp}
-            BufferCpu bufferCpu(1024);
-            uint32_t* data = bufferCpu.getPtr();
+            BufferMapped bufferMapped(1024);
+            uint32_t* data = bufferMapped.getPtr();
             data[0] = 123;
-            bufferCpu.flushMappedMemoryWrites();
+            bufferMapped.flushMappedMemoryWrites();
             //All modifications are now visible to the GPU<br>
         \endcode
         GPU to CPU
         \code{.cpp}
-            BufferCpu bufferCpu(1024);
-            uint32_t* data = bufferCpu.getPtr();
+            BufferMapped bufferMapped(1024);
+            uint32_t* data = bufferMapped.getPtr();
             //GPU command that writes to the buffer
             MemoryBarrier::flushMappedMemoryWrites();
             Fence fence;
@@ -47,21 +47,21 @@ namespace glCompact {
 
         \param size Buffer size in byte
     */
-    BufferCpu::BufferCpu(
+    BufferMapped::BufferMapped(
         uintptr_t size
     ) {
         mem = create(true, size, true, false);
     }
 
-    BufferCpu::BufferCpu(
-        const BufferCpu& buffer
+    BufferMapped::BufferMapped(
+        const BufferMapped& buffer
     ) {
         mem = create(true, buffer.size, true, false);
         copyFromBuffer(buffer, 0, 0, size);
     }
 
-    BufferCpu::BufferCpu(
-        BufferCpu&& buffer
+    BufferMapped::BufferMapped(
+        BufferMapped&& buffer
     ) :
         BufferInterface(move(buffer))
     {
@@ -69,35 +69,35 @@ namespace glCompact {
         buffer.mem = 0;
     }
 
-    BufferCpu& BufferCpu::operator=(
-        const BufferCpu& buffer
+    BufferMapped& BufferMapped::operator=(
+        const BufferMapped& buffer
     ) {
         UNLIKELY_IF (&buffer == this) return *this;
         free();
-        return *new(this)BufferCpu(buffer);
+        return *new(this)BufferMapped(buffer);
     }
 
-    BufferCpu& BufferCpu::operator=(
-        BufferCpu&& buffer
+    BufferMapped& BufferMapped::operator=(
+        BufferMapped&& buffer
     ) {
         free();
-        return *new(this)BufferCpu(move(buffer));
+        return *new(this)BufferMapped(move(buffer));
     }
 
-    BufferCpu::~BufferCpu() {
+    BufferMapped::~BufferMapped() {
         free();
     }
 
-    void BufferCpu::free() {
+    void BufferMapped::free() {
         BufferInterface::free();
         mem = 0;
     }
 
-    void BufferCpu::flushMappedMemoryWrites() {
+    void BufferMapped::flushMappedMemoryWrites() {
         flushMappedMemoryWrites(0, size);
     }
 
-    void BufferCpu::flushMappedMemoryWrites(
+    void BufferMapped::flushMappedMemoryWrites(
         uintptr_t offset,
         uintptr_t size
     ) {
