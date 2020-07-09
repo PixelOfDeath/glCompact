@@ -160,7 +160,7 @@ namespace glCompact {
         For server->client this one is needed for persistenly mapped buffers that do NOT have the MAP_COHERENT_BIT set and then waiting for a sync object (or glFinish).
         For client->server data without MAP_COHERENT_BIT one must use a FlushMapped*BufferRange command before issuing commands using the data changed by the client side.
     */
-    void MemoryBarrier::mappedMemoryFlushWrites() {
+    void MemoryBarrier::flushMappedMemoryWrites() {
         threadContext_->memoryBarrierMask |= GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT;
     }
 

@@ -24,7 +24,7 @@ namespace glCompact {
             BufferCpu bufferCpu(1024);
             uint32_t* data = bufferCpu.getPtr();
             data[0] = 123;
-            bufferCpu.mappedMemoryFlushWrites();
+            bufferCpu.flushMappedMemoryWrites();
             //All modifications are now visible to the GPU<br>
         \endcode
         GPU to CPU
@@ -32,7 +32,7 @@ namespace glCompact {
             BufferCpu bufferCpu(1024);
             uint32_t* data = bufferCpu.getPtr();
             //GPU command that writes to the buffer
-            MemoryBarrier::mappedMemoryFlushWrites();
+            MemoryBarrier::flushMappedMemoryWrites();
             Fence fence;
             fence.insert();
             fence.isSignaledOrWait();
@@ -93,11 +93,11 @@ namespace glCompact {
         mem = 0;
     }
 
-    void BufferCpu::mappedMemoryFlushWrites() {
-        mappedMemoryFlushWrites(0, size);
+    void BufferCpu::flushMappedMemoryWrites() {
+        flushMappedMemoryWrites(0, size);
     }
 
-    void BufferCpu::mappedMemoryFlushWrites(
+    void BufferCpu::flushMappedMemoryWrites(
         uintptr_t offset,
         uintptr_t size
     ) {
