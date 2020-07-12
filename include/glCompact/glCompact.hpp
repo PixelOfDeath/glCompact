@@ -3,12 +3,14 @@
 #include "glCompact/threadContextGroup.hpp"
 #include "glCompact/GlTools.hpp"
 #include "glCompact/Debug.hpp"
+
 #include "glCompact/BufferGpu.hpp"
 #include "glCompact/BufferGpuVirtual.hpp"
 #include "glCompact/BufferMapped.hpp"
+
 #include "glCompact/RenderBuffer2d.hpp"
 #include "glCompact/RenderBuffer2dMultisample.hpp"
-#include "glCompact/TextureInterface.hpp"
+
 #include "glCompact/Texture1d.hpp"
 #include "glCompact/Texture2d.hpp"
 #include "glCompact/Texture2dArray.hpp"
@@ -17,6 +19,7 @@
 #include "glCompact/Texture3d.hpp"
 #include "glCompact/TextureCubemap.hpp"
 #include "glCompact/TextureCubemapArray.hpp"
+
 #include "glCompact/Sampler.hpp"
 #include "glCompact/AttributeLayout.hpp"
 #include "glCompact/PipelineRasterization.hpp"
