@@ -1,4 +1,4 @@
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 
 #include <vector>
 #include <fstream>

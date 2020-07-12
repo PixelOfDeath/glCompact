@@ -3,7 +3,7 @@
 //#include "glCompact/ThreadContext.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include <stdexcept>
 
 //Uses different sampling and mipmaps then Texture1d

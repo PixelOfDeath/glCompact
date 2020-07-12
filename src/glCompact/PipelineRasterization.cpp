@@ -6,7 +6,7 @@
 #include "glCompact/config.hpp"
 #include "glCompact/BufferGpu.hpp"
 
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include "glCompact/gl/Helper.hpp"
 
 #include <glm/glm.hpp>

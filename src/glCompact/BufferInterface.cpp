@@ -5,7 +5,7 @@
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include "glCompact/PipelineCompute.hpp"
 
 #include "glCompact/minMax.hpp"

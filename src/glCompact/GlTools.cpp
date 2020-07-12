@@ -1,7 +1,7 @@
 #include "glCompact/GlTools.hpp"
 #include "glCompact/gl/Constants.hpp"
 
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 
 #include <vector>
 #include <locale>

@@ -3,7 +3,7 @@
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 #include "glCompact/MemorySurfaceFormatDetail.hpp"

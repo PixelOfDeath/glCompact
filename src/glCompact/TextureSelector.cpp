@@ -1,5 +1,5 @@
 #include "glCompact/TextureSelector.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include <stdexcept>
 
 using namespace std;

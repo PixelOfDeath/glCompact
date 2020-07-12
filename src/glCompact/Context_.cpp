@@ -2,7 +2,7 @@
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include "glCompact/Debug.hpp"
 #include "glCompact/Frame.hpp"
 #include "glCompact/PipelineInterface.hpp"

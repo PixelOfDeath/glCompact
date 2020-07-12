@@ -1,6 +1,6 @@
 #include "glCompact/BufferGpu.hpp"
 #include "glCompact/threadContext_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 
 using namespace std;
 

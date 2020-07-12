@@ -1,7 +1,7 @@
 #include "glCompact/glCompact.hpp"
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 
 #include <glm/glm.hpp>
 

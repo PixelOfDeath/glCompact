@@ -2,7 +2,7 @@
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include <stdexcept>
 
 using namespace std;

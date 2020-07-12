@@ -2,7 +2,7 @@
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/gl/ConstantsCustom.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 
 #include <string>
 #include <cstring>

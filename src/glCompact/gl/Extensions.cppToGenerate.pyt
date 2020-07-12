@@ -28,7 +28,7 @@ for extension in extensionNameList:
 
 outputTemplate = """#include "glCompact/gl/Extensions.hpp"
 #include "glCompact/ContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include <cstring>
 
 namespace glCompact {

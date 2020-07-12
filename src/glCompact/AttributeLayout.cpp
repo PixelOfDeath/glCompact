@@ -4,7 +4,7 @@
 
 #include <algorithm> //win for std::max / min
 
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include "glCompact/GlTools.hpp"
 
 #include <stdexcept>

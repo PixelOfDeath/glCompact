@@ -6,7 +6,7 @@
 #include "glCompact/config.hpp"
 #include "glCompact/minMax.hpp"
 
-    #include "glCompact/ToolsInternal.hpp"
+    #include "glCompact/Tools_.hpp"
     #include "glCompact/GlTools.hpp"
 
 #include <glm/glm.hpp>

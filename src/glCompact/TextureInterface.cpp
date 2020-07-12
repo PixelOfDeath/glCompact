@@ -106,7 +106,7 @@ S
 
 #include "glCompact/TextureInterface.hpp"
 #include "glCompact/BufferInterface.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 #include "glCompact/Context_.hpp"
 #include "glCompact/threadContext_.hpp"
 #include "glCompact/ContextGroup_.hpp"

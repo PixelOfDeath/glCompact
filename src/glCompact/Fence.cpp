@@ -1,7 +1,7 @@
 #include "glCompact/Fence.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-#include "glCompact/ToolsInternal.hpp"
+#include "glCompact/Tools_.hpp"
 
 /*
     GL_ARB_sync (Core since 3.2)
