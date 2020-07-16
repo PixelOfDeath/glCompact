@@ -626,7 +626,7 @@ namespace glCompact {
         feature.anisotropicFilter           = checkAndSetFeature(errorMessage, config::anisotropicFilter          , "anisotropicFilter"             , "GL_ARB_texture_filter_anisotropic, core since 4.6"       , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_texture_filter_anisotropic || extensions.GL_EXT_texture_filter_anisotropic);
         feature.spirv                       = checkAndSetFeature(errorMessage, config::spirv                      , "spirv"                         , "GL_ARB_spirv_extensions"                                 ,                                             extensions.GL_ARB_gl_spirv);
         if (errorMessage.size()) {
-            crash("glCompactr Error: Missing features:\n" + errorMessage);
+            crash("glCompact Error: Missing features:\n" + errorMessage);
         }
     }
 }
