@@ -98,4 +98,17 @@ namespace glCompact {
     }
 
     Debug::WarningFunc Debug::warningFunc = Debug::defaultWarningFunc;
+
+    void Debug::assertThreadHasActiveGlContext() {
+        #ifdef GLCOMPACT_DEBUG_ASSERT_THREAD_HAS_ACTIVE_CONTEXT
+            #ifdef GLCOMPACT_MULTIPLE_CONTEXT_GROUP
+            UNLIKELY_IF (!threadContextGroup_) {
+            #else
+            UNLIKELY_IF (!threadContextGroupConstructed_) {
+            #endif
+                UNLIKELY_IF(!threadContextGroup_->functions.glGetString(GL_VERSION))
+                    crash("Trying to use OpenGL functions in a thread without active context and/or ContextScope object!");
+            }
+        #endif
+    }
 }

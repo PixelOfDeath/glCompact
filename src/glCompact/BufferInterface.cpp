@@ -7,6 +7,7 @@
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/Tools_.hpp"
 #include "glCompact/PipelineCompute.hpp"
+#include "glCompact/Debug.hpp"
 
 #include "glCompact/minMax.hpp"
 #include <stdexcept>
@@ -34,7 +35,7 @@ namespace glCompact {
         uintptr_t              dstOffset,
         uintptr_t              copySize
     ) {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         auto throwWithInfo = [&](string error) {
             throw runtime_error(string() + "Error in\n"
                 + "BufferInterface\n"
@@ -147,7 +148,7 @@ void main() {
         uintptr_t              dstOffset,
         uintptr_t              copySize
     ) {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         auto throwWithInfo = [&](string error) {
             throw runtime_error(string() + "Error in\n"
                 + "BufferInterface\n"
@@ -189,7 +190,7 @@ void main() {
         uintptr_t   thisOffset,
         uintptr_t   copySize
     ) {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         auto throwWithInfo = [&](string error) {
             throw runtime_error(string() + "Error in\n"
                 + "BufferInterface\n"
@@ -226,7 +227,7 @@ void main() {
         uintptr_t thisOffset,
         uintptr_t copySize
     ) const {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         auto throwWithInfo = [&](string error) {
             throw runtime_error(string() + "Error in\n"
                 + "BufferInterface\n"
@@ -255,7 +256,7 @@ void main() {
         \brief Set the whole buffer content to the value 0
     */
     void BufferInterface::clear() {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         //glClearBufferData -> If data is NULL , then the pointer is ignored and the sub-range of the buffer is filled with zeros.
         //Not sure if standard needs parameters when pointer is 0, but some drivers may fuck around otherwise!
         //GL_R8UI is core since 3.0.
@@ -278,7 +279,7 @@ void main() {
         uintptr_t offset,
         uintptr_t size
     ) {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         clear(offset, size, 1, 0);
     }
 
@@ -305,7 +306,7 @@ void main() {
         uintptr_t   fillValueSize,
         const void* fillValue
     ) {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         auto throwWithInfo = [&](string error) {
             throw runtime_error(string() + "Error in\n"
                 + "BufferInterface\n"
@@ -400,7 +401,7 @@ void main() {
         After this the content of the buffer is undefined until something is written to it.
     */
     void BufferInterface::invalidate() {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
             threadContextGroup_->functions.glInvalidateBufferData(id);
         } else if (!threadContextGroup_->extensions.GL_ARB_buffer_storage) {
@@ -422,7 +423,7 @@ void main() {
         uintptr_t offset,
         uintptr_t invalidateSize
     ) {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_ARB_invalidate_subdata) {
             threadContextGroup_->functions.glInvalidateBufferSubData(id, offset, invalidateSize);
         } else {
@@ -464,7 +465,7 @@ void main() {
         bool        sparseBuffer,
         const void* data
     ) {
-        Context_::assertThreadHasActiveGlContext();
+        Debug::assertThreadHasActiveGlContext();
         UNLIKELY_IF (stagingBuffer && !threadContextGroup_->extensions.GL_ARB_buffer_storage) crash("Staging buffer not supported (missing GL_ARB_buffer_storage)");
         UNLIKELY_IF (sparseBuffer  && !threadContextGroup_->extensions.GL_ARB_sparse_buffer ) crash("Sparse buffer is not supported (missing GL_ARB_sparse_buffer)");
 

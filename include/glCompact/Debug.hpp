@@ -22,6 +22,8 @@ namespace glCompact {
 
             typedef void(*WarningFunc)(std::string message);
             void setWarningCallback(WarningFunc warningFunc);
+
+            static void assertThreadHasActiveGlContext();
         private:
             static void defaultWarningFunc(std::string message);
             static WarningFunc warningFunc;

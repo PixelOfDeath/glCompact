@@ -30,8 +30,6 @@ namespace glCompact {
             void defaultStatesActivate();
             void defaultStatesDeactivate();
 
-            static void assertThreadHasActiveGlContext();
-
             uint32_t contextId;
             //Relevant for e.g. access to the frameWindow
             bool isMainContext = false;
