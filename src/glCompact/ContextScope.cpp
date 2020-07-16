@@ -72,7 +72,7 @@ namespace glCompact {
     /**
      * \brief Constructor
      *
-     * \param getGlFunctionPointer pointer to function that returns OpenGL functions pointers via c-string name
+     * \param getGlFunctionPointer pointer to function that returns OpenGL function pointers via c-string name
      */
     ContextScope::ContextScope(
         void*(*getGlFunctionPointer)(const char*)
@@ -103,7 +103,7 @@ namespace glCompact {
     /**
      * \brief Constructor
      *
-     * \param getGlFunctionPointer pointer to function that returns OpenGL functions pointers via c-string name
+     * \param getGlFunctionPointer pointer to function that returns OpenGL function pointers via c-string name
      */
     ContextScope::ContextScope(
         void(*(*getGlFunctionPointer)(const char*))()
