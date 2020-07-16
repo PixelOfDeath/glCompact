@@ -10,6 +10,7 @@ namespace glCompact {
         bool shaderStorageBufferObject;
         bool astc;
         bool textureView;
+        bool bufferStaging;
         bool drawIndirectCount;
         bool polygonOffsetClamp;
         bool anisotropicFilter;

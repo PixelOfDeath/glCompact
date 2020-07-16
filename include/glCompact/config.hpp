@@ -42,6 +42,9 @@ namespace glCompact {
             constexpr FeatureSetting astc                         = FeatureSetting::notSupported; //GL_KHR_texture_compression_astc_hdr (Core since 4.3); astc texture formats
             constexpr FeatureSetting textureView                  = FeatureSetting::notSupported; //GL_ARB_texture_view (Core since 4.3)
 
+        //Core since 4.4
+            constexpr FeatureSetting bufferStaging                = FeatureSetting::notSupported; //GL_ARB_buffer_storage
+
         //Core since 4.6
             constexpr FeatureSetting drawIndirectCount            = FeatureSetting::notSupported; //GL_ARB_indirect_parameters (Core since 4.6 with non ARB functions)
             constexpr FeatureSetting polygonOffsetClamp           = FeatureSetting::notSupported; //GL_ARB_polygon_offset_clamp (Core since 4.6); GL_EXT_polygon_offset_clamp
