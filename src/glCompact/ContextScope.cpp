@@ -14,39 +14,22 @@ namespace glCompact {
         \class glCompact::ContextScope
         \brief Scope object that initalizes the glCompact internals
 
-        \details Before using any other glCompact functionality in this thread/context, this object needs to be created.
+        \details Each thread/context needs this object to be created before using any glCompact functionality.
+        The current thread needs to have an active OpenGL 3.3 context or higher. Or whatever is set as minimum in config.hpp.
 
-        The current thread needs to have an active OpenGL context with a minimum version of 3.3.
+        There are three constructors. Two that take a function pointer for getting OpenGL functions by c-string.
+        And one that take a pointer to an already created ContextScope from another thread/context to share a ContextGroup.
 
-        There are two constructors that take a function pointer to a function that itself returns a OpenGL function pointer from a c-string name parameter.
+        Most Windows/OpenGL context creation libraries supply such a function.
 
-        Most Windows and OpenGL context creation libraries supply such a function.
+        \code{.cpp}
+        //void *(*)(const char*)
+        ContextScope myContextScope(SDL_GL_GetProcAddress)    //SDL2
 
-        The type can be:
-
-            void *(*)(const char*)
-
-        for SDL2
-
-            ContextScope myContextScope(SDL_GL_GetProcAddress)
-
-        or
-
-            void(*(*)(const char*))()
-
-        for GLFW
-
-            ContextScope myContextScope(glfwGetProcAddress)
-
-        for SFML
-
-            ContextScope myContextScope(sf::Context::getFunction)
-
-        Otherwise a type cast to one of this types is neccessary.
-
-
-        If there is another OpenGL thread/context that already has a ContextScope object and shares states with this thread/context,
-        then there is a constructor that takes a pointer to the ContextScope object.
+        //void(*(*)(const char*))()
+        ContextScope myContextScope(glfwGetProcAddress)       //GLFW
+        ContextScope myContextScope(sf::Context::getFunction) //SFML
+        \endcode
     */
 
     static void checkContext() {
