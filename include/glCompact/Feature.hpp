@@ -7,6 +7,7 @@ namespace glCompact {
         bool drawBaseInstance;
         bool bptc;
         bool atomicCounter;
+        bool pipelineCompute;
         bool shaderStorageBufferObject;
         bool astc;
         bool textureView;
