@@ -452,6 +452,11 @@ void main() {
         }
     }*/
 
+    /*
+        TODO: what happens with sparse buffers that get data to initalize? Is the data ignored or does the full buffer size gets commited automaticaly?
+
+        Drivers mostly ignore all the hint parameters and do what they want depending on buffer usage patterns.
+    */
     void* BufferInterface::create(
         bool        clientMemoryCopyable,
         uintptr_t   size,
@@ -462,56 +467,20 @@ void main() {
         Context_::assertThreadHasActiveGlContext();
         UNLIKELY_IF (stagingBuffer && !threadContextGroup_->extensions.GL_ARB_buffer_storage) crash("Staging buffer not supported (missing GL_ARB_buffer_storage)");
         UNLIKELY_IF (sparseBuffer  && !threadContextGroup_->extensions.GL_ARB_sparse_buffer ) crash("Sparse buffer is not supported (missing GL_ARB_sparse_buffer)");
-        //UNLIKELY_IF (stagingBuffer && sparseBuffer)
-        //    throw std::runtime_error("Sparse buffer and staging buffer functionality can not be mixed");
 
-        //Without GL_DYNAMIC_STORAGE_BIT the buffer can only be changed by server side commands. E.g. glBufferSubData would not work.
-        //TODO: what happens with sparse buffers that get data to initalize? Is the data ignored or does the full buffer size gets commited automaticaly?
-        GLbitfield flags =
-            clientMemoryCopyable ? GL_DYNAMIC_STORAGE_BIT    : 0
-        ||  sparseBuffer         ? GL_SPARSE_STORAGE_BIT_ARB : 0;
-
-        if (stagingBuffer) flags |=
-            GL_MAP_WRITE_BIT
-        |   GL_MAP_READ_BIT
-        |   GL_MAP_PERSISTENT_BIT
-        |   GL_CLIENT_STORAGE_BIT;
-
-        if (sparseBuffer) flags |= GL_SPARSE_STORAGE_BIT_ARB;
-
-        /*GLbitfield flags =
-                (writeAccess            ? GL_DYNAMIC_STORAGE_BIT    : 0)
-            |   (rawWriteAccess         ? GL_MAP_WRITE_BIT          : 0)
-            |   (rawReadAccess          ? GL_MAP_READ_BIT           : 0)
-            |   (rawAccess              ? GL_MAP_PERSISTENT_BIT    : 0)
-            |   (clientStorageHint      ? GL_CLIENT_STORAGE_BIT     : 0)
-            |   (sparseBuffer                 ? GL_SPARSE_STORAGE_BIT_ARB : 0);*/
-
-        const GLenum stagingBufferAccessFlags =
-            GL_MAP_WRITE_BIT
-        |   GL_MAP_READ_BIT
-        |   GL_MAP_PERSISTENT_BIT
-        |   GL_MAP_FLUSH_EXPLICIT_BIT;
-
-        /*
-            This are just hints... and the most significant hiden property is where the memory resists (system memory or vram)
-            Drivers mostly ignore the hints and do what they want anyway.
-            The usage of the buffer often makes the driver later decide/change what kind of memory is used.
-            That is the reason why most of the possible hint values (e.g. GL_STATIC_COPY) are not even listed her
-        */
-        GLenum usageHint = GL_DYNAMIC_DRAW;
-        /*if ( writeAccess ||  clientStorageHint) usageHint = GL_STREAM_DRAW;
-        if (!writeAccess ||  clientStorageHint) usageHint = GL_STREAM_READ;
-        if ( writeAccess || !clientStorageHint) usageHint = GL_DYNAMIC_DRAW;
-        if (!writeAccess || !clientStorageHint) usageHint = GL_STATIC_DRAW;*/
-
-        void* ptr = 0;
-
+        uint32_t flags =
+            clientMemoryCopyable ? GL_DYNAMIC_STORAGE_BIT    : 0 //With this bit set, glBufferSubData can change the content of the buffer
+        |   sparseBuffer         ? GL_SPARSE_STORAGE_BIT_ARB : 0
+        |   stagingBuffer        ? GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_CLIENT_STORAGE_BIT : 0; //GL_CLIENT_STORAGE_BIT is just a hint!
+        uint32_t stagingBufferAccessFlags = GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT;
+        uint32_t usageHint                = GL_DYNAMIC_DRAW;
+        this->size                 = size;
+        this->clientMemoryCopyable = clientMemoryCopyable;
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glCreateBuffers(1, &id);
             if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
                 threadContextGroup_->functions.glNamedBufferStorage(id, size, data, flags);
-                if (stagingBuffer) ptr = threadContextGroup_->functions.glMapNamedBufferRange(id, 0, size, stagingBufferAccessFlags);
+                if (stagingBuffer) return threadContextGroup_->functions.glMapNamedBufferRange(id, 0, size, stagingBufferAccessFlags);
             } else {
                 threadContextGroup_->functions.glNamedBufferData(id, size, data, usageHint);
             }
@@ -520,14 +489,11 @@ void main() {
             threadContext_->cachedBindCopyWriteBuffer(id);
             if (threadContextGroup_->extensions.GL_ARB_buffer_storage) {
                 threadContextGroup_->functions.glBufferStorage(GL_COPY_WRITE_BUFFER, size, data, flags);
-                if (stagingBuffer) ptr = threadContextGroup_->functions.glMapBufferRange(GL_COPY_WRITE_BUFFER, 0, size, stagingBufferAccessFlags);
+                if (stagingBuffer) return threadContextGroup_->functions.glMapBufferRange(GL_COPY_WRITE_BUFFER, 0, size, stagingBufferAccessFlags);
             } else {
                 threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, data, usageHint);
             }
         }
-        this->size                 = size;
-        this->clientMemoryCopyable = clientMemoryCopyable;
-        return ptr;
     }
 
     void BufferInterface::free() {
