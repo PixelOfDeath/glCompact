@@ -17,10 +17,9 @@ namespace glCompact {
         \details Each thread/context needs this object to be created before using any glCompact functionality.
         The current thread needs to have an active OpenGL 3.3 context or higher. Or whatever is set as minimum in config.hpp.
 
-        There are three constructors. Two that take a function pointer for getting OpenGL functions by c-string.
-        And one that take a pointer to an already created ContextScope from another thread/context to share a ContextGroup.
+        There are three constructors. Two that take a function pointer for getting OpenGL functions by c-string. Most Windows/OpenGL context creation libraries supply such a function.
 
-        Most Windows/OpenGL context creation libraries supply such a function.
+        The third constructor that takes a pointer to an already created ContextScope pointer from another thread/context to share a ContextGroup.
 
         \code{.cpp}
         //void *(*)(const char*)
