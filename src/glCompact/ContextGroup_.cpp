@@ -597,8 +597,9 @@ namespace glCompact {
             }
     }
 
-    namespace {
-        bool checkAndSetFeature(string& errorMessage, config::FeatureSetting featureSetting, string featureName, string extensionName, bool runtimeCondition) {
+    void ContextGroup_::checkAndSetFeatures() {
+        string errorMessage;
+        auto checkAndSetFeature = [&errorMessage](config::FeatureSetting featureSetting, string featureName, string extensionName, bool runtimeCondition) -> bool {
             if (featureSetting == config::FeatureSetting::notSupported) return false;
             if (featureSetting == config::FeatureSetting::mustBeSupported) {
                 UNLIKELY_IF (!runtimeCondition)
@@ -606,25 +607,21 @@ namespace glCompact {
                 return true;
             }
             return runtimeCondition;
-        }
-    }
-
-    void ContextGroup_::checkAndSetFeatures() {
-        string errorMessage;
-        feature.drawIndirect                = checkAndSetFeature(errorMessage, config::drawIndirect               , "drawIndirect"                  , "GL_ARB_draw_indirect, core since 4.0"                    , config::version::glMin >= GlVersion::v40 || extensions.GL_ARB_draw_indirect);
-        feature.blendModePerDrawbuffer      = checkAndSetFeature(errorMessage, config::blendModePerDrawbuffer     , "blendModePerDrawbuffer"        , "GL_ARB_draw_buffers_blend, core as non-ARB since 4.0"    , config::version::glMin >= GlVersion::v40 || extensions.GL_ARB_draw_buffers_blend);
-        feature.drawBaseInstance            = checkAndSetFeature(errorMessage, config::drawBaseInstance           , "drawBaseInstance"              , "GL_ARB_base_instance, core since 4.2"                    , config::version::glMin >= GlVersion::v42 || extensions.GL_ARB_base_instance);
-        feature.bptc                        = checkAndSetFeature(errorMessage, config::bptc                       , "bptc"                          , "GL_ARB_texture_compression_bptc, core since 4.2"         , config::version::glMin >= GlVersion::v42 || extensions.GL_ARB_texture_compression_bptc);
-        feature.atomicCounter               = checkAndSetFeature(errorMessage, config::atomicCounter              , "atomicCounter"                 , "GL_ARB_shader_atomic_counters, core since 4.2"           , config::version::glMin >= GlVersion::v42 || extensions.GL_ARB_shader_atomic_counters);
-        feature.pipelineCompute             = checkAndSetFeature(errorMessage, config::pipelineCompute            , "pipelineCompute"               , "GL_ARB_compute_shader, core since 4.3"                   , config::version::glMin >= GlVersion::v43 || extensions.GL_ARB_compute_shader);
-        feature.shaderStorageBufferObject   = checkAndSetFeature(errorMessage, config::shaderStorageBufferObject  , "shaderStorageBufferObject"     , "GL_ARB_shader_storage_buffer_object, core since 4.3"     , config::version::glMin >= GlVersion::v43 || extensions.GL_ARB_shader_storage_buffer_object);
-        feature.astc                        = checkAndSetFeature(errorMessage, config::astc                       , "astc"                          , "GL_KHR_texture_compression_astc_hdr, core since 4.3"     , config::version::glMin >= GlVersion::v43 || extensions.GL_KHR_texture_compression_astc_hdr);
-        feature.textureView                 = checkAndSetFeature(errorMessage, config::textureView                , "textureView"                   , "GL_ARB_texture_view, core since 4.3"                     , config::version::glMin >= GlVersion::v43 || extensions.GL_ARB_texture_view);
-        feature.bufferStaging               = checkAndSetFeature(errorMessage, config::bufferStaging              , "bufferStaging"                 , "GL_ARB_buffer_storage, core since 4.4"                   , config::version::glMin >= GlVersion::v44 || extensions.GL_ARB_buffer_storage);
-        feature.drawIndirectCount           = checkAndSetFeature(errorMessage, config::drawIndirectCount          , "drawIndirectCount"             , "GL_ARB_indirect_parameters, core as non-ARB since 4.6"   , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_indirect_parameters);
-        feature.polygonOffsetClamp          = checkAndSetFeature(errorMessage, config::polygonOffsetClamp         , "polygonOffsetClamp"            , "GL_ARB_polygon_offset_clamp, core since 4.6"             , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_polygon_offset_clamp);
-        feature.anisotropicFilter           = checkAndSetFeature(errorMessage, config::anisotropicFilter          , "anisotropicFilter"             , "GL_ARB_texture_filter_anisotropic, core since 4.6"       , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_texture_filter_anisotropic || extensions.GL_EXT_texture_filter_anisotropic);
-        feature.spirv                       = checkAndSetFeature(errorMessage, config::spirv                      , "spirv"                         , "GL_ARB_spirv_extensions"                                 ,                                             extensions.GL_ARB_gl_spirv);
+        };
+        feature.drawIndirect                = checkAndSetFeature(config::drawIndirect               , "drawIndirect"                  , "GL_ARB_draw_indirect, core since 4.0"                    , config::version::glMin >= GlVersion::v40 || extensions.GL_ARB_draw_indirect);
+        feature.blendModePerDrawbuffer      = checkAndSetFeature(config::blendModePerDrawbuffer     , "blendModePerDrawbuffer"        , "GL_ARB_draw_buffers_blend, core as non-ARB since 4.0"    , config::version::glMin >= GlVersion::v40 || extensions.GL_ARB_draw_buffers_blend);
+        feature.drawBaseInstance            = checkAndSetFeature(config::drawBaseInstance           , "drawBaseInstance"              , "GL_ARB_base_instance, core since 4.2"                    , config::version::glMin >= GlVersion::v42 || extensions.GL_ARB_base_instance);
+        feature.bptc                        = checkAndSetFeature(config::bptc                       , "bptc"                          , "GL_ARB_texture_compression_bptc, core since 4.2"         , config::version::glMin >= GlVersion::v42 || extensions.GL_ARB_texture_compression_bptc);
+        feature.atomicCounter               = checkAndSetFeature(config::atomicCounter              , "atomicCounter"                 , "GL_ARB_shader_atomic_counters, core since 4.2"           , config::version::glMin >= GlVersion::v42 || extensions.GL_ARB_shader_atomic_counters);
+        feature.pipelineCompute             = checkAndSetFeature(config::pipelineCompute            , "pipelineCompute"               , "GL_ARB_compute_shader, core since 4.3"                   , config::version::glMin >= GlVersion::v43 || extensions.GL_ARB_compute_shader);
+        feature.shaderStorageBufferObject   = checkAndSetFeature(config::shaderStorageBufferObject  , "shaderStorageBufferObject"     , "GL_ARB_shader_storage_buffer_object, core since 4.3"     , config::version::glMin >= GlVersion::v43 || extensions.GL_ARB_shader_storage_buffer_object);
+        feature.astc                        = checkAndSetFeature(config::astc                       , "astc"                          , "GL_KHR_texture_compression_astc_hdr, core since 4.3"     , config::version::glMin >= GlVersion::v43 || extensions.GL_KHR_texture_compression_astc_hdr);
+        feature.textureView                 = checkAndSetFeature(config::textureView                , "textureView"                   , "GL_ARB_texture_view, core since 4.3"                     , config::version::glMin >= GlVersion::v43 || extensions.GL_ARB_texture_view);
+        feature.bufferStaging               = checkAndSetFeature(config::bufferStaging              , "bufferStaging"                 , "GL_ARB_buffer_storage, core since 4.4"                   , config::version::glMin >= GlVersion::v44 || extensions.GL_ARB_buffer_storage);
+        feature.drawIndirectCount           = checkAndSetFeature(config::drawIndirectCount          , "drawIndirectCount"             , "GL_ARB_indirect_parameters, core as non-ARB since 4.6"   , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_indirect_parameters);
+        feature.polygonOffsetClamp          = checkAndSetFeature(config::polygonOffsetClamp         , "polygonOffsetClamp"            , "GL_ARB_polygon_offset_clamp, core since 4.6"             , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_polygon_offset_clamp);
+        feature.anisotropicFilter           = checkAndSetFeature(config::anisotropicFilter          , "anisotropicFilter"             , "GL_ARB_texture_filter_anisotropic, core since 4.6"       , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_texture_filter_anisotropic || extensions.GL_EXT_texture_filter_anisotropic);
+        feature.spirv                       = checkAndSetFeature(config::spirv                      , "spirv"                         , "GL_ARB_spirv_extensions"                                 ,                                             extensions.GL_ARB_gl_spirv);
         if (errorMessage.size()) {
             crash("glCompact Error: Missing features:\n" + errorMessage);
         }
