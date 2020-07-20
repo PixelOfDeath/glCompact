@@ -3,6 +3,7 @@
 #include "glCompact/gl/ConstantsCustom.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/Tools_.hpp"
+#include "glCompact/minMax.hpp"
 
 #include <string>
 #include <cstring>
