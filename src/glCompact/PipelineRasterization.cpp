@@ -798,7 +798,7 @@ namespace glCompact {
                 infoLog_ += shaderTypeString[i] + " LOG:\n" + shaderLog + "\n";
             shaderId[i] = shaderPartId;
             if (!compileSuccessful) {
-                LOOPI(5) if (shaderId[i]) threadContextGroup_->functions.glDeleteShader(shaderId[i]);
+                LOOPJ(5) if (shaderId[j]) threadContextGroup_->functions.glDeleteShader(shaderId[j]);
                 //throw std::runtime_error("Error loading shader:\n" + infoLog_);
                 infoLog_ = "Error loading shader:\n" + infoLog_;
                 return false;

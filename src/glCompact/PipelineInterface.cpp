@@ -1443,10 +1443,10 @@ namespace glCompact {
                 threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTER_INDICES, &atomicCounterIndexList[0]);
                 threadContextGroup_->functions.glGetActiveUniformsiv(id, atomicCountersCount, reinterpret_cast<uint32_t*>(&atomicCounterIndexList[0]), GL_UNIFORM_OFFSET, &uniformOffsetList[0]);
                 acbb.uniformList.resize(atomicCountersCount);
-                LOOPI(atomicCountersCount) {
-                    auto& ac = acbb.uniformList[i];
-                    ac.name   = rawUniformList[atomicCounterIndexList[i]].name;
-                    ac.offset = uniformOffsetList                    [i];
+                LOOPJ(atomicCountersCount) {
+                    auto& ac = acbb.uniformList[j];
+                    ac.name   = rawUniformList[atomicCounterIndexList[j]].name;
+                    ac.offset = uniformOffsetList                    [j];
                 }
             }
         }
@@ -1529,8 +1529,8 @@ namespace glCompact {
                         int32_t topLevelArrayStride;
                     } queryData;
                     int32_t bufferVariableDataQuery[] = {GL_TYPE, GL_ARRAY_SIZE, GL_OFFSET, GL_ARRAY_STRIDE, GL_MATRIX_STRIDE, GL_IS_ROW_MAJOR, GL_TOP_LEVEL_ARRAY_SIZE, GL_TOP_LEVEL_ARRAY_STRIDE};
-                    int32_t queryCount = sizeof(bufferVariableDataQuery) / 4;
-                    threadContextGroup_->functions.glGetProgramResourceiv(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], queryCount, bufferVariableDataQuery, queryCount, nullptr, reinterpret_cast<int32_t*>(&queryData));
+                    int32_t bufferVariableDataQueryCount = sizeof(bufferVariableDataQuery) / 4;
+                    threadContextGroup_->functions.glGetProgramResourceiv(id, GL_BUFFER_VARIABLE, activeVariableIndexList[j], bufferVariableDataQueryCount, bufferVariableDataQuery, bufferVariableDataQueryCount, nullptr, reinterpret_cast<int32_t*>(&queryData));
 
                     variable.type                = queryData.type;
                     variable.arraySize           = queryData.arraySize;
