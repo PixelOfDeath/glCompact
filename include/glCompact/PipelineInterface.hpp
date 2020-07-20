@@ -157,7 +157,7 @@ namespace glCompact {
                                 break;
                             }
                         if (location == -1) {
-                            pParent->warning("UniformSetter did not find uniform with the name \"" + uniformName + "\"\n");
+                            pParent->warning("UniformSetter did not find uniform with the name \"" + uniformName + "\"! Note that GLSL might discard unused/non-output-influencing uniforms!\n");
                         } else if (cppType != type) {
                             pParent->warning("UniformSetter<" + glTypeToCppName(cppType) + "> mismatches GLSL type. Expected UniformSetter<" + glTypeToCppName(type)  + "> for: uniform " + glTypeToGlslName(type) + " " + uniformName);
                         }
