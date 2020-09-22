@@ -68,20 +68,25 @@ namespace glCompact {
         throw std::runtime_error("glDebugMessageCallback source(" + sourceToString(source) + ") type(" + typeToString(type) + ") severity(" + severityToString(severity) + ")\n" + message);
     }
 
-    //NOTE: if the GL context is not a debug context you maybe get no messages at all, even with glEnable(GL_DEBUG_OUTPUT)!
-    //TODO: Also use GL_KHR_no_error if available for better performance if not in debug mode!
-    void Debug::enableDebugOutput() {
-        //There also is ATI_debug_output and ARB_debug_output, but we may never use them because GL_KHR_debug got implemented by all current drivers and is part of core.
-        if (threadContextGroup_->extensions.GL_KHR_debug) {
-            //cout << "GL_KHR_debug found, registering debug callback function" << endl;
-            threadContextGroup_->functions.glDebugMessageCallback(&coutKhrDebugMessage, 0);
-            threadContextGroup_->functions.glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); //supposedly ruins performance, but gives callback in same thread as context after API call. So we are able to get a nice backtrace from where the call came from.
+    /*
+        GL_KHR_debug (Core since GL4.3/GLES3.2); Gles does not know the extension GL_KHR_debug, but the functionality itself became core in gles3.2
+        There also is ATI_debug_output and ARB_debug_output, but we may never use them because GL_KHR_debug got implemented by most drivers.
+        There also is GL_KHR_no_error that theoretically can deliver better performance by disabeling error checking and reporting, and instead making them undefined behavior.
 
-            //MESA also needs this to be enabled in debug context to generate output
-            //In non debug context the driver is free to chose if he enables output at all. Or if the driver even exposes GL_KHR_debug string in the first place.
+        NOTE: If the GL context is not a debug context you may get no messages at all, even with glEnable(GL_DEBUG_OUTPUT)!
+    */
+    void Debug::enableDebugOutput() {
+        if (threadContextGroup_->extensions.GL_KHR_debug || threadContextGroup_->version.gles >= GlesVersion::v32) {
+            threadContextGroup_->functions.glDebugMessageCallback(&coutKhrDebugMessage, 0);
+
+            //Garanties callback in same thread as context directly after the API call. So we are able to get a nice backtrace where the offending call was issued.
+            threadContextGroup_->functions.glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+            //In a non-debug-context the driver is free to chose if he enables output at all. Or if the driver even exposes GL_KHR_debug string in the first place.
+            //MESA needs this enabled in debug context to generate output!
             threadContextGroup_->functions.glEnable(GL_DEBUG_OUTPUT);
         } else {
-            //cout << "GL_KHR_debug not available" << endl;
+            //...
         }
     }
 
