@@ -751,7 +751,7 @@ namespace glCompact {
                         threadContextGroup_->functions.glCompressedTexSubImage3D(target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
-                        uintptr_t cubeMapSideSize = surfaceFormat->bitsPerPixelOrBlock * 8 * align(mipmapLevelSize.x, blockSizeX) * align(mipmapLevelSize.y, blockSizeY);
+                        uintptr_t cubeMapSideSize = surfaceFormat->bitsPerPixelOrBlock * 8 * alignTo(mipmapLevelSize.x, blockSizeX) * alignTo(mipmapLevelSize.y, blockSizeY);
                         for (unsigned i = size.z; i < size.z + texSize.z; ++i)
                             threadContextGroup_->functions.glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, size.x, size.y, texSize.x, texSize.y, sizedFormat, uint32_t(cubeMapSideSize), reinterpret_cast<const void*>(dataOffset + cubeMapSideSize * i));
                         break;
@@ -912,7 +912,7 @@ namespace glCompact {
                      threadContextGroup_->functions.glGetCompressedTextureSubImage(this->id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, maxCopySizeGuard, offsetPointer);
                 } else if (entireXY && target == GL_TEXTURE_CUBE_MAP) {
                     bindTemporal();
-                    uint32_t cubeMapSideSize = (surfaceFormat->bitsPerPixelOrBlock / 8) * align(mipmapLevelSize.x, blockSizeX) * align(mipmapLevelSize.y, blockSizeY);
+                    uint32_t cubeMapSideSize = (surfaceFormat->bitsPerPixelOrBlock / 8) * alignTo(mipmapLevelSize.x, blockSizeX) * alignTo(mipmapLevelSize.y, blockSizeY);
                     LOOPI(6) threadContextGroup_->functions.glGetCompressedTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
                 } else {
                     throw runtime_error("Missing GL_ARB_get_texture_sub_image, can not copy sub image to memory/buffer!");

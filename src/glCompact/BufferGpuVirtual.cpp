@@ -25,7 +25,7 @@ namespace glCompact {
     {
         UNLIKELY_IF (size % pageSize)
             crash("size must be a multiple of pageSize(" + to_string(pageSize) + ")");
-        create(clientMemoryCopyable, align(size, pageSize), false, true);
+        create(clientMemoryCopyable, alignTo(size, pageSize), false, true);
     }
 
     BufferGpuVirtual::BufferGpuVirtual(

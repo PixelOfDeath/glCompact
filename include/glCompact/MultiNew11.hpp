@@ -4,14 +4,10 @@
 #include <cstddef> //std::max_align_t
 #include <utility>
 #include "glCompact/minMax.hpp"
+#include "glCompact/Tools_.hpp"
 
 namespace glCompact {
     namespace {
-        template<typename T>
-        T alignTo(T value, T alignTo) {
-            return (value % alignTo) ? (value + (alignTo - (value % alignTo))) : value;
-        }
-
         template<typename T, typename, typename, typename>
         constexpr uintptr_t MultiNew11ReNewGetMaxAlign() {
             return alignof(T);

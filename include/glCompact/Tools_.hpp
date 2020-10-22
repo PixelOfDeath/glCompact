@@ -17,8 +17,8 @@ namespace glCompact {
     }*/
 
     template<typename T>
-    constexpr T align(T value, T alignment) {
-        return value + ((value % alignment) ? (alignment - (value % alignment)) : 0);
+    T alignTo(T value, T alignTo) {
+        return (value % alignTo) ? (value + (alignTo - (value % alignTo))) : value;
     }
 
     std::string fileToString(const std::string& fileName);
