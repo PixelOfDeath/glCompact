@@ -109,13 +109,23 @@ ADD_DEPENDENCIES(
     Extensions_hpp
 )
 
-IF(ENFORCINGCPLUSPLUS11)
-    SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO
-    )
-ENDIF()
+#We need at minimum C++11
+#TARGET_COMPILE_FEATURES(${PROJECT_NAME} PUBLIC cxx_std_11)
+#set_target_properties(${PROJECT_NAME} PROPERTIES
+#    INTERPROCEDURAL_OPTIMIZATION ON
+#)
+
+#This only should be set when developing glCompact. It can break LTO when the parent project uses a higher C++ standard
+#SET(ENFORCINGCPLUSPLUS11 NO)
+
+#TODO: Is there a way to only set this as a minimum requiement?
+#IF(ENFORCINGCPLUSPLUS11)
+#    SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
+#        CXX_STANDARD 11
+#        CXX_STANDARD_REQUIRED YES
+#        CXX_EXTENSIONS NO
+#    )
+#ENDIF()
 
 IF(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     SET(WE_ARE_THE_TOP_LEVEL_PROJECT TRUE)
@@ -127,20 +137,6 @@ IF(NOT WE_ARE_THE_TOP_LEVEL_PROJECT)
     #Set cmake variables for the parent project
     SET(GLCOMPACT_INCLUDE_DIRS "${GLM_INCLUDE_DIRS}" "${PROJECT_SOURCE_DIR}/include" PARENT_SCOPE)
     SET(GLCOMPACT_LIBRARY glCompact PARENT_SCOPE)
-ENDIF()
-
-IF(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
-    INCLUDE(CheckIPOSupported)
-    CHECK_IPO_SUPPORTED(RESULT LTOAvailable OUTPUT LtoError)
-    IF(LTOAvailable)
-        MESSAGE(STATUS "IPO / LTO enabled")
-        SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-    ELSE()
-        MESSAGE(STATUS "IPO / LTO not supported by this build chain: <${LtoError}>")
-    ENDIF()
-ELSE()
-    MESSAGE(STATUS "IPO / LTO disabled in debug build")
-    SET(LTOAvailable NO)
 ENDIF()
 
 #********** ********** DOXYGEN ********** **********
