@@ -125,7 +125,6 @@ S
 
 using namespace std;
 using namespace glCompact::gl;
-using namespace glm;
 
 namespace glCompact {
     TextureInterface::TextureInterface(
@@ -235,7 +234,7 @@ namespace glCompact {
     void TextureInterface::create(
         int32_t       target,
         SurfaceFormat surfaceFormat,
-        uvec3         newSize,
+        glm::uvec3    newSize,
         bool          mipmap,
         uint8_t       samples
     ) {
@@ -464,7 +463,7 @@ namespace glCompact {
         target        = newTarget;
         //TODO, needs formula for mipmap
         //TODO, needs formula for mipmap (and 1d array texture!)
-        size          = uvec3(srcImages.size.x, srcImages.size.y, min(layerCount, srcImages.size.z));
+        size          = glm::uvec3(srcImages.size.x, srcImages.size.y, min(layerCount, srcImages.size.z));
         mipmapCount   = mipmap ? firstMipmap - srcImages.mipmapCount : 1;
         samples       = 0;
         surfaceFormat = newSurfaceFormat;
@@ -478,8 +477,8 @@ namespace glCompact {
     glm::uvec3 TextureInterface::getMipmapLevelSize(
         uint32_t mipmapLevel
     ) const {
-        if (mipmapLevel >= mipmapCount) return uvec3(0); //error or just return 0, 0, 0?
-        return max(uvec3(1), uvec3(
+        if (mipmapLevel >= mipmapCount) return glm::uvec3(0); //error or just return 0, 0, 0?
+        return max(glm::uvec3(1), glm::uvec3(
                                                size.x >> mipmapLevel,
             (target != GL_TEXTURE_1D_ARRAY) ? (size.y >> mipmapLevel) : size.y,
             (target == GL_TEXTURE_3D)       ? (size.z >> mipmapLevel) : size.z
