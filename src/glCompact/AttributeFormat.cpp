@@ -8,7 +8,18 @@ namespace glCompact {
         \ingroup API
         \class glCompact::AttributeFormat
         \brief enum class for all formats that can by used as attribute input
-        \details bla...
+        \details Each location in an attribute layout uses one of this formats listed here.
+
+        UNORM = unsigned integer normalized in GLSL to 0..1
+        SNORM = signed integer normalized in GLSL to -1..1
+        UFLOAT = unsigned float
+        SFLOAT = signed float
+
+        There are up to 4 components per formate. Each component is followed by its bit count.
+
+        For example:
+
+        R8G8_UNORM = Each component is an unsigned 8 bit integer. Presented in GLSL as normalized float in the range of 0..1. Making this a 16 bit format.
     */
 
     const AttributeFormatDetail AttributeFormat::attributeFormatDetail[] = {
