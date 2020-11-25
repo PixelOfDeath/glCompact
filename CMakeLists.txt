@@ -89,6 +89,7 @@ ADD_CUSTOM_COMMAND(
 
 FILE(GLOB SOURCE_FILES
     "${PROJECT_SOURCE_DIR}/src/glCompact/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/glCompact/*.c"
     "${PROJECT_SOURCE_DIR}/src/glCompact/gl/*.cpp"
 )
 SET(SOURCE_FILES
