@@ -72,9 +72,6 @@ namespace glCompact {
             //so we need to set currentId to something invalide e.g. -1 to force a glBindFramebuffer call in all cases!
             //TODO: in the future maybe only enably this if needed
             constexpr bool AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO = true;
-
-            //Bug in Mesa 19.2.8 glBindBuffersRange does not like the size value to be 0, even when the buffer ID is 0!
-            constexpr bool MESA_BIND_BUFFER_RANGE_NULL_ERROR_WHEN_SIZE_IS_NULL = true;
         }
 
         //to make debuging easy

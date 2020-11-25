@@ -12,6 +12,8 @@
 #include "glCompact/gl/Helper.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 
+#include "glCompact/multiReNew.hpp"
+
 #include <glm/glm.hpp>
 
 #include <regex>
@@ -92,8 +94,6 @@ using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
-    static constexpr uintptr_t DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE = config::Workarounds::MESA_BIND_BUFFER_RANGE_NULL_ERROR_WHEN_SIZE_IS_NULL ? 1 : 0;
-
     PipelineInterface::~PipelineInterface() {
         //if (!SDL_GL_GetCurrentContext())
         //    cout << "WARNING: glCompact::PipelineInterface destructor called but no active OpenGL context in this thread to delete it! Leaking OpenGL object!" << endl;
@@ -176,7 +176,7 @@ namespace glCompact {
 
         buffer_uniform_id    [slot] = buffer.id;
         buffer_uniform_offset[slot] = offset;
-        buffer_uniform_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        buffer_uniform_size  [slot] = 0;
         buffer_uniform_markSlotChange(slot);
     }
 
@@ -203,7 +203,7 @@ namespace glCompact {
 
         buffer_uniform_id    [slot] = 0;
         buffer_uniform_offset[slot] = 0;
-        buffer_uniform_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        buffer_uniform_size  [slot] = 0;
         buffer_uniform_markSlotChange(slot);
     }
 
@@ -211,7 +211,7 @@ namespace glCompact {
         for (int32_t i = 0; i < buffer_uniform_count; ++i) {
             buffer_uniform_id    [i] = 0;
             buffer_uniform_offset[i] = 0;
-            buffer_uniform_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+            buffer_uniform_size  [i] = 0;
         }
         buffer_uniform_changedSlotMin = 0;
         buffer_uniform_changedSlotMax = buffer_uniform_count - 1;
@@ -290,7 +290,7 @@ namespace glCompact {
 
         buffer_atomicCounter_id    [slot] = 0;
         buffer_atomicCounter_offset[slot] = 0;
-        buffer_atomicCounter_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        buffer_atomicCounter_size  [slot] = 0;
         buffer_atomicCounter_markSlotChange(slot);
     }
 
@@ -298,7 +298,7 @@ namespace glCompact {
         for (int32_t i = 0; i < buffer_atomicCounter_count; ++i) {
             buffer_atomicCounter_id    [i] = 0;
             buffer_atomicCounter_offset[i] = 0;
-            buffer_atomicCounter_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+            buffer_atomicCounter_size  [i] = 0;
         }
         buffer_atomicCounter_changedSlotMin = 0;
         buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
@@ -342,7 +342,7 @@ namespace glCompact {
 
         buffer_shaderStorage_id    [slot] = 0;
         buffer_shaderStorage_offset[slot] = 0;
-        buffer_shaderStorage_size  [slot] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+        buffer_shaderStorage_size  [slot] = 0;
         buffer_shaderStorage_markSlotChange(slot);
     }
 
@@ -350,7 +350,7 @@ namespace glCompact {
         for (int i = 0; i < buffer_shaderStorage_count; ++i) {
             buffer_shaderStorage_id    [i] = 0;
             buffer_shaderStorage_offset[i] = 0;
-            buffer_shaderStorage_size  [i] = DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE;
+            buffer_shaderStorage_size  [i] = 0;
         }
         buffer_shaderStorage_changedSlotMin = 0;
         buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_count - 1;
@@ -1555,13 +1555,13 @@ namespace glCompact {
         multiNew.reNew(
             buffer_uniform_id,              0, buffer_uniform_count      , 0,
             buffer_uniform_offset,          0, buffer_uniform_count      , 0,
-            buffer_uniform_size,            0, buffer_uniform_count      , DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            buffer_uniform_size,            0, buffer_uniform_count      , 0,
             buffer_atomicCounter_id,        0, buffer_atomicCounter_count, 0,
             buffer_atomicCounter_offset,    0, buffer_atomicCounter_count, 0,
-            buffer_atomicCounter_size,      0, buffer_atomicCounter_count, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            buffer_atomicCounter_size,      0, buffer_atomicCounter_count, 0,
             buffer_shaderStorage_id,        0, buffer_shaderStorage_count, 0,
             buffer_shaderStorage_offset,    0, buffer_shaderStorage_count, 0,
-            buffer_shaderStorage_size,      0, buffer_shaderStorage_count, DEFAULT_BIND_BUFFER_RANGE_NULL_SIZE,
+            buffer_shaderStorage_size,      0, buffer_shaderStorage_count, 0,
             texture_id,                     0, sampler_count             , 0,
             texture_target,                 0, sampler_count             , 0,
             sampler_id,                     0, sampler_count             , 0,
