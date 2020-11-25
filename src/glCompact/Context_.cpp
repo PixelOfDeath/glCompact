@@ -72,6 +72,7 @@ namespace glCompact {
     Context_::~Context_() {
         if (defaultVaoId) threadContextGroup_->functions.glDeleteVertexArrays(1, &defaultVaoId);
         threadContextGroup_->functions.glFinish(); //TODO: not sure if I need this here
+        free(multiMallocPtr);
     }
 
     uint32_t Context_::getContextId() const {

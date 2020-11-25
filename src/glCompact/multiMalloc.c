@@ -11,18 +11,28 @@ static size_t max(size_t a, size_t b) {
     return a > b ? a : b;
 }
 
-static size_t raiseToAlign(size_t value, size_t alignTo) {
-    return (value % alignTo) ? (value + (alignTo - (value % alignTo))) : value;
+//only works correctly if alignment is POT
+static size_t raiseToAlign(size_t value, size_t alignment) {
+    return (value + alignment - 1) & ~(alignment - 1);
 }
 
 static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct multiMallocDescriptor* md, size_t descriptorSizeInByte/*, void** initValue*/) {
     const int mdCount = descriptorSizeInByte / sizeof(struct multiMallocDescriptor);
 
+    _Bool noChanges = 1;
     size_t mallocSize = 0;
     for (int i = 0; i < mdCount; ++i) {
         const struct multiMallocDescriptor* d = &md[i];
         if (d->pendingCount) mallocSize = raiseToAlign(mallocSize, d->typeAlign) + d->typeSize * d->pendingCount;
+
+        size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
+        if (growOnly) {
+            if (currentCount >= d->pendingCount) noChanges = 0;
+        } else {
+            if (currentCount != d->pendingCount) noChanges = 0;
+        }
     }
+    if (noChanges) return currentBasePtr;
     if (mallocSize == 0) {
         free(currentBasePtr);
         return 0;
@@ -32,7 +42,7 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
 
     for (int i = 0; i < mdCount; ++i) {
         const struct multiMallocDescriptor* d = &md[i];
-        size_t currentCount = d->currentCountPtr ? *d->currentCountPtr : 0;
+        size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
         size_t pendingCount = max(d->pendingCount, growOnly ? currentCount : 0);
         if (pendingCount) {
             currentPtr = raiseToAlign(currentPtr, d->typeAlign);
@@ -53,7 +63,7 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
     //we set the counters last, because different arrays might use the same counter
     for (int i = 0; i < mdCount; ++i) {
         const struct multiMallocDescriptor* d = &md[i];
-        size_t currentCount = d->currentCountPtr ? *d->currentCountPtr : 0;
+        size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
         size_t pendingCount = growOnly ? max(currentCount, d->pendingCount) : d->pendingCount;
         if (d->currentCountPtr) *d->currentCountPtr = pendingCount;
     }

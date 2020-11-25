@@ -9,7 +9,6 @@
 #include "glCompact/StencilOperator.hpp"
 #include "glCompact/BlendFactors.hpp"
 #include "glCompact/BlendEquations.hpp"
-#include "glCompact/MultiNew11.hpp"
 
 #include <glm/fwd.hpp>
 
@@ -62,7 +61,7 @@ namespace glCompact {
             bool       attributeLayoutChanged = false; //TODO: make this one of the state bits
             AttributeLayoutStates attributeLayoutStates;
 
-            MultiNew11 multiNew;
+            void* multiMallocPtr = 0;
 
             //BUFFER ATTRIBUTE
              int32_t   buffer_attribute_getHighestIndexNonNull();
@@ -81,7 +80,7 @@ namespace glCompact {
             uint32_t   buffer_parameter_id         = 0;
 
             //BUFFER UNIFORM
-             int32_t   buffer_uniform_count = 0;
+            size_t     buffer_uniform_count;
              int32_t   buffer_uniform_getHighestIndexNonNull();
              int32_t   buffer_uniform_highestIndexNonNull = -1;
             uint32_t*  buffer_uniform_id;
@@ -89,7 +88,7 @@ namespace glCompact {
             uintptr_t* buffer_uniform_size;
 
             //BUFFER ATOMIC COUNTER
-             int32_t   buffer_atomicCounter_count = 0;
+            size_t     buffer_atomicCounter_count;
              int32_t   buffer_atomicCounter_getHighestIndexNonNull();
              int32_t   buffer_atomicCounter_highestIndexNonNull = -1;
             uint32_t*  buffer_atomicCounter_id;
@@ -97,7 +96,7 @@ namespace glCompact {
             uintptr_t* buffer_atomicCounter_size;
 
             //BUFFER SHADER STORAGE
-             int32_t   buffer_shaderStorage_count = 0;
+            size_t     buffer_shaderStorage_count;
              int32_t   buffer_shaderStorage_getHighestIndexNonNull();
              int32_t   buffer_shaderStorage_highestIndexNonNull = -1;
             uint32_t*  buffer_shaderStorage_id;
@@ -113,7 +112,7 @@ namespace glCompact {
             uint32_t   buffer_copyWriteId = 0;
 
             //TEXTURE
-             int32_t   sampler_count = 0;
+            size_t     sampler_count;
             uint32_t   activeTextureSlot = 0; //caching of "GL_TEXTURE0 + i" value for old style binding
              int32_t   texture_getHighestIndexNonNull();
              int32_t   texture_highestIndexNonNull = -1;
@@ -126,7 +125,7 @@ namespace glCompact {
             uint32_t*  sampler_id;
 
             //IMAGE
-             int32_t   image_count = 0;
+            size_t     image_count;
              int32_t   image_getHighestIndexNonNull();
              int32_t   image_highestIndexNonNull = -1;
             uint32_t*  image_id;

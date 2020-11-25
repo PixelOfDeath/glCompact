@@ -12,11 +12,12 @@
 #include "glCompact/gl/Helper.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 
-#include "glCompact/multiReNew.hpp"
+#include "glCompact/multiMalloc.h"
 
 #include <glm/glm.hpp>
 
 #include <regex>
+#include <algorithm>
 
 ///\cond HIDDEN_FROM_DOXYGEN
 /*
@@ -106,6 +107,7 @@ namespace glCompact {
             }
             id = 0;
         }
+        free(multiMallocPtr);
     }
 
     void PipelineInterface::setTexture(
@@ -1545,31 +1547,32 @@ namespace glCompact {
             }
         }
         sampler_count               = samplerList.size();
-        for (const auto& ub : uniformBlockList) buffer_uniform_count = max(buffer_uniform_count, ub.binding + 1);
+        for (const auto& ub : uniformBlockList) buffer_uniform_count = max<size_t>(buffer_uniform_count, ub.binding + 1);
         image_count                 = imageList.size();
         buffer_atomicCounter_count  = atomicCounterBindingList.size();
-        for (const auto& sb : storageBlockList) buffer_shaderStorage_count = max(buffer_shaderStorage_count, sb.binding + 1);
+        for (const auto& sb : storageBlockList) buffer_shaderStorage_count = max<size_t>(buffer_shaderStorage_count, sb.binding + 1);
     }
 
     void PipelineInterface::allocateMemory() {
-        multiNew.reNew(
-            buffer_uniform_id,              0, buffer_uniform_count      , 0,
-            buffer_uniform_offset,          0, buffer_uniform_count      , 0,
-            buffer_uniform_size,            0, buffer_uniform_count      , 0,
-            buffer_atomicCounter_id,        0, buffer_atomicCounter_count, 0,
-            buffer_atomicCounter_offset,    0, buffer_atomicCounter_count, 0,
-            buffer_atomicCounter_size,      0, buffer_atomicCounter_count, 0,
-            buffer_shaderStorage_id,        0, buffer_shaderStorage_count, 0,
-            buffer_shaderStorage_offset,    0, buffer_shaderStorage_count, 0,
-            buffer_shaderStorage_size,      0, buffer_shaderStorage_count, 0,
-            texture_id,                     0, sampler_count             , 0,
-            texture_target,                 0, sampler_count             , 0,
-            sampler_id,                     0, sampler_count             , 0,
-            image_id,                       0, image_count               , 0,
-            image_format,                   0, image_count               , 0,
-            image_mipmapLevel,              0, image_count               , 0,
-            image_layer,                    0, image_count               , 0
-        );
+        multiMallocDescriptor md[] = {
+            {&buffer_uniform_id,            &buffer_uniform_count,          buffer_uniform_count},
+            {&buffer_uniform_offset,        &buffer_uniform_count,          buffer_uniform_count},
+            {&buffer_uniform_size,          &buffer_uniform_count,          buffer_uniform_count},
+            {&buffer_atomicCounter_id,      &buffer_atomicCounter_count,    buffer_atomicCounter_count},
+            {&buffer_atomicCounter_offset,  &buffer_atomicCounter_count,    buffer_atomicCounter_count},
+            {&buffer_atomicCounter_size,    &buffer_atomicCounter_count,    buffer_atomicCounter_count},
+            {&buffer_shaderStorage_id,      &buffer_shaderStorage_count,    buffer_shaderStorage_count},
+            {&buffer_shaderStorage_offset,  &buffer_shaderStorage_count,    buffer_shaderStorage_count},
+            {&buffer_shaderStorage_size,    &buffer_shaderStorage_count,    buffer_shaderStorage_count},
+            {&texture_id,                   &sampler_count,                 sampler_count},
+            {&texture_target,               &sampler_count,                 sampler_count},
+            {&sampler_id,                   &sampler_count,                 sampler_count},
+            {&image_id,                     &image_count,                   image_count},
+            {&image_format,                 &image_count,                   image_count},
+            {&image_mipmapLevel,            &image_count,                   image_count},
+            {&image_layer,                  &image_count,                   image_count}
+        };
+        multiMallocPtr = multiMalloc(md, sizeof(md));
     }
 
     void PipelineInterface::processPendingChanges() {
@@ -1586,60 +1589,25 @@ namespace glCompact {
     void PipelineInterface::processPendingChangesPipeline() {
         threadContext_->attributeLayoutChanged = 1;
 
-        buffer_uniform_changedSlotMin       = 0;
-        buffer_uniform_changedSlotMax       = buffer_uniform_count - 1;
-        buffer_atomicCounter_changedSlotMin = 0;
-        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
-        buffer_shaderStorage_changedSlotMin = 0;
-        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_count - 1;
-        texture_changedSlotMin              = 0;
-        texture_changedSlotMax              = sampler_count - 1;
-        sampler_changedSlotMin              = 0;
-        sampler_changedSlotMax              = sampler_count - 1;
-        image_changedSlotMin                = 0;
-        image_changedSlotMax                = image_count - 1;
-
-        auto& currentBUCount = threadContext_->buffer_uniform_count;
-        auto& currentBACount = threadContext_->buffer_atomicCounter_count;
-        auto& currentBSCount = threadContext_->buffer_shaderStorage_count;
-        auto& currentSaCount = threadContext_->sampler_count;
-        auto& currentImCount = threadContext_->image_count;
-        auto pendingBUCount = max(currentBUCount, buffer_uniform_count);
-        auto pendingBACount = max(currentBACount, buffer_atomicCounter_count);
-        auto pendingBSCount = max(currentBSCount, buffer_shaderStorage_count);
-        auto pendingSaCount = max(currentSaCount, sampler_count);
-        auto pendingImCount = max(currentImCount, image_count);
-
-        if (currentBUCount < pendingBUCount
-        ||  currentBACount < pendingBACount
-        ||  currentBSCount < pendingBSCount
-        ||  currentSaCount < pendingSaCount
-        ||  currentImCount < pendingImCount
-        ) {
-            threadContext_->multiNew.reNew(
-                threadContext_->buffer_uniform_id,              currentBUCount, pendingBUCount, 0,
-                threadContext_->buffer_uniform_offset,          currentBUCount, pendingBUCount, 0,
-                threadContext_->buffer_uniform_size,            currentBUCount, pendingBUCount, 0,
-                threadContext_->buffer_atomicCounter_id,        currentBACount, pendingBACount, 0,
-                threadContext_->buffer_atomicCounter_offset,    currentBACount, pendingBACount, 0,
-                threadContext_->buffer_atomicCounter_size,      currentBACount, pendingBACount, 0,
-                threadContext_->buffer_shaderStorage_id,        currentBSCount, pendingBSCount, 0,
-                threadContext_->buffer_shaderStorage_offset,    currentBSCount, pendingBSCount, 0,
-                threadContext_->buffer_shaderStorage_size,      currentBSCount, pendingBSCount, 0,
-                threadContext_->texture_id,                     currentSaCount, pendingSaCount, 0,
-                threadContext_->texture_target,                 currentSaCount, pendingSaCount, 0,
-                threadContext_->sampler_id,                     currentSaCount, pendingSaCount, 0,
-                threadContext_->image_id,                       currentImCount, pendingImCount, 0,
-                threadContext_->image_format,                   currentImCount, pendingImCount, 0,
-                threadContext_->image_mipmapLevel,              currentImCount, pendingImCount, 0,
-                threadContext_->image_layer,                    currentImCount, pendingImCount, 0
-            );
-            currentBUCount = pendingBUCount;
-            currentBACount = pendingBACount;
-            currentBSCount = pendingBSCount;
-            currentSaCount = pendingSaCount;
-            currentImCount = pendingImCount;
-        }
+        multiMallocDescriptor md[] = {
+            {&threadContext_->buffer_uniform_id,            &threadContext_->buffer_uniform_count,          buffer_uniform_count},
+            {&threadContext_->buffer_uniform_offset,        &threadContext_->buffer_uniform_count,          buffer_uniform_count},
+            {&threadContext_->buffer_uniform_size,          &threadContext_->buffer_uniform_count,          buffer_uniform_count},
+            {&threadContext_->buffer_atomicCounter_id,      &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
+            {&threadContext_->buffer_atomicCounter_offset,  &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
+            {&threadContext_->buffer_atomicCounter_size,    &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
+            {&threadContext_->buffer_shaderStorage_id,      &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
+            {&threadContext_->buffer_shaderStorage_offset,  &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
+            {&threadContext_->buffer_shaderStorage_size,    &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
+            {&threadContext_->texture_id,                   &threadContext_->sampler_count,                 sampler_count},
+            {&threadContext_->texture_target,               &threadContext_->sampler_count,                 sampler_count},
+            {&threadContext_->sampler_id,                   &threadContext_->sampler_count,                 sampler_count},
+            {&threadContext_->image_id,                     &threadContext_->image_count,                   image_count},
+            {&threadContext_->image_format,                 &threadContext_->image_count,                   image_count},
+            {&threadContext_->image_mipmapLevel,            &threadContext_->image_count,                   image_count},
+            {&threadContext_->image_layer,                  &threadContext_->image_count,                   image_count},
+        };
+        threadContext_->multiMallocPtr = multiReMallocGrowOnly(threadContext_->multiMallocPtr, md, sizeof(md));
     }
 
     void PipelineInterface::processPendingChangesBuffersUniform() {
