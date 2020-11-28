@@ -13,9 +13,9 @@ namespace glCompact {
         //#define GLCOMPACT_MULTIPLE_CONTEXT_GROUP
 
         //glCompact requeres at last OpenGL 3.3 (or OpenGL ES 3.2 ?). Running glCompact with anything lower will break stuff!
-        //The minimum version values can be set higher to enable constand folding for extensions that are always present with newer versions.
-        //
-        //FeatureSetting will be ignored for all features that are core since this OpenGL version!
+        //The minimum version values can be set higher to enable constand folding for extensions and values that are always present with later versions.
+        //FeatureSetting will behave like mustBeSupported for all features that are core since this OpenGL version!
+        //While it is possible to enable both gl and gles support here, it will force to only garantie the lowest extensions/values from both selected versions!
         namespace version {
             constexpr GlVersion   glMin   = GlVersion::v33;            //glCompact requires this to be at last v33
             constexpr GlesVersion glesMin = GlesVersion::notSupported; //glCompact requires this to be at last v32 ?
@@ -28,24 +28,27 @@ namespace glCompact {
         };
 
         //Core since 4.0
-            constexpr FeatureSetting drawIndirect                 = FeatureSetting::notSupported; //GL_ARB_draw_indirect (core since 4.0)
-            constexpr FeatureSetting blendModePerDrawbuffer       = FeatureSetting::notSupported; //GL_ARB_draw_buffers_blend (Core as non-ARB since 4.0)
+            constexpr FeatureSetting drawIndirect                 = FeatureSetting::notSupported; //GL_ARB_draw_indirect, core since 4.0
+            constexpr FeatureSetting blendModePerDrawbuffer       = FeatureSetting::notSupported; //GL_ARB_draw_buffers_blend, core as non-ARB since 4.0
 
         //Core since 4.2
-            constexpr FeatureSetting drawBaseInstance             = FeatureSetting::notSupported; //GL_ARB_base_instance (Core since 4.2); GL_EXT_base_instance - ES extension! Not used in glCompact right now
-            constexpr FeatureSetting bptc                         = FeatureSetting::notSupported; //GL_ARB_texture_compression_bptc (Core since 4.2); bptc texture formats
-            constexpr FeatureSetting atomicCounter                = FeatureSetting::notSupported; //GL_ARB_shader_atomic_counters (Core since 4.2)
+            constexpr FeatureSetting drawBaseInstance             = FeatureSetting::notSupported; //GL_ARB_base_instance, core since 4.2; GL_EXT_base_instance - ES extension! Not used in glCompact right now
+            constexpr FeatureSetting bptc                         = FeatureSetting::notSupported; //GL_ARB_texture_compression_bptc, core since 4.2; texture formats
+            constexpr FeatureSetting atomicCounter                = FeatureSetting::notSupported; //GL_ARB_shader_atomic_counters, core since 4.2
 
         //Core since 4.3
-            constexpr FeatureSetting computeShader                = FeatureSetting::notSupported; //GL_ARB_compute_shader (Core since 4.3)
-            constexpr FeatureSetting shaderStorageBufferObject    = FeatureSetting::notSupported; //GL_ARB_shader_storage_buffer_object (Core since 4.3)
-            constexpr FeatureSetting astc                         = FeatureSetting::notSupported; //GL_KHR_texture_compression_astc_hdr (Core since 4.3); astc texture formats
-            constexpr FeatureSetting textureView                  = FeatureSetting::notSupported; //GL_ARB_texture_view (Core since 4.3)
+            constexpr FeatureSetting pipelineCompute              = FeatureSetting::notSupported; //GL_ARB_compute_shader, core since 4.3
+            constexpr FeatureSetting shaderStorageBufferObject    = FeatureSetting::notSupported; //GL_ARB_shader_storage_buffer_object, core since 4.3
+            constexpr FeatureSetting astc                         = FeatureSetting::notSupported; //GL_KHR_texture_compression_astc_hdr, core since 4.3; astc texture formats
+            constexpr FeatureSetting textureView                  = FeatureSetting::notSupported; //GL_ARB_texture_view, core since 4.3
+
+        //Core since 4.4
+            constexpr FeatureSetting bufferStaging                = FeatureSetting::notSupported; //GL_ARB_buffer_storage, core since 4.4
 
         //Core since 4.6
-            constexpr FeatureSetting drawIndirectCount            = FeatureSetting::notSupported; //GL_ARB_indirect_parameters (Core since 4.6 with non ARB functions)
-            constexpr FeatureSetting polygonOffsetClamp           = FeatureSetting::notSupported; //GL_ARB_polygon_offset_clamp (Core since 4.6); GL_EXT_polygon_offset_clamp
-            constexpr FeatureSetting anisotropicFilter            = FeatureSetting::mustBeSupported; //GL_ARB_texture_filter_anisotropic (Core since 4.6); GL_EXT_texture_filter_anisotropic (This is a ubiquitous extension, even tho it is not core, you can expect it to be present on all drivers not made out of wood)
+            constexpr FeatureSetting drawIndirectCount            = FeatureSetting::notSupported; //GL_ARB_indirect_parameters, core as non-ARB since 4.6
+            constexpr FeatureSetting polygonOffsetClamp           = FeatureSetting::notSupported; //GL_ARB_polygon_offset_clamp, core since 4.6; GL_EXT_polygon_offset_clamp
+            constexpr FeatureSetting anisotropicFilter            = FeatureSetting::mustBeSupported; //GL_ARB_texture_filter_anisotropic, core since 4.6; GL_EXT_texture_filter_anisotropic (This is a ubiquitous extension, even tho it is not core, you can expect it to be present on all drivers not made out of wood)
 
         //not part of Core
             constexpr FeatureSetting spirv                        = FeatureSetting::notSupported; //GL_ARB_spirv_extensions (spirv >1.0); GL_ARB_gl_spirv (spirv 1.0)
@@ -57,22 +60,10 @@ namespace glCompact {
         //I leave this as an option to always be able to test how different drivers behave. But default will be always off.
         constexpr bool ENABLE_USE_OF_DSA_UNIFORM_FUNCTIONS = false;
 
-        //This values are used to size the state tracker arrays. Smaller = more cache friendly.
-        //In the future I will use automaticly compacted data structures in PipelineInterface and maybe even in the Context tracker.
-            constexpr int MAX_SAMPLER_BINDINGS               = 160; //texture/sampler: on modern hardware you get max. 32 units per shader stage (GraphicsShader = 32 * 5 stages = 160)
-
         //Max. amount of vertex buffers/buffer index. Standard: 16/32 - inbuild variables (e.g. r290 limited to 0..28=29 locations!)
         //I guess default variables like gl_position takes take away from 32 locations?
         //vec3/vec4/mat3x?/mat4x? double types can (but not must) use up two times the amount of locations!
         constexpr int MAX_ATTRIBUTES                     = 32;
-
-            constexpr int MAX_IMAGE_BINDINGS                 = 32; //32 per shader max. on modern hardware as far as I know
-
-            constexpr int MAX_ATOMIC_COUNTER_BUFFER_BINDINGS = 32; //Dont know, still have to figure out the limitations of this one
-
-            constexpr int MAX_UNIFORM_BUFFER_BINDINGS        = 91; //biggest GL_MAX_UNIFORM_BUFFER_BINDINGS known to mankind
-            constexpr int MAX_SHADERSTORAGE_BUFFER_BINDINGS  = 96; //nvidia 96, amd 64, mesa intel 72
-
         constexpr int MAX_RGBA_ATTACHMENTS               = 8; //basically MAX_COLOR_ATTACHMENTS, but prefer to use the RGBA naming cheme
 
         namespace Workarounds {
@@ -81,9 +72,6 @@ namespace glCompact {
             //so we need to set currentId to something invalide e.g. -1 to force a glBindFramebuffer call in all cases!
             //TODO: in the future maybe only enably this if needed
             constexpr bool AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO = true;
-
-            //Bug in Mesa 19.2.8 glBindBuffersRange does not like the size value to be 0, even when the buffer ID is 0!
-            constexpr bool MESA_BIND_BUFFER_RANGE_NULL_ERROR_WHEN_SIZE_IS_NULL = true;
         }
 
         //to make debuging easy
