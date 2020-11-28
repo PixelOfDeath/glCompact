@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include "glCompact/multiMalloc.h"
 
-static size_t min(size_t a, size_t b) {
+static size_t minimum(size_t a, size_t b) {
     return a < b ? a : b;
 }
 
-static size_t max(size_t a, size_t b) {
+static size_t maximum(size_t a, size_t b) {
     return a > b ? a : b;
 }
 
@@ -43,11 +43,11 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
     for (int i = 0; i < mdCount; ++i) {
         const struct multiMallocDescriptor* d = &md[i];
         size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
-        size_t pendingCount = max(d->pendingCount, growOnly ? currentCount : 0);
+        size_t pendingCount = maximum(d->pendingCount, growOnly ? currentCount : 0);
         if (pendingCount) {
             currentPtr = raiseToAlign(currentPtr, d->typeAlign);
             if (currentBasePtr && d->ptr) {
-                size_t copyCount = min(currentCount, pendingCount);
+                size_t copyCount = minimum(currentCount, pendingCount);
                 memcpy((void*)(currentPtr                          ), d->ptr, d->typeSize * copyCount);
                 memset((void*)(currentPtr + d->typeSize * copyCount),      0, d->typeSize * (pendingCount - copyCount));
             } else {
@@ -64,7 +64,7 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
     for (int i = 0; i < mdCount; ++i) {
         const struct multiMallocDescriptor* d = &md[i];
         size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
-        size_t pendingCount = growOnly ? max(currentCount, d->pendingCount) : d->pendingCount;
+        size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
         if (d->currentCountPtr) *d->currentCountPtr = pendingCount;
     }
 
