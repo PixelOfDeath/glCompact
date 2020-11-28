@@ -10,11 +10,15 @@ struct multiMallocDescriptor {
 
     #ifdef __cplusplus
     multiMallocDescriptor() = default;
-    constexpr multiMallocDescriptor(void* ptr, size_t typeSize, size_t typeAlign, size_t* currentCountPtr, size_t pendingCount) :
-        ptr(ptr), typeSize(typeSize), typeAlign(typeAlign), currentCountPtr(currentCountPtr), pendingCount(pendingCount){}
     template<typename T>
-    constexpr multiMallocDescriptor(T* ptr, size_t* currentCountPtr, size_t pendingCount) :
-        ptr(ptr), typeSize(sizeof(**ptr)), typeAlign(alignof(**ptr)), currentCountPtr(currentCountPtr), pendingCount(pendingCount){}
+    multiMallocDescriptor(T** ptr, size_t typeSize, size_t typeAlign, size_t* currentCountPtr, size_t pendingCount) :
+        ptr(ptr), typeSize(typeSize), typeAlign(typeAlign), currentCountPtr(currentCountPtr), pendingCount(pendingCount) {
+            assert(sizeof (T) == typeSize);
+            assert(alignof(T) == typeAlign);
+    }
+    template<typename T>
+    constexpr multiMallocDescriptor(T** ptr, size_t* currentCountPtr, size_t pendingCount) :
+        ptr(reinterpret_cast<void*>(ptr)), typeSize(sizeof(T)), typeAlign(alignof(T)), currentCountPtr(currentCountPtr), pendingCount(pendingCount){}
     #endif
 };
 
