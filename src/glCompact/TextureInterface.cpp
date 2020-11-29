@@ -116,6 +116,7 @@ S
 #include "glCompact/Sampler.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 #include "glCompact/MemorySurfaceFormatDetail.hpp"
+#include "glCompact/minimumMaximum.hpp"
 
 #include <glm/glm.hpp>
 
@@ -245,12 +246,12 @@ namespace glCompact {
             case GL_TEXTURE_2D_MULTISAMPLE:
             case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: mipmapCount = 1; break;
             case GL_TEXTURE_1D:
-            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(::log2(    newSize.x                             + 1))); break;
+            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(::log2(        newSize.x                        + 1))); break;
             case GL_TEXTURE_2D:
             case GL_TEXTURE_2D_ARRAY:
             case GL_TEXTURE_CUBE_MAP:
-            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(::log2(max(newSize.x,     newSize.y)             + 1))); break;
-            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(::log2(max(newSize.x, max(newSize.y, newSize.z)) + 1))); break;
+            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(::log2(maximum(newSize.x, newSize.y)            + 1))); break;
+            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(::log2(maximum(newSize.x, newSize.y, newSize.z) + 1))); break;
         }
 
         int mipmapLevelX = newSize.x;
@@ -334,21 +335,21 @@ namespace glCompact {
                     case GL_TEXTURE_1D:
                         LOOPI(mipmapCount) {
                             threadContextGroup_->functions.glTexImage1D(target, i, sizedFormat, mipmapLevelX, border, components, componentsTypes, 0);
-                            mipmapLevelX = max(1, mipmapLevelX / 2);
+                            mipmapLevelX = maximum(1, mipmapLevelX / 2);
                         }
                         break;
                     case GL_TEXTURE_1D_ARRAY:
                         LOOPI(mipmapCount) {
                             //TODO test layers parameter
                             threadContextGroup_->functions.glTexImage2D(target, i, sizedFormat, mipmapLevelX, newSize.y, border, components, componentsTypes, 0);
-                            mipmapLevelX = max(1, mipmapLevelX / 2);
+                            mipmapLevelX = maximum(1, mipmapLevelX / 2);
                         }
                         break;
                     case GL_TEXTURE_2D:
                         LOOPI(mipmapCount) {
                             threadContextGroup_->functions.glTexImage2D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, border, components, componentsTypes, 0);
-                            mipmapLevelX = max(1, mipmapLevelX / 2);
-                            mipmapLevelY = max(1, mipmapLevelY / 2);
+                            mipmapLevelX = maximum(1, mipmapLevelX / 2);
+                            mipmapLevelY = maximum(1, mipmapLevelY / 2);
                         }
                         break;
                     case GL_TEXTURE_2D_MULTISAMPLE:
@@ -358,8 +359,8 @@ namespace glCompact {
                         LOOPI(mipmapCount) {
                             //TODO test layers parameter
                             threadContextGroup_->functions.glTexImage3D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, newSize.z, border, components, componentsTypes, 0);
-                            mipmapLevelX = max(1, mipmapLevelX / 2);
-                            mipmapLevelY = max(1, mipmapLevelY / 2);
+                            mipmapLevelX = maximum(1, mipmapLevelX / 2);
+                            mipmapLevelY = maximum(1, mipmapLevelY / 2);
                         }
                         break;
                     case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
@@ -371,8 +372,8 @@ namespace glCompact {
                         LOOPI(mipmapCount) {
                             LOOPJ(6)
                                 threadContextGroup_->functions.glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, i, sizedFormat, mipmapLevelX, mipmapLevelY, border, components, componentsTypes, 0);
-                            mipmapLevelX = max(1, mipmapLevelX / 2);
-                            mipmapLevelY = max(1, mipmapLevelY / 2);
+                            mipmapLevelX = maximum(1, mipmapLevelX / 2);
+                            mipmapLevelY = maximum(1, mipmapLevelY / 2);
                         }
                         break;
                     case GL_TEXTURE_CUBE_MAP_ARRAY:
@@ -387,16 +388,16 @@ namespace glCompact {
                                 //glTexImage3D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, i, sizedFormat, mipmapLevelX, mipmapLevelY, layers, border, GL_RED, GL_UNSIGNED_BYTE, 0);
                                 //glTexImage3D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, i, sizedFormat, mipmapLevelX, mipmapLevelY, layers, border, GL_RED, GL_UNSIGNED_BYTE, 0);
                             threadContextGroup_->functions.glTexImage3D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, newSize.z, border, components, componentsTypes, 0);
-                            mipmapLevelX = max(1, mipmapLevelX / 2);
-                            mipmapLevelY = max(1, mipmapLevelY / 2);
+                            mipmapLevelX = maximum(1, mipmapLevelX / 2);
+                            mipmapLevelY = maximum(1, mipmapLevelY / 2);
                         }
                         break;
                     case GL_TEXTURE_3D:
                         LOOPI(mipmapCount) {
                             threadContextGroup_->functions.glTexImage3D(target, i, sizedFormat, mipmapLevelX, mipmapLevelY, mipmapLevelZ, border, components, componentsTypes, 0);
-                            mipmapLevelX = max(1, mipmapLevelX / 2);
-                            mipmapLevelY = max(1, mipmapLevelY / 2);
-                            mipmapLevelZ = max(1, mipmapLevelZ / 2);
+                            mipmapLevelX = maximum(1, mipmapLevelX / 2);
+                            mipmapLevelY = maximum(1, mipmapLevelY / 2);
+                            mipmapLevelZ = maximum(1, mipmapLevelZ / 2);
                         }
                         break;
                 }
@@ -463,7 +464,7 @@ namespace glCompact {
         target        = newTarget;
         //TODO, needs formula for mipmap
         //TODO, needs formula for mipmap (and 1d array texture!)
-        size          = glm::uvec3(srcImages.size.x, srcImages.size.y, min(layerCount, srcImages.size.z));
+        size          = glm::uvec3(srcImages.size.x, srcImages.size.y, minimum(layerCount, srcImages.size.z));
         mipmapCount   = mipmap ? firstMipmap - srcImages.mipmapCount : 1;
         samples       = 0;
         surfaceFormat = newSurfaceFormat;
@@ -478,7 +479,7 @@ namespace glCompact {
         uint32_t mipmapLevel
     ) const {
         if (mipmapLevel >= mipmapCount) return glm::uvec3(0); //error or just return 0, 0, 0?
-        return max(glm::uvec3(1), glm::uvec3(
+        return glm::max(glm::uvec3(1), glm::uvec3(
                                                size.x >> mipmapLevel,
             (target != GL_TEXTURE_1D_ARRAY) ? (size.y >> mipmapLevel) : size.y,
             (target == GL_TEXTURE_3D)       ? (size.z >> mipmapLevel) : size.z
@@ -646,8 +647,8 @@ namespace glCompact {
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
         const uintptr_t requiredBufferSize = memorySurfaceFormat->isCompressed
-            ? memorySurfaceFormat->bytePerPixelOrBlock * (std::max(blockSizeX, texSize.x) / blockSizeX) * (std::max(blockSizeY, texSize.y) / blockSizeY) * std::max(1, texSize.z)
-            : memorySurfaceFormat->bytePerPixelOrBlock * std::max(1, texSize.x) * std::max(1, texSize.y) * std::max(1, texSize.z);
+            ? memorySurfaceFormat->bytePerPixelOrBlock * (maximum(blockSizeX, texSize.x) / blockSizeX) * (maximum(blockSizeY, texSize.y) / blockSizeY) * maximum(1, texSize.z)
+            : memorySurfaceFormat->bytePerPixelOrBlock * maximum(1, texSize.x) * maximum(1, texSize.y) * maximum(1, texSize.z);
 
         if (bufferInterface) {
             UNLIKELY_IF (bufferInterface->size == 0)
@@ -824,8 +825,8 @@ namespace glCompact {
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
         const uint32_t requiredBufferSize = memorySurfaceFormat->isCompressed
-            ? memorySurfaceFormat->bytePerPixelOrBlock * (max(blockSizeX, texSize.x) / blockSizeX) * (max(blockSizeY, texSize.y) / blockSizeY) * max(1, texSize.z)
-            : memorySurfaceFormat->bytePerPixelOrBlock *  max(1, texSize.x) * max(1, texSize.y) * max(1, texSize.z);
+            ? memorySurfaceFormat->bytePerPixelOrBlock * (maximum(blockSizeX, texSize.x) / blockSizeX) * (maximum(blockSizeY, texSize.y) / blockSizeY) * maximum(1, texSize.z)
+            : memorySurfaceFormat->bytePerPixelOrBlock *  maximum(1, texSize.x) * maximum(1, texSize.y) * maximum(1, texSize.z);
 
         UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
             throw runtime_error("maxCopySizeGuard size (" + to_string(maxCopySizeGuard) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer size!");
@@ -1069,16 +1070,16 @@ namespace glCompact {
     }
 
     /*
-        int mipmapLevelCount = int(ceil(log(max(xSize, ySize, zSize) + 1)));
+        int mipmapLevelCount = int(ceil(log(maximum(xSize, ySize, zSize) + 1)));
         if (mipmapLevel >= mipmapLevelCount) return 0;
 
         int mipmapLevelX = xSize;
         int mipmapLevelY = ySize;
         int mipmapLevelZ = zSize;
         LOOPI (mipmapLevelCount) {
-            mipmapLevelX = max(1, mipmapLevelX / 2);
-            mipmapLevelY = max(1, mipmapLevelY / 2);
-            mipmapLevelZ = max(1, mipmapLevelZ / 2);
+            mipmapLevelX = maximum(1, mipmapLevelX / 2);
+            mipmapLevelY = maximum(1, mipmapLevelY / 2);
+            mipmapLevelZ = maximum(1, mipmapLevelZ / 2);
         }
     */
 

@@ -8,8 +8,8 @@
 #include "glCompact/Tools_.hpp"
 #include "glCompact/PipelineCompute.hpp"
 #include "glCompact/Debug.hpp"
+#include "glCompact/minimumMaximum.hpp"
 
-#include "glCompact/minMax.hpp"
 #include <stdexcept>
 
 using namespace std;
@@ -380,7 +380,7 @@ void main() {
             uintptr_t writeOffset  = offset    + fillValueSize;
             uintptr_t bytesToWrite = clearSize - fillValueSize;
             while (bytesToWrite) {
-                uintptr_t copySize = std::min(writeOffset - offset, bytesToWrite);
+                uintptr_t copySize = minimum(writeOffset - offset, bytesToWrite);
                 copyFromBuffer(*this, offset, writeOffset, copySize);
                 writeOffset  += copySize;
                 bytesToWrite -= copySize;
@@ -443,7 +443,7 @@ void main() {
     /*void BufferInterface::setDebugLabel(const std::string& label) {
         Context_::assertThreadHasActiveGlContext();
         if (threadContextGroup_->extensions.GL_KHR_debug) {
-            GLsizei lenght = std::min(GLsizei(label.size()), GLsizei(threadContextGroup_->values.GL_MAX_LABEL_LENGTH));
+            GLsizei lenght = minimum(GLsizei(label.size()), GLsizei(threadContextGroup_->values.GL_MAX_LABEL_LENGTH));
             threadContextGroup_->functions.glObjectLabel(GL_BUFFER, id, lenght, label.c_str());
             //int maxSize = threadContextGroup_->values.GL_MAX_LABEL_LENGTH;
             //if (label.size() > maxSize) label.resize(maxSize);

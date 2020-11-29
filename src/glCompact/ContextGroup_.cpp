@@ -3,7 +3,7 @@
 #include "glCompact/gl/ConstantsCustom.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/Tools_.hpp"
-#include "glCompact/minMax.hpp"
+#include "glCompact/minimumMaximum.hpp"
 
 #include <string>
 #include <cstring>
@@ -449,9 +449,9 @@ namespace glCompact {
             (version.gles == GlesVersion::v30) ? gles30 :
             (version.gles == GlesVersion::v20) ? gles20 : 0;
         T value =
-            (version.gl != GlVersion::notSupported && version.gles == GlesVersion::notSupported) ? min(glValue, glesValue) :
-            (version.gl != GlVersion::notSupported)                                              ?     glValue :glesValue;
-        return max(value, getValue<T>(glConstName));
+            (version.gl != GlVersion::notSupported && version.gles == GlesVersion::notSupported) ? minimum(glValue, glesValue) :
+            (version.gl != GlVersion::notSupported)                                              ?         glValue :glesValue;
+        return maximum(value, getValue<T>(glConstName));
     }
 
     void ContextGroup_::getAllValue() {

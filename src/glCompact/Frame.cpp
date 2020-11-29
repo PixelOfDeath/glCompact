@@ -7,6 +7,7 @@
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
 #include "glCompact/MemorySurfaceFormatDetail.hpp"
+#include "glCompact/minimumMaximum.hpp"
 
 #include <glm/glm.hpp>
 
@@ -178,7 +179,7 @@ namespace glCompact {
 
             foundSingleLayer = isSingleLayer(depthAndOrStencilSurface);
             foundMultiLayer  = isMultiLayer (depthAndOrStencilSurface);
-            minSize = min(uvec3(1), depthAndOrStencilSurface.surface->getSize());
+            minSize = glm::min(uvec3(1), depthAndOrStencilSurface.surface->getSize());
             lastSamples = depthAndOrStencilSurface.surface->samples;
         }
         for (auto surfaceSelector : rgbaSurfaceList) {
@@ -192,7 +193,7 @@ namespace glCompact {
                 foundMultiLayer  = foundMultiLayer  || isMultiLayer (surfaceSelector);
                 foundSRGB        = foundSRGB        ||  surfaceSelector.surface->surfaceFormat->isSrgb;
                 foundNonSRGB     = foundNonSRGB     || !surfaceSelector.surface->surfaceFormat->isSrgb;
-                minSize = min(uvec3(1), surfaceSelector.surface->getSize());
+                minSize = glm::min(uvec3(1), surfaceSelector.surface->getSize());
                 uint32_t sSamples = surfaceSelector.surface->samples;
                 if (lastSamples != 0xFFFFFFFF && lastSamples != sSamples) foundDifferentSamples = true;
                 lastSamples = sSamples;

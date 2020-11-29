@@ -11,8 +11,8 @@
 #include "glCompact/Tools_.hpp"
 #include "glCompact/gl/Helper.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
-
 #include "glCompact/multiMalloc.h"
+#include "glCompact/minimumMaximum.hpp"
 
 #include <glm/glm.hpp>
 
@@ -1032,50 +1032,50 @@ namespace glCompact {
     void PipelineInterface::buffer_attribute_markSlotChange(
         int32_t slot
     ) {
-        buffer_attribute_changedSlotMin = min(buffer_attribute_changedSlotMin, slot);
-        buffer_attribute_changedSlotMax = max(buffer_attribute_changedSlotMax, slot);
+        buffer_attribute_changedSlotMin = minimum(buffer_attribute_changedSlotMin, slot);
+        buffer_attribute_changedSlotMax = maximum(buffer_attribute_changedSlotMax, slot);
     }
 
     void PipelineInterface::buffer_uniform_markSlotChange(
         int32_t slot
     ) {
-        buffer_uniform_changedSlotMin = min(buffer_uniform_changedSlotMin, slot);
-        buffer_uniform_changedSlotMax = max(buffer_uniform_changedSlotMax, slot);
+        buffer_uniform_changedSlotMin = minimum(buffer_uniform_changedSlotMin, slot);
+        buffer_uniform_changedSlotMax = maximum(buffer_uniform_changedSlotMax, slot);
     }
 
     void PipelineInterface::buffer_atomicCounter_markSlotChange(
         int32_t slot
     ) {
-        buffer_atomicCounter_changedSlotMin = min(buffer_atomicCounter_changedSlotMin, slot);
-        buffer_atomicCounter_changedSlotMax = max(buffer_atomicCounter_changedSlotMax, slot);
+        buffer_atomicCounter_changedSlotMin = minimum(buffer_atomicCounter_changedSlotMin, slot);
+        buffer_atomicCounter_changedSlotMax = maximum(buffer_atomicCounter_changedSlotMax, slot);
     }
 
     void PipelineInterface::buffer_shaderStorage_markSlotChange(
         int32_t slot
     ) {
-        buffer_shaderStorage_changedSlotMin = min(buffer_shaderStorage_changedSlotMin, slot);
-        buffer_shaderStorage_changedSlotMax = max(buffer_shaderStorage_changedSlotMax, slot);
+        buffer_shaderStorage_changedSlotMin = minimum(buffer_shaderStorage_changedSlotMin, slot);
+        buffer_shaderStorage_changedSlotMax = maximum(buffer_shaderStorage_changedSlotMax, slot);
     }
 
     void PipelineInterface::texture_markSlotChange(
         int32_t slot
     ) {
-        texture_changedSlotMin = min(texture_changedSlotMin, slot);
-        texture_changedSlotMax = max(texture_changedSlotMax, slot);
+        texture_changedSlotMin = minimum(texture_changedSlotMin, slot);
+        texture_changedSlotMax = maximum(texture_changedSlotMax, slot);
     }
 
     void PipelineInterface::sampler_markSlotChange(
         int32_t slot
     ) {
-        sampler_changedSlotMin = min(sampler_changedSlotMin, slot);
-        sampler_changedSlotMax = max(sampler_changedSlotMax, slot);
+        sampler_changedSlotMin = minimum(sampler_changedSlotMin, slot);
+        sampler_changedSlotMax = maximum(sampler_changedSlotMax, slot);
     }
 
     void PipelineInterface::image_markSlotChange(
         int32_t slot
     ) {
-        image_changedSlotMin = min(image_changedSlotMin, slot);
-        image_changedSlotMax = max(image_changedSlotMax, slot);
+        image_changedSlotMin = minimum(image_changedSlotMin, slot);
+        image_changedSlotMax = maximum(image_changedSlotMax, slot);
     }
 
     /*

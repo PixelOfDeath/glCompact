@@ -4,7 +4,6 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/config.hpp"
-#include "glCompact/minMax.hpp"
 
     #include "glCompact/Tools_.hpp"
     #include "glCompact/GlTools.hpp"

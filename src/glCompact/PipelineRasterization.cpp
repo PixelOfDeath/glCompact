@@ -5,6 +5,7 @@
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/config.hpp"
 #include "glCompact/BufferGpu.hpp"
+#include "glCompact/minimumMaximum.hpp"
 
 #include "glCompact/Tools_.hpp"
 #include "glCompact/gl/Helper.hpp"
@@ -905,7 +906,7 @@ namespace glCompact {
                 attributeLocationInfo[location].type = type;
                 attributeLocationInfo[location].name = name;
 
-                attributeLayoutStates.uppermostActiveLocation = max(attributeLayoutStates.uppermostActiveLocation, location);
+                attributeLayoutStates.uppermostActiveLocation = maximum(attributeLayoutStates.uppermostActiveLocation, location);
                 auto& gpuType = attributeLayoutStates.location[location].gpuType;
                 switch (gl::typeToBaseType(type)) {
                     case GL_FLOAT       : gpuType = AttributeLayoutStates::GpuType::f32; break;
@@ -1703,7 +1704,7 @@ namespace glCompact {
     void PipelineRasterization::processPendingChangesAttributeLayoutAndBuffers() {
         if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
             if (threadContext_->attributeLayoutChanged) {
-              //int uppermostActiveBufferIndex = max(threadContext->attributeLayoutStates.uppermostActiveBufferIndex, attributeLayoutStates.uppermostActiveBufferIndex);
+              //int uppermostActiveBufferIndex = maximum(threadContext->attributeLayoutStates.uppermostActiveBufferIndex, attributeLayoutStates.uppermostActiveBufferIndex);
                 int uppermostActiveBufferIndex = attributeLayoutStates.uppermostActiveBufferIndex;
                 LOOPI(uppermostActiveBufferIndex + 1) {
                     auto& currentInstancing = threadContext_->attributeLayoutStates.instancing[i];
@@ -1713,7 +1714,7 @@ namespace glCompact {
                         currentInstancing = pendingInstancing;
                     }
                 }
-              //int uppermostActiveLocation = max(threadContext->attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation);
+              //int uppermostActiveLocation = maximum(threadContext->attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation);
                 int uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
                 LOOPI(uppermostActiveLocation + 1) {
                     auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
@@ -1759,7 +1760,7 @@ namespace glCompact {
             int8_t changedSlotMax = buffer_attribute_changedSlotMax;
 
             //ignore states of buffer index if not used by shader layout
-            changedSlotMax = std::min(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
+            changedSlotMax = minimum(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
 
             if (changedSlotMin <= changedSlotMax) {
                 if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
@@ -1790,8 +1791,8 @@ namespace glCompact {
                     //        ||  current_buffer_vertex_offset                   [i] != pending_buffer_vertex_offset                   [i]
                     //        ||  current_vertexAttributeLayout.bufferIndexStride[i] != pending_vertexAttributeLayout.bufferIndexStride[i]
                     //    ){
-                    //        first = min(first, i);
-                    //        last  = max(last,  i);
+                    //        first = minimum(first, i);
+                    //        last  = maximum(last,  i);
                     //    }
                     //}
 
@@ -1830,10 +1831,10 @@ namespace glCompact {
             int8_t changedSlotMax = buffer_attribute_changedSlotMax;
 
             //ignore states of buffer index if not used by shader layout
-            changedSlotMax = std::min(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
+            changedSlotMax = minimum(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
 
             if (threadContext_->attributeLayoutChanged) {
-              //int uppermostActiveLocation = max(max(attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation), changedSlotMax);
+              //int uppermostActiveLocation = maximum(maximum(attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation), changedSlotMax);
                 int uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
                 LOOPI(uppermostActiveLocation + 1) {
                           auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
