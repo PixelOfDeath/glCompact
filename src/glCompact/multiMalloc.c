@@ -19,7 +19,7 @@ static size_t raiseToAlign(size_t value, size_t alignment) {
 static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct multiMallocDescriptor* md, size_t descriptorSizeInByte/*, void** initValue*/) {
     const int mdCount = descriptorSizeInByte / sizeof(struct multiMallocDescriptor);
 
-    _Bool noChanges = 1;
+    _Bool changes = 0;
     size_t mallocSize = 0;
     for (int i = 0; i < mdCount; ++i) {
         const struct multiMallocDescriptor* d = &md[i];
@@ -27,12 +27,12 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
 
         size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
         if (growOnly) {
-            if (currentCount <  d->pendingCount) noChanges = 0;
+            if (currentCount <  d->pendingCount) changes = 1;
         } else {
-            if (currentCount != d->pendingCount) noChanges = 0;
+            if (currentCount != d->pendingCount) changes = 1;
         }
     }
-    if (noChanges) return currentBasePtr;
+    if (!changes) return currentBasePtr;
 
     void* pendingBasePtr = NULL;
     if (mallocSize > 0) {
