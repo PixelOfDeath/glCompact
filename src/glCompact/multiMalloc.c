@@ -33,41 +33,40 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
         }
     }
     if (noChanges) return currentBasePtr;
-    if (mallocSize == 0) {
-        free(currentBasePtr);
-        return 0;
-    }
-    void* pendingBasePtr = malloc(mallocSize);
-    size_t currentPtr = (size_t)pendingBasePtr;
 
-    for (int i = 0; i < mdCount; ++i) {
-        const struct multiMallocDescriptor* d = &md[i];
-        size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
-        size_t pendingCount = maximum(d->pendingCount, growOnly ? currentCount : 0);
-        if (pendingCount) {
-            currentPtr = raiseToAlign(currentPtr, d->typeAlign);
-            if (currentBasePtr && d->ptr) {
-                size_t copyCount = minimum(currentCount, pendingCount);
-                memcpy((void*)(currentPtr                          ), d->ptr, d->typeSize * copyCount);
-                memset((void*)(currentPtr + d->typeSize * copyCount),      0, d->typeSize * (pendingCount - copyCount));
+    void* pendingBasePtr = NULL;
+    if (mallocSize > 0) {
+        pendingBasePtr = malloc(mallocSize);
+        size_t currentPtr = (size_t)pendingBasePtr;
+
+        for (int i = 0; i < mdCount; ++i) {
+            const struct multiMallocDescriptor* d = &md[i];
+            size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
+            size_t pendingCount = maximum(d->pendingCount, growOnly ? currentCount : 0);
+            if (pendingCount) {
+                currentPtr = raiseToAlign(currentPtr, d->typeAlign);
+                if (currentBasePtr && d->ptr) {
+                    size_t copyCount = minimum(currentCount, pendingCount);
+                    memcpy((void*)(currentPtr                          ), d->ptr, d->typeSize * copyCount);
+                    memset((void*)(currentPtr + d->typeSize * copyCount),      0, d->typeSize * (pendingCount - copyCount));
+                } else {
+                    memset((void*)(currentPtr                          ),      0, d->typeSize * pendingCount);
+                }
+                *(void**)d->ptr = (void*)currentPtr;
+                currentPtr += d->typeSize * pendingCount;
             } else {
-                memset((void*)(currentPtr                          ),      0, d->typeSize * pendingCount);
+                *(void**)d->ptr = 0;
             }
-            *(void**)d->ptr = (void*)currentPtr;
-            currentPtr += d->typeSize * pendingCount;
-        } else {
-            *(void**)d->ptr = 0;
+        }
+
+        //we set the counters last, because different arrays might use the same counter
+        for (int i = 0; i < mdCount; ++i) {
+            const struct multiMallocDescriptor* d = &md[i];
+            size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
+            size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
+            if (d->currentCountPtr) *d->currentCountPtr = pendingCount;
         }
     }
-
-    //we set the counters last, because different arrays might use the same counter
-    for (int i = 0; i < mdCount; ++i) {
-        const struct multiMallocDescriptor* d = &md[i];
-        size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
-        size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
-        if (d->currentCountPtr) *d->currentCountPtr = pendingCount;
-    }
-
     free(currentBasePtr);
     return pendingBasePtr;
 }
