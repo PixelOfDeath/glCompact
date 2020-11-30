@@ -4,6 +4,7 @@
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
 #include "glCompact/config.hpp"
+#include "glCompact/minimumMaximum.hpp"
 
     #include "glCompact/Tools_.hpp"
     #include "glCompact/GlTools.hpp"
@@ -186,9 +187,10 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (groupCount > 281462092005375) throw runtime_error("groupCount max. value is 281462092005375");
 
-        int32_t count1 =                  groupCount;
-        int32_t count2 = max<uint64_t>(1, groupCount / uint64_t(65535));
-        int32_t count3 = max<uint64_t>(1, groupCount / uint64_t(65535) / uint64_t(65535));
+
+        int32_t count1 =                      groupCount;
+        int32_t count2 = maximum<uint64_t>(1, groupCount / uint64_t(65535));
+        int32_t count3 = maximum<uint64_t>(1, groupCount / uint64_t(65535) / uint64_t(65535));
 
         dispatch(
              count1 < 65535 ? count1 : 65535,
