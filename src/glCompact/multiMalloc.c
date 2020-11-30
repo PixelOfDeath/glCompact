@@ -27,7 +27,7 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
 
         size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
         if (growOnly) {
-            if (currentCount >= d->pendingCount) noChanges = 0;
+            if (currentCount <  d->pendingCount) noChanges = 0;
         } else {
             if (currentCount != d->pendingCount) noChanges = 0;
         }
