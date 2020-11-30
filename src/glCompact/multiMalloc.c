@@ -54,14 +54,14 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
                 *(void**)d->ptr = 0;
             }
         }
+    }
 
-        //we set the counters last, because different arrays might use the same counter
-        for (int i = 0; i < mdCount; ++i) {
-            const struct multiMallocDescriptor* d = &md[i];
-            size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
-            size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
-            if (d->currentCountPtr) *d->currentCountPtr = pendingCount;
-        }
+    //we set the counters last, because different multiMallocDescriptor might reference the same counter
+    for (int i = 0; i < mdCount; ++i) {
+        const struct multiMallocDescriptor* d = &md[i];
+        size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
+        size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
+        if (d->currentCountPtr) *d->currentCountPtr = pendingCount;
     }
     free(currentBasePtr);
     return pendingBasePtr;
