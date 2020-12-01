@@ -41,13 +41,10 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
             size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
             if (pendingCount) {
                 currentPtr = raiseToAlign(currentPtr, d->typeAlign);
-                if (currentBasePtr && d->ptr) {
-                    size_t copyCount = minimum(currentCount, pendingCount);
-                    memcpy((void*)(currentPtr                          ), d->ptr, d->typeSize * copyCount);
-                    memset((void*)(currentPtr + d->typeSize * copyCount),      0, d->typeSize * (pendingCount - copyCount));
-                } else {
-                    memset((void*)(currentPtr                          ),      0, d->typeSize * pendingCount);
-                }
+                size_t copyCount = currentBasePtr && d->ptr ? minimum(currentCount, pendingCount) : 0;
+                size_t nullCount = copyCount < pendingCount ? pendingCount - copyCount : 0;
+                memcpy((void*)(currentPtr                          ), *(void**)d->ptr, d->typeSize * copyCount);
+                memset((void*)(currentPtr + d->typeSize * copyCount),               0, d->typeSize * nullCount);
                 *(void**)d->ptr = (void*)currentPtr;
                 currentPtr += d->typeSize * pendingCount;
             } else {
