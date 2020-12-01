@@ -25,7 +25,7 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
         const struct multiMallocDescriptor* d = &md[i];
         size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
         size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
-        if (currentCount < pendingCount) changes = 1;
+        if (currentCount != pendingCount) changes = 1;
         if (pendingCount) mallocSize = raiseToAlign(mallocSize, d->typeAlign) + d->typeSize * pendingCount;
     }
     if (!changes) return currentBasePtr;
