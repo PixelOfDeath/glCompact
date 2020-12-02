@@ -13,7 +13,7 @@ static size_t maximum(size_t a, size_t b) {
 }
 
 static size_t raiseToAlign(size_t value, size_t alignment) {
-    assert(!(alignment & (alignment - 1))); //alignment must be a power of two value
+    assert(alignment && !(alignment & (alignment - 1))); //alignment must be >0 and a power of two value
     return (value + alignment - 1) & ~(alignment - 1);
 }
 
