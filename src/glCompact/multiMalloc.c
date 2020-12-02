@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 #include "glCompact/multiMalloc.h"
 
 static size_t minimum(size_t a, size_t b) {
@@ -11,8 +12,8 @@ static size_t maximum(size_t a, size_t b) {
     return a > b ? a : b;
 }
 
-//only works correctly if alignment is POT
 static size_t raiseToAlign(size_t value, size_t alignment) {
+    assert(!(alignment & (alignment - 1))); //alignment must be a power of two value
     return (value + alignment - 1) & ~(alignment - 1);
 }
 
