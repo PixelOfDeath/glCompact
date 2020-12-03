@@ -42,10 +42,10 @@ namespace glCompact {
                 const std::string& fragmentFile
             );
 
-            PipelineRasterization(PipelineRasterization&& pipelineRasterization)     = delete;
-            PipelineRasterization(PipelineRasterization& shaderRaster)               = delete;
-            PipelineRasterization& operator=(PipelineRasterization& shaderGraphics)  = delete;
-            PipelineRasterization& operator=(PipelineRasterization&& shaderGraphics) = delete;
+            PipelineRasterization           (PipelineRasterization&  pipelineRasterization) = delete;
+            PipelineRasterization           (PipelineRasterization&& pipelineRasterization) = delete;
+            PipelineRasterization& operator=(PipelineRasterization&  pipelineRasterization) = delete;
+            PipelineRasterization& operator=(PipelineRasterization&& pipelineRasterization) = delete;
         public:
             void setVertexStageInputPrimitiveTopology(PrimitiveTopology primitiveTopology);
 
