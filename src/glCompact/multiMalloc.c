@@ -31,26 +31,22 @@ static void* multiReMalloc_(void* currentBasePtr, _Bool growOnly, const struct m
     }
     if (!changes) return currentBasePtr;
 
-    void* pendingBasePtr = NULL;
-    if (mallocSize > 0) {
-        pendingBasePtr = malloc(mallocSize);
-        size_t currentPtr = (size_t)pendingBasePtr;
-
-        for (int i = 0; i < mdCount; ++i) {
-            const struct multiMallocDescriptor* d = &md[i];
-            size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
-            size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
-            if (pendingCount) {
-                currentPtr = raiseToAlign(currentPtr, d->typeAlign);
-                size_t copyCount = currentBasePtr && d->ptr ? minimum(currentCount, pendingCount) : 0;
-                size_t nullCount = copyCount < pendingCount ? pendingCount - copyCount : 0;
-                memcpy((void*)(currentPtr                          ), *(void**)d->ptr, d->typeSize * copyCount);
-                memset((void*)(currentPtr + d->typeSize * copyCount),               0, d->typeSize * nullCount);
-                *(void**)d->ptr = (void*)currentPtr;
-                currentPtr += d->typeSize * pendingCount;
-            } else {
-                *(void**)d->ptr = 0;
-            }
+    void* pendingBasePtr = malloc(mallocSize);
+    size_t currentPtr = (size_t)pendingBasePtr;
+    for (int i = 0; i < mdCount; ++i) {
+        const struct multiMallocDescriptor* d = &md[i];
+        size_t currentCount = currentBasePtr && d->currentCountPtr ? *d->currentCountPtr : 0;
+        size_t pendingCount = growOnly ? maximum(currentCount, d->pendingCount) : d->pendingCount;
+        if (pendingCount) {
+            currentPtr = raiseToAlign(currentPtr, d->typeAlign);
+            size_t copyCount = currentBasePtr && d->ptr ? minimum(currentCount, pendingCount) : 0;
+            size_t nullCount = copyCount < pendingCount ? pendingCount - copyCount : 0;
+            memcpy((void*)(currentPtr                          ), *(void**)d->ptr, d->typeSize * copyCount);
+            memset((void*)(currentPtr + d->typeSize * copyCount),               0, d->typeSize * nullCount);
+            *(void**)d->ptr = (void*)currentPtr;
+            currentPtr += d->typeSize * pendingCount;
+        } else {
+            *(void**)d->ptr = 0;
         }
     }
 
