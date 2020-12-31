@@ -317,41 +317,48 @@ namespace glCompact {
     Frame::Frame(
         Frame&& frame
     ) {
-        assert(this != &frame);
-        id      = frame.id;
-        size    = frame.size;
-        samples = frame.samples;
-        layered = frame.layered;
+        id                          = frame.id;
+        size                        = frame.size;
+        samples                     = frame.samples;
+        layered                     = frame.layered;
+        srgb                        = frame.srgb;
+        convertSrgb                 = frame.convertSrgb;
+        scissorEnabled              = frame.scissorEnabled;
+        viewportOffset              = frame.viewportOffset;
+        viewportSize                = frame.viewportSize;
+        scissorOffset               = frame.scissorOffset;
+        scissorSize                 = frame.scissorSize;
+        depthAttachmentDataType     = frame.depthAttachmentDataType;
+        stencilAttachmentDataType   = frame.stencilAttachmentDataType;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-            rgbaAttachmentDataType[i] = frame.rgbaAttachmentDataType[i];
-        scissorEnabled = frame.scissorEnabled;
-        viewportOffset = frame.viewportOffset;
-        viewportSize   = frame.viewportSize;
-        scissorOffset  = frame.scissorOffset;
-        scissorSize    = frame.scissorSize;
+            rgbaAttachmentDataType[i]   = frame.rgbaAttachmentDataType[i];
 
-        setDefaultValues();
+        frame.id = 0;
     }
 
     Frame& Frame::operator=(
         Frame&& frame
     ) {
-        assert(this != &frame);
-        if (!id) threadContextGroup_->functions.glDeleteFramebuffers(1, &id);
-        detachFromThreadContextStateCurrent();
-        id      = frame.id;
-        size    = frame.size;
-        samples = frame.samples;
-        layered = frame.layered;
+        UNLIKELY_IF (&frame == this) return *this;
+        free();
+        id                          = frame.id;
+        size                        = frame.size;
+        samples                     = frame.samples;
+        layered                     = frame.layered;
+        srgb                        = frame.srgb;
+        convertSrgb                 = frame.convertSrgb;
+        scissorEnabled              = frame.scissorEnabled;
+        viewportOffset              = frame.viewportOffset;
+        viewportSize                = frame.viewportSize;
+        scissorOffset               = frame.scissorOffset;
+        scissorSize                 = frame.scissorSize;
+        depthAttachmentDataType     = frame.depthAttachmentDataType;
+        stencilAttachmentDataType   = frame.stencilAttachmentDataType;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-            rgbaAttachmentDataType[i] = frame.rgbaAttachmentDataType[i];
-        scissorEnabled = frame.scissorEnabled;
-        viewportOffset = frame.viewportOffset;
-        viewportSize   = frame.viewportSize;
-        scissorOffset  = frame.scissorOffset;
-        scissorSize    = frame.scissorSize;
+            rgbaAttachmentDataType[i]   = frame.rgbaAttachmentDataType[i];
 
-        setDefaultValues();
+        frame.detachPtrFromThreadContextState();
+        frame.id = 0;
         return *this;
     }
 
@@ -963,28 +970,18 @@ namespace glCompact {
         }
     }
 
-    void Frame::detachFromThreadContextStateCurrent() const {
+    void Frame::detachPtrFromThreadContextState() const {
         assert(threadContext_);
-
-        int setCurrentValue = 0;
-        if (config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO) setCurrentValue = -1;
-
-        if (threadContext_->current_frame        == this) threadContext_->current_frame        = 0;
-        if (threadContext_->current_frame_drawId ==   id) threadContext_->current_frame_drawId = setCurrentValue;
-        if (threadContext_->current_frame_readId ==   id) threadContext_->current_frame_readId = setCurrentValue;
+        if (threadContext_->current_frame        == this) threadContext_->current_frame        = nullptr;
+        if (threadContext_->pending_frame        == this) threadContext_->pending_frame        = nullptr;
     }
 
     void Frame::detachFromThreadContextState() const {
-        assert(threadContext_);
-
-        detachFromThreadContextStateCurrent();
-
-        //int setCurrentValue = 0;
-        //if (Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO) setCurrentValue = -1;
-
-        if (threadContext_->pending_frame        == this) threadContext_->pending_frame        = 0;
-        if (threadContext_->pending_frame_drawId ==   id) threadContext_->pending_frame_drawId = 0;
-        //if (threadContext->pending_frame_readId ==   id) threadContext->pending_frame_readId = 0;
+        detachPtrFromThreadContextState();
+        const int setCurrentValue = config::Workarounds::AMD_DELETING_ACTIVE_FBO_NOT_SETTING_DEFAULT_FBO ? -1 : 0;
+        if (threadContext_->current_frame_drawId ==   id) threadContext_->current_frame_drawId = setCurrentValue;
+        if (threadContext_->current_frame_readId ==   id) threadContext_->current_frame_readId = setCurrentValue;
+        if (threadContext_->pending_frame_drawId ==   id) threadContext_->pending_frame_drawId = setCurrentValue;
     }
 
     /*void Frame::detach(GLenum attachment)

@@ -83,14 +83,17 @@ namespace glCompact {
 
             //TODO: And ref of active rgba/depth/stencil attachments?
         protected:
-            uint32_t id      = 0;
-
-            glm::uvec3 size;
-            uint32_t samples = 0;
-            bool     layered = false;
-            bool     srgb    = false;
-
-            bool     convertSrgb = false;
+            uint32_t    id              = 0;
+            glm::uvec3  size            = {0, 0, 0};
+            uint32_t    samples         = 0;
+            bool        layered         = false;
+            bool        srgb            = false;
+            bool        convertSrgb     = false;
+            bool        scissorEnabled  = false;
+            glm::uvec2  viewportOffset  = {0, 0};
+            glm::uvec2  viewportSize    = {0, 0};
+            glm::uvec2  scissorOffset   = {0, 0};
+            glm::uvec2  scissorSize     = {0, 0};
 
             enum AttachmentDataType : uint8_t {
                 unused,
@@ -98,15 +101,9 @@ namespace glCompact {
                 unsignedInteger,
                 signedInteger
             };
+            AttachmentDataType depthAttachmentDataType                              = AttachmentDataType::unused;
+            AttachmentDataType stencilAttachmentDataType                            = AttachmentDataType::unused;
             AttachmentDataType rgbaAttachmentDataType[config::MAX_RGBA_ATTACHMENTS] = {};
-            AttachmentDataType depthAttachmentDataType   = AttachmentDataType::unused;
-            AttachmentDataType stencilAttachmentDataType = AttachmentDataType::unused;
-
-            bool scissorEnabled = false;
-            glm::uvec2 viewportOffset;
-            glm::uvec2 viewportSize;
-            glm::uvec2 scissorOffset;
-            glm::uvec2 scissorSize;
 
             static bool isSingleLayer(SurfaceSelector sel);
             static bool isMultiLayer (SurfaceSelector sel);
@@ -123,7 +120,7 @@ namespace glCompact {
 
             void invalidate(int32_t attachment);
 
-            void detachFromThreadContextStateCurrent() const;
+            void detachPtrFromThreadContextState() const;
             void detachFromThreadContextState() const;
 
             void setDefaultValues();
