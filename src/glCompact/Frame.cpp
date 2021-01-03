@@ -127,7 +127,11 @@ namespace glCompact {
 
         \details This object is a collection of texture and/or render-buffers to be used as a target for rasterization operations by PipelineRasterization.
 
-        It can contain a single depth or stencil or depthStencil target. And up to 8 RGBA targets.
+        It can contain:
+
+        - None or one single depth OR stencil OR depthStencil target.
+
+        - None or up to 8 RGBA targets.
 
         - Targets must be either all layered or all unlayered. Layer counts can be arbitrary mixed.
 
@@ -138,16 +142,16 @@ namespace glCompact {
         The smallest target size defines the rasterization size of the Frame. Therefor the Frame also needs at last one target.
 
         With GL_ARB_framebuffer_no_attachments (Core since 4.3), it is possible to create a "virtual" Frame without any attachments.
-        The size, layer count and sample count are set via parameters. It is intended to be used for e.g. rasterization with SSBO image store.
+        The size, layer count and sample count are set via parameters. It is intended to be used for rasterization with e.g. SSBO image store targets.
 
-        Note that this object can not be accessed by any other OpenGL context and only exist in the creator context!
+        Note that this object only exist in the creator context. It can not be accessed by any other OpenGL context!
 
         The underlaying memory of all attached textures and render-buffers is not deleted until all Frame objects targeting them are also deleted.
-    */
-    /*
-        TODO check max attachment count (throw is better then gl error!)
 
-        TODO: I think I have to change default mapping with more then one rgba target? Default mapping only maps slot0 to 0???
+        GL_MAX_DUAL_SOURCE_DRAW_BUFFERS even in GL4.6 only has a lower limit of 1. Support of anything more depends on the specific hardware/driver.
+
+        TODO:
+        Can not map a draw target more then once! (intercept that one here and throw! Could be very complicated with texture views)
     */
     Frame::Frame(
         SurfaceSelector depthAndOrStencilSurface,
@@ -160,17 +164,18 @@ namespace glCompact {
         SurfaceSelector rgba6,
         SurfaceSelector rgba7
     ) {
-        array<SurfaceSelector, 8> rgbaSurfaceList = {rgba0, rgba1, rgba2, rgba3, rgba4, rgba5, rgba6, rgba7};
+        const array<SurfaceSelector, config::MAX_RGBA_ATTACHMENTS> rgbaSurfaceList = {rgba0, rgba1, rgba2, rgba3, rgba4, rgba5, rgba6, rgba7};
 
-        bool foundSingleLayer      = false;
-        bool foundMultiLayer       = false;
-        bool foundDifferentSamples = false;
-        bool foundSRGB             = false;
-        bool foundNonSRGB          = false;
-        uvec3 minSize(0xFFFFFFFF);
-        uint32_t lastSamples = 0xFFFFFFFF;
+        bool     foundSingleLayer      = false;
+        bool     foundMultiLayer       = false;
+        bool     foundDifferentSamples = false;
+        bool     foundSRGB             = false;
+        bool     foundNonSRGB          = false;
+        uvec3    minSize               = uvec3(0xFFFFFFFF);
+        uint32_t lastSamples           = 0xFFFFFFFF;
+        int32_t  rgbaMapping[config::MAX_RGBA_ATTACHMENTS] = {}; //0 == GL_NONE
+        int32_t  rgbaMappingCount      = 0;
 
-        //bool isLayered;
         if (depthAndOrStencilSurface.surface) {
             UNLIKELY_IF (depthAndOrStencilSurface.surface->surfaceFormat->isCompressed)
                 crash("depthAndOrStencilSurface must be a uncompressed format!");
@@ -182,13 +187,18 @@ namespace glCompact {
             minSize = glm::min(minSize, depthAndOrStencilSurface.surface->getSize());
             lastSamples = depthAndOrStencilSurface.surface->samples;
         }
-        for (auto surfaceSelector : rgbaSurfaceList) {
+        LOOPI(config::MAX_RGBA_ATTACHMENTS) {
+            auto surfaceSelector = rgbaSurfaceList[i];
             if (surfaceSelector.surface) {
                 UNLIKELY_IF (surfaceSelector.surface->surfaceFormat->isCompressed)
                     crash("Rgba format must be a uncompressed format!");
-                UNLIKELY_IF (    !surfaceSelector.surface->surfaceFormat->isRenderable
-                             ||  !(surfaceSelector.surface->surfaceFormat->isRgbaNormalizedIntegerOrFloat || surfaceSelector.surface->surfaceFormat->isRgbaInteger))
-                    crash(string("Not a rgba renderable format: ") + surfaceSelector.surface->surfaceFormat->name);
+                UNLIKELY_IF (  ! surfaceSelector.surface->surfaceFormat->isRenderable
+                             ||!(surfaceSelector.surface->surfaceFormat->isRgbaNormalizedIntegerOrFloat || surfaceSelector.surface->surfaceFormat->isRgbaInteger))
+                    crash(string("Not a RGBA renderable format: ") + surfaceSelector.surface->surfaceFormat->name);
+                UNLIKELY_IF (i >= threadContextGroup_->values.GL_MAX_COLOR_ATTACHMENTS)
+                    crash(string("Can't set RGBA attachment slot that is higher then GL_MAX_COLOR_ATTACHMENTS(") + to_string(threadContextGroup_->values.GL_MAX_COLOR_ATTACHMENTS) + ")");
+                UNLIKELY_IF (rgbaTargetCount + 1 >= threadContextGroup_->values.GL_MAX_DRAW_BUFFERS)
+                    crash(string("Can't use more RGBA targets then GL_MAX_DRAW_BUFFERS(") + to_string(threadContextGroup_->values.GL_MAX_DRAW_BUFFERS) + ")");
                 foundSingleLayer = foundSingleLayer || isSingleLayer(surfaceSelector);
                 foundMultiLayer  = foundMultiLayer  || isMultiLayer (surfaceSelector);
                 foundSRGB        = foundSRGB        ||  surfaceSelector.surface->surfaceFormat->isSrgb;
@@ -197,8 +207,12 @@ namespace glCompact {
                 uint32_t sSamples = surfaceSelector.surface->samples;
                 if (lastSamples != 0xFFFFFFFF && lastSamples != sSamples) foundDifferentSamples = true;
                 lastSamples = sSamples;
+                rgbaMapping[i] = GL_COLOR_ATTACHMENT0 + i;
+                rgbaTargetCount++;
+                rgbaMappingCount = i + 1;
             }
         }
+
         UNLIKELY_IF (foundSingleLayer && foundMultiLayer)
             crash("Can not mix single layer with multi layer surfaces!");
         UNLIKELY_IF (foundDifferentSamples)
@@ -232,14 +246,19 @@ namespace glCompact {
             rgbaSlot++;
         }
 
+        if (rgbaMappingCount > 0) {
+            if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
+                threadContextGroup_->functions.glNamedFramebufferDrawBuffers(id, rgbaMappingCount, &rgbaMapping[0]);
+            } else {
+                threadContextGroup_->functions.glDrawBuffers(rgbaMappingCount, &rgbaMapping[0]);
+            }
+        }
 
         //NOTE: glCheckNamedFramebufferStatusEXT is useless, because it may not correctly return an error when the FBO is not complete!
-        GLenum fboStatus = 0;
-        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
-            fboStatus = threadContextGroup_->functions.glCheckNamedFramebufferStatus(id, GL_DRAW_FRAMEBUFFER);
-        } else {
-            fboStatus = threadContextGroup_->functions.glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
-        }
+        const GLenum fboStatus =
+            threadContextGroup_->extensions.GL_ARB_direct_state_access ?
+                threadContextGroup_->functions.glCheckNamedFramebufferStatus(id, GL_DRAW_FRAMEBUFFER)
+            :   threadContextGroup_->functions.glCheckFramebufferStatus     (    GL_DRAW_FRAMEBUFFER);
         if (fboStatus == GL_FRAMEBUFFER_COMPLETE) return;
         free();
         switch (fboStatus) {
@@ -982,107 +1001,6 @@ namespace glCompact {
         if (threadContext_->current_frame_drawId ==   id) threadContext_->current_frame_drawId = setCurrentValue;
         if (threadContext_->current_frame_readId ==   id) threadContext_->current_frame_readId = setCurrentValue;
         if (threadContext_->pending_frame_drawId ==   id) threadContext_->pending_frame_drawId = setCurrentValue;
-    }
-
-    /*void Frame::detach(GLenum attachment)
-    {
-        if (!id) return;
-        if (threadContext->extensions.GL_ARB_direct_state_access) {
-            threadContext->glNamedFramebufferTexture(id, attachment, 0, 0);
-        } else {
-            threadContext->cachedBindDrawFbo(id);
-            threadContext->glFramebufferTexture(GL_DRAW_FRAMEBUFFER, attachment, 0, 0);
-        }
-    }*/
-
-
-    /**
-        @param target GL_NONE or GL_COLOR_ATTACHMENT0..GL_COLOR_ATTACHMENT<values.GL_MAX_DRAW_BUFFERS - 1>
-    */
-    /*void Frame::setDrawTarget(GLenum target) const
-    {
-        if (!id && !defaultFrameBuffer) return;
-        if (threadContext->extensions.GL_ARB_direct_state_access) {
-            threadContext->glNamedFramebufferDrawBuffer(id, target);
-        } else {
-            threadContext->cachedBindDrawFbo(id);
-            threadContext->glDrawBuffer(target);
-        }
-    }*/
-
-    /*
-        Maps the rgba shader outputs to specific rgba targets of this Frame.
-
-
-        TODO: Default mapping is like the Frame creation? (Could be a problem with drivers that allow more binding points then active targets!)
-              Maybe only map as many as possible? Still will work fine in most cases as resonable default!
-
-        Can not map a draw target more then once! (TODO: intercept that one internaly here and throw)
-
-        Can not map to draw target if FBO has nothing bound to the slot. (automaticly includes GL_MAX_COLOR_ATTACHMENTS, I guess)
-
-        Can not set slots bayond GL_MAX_DRAW_BUFFERS
-
-
-
-        First color render target is 0.
-
-        To disable a specific shader color output use -1.
-
-        GL_MAX_COLOR_ATTACHMENTS
-        GL_MAX_DRAW_BUFFERS
-
-
-        Each draw buffers must either specify color attachment points that have images attached or must be GL_NONE.
-        (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER when false).
-        Note that this test is not performed if OpenGL 4.1 or ARB_ES2_compatibility is available.
-
-
-        config::MAX_RGBA_ATTACHMENTS
-    */
-    void Frame::setRgbaDrawMapping(
-        int32_t slot0,
-        int32_t slot1,
-        int32_t slot2,
-        int32_t slot3,
-        int32_t slot4,
-        int32_t slot5,
-        int32_t slot6,
-        int32_t slot7
-    ) {
-        if (!id) return; //or throw
-        const int32_t mappingListInput[8] = {slot0, slot1, slot2, slot3, slot4, slot5, slot6, slot7};
-              int32_t mappingList[8]      = {GL_NONE, GL_NONE, GL_NONE, GL_NONE, GL_NONE, GL_NONE, GL_NONE, GL_NONE};
-
-        int highestMapping = 0;
-        for (int i = 0; i<8; i++) {
-            if (mappingListInput[i] > -1) {
-                UNLIKELY_IF (mappingListInput[i] >= threadContextGroup_->values.GL_MAX_COLOR_ATTACHMENTS)
-                    throw std::runtime_error("Can not map more then GL_MAX_COLOR_ATTACHMENTS(" + to_string(threadContextGroup_->values.GL_MAX_COLOR_ATTACHMENTS) + ")");
-                highestMapping = i + 1;
-                mappingList[i] = mappingListInput[i] + GL_COLOR_ATTACHMENT0;
-            }
-        }
-
-        UNLIKELY_IF (highestMapping >= threadContextGroup_->values.GL_MAX_DRAW_BUFFERS)
-            throw std::runtime_error("Can not set draw mapping slot that is higher then GL_MAX_DRAW_BUFFERS(" + to_string(threadContextGroup_->values.GL_MAX_DRAW_BUFFERS) + ")");
-
-        if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
-            threadContextGroup_->functions.glNamedFramebufferDrawBuffers(id, highestMapping, &mappingList[0]);
-        } else {
-            threadContext_->cachedBindDrawFbo(id);
-            threadContextGroup_->functions.glDrawBuffers(highestMapping, &mappingList[0]);
-        }
-
-        //else if (defaultFrameBuffer) {
-        //    //TODO
-        //    if (threadContext->extensions.GL_ARB_direct_state_access) {
-        //        threadContext->glNamedFramebufferDrawBuffer(id, targets[0]);
-        //    } else {
-        //        threadContext->cachedBindDrawFbo(id);
-        //        threadContext->glDrawBuffer(targets[0]);
-        //    }
-        //}
     }
 
     /*void Frame::setReadTarget(GLenum target) {

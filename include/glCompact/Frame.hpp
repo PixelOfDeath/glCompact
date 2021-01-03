@@ -74,17 +74,17 @@ namespace glCompact {
 
             void copyToMemory(uint32_t rgbaSlot, void* mem, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
 
-            void setRgbaDrawMapping(int32_t slot0, int32_t slot1 = -1, int32_t slot2 = -1, int32_t slot3 = -1, int32_t slot4 = -1, int32_t slot5 = -1, int32_t slot6 = -1, int32_t slot7 = -1);
-
-            glm::uvec3 getSize() const {return size;}
-            uint32_t getSamples() const {return samples;}
-            bool     isLayered() const {return layered;}
-            bool     isSrgb() const {return srgb;}
+            glm::uvec3 getSize()            const {return size;}
+            uint32_t   getRgbaTargetCount() const {return rgbaTargetCount;}
+            uint32_t   getSamples()         const {return samples;}
+            bool       isLayered()          const {return layered;}
+            bool       isSrgb()             const {return srgb;}
 
             //TODO: And ref of active rgba/depth/stencil attachments?
         protected:
             uint32_t    id              = 0;
             glm::uvec3  size            = {0, 0, 0};
+            uint32_t    rgbaTargetCount = 0;
             uint32_t    samples         = 0;
             bool        layered         = false;
             bool        srgb            = false;
