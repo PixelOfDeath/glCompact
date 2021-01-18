@@ -347,10 +347,9 @@ namespace glCompact {
         viewportSize                = frame.viewportSize;
         scissorOffset               = frame.scissorOffset;
         scissorSize                 = frame.scissorSize;
-        depthAttachmentDataType     = frame.depthAttachmentDataType;
-        stencilAttachmentDataType   = frame.stencilAttachmentDataType;
+        depthStencilSurfaceFormat   = frame.depthStencilSurfaceFormat;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-            rgbaAttachmentDataType[i]   = frame.rgbaAttachmentDataType[i];
+            rgbaSurfaceFormat[i]    = frame.rgbaSurfaceFormat[i];
 
         frame.id = 0;
     }
@@ -371,10 +370,9 @@ namespace glCompact {
         viewportSize                = frame.viewportSize;
         scissorOffset               = frame.scissorOffset;
         scissorSize                 = frame.scissorSize;
-        depthAttachmentDataType     = frame.depthAttachmentDataType;
-        stencilAttachmentDataType   = frame.stencilAttachmentDataType;
+        depthStencilSurfaceFormat   = frame.depthStencilSurfaceFormat;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-            rgbaAttachmentDataType[i]   = frame.rgbaAttachmentDataType[i];
+            rgbaSurfaceFormat[i]    = frame.rgbaSurfaceFormat[i];
 
         frame.detachPtrFromThreadContextState();
         frame.id = 0;
@@ -624,18 +622,14 @@ namespace glCompact {
         uint32_t  slot,
         glm::vec4 rgba
     ) {
-        switch (rgbaAttachmentDataType[slot]) {
-            case AttachmentDataType::unused:
-                break;
-            case AttachmentDataType::normalizedOrFloat:
-                clearRgbaNormalizedOrFloat(slot, rgba);
-                break;
-            case AttachmentDataType::unsignedInteger:
-                clearRgbaUnsigned(slot, rgba);
-                break;
-            case AttachmentDataType::signedInteger:
+        if (rgbaSurfaceFormat[slot]->isRgbaNormalizedIntegerOrFloat) {
+            clearRgbaNormalizedOrFloat(slot, rgba);
+        } else if (rgbaSurfaceFormat[slot]->isRgbaInteger) {
+            if (rgbaSurfaceFormat[slot]->isSigned) {
                 clearRgbaSigned(slot, rgba);
-                break;
+            } else {
+                clearRgbaUnsigned(slot, rgba);
+            }
         }
     }
 
@@ -643,18 +637,14 @@ namespace glCompact {
         uint32_t   slot,
         glm::uvec4 rgba
     ) {
-        switch (rgbaAttachmentDataType[slot]) {
-            case AttachmentDataType::unused:
-                break;
-            case AttachmentDataType::normalizedOrFloat:
-                clearRgbaNormalizedOrFloat(slot, rgba);
-                break;
-            case AttachmentDataType::unsignedInteger:
-                clearRgbaUnsigned(slot, rgba);
-                break;
-            case AttachmentDataType::signedInteger:
+        if (rgbaSurfaceFormat[slot]->isRgbaNormalizedIntegerOrFloat) {
+            clearRgbaNormalizedOrFloat(slot, rgba);
+        } else if (rgbaSurfaceFormat[slot]->isRgbaInteger) {
+            if (rgbaSurfaceFormat[slot]->isSigned) {
                 clearRgbaSigned(slot, rgba);
-                break;
+            } else {
+                clearRgbaUnsigned(slot, rgba);
+            }
         }
     }
 
@@ -662,18 +652,14 @@ namespace glCompact {
         uint32_t   slot,
         glm::ivec4 rgba
     ) {
-        switch (rgbaAttachmentDataType[slot]) {
-            case AttachmentDataType::unused:
-                break;
-            case AttachmentDataType::normalizedOrFloat:
-                clearRgbaNormalizedOrFloat(slot, rgba);
-                break;
-            case AttachmentDataType::unsignedInteger:
-                clearRgbaUnsigned(slot, rgba);
-                break;
-            case AttachmentDataType::signedInteger:
+        if (rgbaSurfaceFormat[slot]->isRgbaNormalizedIntegerOrFloat) {
+            clearRgbaNormalizedOrFloat(slot, rgba);
+        } else if (rgbaSurfaceFormat[slot]->isRgbaInteger) {
+            if (rgbaSurfaceFormat[slot]->isSigned) {
                 clearRgbaSigned(slot, rgba);
-                break;
+            } else {
+                clearRgbaUnsigned(slot, rgba);
+            }
         }
     }
 
@@ -847,25 +833,6 @@ namespace glCompact {
                 throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") beyond config::MAX_RGBA_ATTACHMENTS(0.." + to_string(config::MAX_RGBA_ATTACHMENTS - 1) + ")");
         }
 
-        if (memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat) {
-            UNLIKELY_IF (rgbaAttachmentDataType[rgbaSlot] != AttachmentDataType::normalizedOrFloat)
-                throw std::runtime_error("rgbaSlot format and memorySurfaceFormat do not fit!");
-        } else if (memorySurfaceFormat->isRgbaInteger && !memorySurfaceFormat->isSigned) {
-            UNLIKELY_IF (rgbaAttachmentDataType[rgbaSlot] != AttachmentDataType::unsignedInteger)
-                throw std::runtime_error("rgbaSlot format and memorySurfaceFormat do not fit!");
-        } else if (memorySurfaceFormat->isRgbaInteger && memorySurfaceFormat->isSigned) {
-            UNLIKELY_IF (rgbaAttachmentDataType[rgbaSlot] != AttachmentDataType::signedInteger)
-                throw std::runtime_error("rgbaSlot format and memorySurfaceFormat do not fit!");
-        } else {
-            if (memorySurfaceFormat->isDepth && memorySurfaceFormat->isStencil) {
-
-            } else if (memorySurfaceFormat->isDepth) {
-
-            } else {
-
-            }
-        }
-
         GLenum format = memorySurfaceFormat->componentsAndArrangement;
         GLenum type   = memorySurfaceFormat->componentsTypes;
 
@@ -972,6 +939,7 @@ namespace glCompact {
         SurfaceSelector sel
     ) {
         setAttachment(sel, sel.surface->surfaceFormat->attachmentType);
+        depthStencilSurfaceFormat = sel.surface->getSurfaceFormat();
     }
 
     void Frame::setRgbaAttachment(
@@ -979,14 +947,7 @@ namespace glCompact {
         uint32_t        rgbaSlot
     ) {
         setAttachment(sel, GL_COLOR_ATTACHMENT0 + rgbaSlot);
-        auto surfaceFormat = sel.surface->getSurfaceFormat();
-        if (surfaceFormat->isRgbaNormalizedIntegerOrFloat) {
-            rgbaAttachmentDataType[rgbaSlot] = AttachmentDataType::normalizedOrFloat;
-        } else if (surfaceFormat->isSigned) {
-            rgbaAttachmentDataType[rgbaSlot] = AttachmentDataType::signedInteger;
-        } else {
-            rgbaAttachmentDataType[rgbaSlot] = AttachmentDataType::unsignedInteger;
-        }
+        rgbaSurfaceFormat[rgbaSlot] = sel.surface->getSurfaceFormat();
     }
 
     void Frame::detachPtrFromThreadContextState() const {

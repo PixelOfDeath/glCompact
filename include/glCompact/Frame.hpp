@@ -2,6 +2,7 @@
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/config.hpp"
 #include "glCompact/SurfaceSelector.hpp"
+#include "glCompact/SurfaceFormat.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -94,15 +95,8 @@ namespace glCompact {
             glm::uvec2  scissorOffset   = {0, 0};
             glm::uvec2  scissorSize     = {0, 0};
 
-            enum AttachmentDataType : uint8_t {
-                unused,
-                normalizedOrFloat,
-                unsignedInteger,
-                signedInteger
-            };
-            AttachmentDataType depthAttachmentDataType                              = AttachmentDataType::unused;
-            AttachmentDataType stencilAttachmentDataType                            = AttachmentDataType::unused;
-            AttachmentDataType rgbaAttachmentDataType[config::MAX_RGBA_ATTACHMENTS] = {};
+            SurfaceFormat depthStencilSurfaceFormat;
+            SurfaceFormat rgbaSurfaceFormat[config::MAX_RGBA_ATTACHMENTS];
 
             static bool isSingleLayer(SurfaceSelector sel);
             static bool isMultiLayer (SurfaceSelector sel);
