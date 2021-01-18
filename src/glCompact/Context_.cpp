@@ -37,7 +37,9 @@ namespace glCompact {
             DONE: replaced need for this extension via naming postfix: NAME_bindingX;
     */
     Context_::Context_() {
-        frameWindow.rgbaAttachmentDataType[0] = Frame::AttachmentDataType::normalizedOrFloat;
+        //TODO: Query surface formats of the output frame (Might not be possible without accessing the Windows Subsystem)
+        frameWindow.depthStencilSurfaceFormat   = SurfaceFormat::D32_UNORM;
+        frameWindow.rgbaSurfaceFormat[0]        = SurfaceFormat::R8G8B8A8_UNORM;
         contextId = nextContextId.fetch_add(1);
 
         Debug::enableDebugOutput();
