@@ -1,6 +1,6 @@
 #pragma once
-#include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/config.hpp"
+#include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/SurfaceSelector.hpp"
 #include "glCompact/SurfaceFormat.hpp"
 #include <glm/vec2.hpp>
