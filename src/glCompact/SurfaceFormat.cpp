@@ -1,6 +1,7 @@
 #include "glCompact/SurfaceFormat.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
+#include "glCompact/threadContext_.hpp"
 #include <stdexcept>
 
 using namespace glCompact::gl;
@@ -230,8 +231,10 @@ namespace glCompact {
     const SurfaceFormatDetail* SurfaceFormat::operator->() const {
         if (formatEnum < 1000) {
             return &surfaceFormatDetailUncompressed[formatEnum];
-        } else {
+        } else if (formatEnum < 2000) {
             return &surfaceFormatDetailCompressed  [formatEnum - 1000];
+        } else {
+            return &threadContext_->defaultFramebufferSurfaceFormat[formatEnum - 2000];
         }
     }
 }

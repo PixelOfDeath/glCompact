@@ -3,7 +3,7 @@
 
 namespace glCompact {
     struct SurfaceFormatDetail {
-        const char*const name;
+        const char* name;
         int32_t sizedFormat;
         int32_t components;        //e.g. GL_RED
         int32_t componentsTypes;   //e.g. GL_UNSIGNED_BYTE

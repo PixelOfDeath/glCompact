@@ -9,6 +9,7 @@
 #include "glCompact/StencilOperator.hpp"
 #include "glCompact/BlendFactors.hpp"
 #include "glCompact/BlendEquations.hpp"
+#include "glCompact/SurfaceFormatDetail.hpp"
 
 #include <glm/fwd.hpp>
 
@@ -37,6 +38,11 @@ namespace glCompact {
             Frame frameWindow;
             Frame* pending_frame = 0;
             Frame* current_frame = 0;
+
+            //output frame
+            std::string rgbaSurfaceFormatString;
+            std::string depthAndOrStencilSurfaceFormatString;
+            SurfaceFormatDetail defaultFramebufferSurfaceFormat[2] = {};
 
             uint32_t pending_frame_drawId = 0;
           //uint32_t pending_frame_readId = 0;
@@ -240,5 +246,8 @@ namespace glCompact {
             void processPendingChangesMemoryBarriers();
             //TODO: move this to the graphics shader?
             void processPendingChangesMemoryBarriersRasterizationRegion();
+
+          //query stuff after context creation
+            void queryOutputFrameBuffer();
     };
 }
