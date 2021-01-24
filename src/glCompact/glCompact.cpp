@@ -78,7 +78,7 @@ namespace glCompact {
 
         This function will set the viewportOffset and viewportSize to {0, 0} and {x, y}
     */
-    void setWindowFrameSize(
+    void setDisplayFrameSize(
         uint32_t x,
         uint32_t y
     ) {
@@ -98,9 +98,9 @@ namespace glCompact {
 
         It can be used to set it as the PiepelineRasterization target:
 
-            getDrawFrame(getWindowFrame());
+            getDrawFrame(getDisplayFrame());
     */
-    Frame& getWindowFrame() {
+    Frame& getDisplayFrame() {
         UNLIKELY_IF (!threadContext_->isMainContext)
             throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
         return threadContext_->frameWindow;

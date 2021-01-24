@@ -34,7 +34,7 @@ class FrameworkWindow : private sf::Window {
                         }
                         break;
                     case sf::Event::Resized:
-                        glCompact::setWindowFrameSize(event.size.width, event.size.height);
+                        glCompact::setDisplayFrameSize(event.size.width, event.size.height);
                         break;
                     default: break;
                 }
@@ -63,7 +63,7 @@ class Framework {
             frameworkWindow(glMayor, glMinor, gles, x, y),
             contextScope(sf::Context::getFunction)
         {
-            glCompact::setWindowFrameSize(x, y);
+            glCompact::setDisplayFrameSize(x, y);
         }
         ~Framework(){}
         void handleEvents() {

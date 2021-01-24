@@ -13,7 +13,7 @@ namespace glCompact {
             friend class Context;
             friend class Context_;
             friend void setDrawFrame(Frame& frame);
-            friend void setWindowFrameSize(uint32_t x, uint32_t y);
+            friend void setDisplayFrameSize(uint32_t x, uint32_t y);
         public:
             Frame() = default;
             Frame(SurfaceSelector depthAndOrStencilSurface,

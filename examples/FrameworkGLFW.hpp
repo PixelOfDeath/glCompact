@@ -74,7 +74,7 @@ class FrameworkWindow {
         void resizeCallback(int x, int y) {
             sizeX = x;
             sizeY = y;
-            glCompact::setWindowFrameSize(x, y);
+            glCompact::setDisplayFrameSize(x, y);
         }
         static void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
             auto* frameworkWindow = reinterpret_cast<FrameworkWindow*>(glfwGetWindowUserPointer(window));
@@ -95,7 +95,7 @@ class Framework {
             frameworkWindow(glMayor, glMinor, gles, x, y),
             contextScope(glfwGetProcAddress)
         {
-            glCompact::setWindowFrameSize(x, y);
+            glCompact::setDisplayFrameSize(x, y);
         }
         ~Framework(){}
         void handleEvents() {

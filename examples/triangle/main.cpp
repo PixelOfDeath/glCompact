@@ -48,7 +48,7 @@ int main (int argc, char *argv[]) {
     myPipeline.setAttributeBuffer(0, attributeBuffer);
     myPipeline.rgba = vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
-    setDrawFrame(getWindowFrame());
+    setDrawFrame(getDisplayFrame());
     while (!framework.isClosing()) {
         framework.handleEvents();
 

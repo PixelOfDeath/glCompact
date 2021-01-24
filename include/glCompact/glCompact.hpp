@@ -29,11 +29,11 @@
 #include "glCompact/MemoryBarrier.hpp"
 
 namespace glCompact {
-    void   setDrawFrame      (Frame& frame);
-    void   setDrawFrame      ();
-    Frame& getDrawFrame      ();
-    void   setWindowFrameSize(uint32_t x, uint32_t y);
-    Frame& getWindowFrame    ();
+    void   setDrawFrame       (Frame& frame);
+    void   setDrawFrame       ();
+    Frame& getDrawFrame       ();
+    void   setDisplayFrameSize(uint32_t x, uint32_t y);
+    Frame& getDisplayFrame    ();
 
     //TODO: Add unbind all buffers/surfaces to cleanly move them to other threads
 

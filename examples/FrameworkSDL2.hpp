@@ -65,7 +65,7 @@ class FrameworkWindow {
         void resizeCallback(int x, int y) {
             sizeX = x;
             sizeY = y;
-            glCompact::setWindowFrameSize(x, y);
+            glCompact::setDisplayFrameSize(x, y);
         }
         void sdlKeyDownCallback(SDL_Keysym keysym) {
             if (keysym.sym == SDLK_ESCAPE) {
@@ -122,7 +122,7 @@ class Framework {
             frameworkWindow(glMayor, glMinor, gles, x, y),
             contextScope(SDL_GL_GetProcAddress)
         {
-            glCompact::setWindowFrameSize(x, y);
+            glCompact::setDisplayFrameSize(x, y);
         }
         ~Framework(){}
         void handleEvents() {
