@@ -522,8 +522,8 @@ namespace glCompact {
         //                                    |                                             |_____   |                          |    |   |    |  |         |  |  |                                |              |        |          isStencil
         //                                    |                                             |  \  \  |                          |    |   |    |  |         |  |  |                                |              |        |          |  isSigned
         //                                    |                                             |  |  |  |                          |    |   |    |  |         |  |  |                                |              |        |          |  |
-        defaultFramebufferSurfaceFormat[0] = {depthAndOrStencilSurfaceFormatString.c_str(), 0, 0, 0, 0,  bitsPerPixelDepthStencil,   1,  1,   1, 0,        0, 0, 0,  isRgbaNormalizedIntegerOrFloat, isRgbaInteger,       0,         0, isDepthSigned};
-        defaultFramebufferSurfaceFormat[1] = {rgbaSurfaceFormatString.c_str()             , 0, 0, 0, 0,          bitsPerPixelRgba,   1,  1,   1, 0, rgbaSrgb, 0, 0,                               0,             0, isDepth, isStencil, isRgbaSigned};
+        defaultFramebufferSurfaceFormat[0] = {depthAndOrStencilSurfaceFormatString.c_str(), 0, 0, 0, 0,  bitsPerPixelDepthStencil,   1,  1,   1, 0,        0, 0, 0,                               1,             0, isDepth, isStencil, isDepthSigned};
+        defaultFramebufferSurfaceFormat[1] = {rgbaSurfaceFormatString.c_str()             , 0, 0, 0, 0,          bitsPerPixelRgba,   1,  1,   1, 0, rgbaSrgb, 0, 0,  isRgbaNormalizedIntegerOrFloat, isRgbaInteger,       0,         0, isRgbaSigned};
 
         //This two integers are hardcoded to point to the correct outputFrameSurfaceFormat entries!
         frameWindow.depthStencilSurfaceFormat = static_cast<SurfaceFormat::FormatEnum>(2000);
