@@ -406,7 +406,7 @@ namespace glCompact {
 
     void Context_::processPendingChangesDrawFrame(Frame* pendingFrame) {
         UNLIKELY_IF (!pendingFrame)
-            throw runtime_error("This command needs an valid Frame set via setFrame()!");
+            throw runtime_error("This command needs an valid Frame set via setDrawFrame()!");
         if (current_frame != pendingFrame) {
             pending_frame_drawId = pendingFrame->id;
             current_frame = pendingFrame;
