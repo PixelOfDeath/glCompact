@@ -81,7 +81,7 @@ namespace glCompact {
                         UniformSetter<glm::vec2> myUniform6{this, "myUniformName6", {{3.0f, 4.0f}, {5.0f, 6.0f}, {7.0f, 8.0f}}};
                 };
 
-                MyPipelineRasterization myPipelineRasterization(vertexShaderString, "", "", "", fragmentShaderString);
+                MyPipelineRasterization myPipelineRasterization(PrimitiveTopology::triangleList, vertexShaderString, "", "", "", fragmentShaderString);
 
                 //set the first value
                 myPipelineRasterization.myUniform1    = 2.0f;
