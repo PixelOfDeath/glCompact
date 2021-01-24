@@ -37,7 +37,7 @@ namespace glCompact {
             DONE: replaced need for this extension via naming postfix: NAME_bindingX;
     */
     Context_::Context_() {
-        queryOutputFrameBuffer();
+        queryDisplayFramebufferFormat();
 
         contextId = nextContextId.fetch_add(1);
 
@@ -439,8 +439,8 @@ namespace glCompact {
 
     //This function queries the surface formats of the default framebuffer of this context
     //We need SurfaceFormat to have the correct bits set for rgba/depth/stencil, signed/unsiged, normalized/float
-    //for copyConvert from it to memory/buffer ond for resonable nameing the format when we output errors.
-    void Context_::queryOutputFrameBuffer() {
+    //for copyConvert from it to memory/buffer ond to be able to name the format when we output errors.
+    void Context_::queryDisplayFramebufferFormat() {
         //glGetFramebufferAttachmentParameteriv (Querying the default framebuffer is supported since GL 3.0/GLES 3.0)
         //In a new context GL_FRAMEBUFFER is set to the default framebuffer. So we don't need to set it here.
         constexpr auto getFboAttachmentParam = [](uint32_t attachment, uint32_t paramName) -> uint32_t {
@@ -456,85 +456,74 @@ namespace glCompact {
                 case GL_UNSIGNED_INT:       return "UINT";
                 case GL_SIGNED_NORMALIZED:  return "SNORM";
                 case GL_UNSIGNED_NORMALIZED:return "UNORM";
-                default: return "";
+                default: return "UNKNOWN_COMMPONENT_TYPE(" + to_string(commponentType) + ")";
             };
         };
 
-        //DEPTH and/or STENCIL output format
-        //returns GL_NONE == 0, GL_FRAMEBUFFER_DEFAULT, GL_TEXTURE, or GL_RENDERBUFFER
-        uint32_t depthAttachment   = getFboAttachmentParam(GL_DEPTH    , GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
-        uint32_t stencilAttachment = getFboAttachmentParam(GL_STENCIL  , GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
-        uint32_t depthBits = 0;
-        uint32_t depthType = 0;
-        if (depthAttachment) {
-            depthBits = getFboAttachmentParam(GL_DEPTH, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
-            depthType = getFboAttachmentParam(GL_DEPTH, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE);
-        }
-        uint32_t stencilBits = 0;
-        uint32_t stencilType = 0;
-        if (stencilAttachment) {
-            stencilBits = getFboAttachmentParam(GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
-            stencilType = getFboAttachmentParam(GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE);
-        }
-        bool isDepth                        = depthAttachment != 0;
-        bool isDepthSigned                  = depthType == GL_FLOAT || depthType == GL_INT || depthType == GL_SIGNED_NORMALIZED;
-        bool isStencil                      = stencilAttachment != 0;
-        depthAndOrStencilSurfaceFormatString =
-              "DEFAULT_FRAMEBUFFER_DEPTH_AND_OR_STENCIL"
-            + (depthBits    ? (" D" + to_string(depthBits)   + "_" + attachmentCommponentTypeToString(  depthType)) : " NO_DEPTH")
-            + (stencilBits  ? (" S" + to_string(stencilBits) + "_" + attachmentCommponentTypeToString(stencilType)) : " NO_STENCIL");
-
-        //RGBA output format
-        //In GL 3.2 and GLES 3.0 there are different rgba "attachments" used for the output framebuffer. Later GL versions also work with GL_BACK from GLES.
+        //In GL 3.2 and GLES 3.0 there are different rgba "attachments" used for the default framebuffer. Later GL versions also work with GL_BACK from GLES.
         bool usingGL = threadContextGroup_->version.gl != GlVersion::notSupported;
         uint32_t GL_GLES_RGBA = usingGL ? GL_FRONT_LEFT : GL_BACK;
 
+        //DEPTH and/or STENCIL output format
         //returns GL_NONE == 0, GL_FRAMEBUFFER_DEFAULT, GL_TEXTURE, or GL_RENDERBUFFER
-        uint32_t rgbaAttachment = getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
-        uint32_t rBits    = 0;
-        uint32_t gBits    = 0;
-        uint32_t bBits    = 0;
-        uint32_t aBits    = 0;
-        uint32_t rgbaType = 0;
-        bool     rgbaSrgb = false;
-        if (rgbaAttachment) {
-            rBits    = getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE);
-            gBits    = getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE);
-            bBits    = getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE);
-            aBits    = getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE);
-            rgbaType = getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE);
-            rgbaSrgb = getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING) == GL_SRGB;
-        }
+        uint32_t depthAttachment   =               getFboAttachmentParam(GL_DEPTH    , GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
+        uint32_t stencilAttachment =               getFboAttachmentParam(GL_STENCIL  , GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
+        uint32_t rgbaAttachment    =               getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE);
 
+        uint32_t depthBits   = depthAttachment   ? getFboAttachmentParam(GL_DEPTH    , GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE    ) : 0;
+        uint32_t depthType   = depthAttachment   ? getFboAttachmentParam(GL_DEPTH    , GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE) : 0;
+        uint32_t stencilBits = stencilAttachment ? getFboAttachmentParam(GL_STENCIL  , GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE    ) : 0;
+        uint32_t stencilType = stencilAttachment ? getFboAttachmentParam(GL_STENCIL  , GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE) : 0;
+        uint32_t rBits       = rgbaAttachment    ? getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE      ) : 0;
+        uint32_t gBits       = rgbaAttachment    ? getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE    ) : 0;
+        uint32_t bBits       = rgbaAttachment    ? getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE     ) : 0;
+        uint32_t aBits       = rgbaAttachment    ? getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE    ) : 0;
+        uint32_t rgbaType    = rgbaAttachment    ? getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE) : 0;
+        bool     rgbaSrgb    = rgbaAttachment    ? getFboAttachmentParam(GL_GLES_RGBA, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING) == GL_SRGB : false;
+
+        bool isDepth                        = depthAttachment != 0;
+        bool isDepthSigned                  = depthType == GL_FLOAT || depthType == GL_INT || depthType == GL_SIGNED_NORMALIZED;
+        bool isStencil                      = stencilAttachment != 0;
         bool isRgbaNormalizedIntegerOrFloat = rgbaType == GL_SIGNED_NORMALIZED || rgbaType == GL_UNSIGNED_NORMALIZED || rgbaType == GL_FLOAT;
         bool isRgbaInteger                  = rgbaType == GL_INT || rgbaType == GL_UNSIGNED_INT;
         bool isRgbaSigned                   = rgbaType == GL_FLOAT || rgbaType == GL_INT || rgbaType == GL_SIGNED_NORMALIZED;
-        rgbaSurfaceFormatString =
-              "DEFAULT_FRAMEBUFFER_RGBA "
-            + ("R" + to_string(rBits))
-            + ("G" + to_string(gBits))
-            + ("B" + to_string(bBits))
-            + ("A" + to_string(aBits))
-            +  (rgbaSrgb ? "_SRGB" : attachmentCommponentTypeToString(rgbaType));
 
-        //                             name                                          sizedFormat (Ignored for FB format)
-        //                             |                                             |        attachmentType (Ignored for FB format)
-        //                             |                                             |        |     bitsPerPixel (Ignored for FB format)
-        //                             |                                             |        |     |    blockSizeX
-        //                             |                                             |        |     |    |   blockSizeY
-        //                             |                                             |        |     |    |   |    isRenderable
-        //                             |                                             |        |     |    |   |    |  isCompressed
-        //                             |                                             |        |     |    |   |    |  |         isSrgb
-        //                             |                                             |        |     |    |   |    |  |         |  imageSupport
-        //                             |                                             |        |     |    |   |    |  |         |  |  sparseSupport
-        //                             |                                             |        |     |    |   |    |  |         |  |  |                                isRgbaNormalizedIntegerOrFloat
-        //                             |                                             |        |     |    |   |    |  |         |  |  |                                |              isRgbaInteger
-        //                             |                                             |        |     |    |   |    |  |         |  |  |                                |              |        isDepth
-        //                             |                                             |_____   |     |    |   |    |  |         |  |  |                                |              |        |          isStencil
-        //                             |                                             |  \  \  |     |    |   |    |  |         |  |  |                                |              |        |          |  isSigned
-        //                             |                                             |  |  |  |     |    |   |    |  |         |  |  |                                |              |        |          |  |
-        defaultFramebufferSurfaceFormat[0] = {depthAndOrStencilSurfaceFormatString.c_str(), 0, 0, 0, 0,  128,   1,  1,   1, 0,        0, 0, 0,  isRgbaNormalizedIntegerOrFloat, isRgbaInteger,       0,         0, isDepthSigned};
-        defaultFramebufferSurfaceFormat[1] = {rgbaSurfaceFormatString.c_str()             , 0, 0, 0, 0,  128,   1,  1,   1, 0, rgbaSrgb, 0, 0,                               0,             0, isDepth, isStencil, isRgbaSigned};
+        int16_t bitsPerPixelDepthStencil = depthBits + stencilBits;
+        int16_t bitsPerPixelRgba = rBits + gBits + bBits + aBits;
+
+        depthAndOrStencilSurfaceFormatString =
+              "DISPLAY_FRAMEBUFFER_DEPTH_AND_OR_STENCIL"
+            + (depthBits    ? (" D" + to_string(depthBits)   + "_" + attachmentCommponentTypeToString(  depthType)) : " NO_DEPTH")
+            + (stencilBits  ? (" S" + to_string(stencilBits) + "_" + attachmentCommponentTypeToString(stencilType)) : " NO_STENCIL");
+
+        rgbaSurfaceFormatString =
+            "DISPLAY_FRAMEBUFFER_RGBA "
+            + ((bitsPerPixelRgba) ? (
+                  (rBits ? ("R" + to_string(rBits)) : "")
+                + (gBits ? ("G" + to_string(gBits)) : "")
+                + (bBits ? ("B" + to_string(bBits)) : "")
+                + (aBits ? ("A" + to_string(aBits)) : "")
+                +  (rgbaSrgb ? "_SRGB" : attachmentCommponentTypeToString(rgbaType))
+            ) : "NO_RGBA");
+
+        //                                    name                                          sizedFormat (Ignored for FB format)
+        //                                    |                                             |        attachmentType (Ignored for FB format)
+        //                                    |                                             |        |                          bitsPerPixel
+        //                                    |                                             |        |                          |    blockSizeX
+        //                                    |                                             |        |                          |    |   blockSizeY
+        //                                    |                                             |        |                          |    |   |    isRenderable
+        //                                    |                                             |        |                          |    |   |    |  isCompressed
+        //                                    |                                             |        |                          |    |   |    |  |         isSrgb
+        //                                    |                                             |        |                          |    |   |    |  |         |  imageSupport
+        //                                    |                                             |        |                          |    |   |    |  |         |  |  sparseSupport
+        //                                    |                                             |        |                          |    |   |    |  |         |  |  |                                isRgbaNormalizedIntegerOrFloat
+        //                                    |                                             |        |                          |    |   |    |  |         |  |  |                                |              isRgbaInteger
+        //                                    |                                             |        |                          |    |   |    |  |         |  |  |                                |              |        isDepth
+        //                                    |                                             |_____   |                          |    |   |    |  |         |  |  |                                |              |        |          isStencil
+        //                                    |                                             |  \  \  |                          |    |   |    |  |         |  |  |                                |              |        |          |  isSigned
+        //                                    |                                             |  |  |  |                          |    |   |    |  |         |  |  |                                |              |        |          |  |
+        defaultFramebufferSurfaceFormat[0] = {depthAndOrStencilSurfaceFormatString.c_str(), 0, 0, 0, 0,  bitsPerPixelDepthStencil,   1,  1,   1, 0,        0, 0, 0,  isRgbaNormalizedIntegerOrFloat, isRgbaInteger,       0,         0, isDepthSigned};
+        defaultFramebufferSurfaceFormat[1] = {rgbaSurfaceFormatString.c_str()             , 0, 0, 0, 0,          bitsPerPixelRgba,   1,  1,   1, 0, rgbaSrgb, 0, 0,                               0,             0, isDepth, isStencil, isRgbaSigned};
 
         //This two integers are hardcoded to point to the correct outputFrameSurfaceFormat entries!
         frameWindow.depthStencilSurfaceFormat = static_cast<SurfaceFormat::FormatEnum>(2000);

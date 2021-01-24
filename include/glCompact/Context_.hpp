@@ -248,6 +248,6 @@ namespace glCompact {
             void processPendingChangesMemoryBarriersRasterizationRegion();
 
           //query stuff after context creation
-            void queryOutputFrameBuffer();
+            void queryDisplayFramebufferFormat();
     };
 }
