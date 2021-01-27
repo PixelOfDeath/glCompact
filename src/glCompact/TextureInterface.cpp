@@ -620,7 +620,7 @@ namespace glCompact {
         glm::ivec3             texOffset,
         glm::ivec3             texSize
     ) {
-        checkSurfaceFormatCompatibleToMemorySurfaceFormat(surfaceFormat, memorySurfaceFormat);
+        surfaceFormat.throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);
         const uintptr_t dataOffset = reinterpret_cast<uintptr_t>(offsetPointer);
 
         //validate parameters, etc...
@@ -794,8 +794,7 @@ namespace glCompact {
         glm::ivec3          texOffset,
         glm::ivec3          texSize
     ) const {
-        checkSurfaceFormatCompatibleToMemorySurfaceFormat(surfaceFormat, memorySurfaceFormat);
-
+        surfaceFormat.throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);
         const uintptr_t dataOffset = reinterpret_cast<uintptr_t>(offsetPointer);
 
         UNLIKELY_IF (mipmapLevel > this->mipmapCount)
@@ -1124,22 +1123,5 @@ namespace glCompact {
             bindTemporal();
             threadContextGroup_->functions.glTexParameterf(target, pname, param);
         }
-    }
-
-    void TextureInterface::checkSurfaceFormatCompatibleToMemorySurfaceFormat(
-        SurfaceFormat       surfaceFormat,
-        MemorySurfaceFormat memorySurfaceFormat
-    ) {
-        UNLIKELY_IF (memorySurfaceFormat->isCompressed && (memorySurfaceFormat->sizedFormat != surfaceFormat->sizedFormat)) {
-            throw runtime_error("If MemorySurfaceFormat(" + string(memorySurfaceFormat->name) + ") is a compressed format it must be the exact same format as SurfaceFormat(" + string(surfaceFormat->name) + ")!");
-        }
-
-        if (surfaceFormat->isRgbaInteger                  && memorySurfaceFormat->isRgbaInteger)                  return;
-        if (surfaceFormat->isRgbaNormalizedIntegerOrFloat && memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat) return;
-        if (surfaceFormat->isDepth                        && memorySurfaceFormat->isDepth)                        return;
-        if (surfaceFormat->isStencil                      && memorySurfaceFormat->isStencil)                      return;
-
-        //TODO: outputing the exact SurfaceFormat/MemorySurfaceFormat string would be nice
-        throw runtime_error("SurfaceFormat(" + string(surfaceFormat->name) + ") not compatible to MemorySurfaceFormat(" + string(memorySurfaceFormat->name) + ")!");
     }
 }

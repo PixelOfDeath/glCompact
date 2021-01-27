@@ -48,7 +48,5 @@ namespace glCompact {
             void setTextureParameter(int32_t pname, float param);
 
             void clearCheck(uint32_t mipmapLevel);
-
-            static void checkSurfaceFormatCompatibleToMemorySurfaceFormat(SurfaceFormat surfaceFormat, MemorySurfaceFormat memorySurfaceFormat);
     };
 }
