@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint> //C++11
+#include <glCompact/MemorySurfaceFormat.hpp>
 
 namespace glCompact {
     struct SurfaceFormatDetail;
@@ -212,6 +213,8 @@ namespace glCompact {
             inline bool operator!=(const SurfaceFormat& surfaceFormat){
                 return this->formatEnum != surfaceFormat.formatEnum;
             }
+            bool isCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const;
+            void throwIfNotCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const;
         private:
             FormatEnum formatEnum;
             const SurfaceFormatDetail* operator->() const;

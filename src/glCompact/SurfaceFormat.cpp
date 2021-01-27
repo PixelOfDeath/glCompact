@@ -1,9 +1,12 @@
 #include "glCompact/SurfaceFormat.hpp"
 #include "glCompact/gl/Constants.hpp"
 #include "glCompact/SurfaceFormatDetail.hpp"
+#include "glCompact/MemorySurfaceFormatDetail.hpp"
 #include "glCompact/threadContext_.hpp"
 #include <stdexcept>
+#include <string>
 
+using namespace std;
 using namespace glCompact::gl;
 
 namespace glCompact {
@@ -236,5 +239,20 @@ namespace glCompact {
         } else {
             return &threadContext_->defaultFramebufferSurfaceFormat[formatEnum - 2000];
         }
+    }
+
+    bool SurfaceFormat::isCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const {
+        //SurfaceFormat must be the exact same format as MemorySurfaceFormat if that one is compressed
+        if (memorySurfaceFormat->isCompressed && ((*this)->sizedFormat != memorySurfaceFormat->sizedFormat)) return false;
+        if ((*this)->isRgbaInteger                  && memorySurfaceFormat->isRgbaInteger)                   return true;
+        if ((*this)->isRgbaNormalizedIntegerOrFloat && memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat)  return true;
+        if ((*this)->isDepth                        && memorySurfaceFormat->isDepth)                         return true;
+        if ((*this)->isStencil                      && memorySurfaceFormat->isStencil)                       return true;
+        return false;
+    }
+
+    void SurfaceFormat::throwIfNotCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const {
+        if (!isCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat))
+            throw runtime_error("Can't copy convert between SurfaceFormat(" + string((*this)->name) + " and MemorySurfaceFormat(" + string(memorySurfaceFormat->name) + ")");
     }
 }
