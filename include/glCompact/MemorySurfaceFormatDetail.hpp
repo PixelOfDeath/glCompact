@@ -4,6 +4,7 @@
 namespace glCompact {
     struct MemorySurfaceFormatDetail {
         const char*const name;
+        int32_t sizedFormat; //To check if compressed formats are the same as SurfaceFormat and support raw memory copy
         int32_t componentsAndArrangement;
         int32_t componentsTypes;
         uint8_t bytePerPixelOrBlock;
