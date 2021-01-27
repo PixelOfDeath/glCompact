@@ -1130,8 +1130,8 @@ namespace glCompact {
         SurfaceFormat       surfaceFormat,
         MemorySurfaceFormat memorySurfaceFormat
     ) {
-        UNLIKELY_IF (memorySurfaceFormat->isCompressed && surfaceFormat->isCompressed && (memorySurfaceFormat->isCompressed != surfaceFormat->isCompressed)) {
-            throw runtime_error("If MemorySurfaceFormat(" + string(memorySurfaceFormat->name) + ") is a compressed format it must be the exact same format as WurfaceFormat(" + string(surfaceFormat->name) + ")!");
+        UNLIKELY_IF (memorySurfaceFormat->isCompressed && (memorySurfaceFormat->sizedFormat != surfaceFormat->sizedFormat)) {
+            throw runtime_error("If MemorySurfaceFormat(" + string(memorySurfaceFormat->name) + ") is a compressed format it must be the exact same format as SurfaceFormat(" + string(surfaceFormat->name) + ")!");
         }
 
         if (surfaceFormat->isRgbaInteger                  && memorySurfaceFormat->isRgbaInteger)                  return;
