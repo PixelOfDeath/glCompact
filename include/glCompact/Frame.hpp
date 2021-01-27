@@ -95,7 +95,7 @@ namespace glCompact {
             glm::uvec2  scissorOffset   = {0, 0};
             glm::uvec2  scissorSize     = {0, 0};
 
-            SurfaceFormat depthStencilSurfaceFormat;
+            SurfaceFormat depthAndOrStencilSurfaceFormat;
             SurfaceFormat rgbaSurfaceFormat[config::MAX_RGBA_ATTACHMENTS];
 
             static bool isSingleLayer(SurfaceSelector sel);

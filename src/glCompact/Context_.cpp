@@ -526,7 +526,7 @@ namespace glCompact {
         defaultFramebufferSurfaceFormat[1] = {rgbaSurfaceFormatString.c_str()             , 0, 0, 0, 0,          bitsPerPixelRgba,   1,  1,   1, 0, rgbaSrgb, 0, 0,  isRgbaNormalizedIntegerOrFloat, isRgbaInteger,       0,         0, isRgbaSigned};
 
         //This two integers are hardcoded to point to the correct outputFrameSurfaceFormat entries!
-        frameWindow.depthStencilSurfaceFormat = static_cast<SurfaceFormat::FormatEnum>(2000);
-        frameWindow.rgbaSurfaceFormat[0]      = static_cast<SurfaceFormat::FormatEnum>(2001);
+        frameWindow.depthAndOrStencilSurfaceFormat = static_cast<SurfaceFormat::FormatEnum>(2000);
+        frameWindow.rgbaSurfaceFormat[0]           = static_cast<SurfaceFormat::FormatEnum>(2001);
     }
 }

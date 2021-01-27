@@ -336,20 +336,20 @@ namespace glCompact {
     Frame::Frame(
         Frame&& frame
     ) {
-        id                          = frame.id;
-        size                        = frame.size;
-        samples                     = frame.samples;
-        layered                     = frame.layered;
-        srgb                        = frame.srgb;
-        convertSrgb                 = frame.convertSrgb;
-        scissorEnabled              = frame.scissorEnabled;
-        viewportOffset              = frame.viewportOffset;
-        viewportSize                = frame.viewportSize;
-        scissorOffset               = frame.scissorOffset;
-        scissorSize                 = frame.scissorSize;
-        depthStencilSurfaceFormat   = frame.depthStencilSurfaceFormat;
+        id                             = frame.id;
+        size                           = frame.size;
+        samples                        = frame.samples;
+        layered                        = frame.layered;
+        srgb                           = frame.srgb;
+        convertSrgb                    = frame.convertSrgb;
+        scissorEnabled                 = frame.scissorEnabled;
+        viewportOffset                 = frame.viewportOffset;
+        viewportSize                   = frame.viewportSize;
+        scissorOffset                  = frame.scissorOffset;
+        scissorSize                    = frame.scissorSize;
+        depthAndOrStencilSurfaceFormat = frame.depthAndOrStencilSurfaceFormat;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-            rgbaSurfaceFormat[i]    = frame.rgbaSurfaceFormat[i];
+            rgbaSurfaceFormat[i]       = frame.rgbaSurfaceFormat[i];
 
         frame.id = 0;
     }
@@ -359,20 +359,20 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (&frame == this) return *this;
         free();
-        id                          = frame.id;
-        size                        = frame.size;
-        samples                     = frame.samples;
-        layered                     = frame.layered;
-        srgb                        = frame.srgb;
-        convertSrgb                 = frame.convertSrgb;
-        scissorEnabled              = frame.scissorEnabled;
-        viewportOffset              = frame.viewportOffset;
-        viewportSize                = frame.viewportSize;
-        scissorOffset               = frame.scissorOffset;
-        scissorSize                 = frame.scissorSize;
-        depthStencilSurfaceFormat   = frame.depthStencilSurfaceFormat;
+        id                             = frame.id;
+        size                           = frame.size;
+        samples                        = frame.samples;
+        layered                        = frame.layered;
+        srgb                           = frame.srgb;
+        convertSrgb                    = frame.convertSrgb;
+        scissorEnabled                 = frame.scissorEnabled;
+        viewportOffset                 = frame.viewportOffset;
+        viewportSize                   = frame.viewportSize;
+        scissorOffset                  = frame.scissorOffset;
+        scissorSize                    = frame.scissorSize;
+        depthAndOrStencilSurfaceFormat = frame.depthAndOrStencilSurfaceFormat;
         LOOPI(config::MAX_RGBA_ATTACHMENTS)
-            rgbaSurfaceFormat[i]    = frame.rgbaSurfaceFormat[i];
+            rgbaSurfaceFormat[i]       = frame.rgbaSurfaceFormat[i];
 
         frame.detachPtrFromThreadContextState();
         frame.id = 0;
@@ -939,7 +939,7 @@ namespace glCompact {
         SurfaceSelector sel
     ) {
         setAttachment(sel, sel.surface->surfaceFormat->attachmentType);
-        depthStencilSurfaceFormat = sel.surface->getSurfaceFormat();
+        depthAndOrStencilSurfaceFormat = sel.surface->getSurfaceFormat();
     }
 
     void Frame::setRgbaAttachment(
