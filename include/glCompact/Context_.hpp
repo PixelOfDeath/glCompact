@@ -35,7 +35,7 @@ namespace glCompact {
             bool isMainContext = false;
 
             //FRAME
-            Frame frameWindow;
+            Frame displayFrame;
             Frame* pending_frame = 0;
             Frame* current_frame = 0;
 

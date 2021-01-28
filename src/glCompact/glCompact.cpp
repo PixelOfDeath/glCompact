@@ -39,7 +39,7 @@ namespace glCompact {
     void setDrawFrame(
         Frame& frame
     ) {
-        UNLIKELY_IF (frame.id == 0 && &frame != &threadContext_->frameWindow)
+        UNLIKELY_IF (frame.id == 0 && &frame != &threadContext_->displayFrame)
             throw runtime_error("Trying to set empty Frame as drawFrame!");
         threadContext_->pending_frame = &frame;
         threadContext_->stateChange.viewportScissor = true;
@@ -84,10 +84,10 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!threadContext_->isMainContext)
             throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
-        threadContext_->frameWindow.size.x = x;
-        threadContext_->frameWindow.size.y = y;
-        threadContext_->frameWindow.viewportOffset = {0, 0};
-        threadContext_->frameWindow.viewportSize   = {x, y};
+        threadContext_->displayFrame.size.x = x;
+        threadContext_->displayFrame.size.y = y;
+        threadContext_->displayFrame.viewportOffset = {0, 0};
+        threadContext_->displayFrame.viewportSize   = {x, y};
     }
 
     /**
@@ -103,7 +103,7 @@ namespace glCompact {
     Frame& getDisplayFrame() {
         UNLIKELY_IF (!threadContext_->isMainContext)
             throw runtime_error("Not the main context, only the main context can access to the drawFrame!");
-        return threadContext_->frameWindow;
+        return threadContext_->displayFrame;
     }
 
     //transform feedback
