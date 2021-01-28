@@ -210,6 +210,9 @@ namespace glCompact {
             /*inline bool operator!=(const SurfaceFormat& if1, const SurfaceFormat& if2){
                 return if1.formatEnum != if2.formatEnum;
             }*/
+            inline operator bool() {
+                return bool(formatEnum);
+            }
             inline bool operator!=(const SurfaceFormat& surfaceFormat){
                 return this->formatEnum != surfaceFormat.formatEnum;
             }
