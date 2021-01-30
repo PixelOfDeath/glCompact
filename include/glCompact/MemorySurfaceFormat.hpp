@@ -142,10 +142,10 @@ namespace glCompact {
                 B16G16R16A16_SFLOAT,
                 B32G32R32A32_SFLOAT,
 
-                R3G3B2_UNORM,
-                R3G3B2_UINT,
-                B2G3R3_UNORM,
-                B2G3R3_UINT,
+                R3G3B2_UNORM_PACK8,
+                R3G3B2_UINT_PACK8,
+                B2G3R3_UNORM_PACK8,
+                B2G3R3_UINT_PACK8,
 
                 R5G6B5_UNORM_PACK16,
                 R5G6B5_UINT_PACK16,
@@ -184,8 +184,10 @@ namespace glCompact {
                 A2R10G10B10_UNORM_PACK32,
                 A2R10G10B10_UINT_PACK32,
 
-                B10G11R11_UFLOAT, //10 bit UFLOAT = E5M5, 11 bit UFLOAT = E5M6
-                E5B9G9R9_UFLOAT,  //shared 5 bit exponent
+                B10G11R11_UFLOAT_PACK32, //10 bit UFLOAT = E5M5, 11 bit UFLOAT = E5M6
+              //R11G11B10_UFLOAT_PACK32,
+                E5B9G9R9_UFLOAT_PACK32,  //unsigned RGB9 values with shared 5 bit exponent
+              //E5R9G9B9_UFLOAT_PACK32,
 
                 //depth
                 D8_UNORM,
@@ -199,8 +201,6 @@ namespace glCompact {
                 D32_SFLOAT_X24_S8_UINT,
 
                 //stencil
-              //S1_UINT,
-              //S4_UINT,
                 S8_UINT,
               //S16_UINT,
 

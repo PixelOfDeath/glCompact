@@ -5,8 +5,6 @@ namespace glCompact {
     struct SurfaceFormatDetail {
         const char* name;
         int32_t sizedFormat;
-        int32_t components;        //e.g. GL_RED
-        int32_t componentsTypes;   //e.g. GL_UNSIGNED_BYTE
         int32_t attachmentType;
         int16_t bitsPerPixelOrBlock;
         uint8_t blockSizeX;

@@ -65,29 +65,29 @@ namespace glCompact {
                 R16G16B16A16_SFLOAT,
                 R32G32B32A32_SFLOAT,
 
-                //special color formats usable for texture and image
-                R11G11B10_UFLOAT,
-                R10G10B10A2_UNORM,
-                R10G10B10A2_UINT,
+                //core support for sampling, rasterization, image access, sparse
+                B10G11R11_UFLOAT_PACK32,
+                R10G10B10A2_UNORM_PACK32,
+                R10G10B10A2_UINT_PACK32,
 
-                //texture sample only formats (not usable as image for compute shader read/write)
-                //TODO: throw this formats out? Non has decent real memory aligenment size.
-                //Maybe only take this two formats?: GL_RGB9_E5, GL_RGB5_A1
-
-                R9G9B9E5_UFLOAT_PACK32, //GL_RGB9_E5, //single 5 bit exponent for all 3 values, no sign; vk only has E5B9G9R9_UFLOAT_PACK32 format
+                //core support for sampling, rasterization
                 R5G5B5A1_UNORM_PACK16,  //GL_RGB5_A1
-
                 R5G6B5_UNORM_PACK16,    //GL_RGB565
-              //R3G3B2_UNORM_PACK8.     //GL_R3_G3_B2
-              //R4G4B4_UNORM,           //GL_RGB4
-              //R5G5B5_UNORM,           //GL_RGB5
-              //R10G10B10_UNORM,        //GL_RGB10
-              //R12G12B12_UNORM,        //GL_RGB12
-              //R2G2B2A2_UNORM_PACK8,   //GL_RGBA2
                 R4G4B4A4_UNORM_PACK16,  //GL_RGBA4
-              //R12G12B12A12_UNORM,     //GL_RGBA12
 
-                //sRGB formats
+                //core support for sampling, sparse
+                E5B9G9R9_UFLOAT_PACK32, //GL_RGB9_E5    unsigned RGB9 values with shared 5 bit exponent
+
+                //core support for sampling
+                R3G3B2_UNORM_PACK8,     //GL_R3_G3_B2   Not supported by vulkan!
+                R4G4B4_UNORM,           //GL_RGB4       Not supported by vulkan!
+                R5G5B5_UNORM,           //GL_RGB5       Not supported by vulkan!
+                R10G10B10_UNORM,        //GL_RGB10      Not supported by vulkan!
+                R12G12B12_UNORM,        //GL_RGB12      Not supported by vulkan!
+                R2G2B2A2_UNORM_PACK8,   //GL_RGBA2      Not supported by vulkan!
+                R12G12B12A12_UNORM,     //GL_RGBA12     Not supported by vulkan!
+
+                //sRGB formats TODO: how do this formats interact with MemorySurfaceFormat?
                 R8G8B8_SRGB,            //GL_SRGB8,
                 R8G8B8A8_SRGB,          //GL_SRGB8_ALPHA8
 
@@ -121,7 +121,7 @@ namespace glCompact {
                 //BC2 (DXT3) Explicit alpha
                 //BC3 (DXT4) Interpolated alpha <- NOT in OpenGL (RGB values pre-multiplied with alpha value)
                 //BC3 (DXT5) Interpolated alpha
-                BC1_RGB_UNORM_BLOCK = 1000, //BC1 (DXT1)
+                BC1_RGB_UNORM_BLOCK,        //BC1 (DXT1)
                 BC1_RGBA_UNORM_BLOCK,       //BC1 (DXT1) with alpha bit
                 BC2_UNORM_BLOCK,            //BC2 (DXT3)
                 BC3_UNORM_BLOCK,            //BC3 (DXT5)

@@ -507,23 +507,23 @@ namespace glCompact {
             ) : "NO_RGBA");
 
         //                                    name                                          sizedFormat (Ignored for FB format)
-        //                                    |                                             |        attachmentType (Ignored for FB format)
-        //                                    |                                             |        |                          bitsPerPixel
-        //                                    |                                             |        |                          |    blockSizeX
-        //                                    |                                             |        |                          |    |   blockSizeY
-        //                                    |                                             |        |                          |    |   |    isRenderable
-        //                                    |                                             |        |                          |    |   |    |  isCompressed
-        //                                    |                                             |        |                          |    |   |    |  |         isSrgb
-        //                                    |                                             |        |                          |    |   |    |  |         |  imageSupport
-        //                                    |                                             |        |                          |    |   |    |  |         |  |  sparseSupport
-        //                                    |                                             |        |                          |    |   |    |  |         |  |  |                                isRgbaNormalizedIntegerOrFloat
-        //                                    |                                             |        |                          |    |   |    |  |         |  |  |                                |              isRgbaInteger
-        //                                    |                                             |        |                          |    |   |    |  |         |  |  |                                |              |        isDepth
-        //                                    |                                             |_____   |                          |    |   |    |  |         |  |  |                                |              |        |          isStencil
-        //                                    |                                             |  \  \  |                          |    |   |    |  |         |  |  |                                |              |        |          |  isSigned
-        //                                    |                                             |  |  |  |                          |    |   |    |  |         |  |  |                                |              |        |          |  |
-        defaultFramebufferSurfaceFormat[0] = {depthAndOrStencilSurfaceFormatString.c_str(), 0, 0, 0, 0,  bitsPerPixelDepthStencil,   1,  1,   1, 0,        0, 0, 0,                               1,             0, isDepth, isStencil, isDepthSigned};
-        defaultFramebufferSurfaceFormat[1] = {rgbaSurfaceFormatString.c_str()             , 0, 0, 0, 0,          bitsPerPixelRgba,   1,  1,   1, 0, rgbaSrgb, 0, 0,  isRgbaNormalizedIntegerOrFloat, isRgbaInteger,       0,         0, isRgbaSigned};
+        //                                    |                                             |  attachmentType (Ignored for FB format)
+        //                                    |                                             |  |                          bitsPerPixel
+        //                                    |                                             |  |                          |    blockSizeX
+        //                                    |                                             |  |                          |    |   blockSizeY
+        //                                    |                                             |  |                          |    |   |    isRenderable
+        //                                    |                                             |  |                          |    |   |    |  isCompressed
+        //                                    |                                             |  |                          |    |   |    |  |         isSrgb
+        //                                    |                                             |  |                          |    |   |    |  |         |  imageSupport
+        //                                    |                                             |  |                          |    |   |    |  |         |  |  sparseSupport
+        //                                    |                                             |  |                          |    |   |    |  |         |  |  |                                isRgbaNormalizedIntegerOrFloat
+        //                                    |                                             |  |                          |    |   |    |  |         |  |  |                                |              isRgbaInteger
+        //                                    |                                             |  |                          |    |   |    |  |         |  |  |                                |              |        isDepth
+        //                                    |                                             |  |                          |    |   |    |  |         |  |  |                                |              |        |          isStencil
+        //                                    |                                             |  |                          |    |   |    |  |         |  |  |                                |              |        |          |  isSigned
+        //                                    |                                             |  |                          |    |   |    |  |         |  |  |                                |              |        |          |  |
+        defaultFramebufferSurfaceFormat[0] = {depthAndOrStencilSurfaceFormatString.c_str(), 0, 0,  bitsPerPixelDepthStencil,   1,  1,   1, 0,        0, 0, 0,                               1,             0, isDepth, isStencil, isDepthSigned};
+        defaultFramebufferSurfaceFormat[1] = {rgbaSurfaceFormatString.c_str()             , 0, 0,          bitsPerPixelRgba,   1,  1,   1, 0, rgbaSrgb, 0, 0,  isRgbaNormalizedIntegerOrFloat, isRgbaInteger,       0,         0, isRgbaSigned};
 
         //This two integers are hardcoded to point to the correct outputFrameSurfaceFormat entries!
         displayFrame.depthAndOrStencilSurfaceFormat = static_cast<SurfaceFormat::FormatEnum>(2000);
