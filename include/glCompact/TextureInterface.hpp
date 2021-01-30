@@ -10,10 +10,10 @@ namespace glCompact {
             friend class Frame;
             friend class TextureSelector;
         public:
-            void copyFromMemory(                                         const void* mem, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize);
-            void copyToMemory  (                                               void* mem, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize) const;
-            void copyFromBuffer(const BufferInterface& bufferInterface, uintptr_t offset, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize);
-            void copyToBuffer  (      BufferInterface& bufferInterface, uintptr_t offset, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize) const;
+            void copyConvertFromMemory(                                         const void* mem, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize);
+            void copyConvertToMemory  (                                               void* mem, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize) const;
+            void copyConvertFromBuffer(const BufferInterface& bufferInterface, uintptr_t offset, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize);
+            void copyConvertToBuffer  (      BufferInterface& bufferInterface, uintptr_t offset, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize) const;
 
             void setMipmapBaseLevel(uint32_t level);
             uint32_t getMipmapBaseLevel() const {return mipmapBaseLevel;}
@@ -41,8 +41,8 @@ namespace glCompact {
         private:
             uint8_t mipmapBaseLevel = 0;
 
-            void copyFrom(const BufferInterface* bufferInterface, const void* offsetPointer, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize);
-            void copyTo  (      BufferInterface* bufferInterface,       void* offsetPointer, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize) const;
+            void copyConvertFrom(const BufferInterface* bufferInterface, const void* offsetPointer, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize);
+            void copyConvertTo  (      BufferInterface* bufferInterface,       void* offsetPointer, uint32_t maxCopySizeGuard, MemorySurfaceFormat memorySurfaceFormat, uint32_t mipmapLevel, glm::ivec3 texOffset, glm::ivec3 texSize) const;
 
             void setTextureParameter(int32_t pname, int32_t param);
             void setTextureParameter(int32_t pname, float param);

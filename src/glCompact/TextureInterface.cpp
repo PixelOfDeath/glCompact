@@ -494,7 +494,7 @@ namespace glCompact {
         @param texOffset
         @param texSize
     */
-    void TextureInterface::copyFromMemory(
+    void TextureInterface::copyConvertFromMemory(
         const void*         mem,
         uint32_t            maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
@@ -502,10 +502,10 @@ namespace glCompact {
         glm::ivec3          texOffset,
         glm::ivec3          texSize
     ) {
-        copyFrom(0, mem, maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
+        copyConvertFrom(0, mem, maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
-    void TextureInterface::copyToMemory(
+    void TextureInterface::copyConvertToMemory(
         void*               mem,
         uint32_t            maxCopySizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
@@ -513,10 +513,10 @@ namespace glCompact {
         glm::ivec3          texOffset,
         glm::ivec3          texSize
     ) const {
-        copyTo(0, mem, maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
+        copyConvertTo(0, mem, maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
-    void TextureInterface::copyFromBuffer(
+    void TextureInterface::copyConvertFromBuffer(
         const BufferInterface& bufferInterface,
         uintptr_t              offset,
         uint32_t               maxCopySizeGuard,
@@ -525,10 +525,10 @@ namespace glCompact {
         glm::ivec3             texOffset,
         glm::ivec3             texSize
     ) {
-        copyFrom(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
+        copyConvertFrom(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
-    void TextureInterface::copyToBuffer(
+    void TextureInterface::copyConvertToBuffer(
         BufferInterface&    bufferInterface,
         uintptr_t           offset,
         uint32_t            maxCopySizeGuard,
@@ -537,7 +537,7 @@ namespace glCompact {
         glm::ivec3          texOffset,
         glm::ivec3          texSize
     ) const {
-        copyTo(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
+        copyConvertTo(&bufferInterface, reinterpret_cast<void*>(offset), maxCopySizeGuard, memorySurfaceFormat, mipmapLevel, texOffset, texSize);
     }
 
     /**
@@ -611,7 +611,7 @@ namespace glCompact {
         GL_ABGR_EXT
         GL_PACK_SWAP_BYTES only changes the byte order of each single component, it does not change the order of the components (So for litel/big endian CPU differences?)
     */
-    void TextureInterface::copyFrom(
+    void TextureInterface::copyConvertFrom(
         const BufferInterface* bufferInterface,
         const void*            offsetPointer,
         uint32_t               maxCopySizeGuard,
@@ -785,7 +785,7 @@ namespace glCompact {
         @param texOffset
         @param texSize
     */
-    void TextureInterface::copyTo(
+    void TextureInterface::copyConvertTo(
         BufferInterface*    bufferInterface,
         void*               offsetPointer,
         uint32_t            maxCopySizeGuard,
