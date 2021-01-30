@@ -204,10 +204,10 @@ namespace glCompact {
         {"E5B9G9R9_UFLOAT",             0, GL_RGB            , GL_UNSIGNED_INT_5_9_9_9_REV      ,  4,   1,  1,   1, 0, 0, 0, 0, 0},
 
         //depth
-        {"D16_UNORM",                   0, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16             ,  2,   1,  1,   0, 0, 1, 0, 0, 0},
-        {"D24_UNORM",                   0, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT24             ,  3,   1,  1,   0, 0, 1, 0, 0, 0}, //3 or 4 byte????
-        {"D32_UNORM",                   0, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32             ,  4,   1,  1,   0, 0, 1, 0, 0, 0},
-        {"D32_SFLOAT",                  0, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F            ,  4,   1,  1,   0, 0, 1, 0, 0, 1},
+        {"D8_UNORM",                    0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE                 ,  1,   1,  1,   0, 0, 1, 0, 0, 0},
+        {"D16_UNORM",                   0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT                ,  2,   1,  1,   0, 0, 1, 0, 0, 0},
+        {"D32_UNORM",                   0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT                  ,  4,   1,  1,   0, 0, 1, 0, 0, 0},
+        {"D32_SFLOAT",                  0, GL_DEPTH_COMPONENT, GL_FLOAT                         ,  4,   1,  1,   0, 0, 1, 0, 0, 1},
 
         //depth stencil
         {"D24_UNORM_S8_UINT",           0, GL_DEPTH_STENCIL  , GL_UNSIGNED_INT_24_8             ,  4,   1,  1,   0, 0, 1, 1, 0, 0},
@@ -217,7 +217,7 @@ namespace glCompact {
         //Vulkan only supports 8 bit stencil formats. For simplicity and bug hit prevention we also only support that one!
       //{"S1_UINT",                     0, GL_STENCIL_INDEX  , GL_STENCIL_INDEX1                },
       //{"S4_UINT",                     0, GL_STENCIL_INDEX  , GL_STENCIL_INDEX4                },
-        {"S8_UINT",                     0, GL_STENCIL_INDEX  , GL_STENCIL_INDEX8                ,  1,   1,  1,   0, 0, 0, 1, 0, 0},
+        {"S8_UINT",                     0, GL_STENCIL_INDEX  , GL_UNSIGNED_BYTE                 ,  1,   1,  1,   0, 0, 0, 1, 0, 0},
       //{"S16_UINT",                    0, GL_STENCIL_INDEX  , GL_STENCIL_INDEX16               },
 
     };

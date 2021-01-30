@@ -188,8 +188,8 @@ namespace glCompact {
                 E5B9G9R9_UFLOAT,  //shared 5 bit exponent
 
                 //depth
+                D8_UNORM,
                 D16_UNORM,
-                D24_UNORM,
                 D32_UNORM,
                 D32_SFLOAT,
 
