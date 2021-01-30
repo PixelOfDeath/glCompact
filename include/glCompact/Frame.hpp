@@ -2,6 +2,7 @@
 #include "glCompact/config.hpp"
 #include "glCompact/SurfaceInterface.hpp"
 #include "glCompact/SurfaceSelector.hpp"
+#include "glCompact/BufferInterface.hpp"
 #include "glCompact/SurfaceFormat.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -72,13 +73,22 @@ namespace glCompact {
             void invalidateDepthStencil();
             void invalidate();
 
-            void copyToMemory(uint32_t rgbaSlot, void* mem, uintptr_t bufSize, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+            void copyConvertRgbaToMemory        (uint32_t rgbaSlot,                                   void*     mem         , uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+            void copyConvertDepthToMemory       (                                                     void*     mem         , uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+            void copyConvertStencilToMemory     (                                                     void*     mem         , uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+            void copyConvertDepthStencilToMemory(                                                     void*     mem         , uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+
+            void copyConvertRgbaToBuffer        (uint32_t rgbaSlot, BufferInterface& bufferInterface, uintptr_t bufferOffset, uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+            void copyConvertDepthToBuffer       (                   BufferInterface& bufferInterface, uintptr_t bufferOffset, uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+            void copyConvertStencilToBuffer     (                   BufferInterface& bufferInterface, uintptr_t bufferOffset, uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
+            void copyConvertDepthStencilToBuffer(                   BufferInterface& bufferInterface, uintptr_t bufferOffset, uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
 
             glm::uvec3 getSize()            const {return size;}
             uint32_t   getRgbaTargetCount() const {return rgbaTargetCount;}
             uint32_t   getSamples()         const {return samples;}
             bool       isLayered()          const {return layered;}
             bool       isSrgb()             const {return srgb;}
+            bool       isDisplayFrame()     const;
 
             //TODO: And ref of active rgba/depth/stencil attachments?
         protected:
@@ -94,6 +104,7 @@ namespace glCompact {
             glm::uvec2  viewportSize    = {0, 0};
             glm::uvec2  scissorOffset   = {0, 0};
             glm::uvec2  scissorSize     = {0, 0};
+            uint8_t currentRgbaReadSlot = 0;
 
             SurfaceFormat depthAndOrStencilSurfaceFormat;
             SurfaceFormat rgbaSurfaceFormat[config::MAX_RGBA_ATTACHMENTS];
@@ -115,6 +126,8 @@ namespace glCompact {
 
             void detachPtrFromThreadContextState() const;
             void detachFromThreadContextState() const;
+
+            void copyConvertTo(bool isDepth, bool isStencil, bool isRgba, uint32_t rgbaSlot, BufferInterface* bufferInterface, void* mem, uintptr_t sizeGuard, MemorySurfaceFormat memorySurfaceFormat, glm::ivec2 offset, glm::ivec2 size);
 
             void setDefaultValues();
     };

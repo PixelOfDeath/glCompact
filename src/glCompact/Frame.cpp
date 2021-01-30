@@ -812,36 +812,108 @@ namespace glCompact {
         invalidateRgba();
     }
 
-    /*
-        Core since wood exist:
-            void glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type,                  GLvoid* data);
-        Core since 3.0
-            void glClampColor(GLenum target​, GLenum clamp​);
-        Core since 4.5
-            void glReadnPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei bufSize, void*   data);
-    */
-    void Frame::copyToMemory(
+    void Frame::copyConvertRgbaToMemory(
         uint32_t            rgbaSlot,
         void*               mem,
-        uintptr_t           bufSize,
+        uintptr_t           sizeGuard,
         MemorySurfaceFormat memorySurfaceFormat,
         glm::ivec2          offset,
         glm::ivec2          size
     ) {
-        if (memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat || memorySurfaceFormat->isRgbaInteger) {
-            UNLIKELY_IF (rgbaSlot >= config::MAX_RGBA_ATTACHMENTS)
-                throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") beyond config::MAX_RGBA_ATTACHMENTS(0.." + to_string(config::MAX_RGBA_ATTACHMENTS - 1) + ")");
-        }
+        copyConvertTo(0, 0, 1, rgbaSlot, 0, mem, sizeGuard, memorySurfaceFormat, offset, size);
+    }
 
-        GLenum format = memorySurfaceFormat->componentsAndArrangement;
-        GLenum type   = memorySurfaceFormat->componentsTypes;
+    void Frame::copyConvertDepthToMemory(
+        void*               mem,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        copyConvertTo(1, 0, 0, 0, 0, mem, sizeGuard, memorySurfaceFormat, offset, size);
+    }
 
-        threadContext_->cachedBindReadFbo(id);
-        threadContext_->cachedBindPixelPackBuffer(0);
-        //only needed for RGBA copy; TODO: test if this works for the windows frame buffer on older GL implementations, or if I need to use GL_FRONT/GL_BACK
-        //Not sure how much SDL2 intercepts in terms of default frame buffer, probably have to test with glfw
-        threadContextGroup_->functions.glReadBuffer(GL_COLOR_ATTACHMENT0 + rgbaSlot);
-        threadContextGroup_->functions.glReadPixels(offset.x, offset.y, size.x, size.y, format, type, mem);
+    void Frame::copyConvertStencilToMemory(
+        void*               mem,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        copyConvertTo(0, 1, 0, 0, 0, mem, sizeGuard, memorySurfaceFormat, offset, size);
+    }
+
+    void Frame::copyConvertDepthStencilToMemory(
+        void*               mem,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        copyConvertTo(1, 1, 0, 0, 0, mem, sizeGuard, memorySurfaceFormat, offset, size);
+    }
+
+    void Frame::copyConvertRgbaToBuffer(
+        uint32_t            rgbaSlot,
+        BufferInterface&    bufferInterface,
+        uintptr_t           bufferOffset,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        /*
+        UNLIKELY_IF (!(memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat || memorySurfaceFormat->isRgbaInteger))
+            throw std::runtime_error("Expect memorySurfaceFormat to be rgbaNormalizedIntegerOrFloat or rgbaInteger");
+        UNLIKELY_IF (rgbaSlot >= config::MAX_RGBA_ATTACHMENTS)
+            throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") beyond config::MAX_RGBA_ATTACHMENTS(0.." + to_string(config::MAX_RGBA_ATTACHMENTS - 1) + ")");
+
+        UNLIKELY_IF (rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::unused)
+            throw std::runtime_error("Trying to copy data from unused frame rgba attachment slot " + to_string(rgbaSlot));
+        UNLIKELY_IF (rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::normalizedOrFloat && !memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat)
+            throw std::runtime_error("NormalizedOrFloat frame rgba attachment can only be copied to a memorySurfaceFormat that is rgbaNormalizedIntegerOrFloat");
+        UNLIKELY_IF ((rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::unsignedInteger || rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::signedInteger) && !memorySurfaceFormat->isRgbaInteger)
+            throw std::runtime_error("Signed or unsigned frame rgba attachment can only be copied to a memorySurfaceFormat that is rgbaInteger");
+        */
+
+        copyConvertTo(0, 0, 1, rgbaSlot, &bufferInterface, reinterpret_cast<void*>(bufferOffset), sizeGuard, memorySurfaceFormat, offset, size);
+    }
+
+    void Frame::copyConvertDepthToBuffer(
+        BufferInterface&    bufferInterface,
+        uintptr_t           bufferOffset,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        copyConvertTo(1, 0, 0, 0, &bufferInterface, reinterpret_cast<void*>(bufferOffset), sizeGuard, memorySurfaceFormat, offset, size);
+    }
+
+    void Frame::copyConvertStencilToBuffer(
+        BufferInterface&    bufferInterface,
+        uintptr_t           bufferOffset,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        copyConvertTo(0, 1, 0, 0, &bufferInterface, reinterpret_cast<void*>(bufferOffset), sizeGuard, memorySurfaceFormat, offset, size);
+    }
+
+    void Frame::copyConvertDepthStencilToBuffer(
+        BufferInterface&    bufferInterface,
+        uintptr_t           bufferOffset,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        copyConvertTo(1, 1, 0, 0, &bufferInterface, reinterpret_cast<void*>(bufferOffset), sizeGuard, memorySurfaceFormat, offset, size);
+    }
+
+    bool Frame::isDisplayFrame() const {
+        return this == &threadContext_->displayFrame;
     }
 
     bool Frame::isSingleLayer(
@@ -964,16 +1036,58 @@ namespace glCompact {
         if (threadContext_->pending_frame_drawId ==   id) threadContext_->pending_frame_drawId = setCurrentValue;
     }
 
-    /*void Frame::setReadTarget(GLenum target) {
-        //if (!id && !defaultFrameBuffer) return;
-        if (!id) return;
-        if (threadContext->extensions.GL_ARB_direct_state_access) {
-            threadContext->glNamedFramebufferReadBuffer(id, target);
+    /*
+        Core since wood exist:
+            void glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type,                  GLvoid* data);
+        Core since 3.0
+            void glClampColor(GLenum target​, GLenum clamp​);
+        Core since 4.5
+            void glReadnPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei bufSize, void*   data);
+    */
+    void Frame::copyConvertTo(
+        bool                isDepth,
+        bool                isStencil,
+        bool                isRgba,
+        uint32_t            rgbaSlot,
+        BufferInterface*    bufferInterface,
+        void*               mem,
+        uintptr_t           sizeGuard,
+        MemorySurfaceFormat memorySurfaceFormat,
+        glm::ivec2          offset,
+        glm::ivec2          size
+    ) {
+        if (isRgba) {
+            UNLIKELY_IF (isDisplayFrame() && rgbaSlot > 0)
+                throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + "), but the Display Frame only has RGBA slot 0");
+            UNLIKELY_IF (rgbaSlot >= config::MAX_RGBA_ATTACHMENTS)
+                throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") beyond config::MAX_RGBA_ATTACHMENTS(0.." + to_string(config::MAX_RGBA_ATTACHMENTS - 1) + ")");
+            UNLIKELY_IF (!rgbaSurfaceFormat[rgbaSlot])
+                throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") that has no attachment");
+            rgbaSurfaceFormat[rgbaSlot].throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);
         } else {
-            threadContext->cachedBindReadFbo();
-            threadContext->glReadBuffer(target);
+            if (isDepth && !isStencil) {
+                UNLIKELY_IF (!depthAndOrStencilSurfaceFormat->isDepth)
+                    throw std::runtime_error("Trying to copyConvert depth value from Frame that has no depth attachment");
+            } else if (!isDepth && isStencil) {
+                UNLIKELY_IF (!depthAndOrStencilSurfaceFormat->isStencil)
+                    throw std::runtime_error("Trying to copyConvert stencil value from Frame that has no stencil attachment");
+            } else {
+                UNLIKELY_IF (!(depthAndOrStencilSurfaceFormat->isDepth && depthAndOrStencilSurfaceFormat->isStencil))
+                    throw std::runtime_error("Trying to copyConvert depthStencil value from Frame that has no depthStencil attachment");
+            }
+            depthAndOrStencilSurfaceFormat.throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);
         }
-    }*/
+
+        threadContext_->cachedBindReadFbo(id);
+        if (isRgba && currentRgbaReadSlot != rgbaSlot) {
+            threadContextGroup_->functions.glReadBuffer(GL_COLOR_ATTACHMENT0 + rgbaSlot);
+            currentRgbaReadSlot = rgbaSlot;
+        }
+        threadContext_->cachedBindPixelPackBuffer(bufferInterface ? bufferInterface->id : 0);
+        GLenum format = memorySurfaceFormat->componentsAndArrangement;
+        GLenum type   = memorySurfaceFormat->componentsTypes;
+        threadContextGroup_->functions.glReadPixels(offset.x, offset.y, size.x, size.y, format, type, mem);
+    }
 
     void Frame::setDefaultValues() {
         new (this) Frame();

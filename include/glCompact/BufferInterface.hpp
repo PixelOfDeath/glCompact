@@ -9,6 +9,7 @@ namespace glCompact {
             friend class PipelineInterface;
             friend class PipelineRasterization;
             friend class PipelineCompute;
+            friend class Frame;
         public:
             void copyFromBuffer                  (const BufferInterface& srcBuffer, uintptr_t   srcOffset, uintptr_t thisOffset, uintptr_t size);
             void copyFromBufferViaPipelineCompute(const BufferInterface& srcBuffer, uintptr_t   srcOffset, uintptr_t thisOffset, uintptr_t size);
