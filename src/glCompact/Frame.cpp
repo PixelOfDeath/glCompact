@@ -795,10 +795,12 @@ namespace glCompact {
         invalidate(GL_COLOR_ATTACHMENT0 + slot);
     }
 
+    //TODO: Stencil undefined?
     void Frame::invalidateDepth() {
         invalidate(GL_DEPTH_ATTACHMENT);
     }
 
+    //TODO: Depth undefined?
     void Frame::invalidateStencil() {
         invalidate(GL_STENCIL_ATTACHMENT);
     }
@@ -862,20 +864,6 @@ namespace glCompact {
         glm::ivec2          offset,
         glm::ivec2          size
     ) {
-        /*
-        UNLIKELY_IF (!(memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat || memorySurfaceFormat->isRgbaInteger))
-            throw std::runtime_error("Expect memorySurfaceFormat to be rgbaNormalizedIntegerOrFloat or rgbaInteger");
-        UNLIKELY_IF (rgbaSlot >= config::MAX_RGBA_ATTACHMENTS)
-            throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") beyond config::MAX_RGBA_ATTACHMENTS(0.." + to_string(config::MAX_RGBA_ATTACHMENTS - 1) + ")");
-
-        UNLIKELY_IF (rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::unused)
-            throw std::runtime_error("Trying to copy data from unused frame rgba attachment slot " + to_string(rgbaSlot));
-        UNLIKELY_IF (rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::normalizedOrFloat && !memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat)
-            throw std::runtime_error("NormalizedOrFloat frame rgba attachment can only be copied to a memorySurfaceFormat that is rgbaNormalizedIntegerOrFloat");
-        UNLIKELY_IF ((rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::unsignedInteger || rgbaAttachmentDataType[rgbaSlot] == AttachmentDataType::signedInteger) && !memorySurfaceFormat->isRgbaInteger)
-            throw std::runtime_error("Signed or unsigned frame rgba attachment can only be copied to a memorySurfaceFormat that is rgbaInteger");
-        */
-
         copyConvertTo(0, 0, 1, rgbaSlot, &bufferInterface, reinterpret_cast<void*>(bufferOffset), sizeGuard, memorySurfaceFormat, offset, size);
     }
 
@@ -1065,18 +1053,16 @@ namespace glCompact {
                 throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") that has no attachment");
             rgbaSurfaceFormat[rgbaSlot].throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);
         } else {
-            if (isDepth && !isStencil) {
-                UNLIKELY_IF (!depthAndOrStencilSurfaceFormat->isDepth)
-                    throw std::runtime_error("Trying to copyConvert depth value from Frame that has no depth attachment");
-            } else if (!isDepth && isStencil) {
-                UNLIKELY_IF (!depthAndOrStencilSurfaceFormat->isStencil)
-                    throw std::runtime_error("Trying to copyConvert stencil value from Frame that has no stencil attachment");
-            } else {
-                UNLIKELY_IF (!(depthAndOrStencilSurfaceFormat->isDepth && depthAndOrStencilSurfaceFormat->isStencil))
-                    throw std::runtime_error("Trying to copyConvert depthStencil value from Frame that has no depthStencil attachment");
+                   UNLIKELY_IF (isDepth && !isStencil && !depthAndOrStencilSurfaceFormat->isDepth) {
+                throw std::runtime_error("Trying to copyConvert depth value from Frame that has no depth attachment");
+            } else UNLIKELY_IF (!isDepth && isStencil && !depthAndOrStencilSurfaceFormat->isStencil) {
+                throw std::runtime_error("Trying to copyConvert stencil value from Frame that has no stencil attachment");
+            } else UNLIKELY_IF (                         !(depthAndOrStencilSurfaceFormat->isDepth && depthAndOrStencilSurfaceFormat->isStencil)) {
+                throw std::runtime_error("Trying to copyConvert depthStencil value from Frame that has no depthStencil attachment");
             }
             depthAndOrStencilSurfaceFormat.throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);
         }
+        //TODO: Check limit of sizeGuard!
 
         threadContext_->cachedBindReadFbo(id);
         if (isRgba && currentRgbaReadSlot != rgbaSlot) {
