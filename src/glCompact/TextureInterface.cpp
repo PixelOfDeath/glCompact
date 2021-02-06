@@ -246,12 +246,12 @@ namespace glCompact {
             case GL_TEXTURE_2D_MULTISAMPLE:
             case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: mipmapCount = 1; break;
             case GL_TEXTURE_1D:
-            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(::log2(        newSize.x                        + 1))); break;
+            case GL_TEXTURE_1D_ARRAY:             mipmapCount = int(ceil(::log2(        newSize.x                                 + 1))); break;
             case GL_TEXTURE_2D:
             case GL_TEXTURE_2D_ARRAY:
             case GL_TEXTURE_CUBE_MAP:
-            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(::log2(maximum(newSize.x, newSize.y)            + 1))); break;
-            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(::log2(maximum(newSize.x, newSize.y, newSize.z) + 1))); break;
+            case GL_TEXTURE_CUBE_MAP_ARRAY:       mipmapCount = int(ceil(::log2(maximum(newSize.x,         newSize.y)             + 1))); break;
+            case GL_TEXTURE_3D:                   mipmapCount = int(ceil(::log2(maximum(newSize.x, maximum(newSize.y, newSize.z)) + 1))); break;
         }
 
         int mipmapLevelX = newSize.x;
