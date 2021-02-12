@@ -360,7 +360,6 @@ namespace glCompact {
 
     void PipelineInterface::detachFromThreadContext() {
         if (threadContext_) {
-            //TODO: also remove VAO that buffers vertex layout, because they only exist in the creator context
             if (threadContext_->pipeline == this) threadContext_->pipeline = 0;
         }
     }
@@ -1029,13 +1028,6 @@ namespace glCompact {
         }
     }
 
-    void PipelineInterface::buffer_attribute_markSlotChange(
-        int32_t slot
-    ) {
-        buffer_attribute_changedSlotMin = minimum(buffer_attribute_changedSlotMin, slot);
-        buffer_attribute_changedSlotMax = maximum(buffer_attribute_changedSlotMax, slot);
-    }
-
     void PipelineInterface::buffer_uniform_markSlotChange(
         int32_t slot
     ) {
@@ -1587,8 +1579,6 @@ namespace glCompact {
 
 
     void PipelineInterface::processPendingChangesPipeline() {
-        threadContext_->attributeLayoutChanged = 1;
-
         multiMallocDescriptor md[] = {
             {&threadContext_->buffer_uniform_id,            &threadContext_->buffer_uniform_count,          buffer_uniform_count},
             {&threadContext_->buffer_uniform_offset,        &threadContext_->buffer_uniform_count,          buffer_uniform_count},

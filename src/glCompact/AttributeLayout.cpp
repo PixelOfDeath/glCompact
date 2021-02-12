@@ -1,11 +1,7 @@
 #include "glCompact/AttributeLayout.hpp"
 #include "glCompact/ContextGroup_.hpp"
 #include "glCompact/threadContextGroup_.hpp"
-
-#include <algorithm> //win for std::max / min
-
-#include "glCompact/Tools_.hpp"
-#include "glCompact/GlTools.hpp"
+#include <glCompact/minimumMaximum.hpp>
 
 #include <stdexcept>
 
@@ -93,21 +89,12 @@ namespace glCompact {
      * \details bla...
      */
 
-    AttributeLayout::AttributeLayout() {
-    }
-
-    AttributeLayout::~AttributeLayout() {
-    }
-
     void AttributeLayout::addBufferIndex() {
-        addBufferIndex_(false);
+        addBufferIndex_(0);
     }
 
-    /**
-     *
-     */
     void AttributeLayout::addBufferIndexWithInstancing() {
-        addBufferIndex_(true);
+        addBufferIndex_(1);
     }
 
     void AttributeLayout::addBufferIndex_(
@@ -116,7 +103,7 @@ namespace glCompact {
         UNLIKELY_IF (uppermostActiveBufferIndex >= config::MAX_ATTRIBUTES)
             throw std::runtime_error("Trying to define buffer index beyond config::MAX_ATTRIBUTES (" + to_string(config::MAX_ATTRIBUTES) + ")");
         auto currentBufferIndex = ++uppermostActiveBufferIndex;
-        bufferIndex[currentBufferIndex].instancing = instancing;
+        this->bufferIndexInstancing[currentBufferIndex] = instancing;
     }
 
     void AttributeLayout::addLocation(
@@ -124,22 +111,27 @@ namespace glCompact {
         AttributeFormat attributeFormat
     ) {
         auto  currentBufferIndex  = uppermostActiveBufferIndex;
-        auto& currentBufferOffset = bufferIndex[currentBufferIndex].stride;
+        auto& currentBufferOffset = bufferIndexStride[currentBufferIndex];
         UNLIKELY_IF (currentBufferIndex == -1)
             throw runtime_error("Need to add a buffer index before any vertex location can be defined!");
-        UNLIKELY_IF (this->location[location].attributeFormat != AttributeFormat::NONE)
+        UNLIKELY_IF (this->locationAttributeFormat[location] != AttributeFormat::NONE)
             throw runtime_error("Trying to define already defined attribute location (" + to_string(location) + ")");
         UNLIKELY_IF (location >  config::MAX_ATTRIBUTES)
             throw runtime_error("Trying to define location (" + to_string(location) + ") beyond config::MAX_ATTRIBUTES (" + to_string(config::MAX_ATTRIBUTES) + ")");
         UNLIKELY_IF (location >= threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS)
             throw runtime_error("Trying to set AttributeLayout that has attribute location (" + to_string(location) + ") that goes beyond implementation limit. GL_MAX_VERTEX_ATTRIBS(" + to_string(threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS) + " = 0.." + to_string(threadContextGroup_->values.GL_MAX_VERTEX_ATTRIBS - 1));
+        //TODO check supp
+        //if (B10G11R11_UFLOAT) if (!threadContext->version.equalOrGreater(4,4)) throw std::runtime_error("B10G11R11_UFLOAT (GL_UNSIGNED_INT_10F_11F_11F_REV) is only supported with OpenGL 4.4 or higher");
+        //Probably don't need to check this, because compiling shaders exceeding this limits would already throw errors
+        //if ((shaderType == GL_DOUBLE) && !threadContext->extension.GL_ARB_vertex_attrib_64bit) throw std::runtime_error("64 bit floating point is not supported by this system");
+        //if (bufferIndexCount >= threadContext->value.GL_MAX_VERTEX_ATTRIB_BINDINGS) throw std::runtime_error("To many attribute buffer bindings (GL_MAX_VERTEX_ATTRIB_BINDINGS = " + std::toString(threadContext->value.GL_MAX_VERTEX_ATTRIB_BINDINGS) + ")");
+        //if (location >= threadContext->value.GL_MAX_ATTRIBUTES)                     throw std::runtime_error("Trying to define location (" + std::toString(location) + ") bigger then supported by this implementation. GL_MAX_ATTRIBUTES (" + std::toString(threadContext->value.GL_MAX_ATTRIBUTES) + ")");
 
-        Location &loc           =  this->location[location];
-        loc.attributeFormat     =  attributeFormat;
-        loc.offset              =  currentBufferOffset;
-        loc.bufferIndex         =  currentBufferIndex;
-        uppermostActiveLocation =  std::max<int32_t>(uppermostActiveLocation, location);
-        currentBufferOffset     += attributeFormat->byteSize;
+        locationAttributeFormat[location] =  attributeFormat;
+        locationOffset         [location] =  currentBufferOffset;
+        locationBufferIndex    [location] =  currentBufferIndex;
+        uppermostActiveLocation           =  maximum<int8_t>(uppermostActiveLocation, location);
+        currentBufferOffset               += attributeFormat->byteSize;
     }
 
     void AttributeLayout::addSpacing(
@@ -148,7 +140,7 @@ namespace glCompact {
         UNLIKELY_IF (uppermostActiveBufferIndex < 0)
             throw runtime_error("Need to add a buffer index before any spacing can be added!");
         auto  currentBufferIndex  = uppermostActiveBufferIndex;
-        auto& currentBufferOffset = bufferIndex[currentBufferIndex].stride;
+        auto& currentBufferOffset = bufferIndexStride[currentBufferIndex];
         currentBufferOffset += byteSize;
     }
 
@@ -159,24 +151,22 @@ namespace glCompact {
     }
 
     void AttributeLayout::reset() {
-        uppermostActiveLocation    = -1;
-        uppermostActiveBufferIndex = -1;
-        LOOPI(config::MAX_ATTRIBUTES) {
-            bufferIndex[i].stride     = 0;
-            bufferIndex[i].instancing = 0;
-        }
-        LOOPI(config::MAX_ATTRIBUTES) {
-            location[i].attributeFormat = AttributeFormat::NONE;
-            location[i].offset          = 0;
-            location[i].bufferIndex     = 0;
-        }
+        new (this)AttributeLayout;
     }
 
-    /*void checkOnceOnFirstUse() {
-        if (bufferIndexCount >= threadContext->value.GL_MAX_VERTEX_ATTRIB_BINDINGS) throw std::runtime_error("To many attribute buffer bindings (GL_MAX_VERTEX_ATTRIB_BINDINGS = " + std::toString(threadContext->value.GL_MAX_VERTEX_ATTRIB_BINDINGS) + ")");
-        if (location >= threadContext->value.GL_MAX_ATTRIBUTES)                     throw std::runtime_error("Trying to define location (" + std::toString(location) + ") bigger then supported by this implementation. GL_MAX_ATTRIBUTES (" + std::toString(threadContext->value.GL_MAX_ATTRIBUTES) + ")");
+    bool AttributeLayout::operator==(const AttributeLayout& rhs) const {
+        int8_t uppermostActiveBufferIndex = maximum(uppermostActiveBufferIndex, rhs.uppermostActiveBufferIndex);
+        int8_t uppermostActiveLocation    = maximum(uppermostActiveLocation,    rhs.uppermostActiveLocation);
+        for (int i = 0; i <= uppermostActiveBufferIndex; ++i) if (bufferIndexStride      [i] != rhs.bufferIndexStride      [i]) return false;
+        for (int i = 0; i <= uppermostActiveBufferIndex; ++i) if (bufferIndexInstancing  [i] != rhs.bufferIndexInstancing  [i]) return false;
+        for (int i = 0; i <= uppermostActiveLocation;    ++i) if (locationAttributeFormat[i] != rhs.locationAttributeFormat[i]) return false;
+        for (int i = 0; i <= uppermostActiveLocation;    ++i) if (locationAttributeFormat[i] != rhs.locationAttributeFormat[i]) return false;
+        for (int i = 0; i <= uppermostActiveLocation;    ++i) if (locationOffset         [i] != rhs.locationOffset         [i]) return false;
+        for (int i = 0; i <= uppermostActiveLocation;    ++i) if (locationBufferIndex    [i] != rhs.locationBufferIndex    [i]) return false;
+        return true;
+    }
 
-      //if ((shaderType == GL_DOUBLE) && !threadContext->extension.GL_ARB_vertex_attrib_64bit) throw std::runtime_error("64 bit floating point is not supported by this system");
-      //if (B10G11R11_UFLOAT) if (!threadContext->version.equalOrGreater(4,4)) throw std::runtime_error("B10G11R11_UFLOAT (GL_UNSIGNED_INT_10F_11F_11F_REV) is only supported with OpenGL 4.4 or higher");
-    }*/
+    bool AttributeLayout::operator!=(const AttributeLayout& rhs) const {
+        return !operator==(rhs);
+    }
 }

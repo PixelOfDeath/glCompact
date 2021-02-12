@@ -6,8 +6,7 @@
 #include "glCompact/StencilOperator.hpp"
 #include "glCompact/BlendFactors.hpp"
 #include "glCompact/BlendEquations.hpp"
-#include "glCompact/AttributeLayout.hpp"
-#include "glCompact/AttributeLayoutStates.hpp"
+#include "glCompact/AttributeLayout_.hpp"
 #include "glCompact/PrimitiveTopology.hpp"
 #include "glCompact/IndexType.hpp"
 #include "glCompact/Tribool.hpp"
@@ -53,6 +52,7 @@ namespace glCompact {
             void setFaceFrontClockwise(bool clockwise);
             void setFaceSideToDraw(FaceSelection faceSelection);
 
+          //ATTRIBUTE LAYOUT, BUFFERS and INDEX BUFFER
             void setAttributeLayout     (const AttributeLayout& attributeLayout);
             void setAttributeLayout     ();
             void setAttributeBuffer     (uint32_t slot, const BufferInterface& buffer, uintptr_t offset = 0);
@@ -206,18 +206,18 @@ namespace glCompact {
             //Multi sample
             bool multiSample = true; //default enabled, if disabled fill all samples of a texel with the same value!
 
+            //ATTRIBUTE LAYOUT, BUFFERS and INDEX BUFFER
+            AttributeLayout_ attributeLayout_;
 
-            //ATTRIBUTE LAYOUT STATES
-            AttributeLayoutStates attributeLayoutStates;
-
-            //BUFFER ATTRIBUTE
+            void      buffer_attribute_markSlotChange(int32_t slot);
+             int32_t  buffer_attribute_changedSlotMin = (std::numeric_limits<decltype(buffer_attribute_changedSlotMin)>::max)();
+             int32_t  buffer_attribute_changedSlotMax = -1;
             uint32_t  buffer_attribute_id    [config::MAX_ATTRIBUTES] = {};
             uintptr_t buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
 
-            //BUFFER ATTRIBUTE INDEX
             IndexType indexType                     = static_cast<IndexType>(0);
             uint32_t  buffer_attribute_index_id     = 0;
-            uintptr_t buffer_attribute_index_offset = 0; //this is glCompact only thing. So it is not part of the state tracker
+            uintptr_t buffer_attribute_index_offset = 0; //this is a glCompact only thing. So it is not part of the state tracker
 
             void activateAttributeIndex(IndexType indexType);
             void deactivateAttributeIndex();

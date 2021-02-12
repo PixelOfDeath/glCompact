@@ -6,9 +6,6 @@ namespace glCompact {
     class AttributeLayout {
             friend class PipelineRasterization;
         public:
-            AttributeLayout();
-            ~AttributeLayout();
-
             void addBufferIndex();
             void addBufferIndexWithInstancing();
             void addLocation(uint8_t location, AttributeFormat attributeFormat);
@@ -16,20 +13,19 @@ namespace glCompact {
             void addSpacing(AttributeFormat attributeFormat);
 
             void reset();
-        private:
+        protected:
             int8_t uppermostActiveBufferIndex = -1;
             int8_t uppermostActiveLocation    = -1;
 
-            struct BufferIndex {
-                uint16_t stride     = 0;
-                bool     instancing = 0;
-            } bufferIndex[config::MAX_ATTRIBUTES];
-            struct Location {
-                AttributeFormat attributeFormat = AttributeFormat::NONE; //AttributeFormat::none = location disabled
-                uint16_t        offset          = 0;
-                uint8_t         bufferIndex     = 0;
-            } location[config::MAX_ATTRIBUTES];
+            uint32_t        bufferIndexStride       [config::MAX_ATTRIBUTES] = {}; //Must be uint32_t because this is an ABI parameter list for OpenGL
+            bool            bufferIndexInstancing   [config::MAX_ATTRIBUTES] = {};
+            AttributeFormat locationAttributeFormat [config::MAX_ATTRIBUTES] = {};
+            uint16_t        locationOffset          [config::MAX_ATTRIBUTES] = {};
+            uint8_t         locationBufferIndex     [config::MAX_ATTRIBUTES] = {};
 
             void addBufferIndex_(bool instancing);
+
+            bool operator==(const AttributeLayout& rhs) const;
+            bool operator!=(const AttributeLayout& rhs) const;
     };
 }

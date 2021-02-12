@@ -1,6 +1,6 @@
 #pragma once
 #include "glCompact/config.hpp"
-#include "glCompact/AttributeLayoutStates.hpp"
+#include "glCompact/AttributeLayout_.hpp"
 #include "glCompact/IndexType.hpp"
 #include "glCompact/Frame.hpp"
 #include "glCompact/PipelineRasterizationStateChange.hpp"
@@ -61,21 +61,19 @@ namespace glCompact {
             PipelineInterface* pipeline = 0;
             PipelineInterface* pipelineThatCausedLastWarning = 0; //using this to only print out the pipeline information/identification once until a different pipeline causes warnings
 
-            uint32_t   defaultVaoId = 0;
-            uint32_t   boundArrayBuffer = 0;
-            //ATTRIBUTE LAYOUT STATES
-            bool       attributeLayoutChanged = false; //TODO: make this one of the state bits
-            AttributeLayoutStates attributeLayoutStates;
-
             void* multiMallocPtr = 0;
 
-            //BUFFER ATTRIBUTE
+            //ATTRIBUTE LAYOUT, BUFFERS and INDEX BUFFER
+            uint32_t         boundArrayBuffer            = 0;
+            uint32_t         defaultVaoId                = 0;
+            bool             attributeLayoutMaybeChanged = false;
+            AttributeLayout_ attributeLayout_;
+
              int32_t   buffer_attribute_getHighestIndexNonNull();
              int32_t   buffer_attribute_highestIndexNonNull = -1;
             uint32_t   buffer_attribute_id    [config::MAX_ATTRIBUTES] = {};
             uintptr_t  buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
 
-            //BUFFER INDEX
             bool       buffer_attribute_index_enabled = 0;
             IndexType  buffer_attribute_index_type    = static_cast<IndexType>(0);
             uint32_t   buffer_attribute_index_id      = 0;

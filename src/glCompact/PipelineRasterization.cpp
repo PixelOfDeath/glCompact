@@ -104,7 +104,7 @@ namespace glCompact {
     void PipelineRasterization::setAttributeLayoutThrow(
         const std::string& errorMessage
     ) {
-        const int uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
+        const int uppermostActiveLocation = attributeLayout_.uppermostActiveLocation;
         std::string throwString;
 
         throwString += errorMessage + "\n";
@@ -118,8 +118,6 @@ namespace glCompact {
     }
 
     /*
-        This function also sets all attribute buffers if the pipeline to null
-
         test for limits (Probably want to put most of this into the AttributeLayout creation.
         MAX_VERTEX_ATTRIBS
         MAX_VERTEX_ATTRIB_BINDINGS
@@ -131,25 +129,17 @@ namespace glCompact {
 
         TODO:
             - Need warning for attributes in layout that do not exist in shader, and for attribute that does exist but that is not set by the layout
-            - All source type counts (1..4) are compatible to all shader type counts (1..4). But normaly it makes no sense, so maybe alos give out warning messages for that?
+            - All source type counts (1..4) are compatible to all shader type counts (1..4). But normaly it makes no sense, so maybe also give out warning messages for that?
     */
+
     void PipelineRasterization::setAttributeLayout(
         const AttributeLayout& attributeLayout
     ) {
-        //first we clear all current attribute buffer set in this pipeline to null
-        for (int32_t i = 0; i <= attributeLayoutStates.uppermostActiveBufferIndex; ++i) {
-            buffer_attribute_id    [i] = 0;
-            buffer_attribute_offset[i] = 0;
-        }
-
         const int uppermostActiveBufferIndex = attributeLayout.uppermostActiveBufferIndex;
-        //We only have to set locations that are used by this shader, everything else just stays on Usage::indifferent.
-        //We need to go over all locations that are used by this shader to overwrite everything that maybe was set by a previous AttributeLayout
-        const int uppermostActiveLocation    = attributeLayoutStates.uppermostActiveLocation;
+        const int uppermostActiveLocation    = attributeLayout.uppermostActiveLocation;
 
-        //test types compatibility...
         LOOPI(uppermostActiveLocation + 1) {
-            const auto& attributeFormat = attributeLayout.location[i].attributeFormat;
+            const auto& attributeFormat = attributeLayout.locationAttributeFormat[i];
 
             if (attributeLocationInfo[i].type == 0) continue;
             GLenum shaderLocationBaseType = gl::typeToBaseType(attributeLocationInfo[i].type);
@@ -199,52 +189,21 @@ namespace glCompact {
             }
         }
 
+        //first we clear all current attribute buffer set in this pipeline to null
+        //for (int32_t i = 0; i <= attributeLayoutStates.uppermostActiveBufferIndex; ++i) {
+        //    buffer_attribute_id    [i] = 0;
+        //    buffer_attribute_offset[i] = 0;
+        //}
+        //buffer_attribute_markSlotChange(0);
+        //buffer_attribute_markSlotChange(attributeLayout.uppermostActiveBufferIndex);
 
-        //copy layout
-        LOOPI(uppermostActiveBufferIndex + 1) {
-            attributeLayoutStates.bufferIndexStride[i] = attributeLayout.bufferIndex[i].stride;
-        }
-        LOOPI(uppermostActiveLocation + 1) {
-            if (attributeLocationInfo[i].type == 0) {
-                attributeLayoutStates.location[i].usage = AttributeLayoutStates::Usage::indifferent;
-            } else {
-                if (attributeLayout.location[i].attributeFormat != AttributeFormat::NONE) {
-                    attributeLayoutStates.location[i].usage = AttributeLayoutStates::Usage::enabled;
-                } else {
-                    attributeLayoutStates.location[i].usage = AttributeLayoutStates::Usage::disabled;
-                }
-            }
-            attributeLayoutStates.location[i].attributeFormat = attributeLayout.location[i].attributeFormat;
-            attributeLayoutStates.location[i].bufferIndex     = attributeLayout.location[i].bufferIndex;
-            attributeLayoutStates.location[i].offset          = attributeLayout.location[i].offset;
-        }
-        attributeLayoutStates.uppermostActiveBufferIndex = attributeLayout.uppermostActiveBufferIndex;
-        //attributeLayoutStates.uppermostActiveLocation is set by what locations are actually used in the shader. All other can be ingnored and do not have to be disabled for this shader.
-        //Only need to disable Attribute locations if the shader uses them and layout does not define them, to prevent error if the current still active layout setting would cause GL error.
-
-        if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
-            LOOPI(uppermostActiveBufferIndex + 1)
-                attributeLayoutStates.instancing[i] = attributeLayout.bufferIndex[i].instancing;
-        } else {
-            LOOPI(uppermostActiveLocation + 1)
-                attributeLayoutStates.instancing[i] = attributeLayout.bufferIndex[attributeLayout.location[i].bufferIndex].instancing;
-        }
-
-        if (this == threadContext_->pipeline) {
-            threadContext_->attributeLayoutChanged = true;
-        }
-        buffer_attribute_markSlotChange(0);
-        buffer_attribute_markSlotChange(attributeLayout.uppermostActiveBufferIndex);
+        attributeLayout_.AttributeLayout::operator=(attributeLayout);
+        if (this == threadContext_->pipeline) threadContext_->attributeLayoutMaybeChanged = true;
     }
 
-    void PipelineRasterization::setAttributeLayout() {
-        LOOPI(attributeLayoutStates.uppermostActiveLocation + 1) {
-            if (attributeLayoutStates.location[i].usage != AttributeLayoutStates::Usage::indifferent)
-                attributeLayoutStates.location[i].usage = AttributeLayoutStates::Usage::disabled;
-        }
-        if (this == threadContext_->pipeline) {
-            threadContext_->attributeLayoutChanged = true;
-        }
+    void PipelineRasterization::setAttributeLayout(){
+        attributeLayout_.reset();
+        if (this == threadContext_->pipeline) threadContext_->attributeLayoutMaybeChanged = true;
     }
 
     void PipelineRasterization::setAttributeBuffer(
@@ -252,7 +211,7 @@ namespace glCompact {
         const BufferInterface& buffer,
         uintptr_t              offset
     ) {
-        if (int32_t(slot) >= config::MAX_ATTRIBUTES)
+        UNLIKELY_IF (int32_t(slot) >= config::MAX_ATTRIBUTES)
             throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
 
         buffer_attribute_id    [slot] = buffer.id;
@@ -263,7 +222,7 @@ namespace glCompact {
     void PipelineRasterization::setAttributeBuffer(
         uint32_t               slot
     ) {
-        if (int32_t(slot) >= config::MAX_ATTRIBUTES)
+        UNLIKELY_IF (int32_t(slot) >= config::MAX_ATTRIBUTES)
             throw runtime_error("setAttributeBuffer(slot = " + to_string(slot) + ", ...) is >= config::MAX_ATTRIBUTES(" + to_string(slot) + ")");
 
         buffer_attribute_id    [slot] = 0;
@@ -704,6 +663,13 @@ namespace glCompact {
         multiSample = enable;
     }
 
+    void PipelineRasterization::buffer_attribute_markSlotChange(
+        int32_t slot
+    ) {
+        buffer_attribute_changedSlotMin = minimum(buffer_attribute_changedSlotMin, slot);
+        buffer_attribute_changedSlotMax = maximum(buffer_attribute_changedSlotMax, slot);
+    }
+
     /*
         Removed GL_UNSIGNED_BYTE as valid option! In some GPUs from the last century it is NOT natively supported and brings a heavy performance penalty if used!
 
@@ -905,18 +871,14 @@ namespace glCompact {
             if (location != -1) {
                 attributeLocationInfo[location].type = type;
                 attributeLocationInfo[location].name = name;
-
-                attributeLayoutStates.uppermostActiveLocation = maximum(attributeLayoutStates.uppermostActiveLocation, location);
-                auto& gpuType = attributeLayoutStates.location[location].gpuType;
                 switch (gl::typeToBaseType(type)) {
-                    case GL_FLOAT       : gpuType = AttributeLayoutStates::GpuType::f32; break;
+                    case GL_FLOAT       : attributeLayout_.gpuType[location] = AttributeLayout_::GpuType::f32; break;
                     case GL_INT         :
                     case GL_UNSIGNED_INT:
-                    case GL_BOOL        : gpuType = AttributeLayoutStates::GpuType::i32; break;
-                    case GL_DOUBLE      : gpuType = AttributeLayoutStates::GpuType::f64; break;
+                    case GL_BOOL        : attributeLayout_.gpuType[location] = AttributeLayout_::GpuType::i32; break;
+                    case GL_DOUBLE      : attributeLayout_.gpuType[location] = AttributeLayout_::GpuType::f64; break;
                 }
             }
-            //attributeLayoutStates.uppermostActiveLocation = uppermostActiveLocation;
         }
 
         //TESSELATION CONTROL SHADER
@@ -1227,11 +1189,12 @@ namespace glCompact {
     }
 
     void PipelineRasterization::processPendingChangesPipeline() {
-        threadContext_->cachedBindShader(id); //pipelineShaderID and pipeline activation are independent! (e.g. setting a uniform will bind the shaderId in the background)
+        threadContext_->cachedBindShader(id); //glCompact::Pipeline... and shaderId binding are independent! (e.g. setting a uniform will bind the shaderId in the background)
         if (threadContext_->pipeline != this) {
             PipelineInterface::processPendingChangesPipeline();
+            threadContext_->attributeLayoutMaybeChanged = 1;
             buffer_attribute_changedSlotMin = 0;
-            buffer_attribute_changedSlotMax = attributeLayoutStates.uppermostActiveBufferIndex;
+            buffer_attribute_changedSlotMax = attributeLayout_.uppermostActiveBufferIndex;
             stateChange.all = ~0;
             threadContext_->pipeline = this;
         }
@@ -1683,9 +1646,10 @@ namespace glCompact {
     }
 
     /**
-        NOTE:
-            At the moment this does extreme aggressive state tracking. E.g. attribute locations that are not used in the active shader will not be changed here AT ALL. (including not disabled!!!)
-            This probably will cause issues with some drivers! :(
+        Note that glCompact only use one global VAO per context. (With GL_ARB_compatibility it uses the default VAO 0. Otherwise it creates one VAO per context.)
+        This is because buffers bound to one or several VAOs will be keept around even after deleting them. Only after all VAO references are droped will the recources actually be freed!
+        This makes it impossible to implement a clean recource management without doing silly things like walking over every single VAO in every context or
+        forcing glCompact users to manually "clean up" VAOs in some way.
 
         Internals:
             GL_ARB_instanced_arrays      (core since 3.3) NOTE: non core uses EXT/ANGLE/NV functions!
@@ -1696,233 +1660,138 @@ namespace glCompact {
             GL_ARB_vertex_attrib_binding (Core since 4.3)
             GL_ARB_multi_bind            (Core since 4.4)
 
-
             glVertexAttribDivisor exist as core/ARB/EXT/NV/ANGLE
             glVertexAttribDivisor  sets instance divisor for a attribute location
             glVertexBindingDivisor sets instance divisor for a buffer index (ARB_vertex_attrib_binding Core since 4.3)
     */
     void PipelineRasterization::processPendingChangesAttributeLayoutAndBuffers() {
+        const bool   attributeLayoutChanged     = threadContext_->attributeLayoutMaybeChanged && (threadContext_->attributeLayout_ != attributeLayout_);
+        const int    uppermostActiveLocation    = maximum(attributeLayout_.uppermostActiveLocation, threadContext_->attributeLayout_.uppermostActiveLocation);
+        const int8_t changedSlotMin             = buffer_attribute_changedSlotMin;
+        const int8_t changedSlotMax             = buffer_attribute_changedSlotMax;
+
         if (threadContextGroup_->extensions.GL_ARB_vertex_attrib_binding) {
-            if (threadContext_->attributeLayoutChanged) {
-              //int uppermostActiveBufferIndex = maximum(threadContext->attributeLayoutStates.uppermostActiveBufferIndex, attributeLayoutStates.uppermostActiveBufferIndex);
-                int uppermostActiveBufferIndex = attributeLayoutStates.uppermostActiveBufferIndex;
+            if (attributeLayoutChanged) {
+                int uppermostActiveBufferIndex = attributeLayout_.uppermostActiveBufferIndex;
                 LOOPI(uppermostActiveBufferIndex + 1) {
-                    auto& currentInstancing = threadContext_->attributeLayoutStates.instancing[i];
-                    auto& pendingInstancing =                        attributeLayoutStates.instancing[i];
-                    if (currentInstancing != pendingInstancing) {
-                        threadContextGroup_->functions.glVertexBindingDivisor(i, pendingInstancing);
-                        currentInstancing = pendingInstancing;
-                    }
+                    threadContextGroup_->functions.glVertexBindingDivisor(i, attributeLayout_.bufferIndexInstancing[i]);
                 }
-              //int uppermostActiveLocation = maximum(threadContext->attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation);
-                int uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
                 LOOPI(uppermostActiveLocation + 1) {
-                    auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
-                    auto& pendingLoc =                        attributeLayoutStates.location[i];
-                    if (pendingLoc.usage == AttributeLayoutStates::Usage::enabled) {
-                        if (currentLoc.usage != AttributeLayoutStates::Usage::enabled) {
-                            threadContextGroup_->functions.glEnableVertexAttribArray(i);
-                            currentLoc.usage = AttributeLayoutStates::Usage::enabled;
-                        }
-                        if (currentLoc.bufferIndex != pendingLoc.bufferIndex) {
-                            threadContextGroup_->functions.glVertexAttribBinding(i, pendingLoc.bufferIndex);
-                            currentLoc.bufferIndex = pendingLoc.bufferIndex;
-                        }
-                        if (currentLoc.attributeFormat != pendingLoc.attributeFormat
-                        ||  currentLoc.offset          != pendingLoc.offset
-                        ||  currentLoc.gpuType         != pendingLoc.gpuType)
-                        {
-                            auto& af = pendingLoc.attributeFormat;
-                            switch (pendingLoc.gpuType) {
-                                case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribFormat (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingLoc.offset); break;
-                                case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pendingLoc.offset); break;
-                                case AttributeLayoutStates::GpuType::f64: threadContextGroup_->functions.glVertexAttribLFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pendingLoc.offset); break;
-                                case AttributeLayoutStates::GpuType::unknown: break;
-                            }
-                            currentLoc.attributeFormat = pendingLoc.attributeFormat;
-                            currentLoc.offset          = pendingLoc.offset;
-                            currentLoc.gpuType         = pendingLoc.gpuType;
-                        }
-                    } else if (pendingLoc.usage == AttributeLayoutStates::Usage::disabled) {
-                        if (currentLoc.usage != AttributeLayoutStates::Usage::disabled) {
-                            threadContextGroup_->functions.glDisableVertexAttribArray(i);
-                            currentLoc.usage = AttributeLayoutStates::Usage::disabled;
+                    if (attributeLayout_.locationAttributeFormat[i] != AttributeFormat::NONE && attributeLayout_.gpuType[i] != AttributeLayout_::GpuType::unused) {
+                        const int locationBufferIndex = attributeLayout_.locationBufferIndex[i];
+                        auto pending_locationOffset   = attributeLayout_.locationOffset[i];
+                        threadContextGroup_->functions.glEnableVertexAttribArray(i);
+                        threadContextGroup_->functions.glVertexAttribBinding(i, locationBufferIndex);
+                        auto& af = attributeLayout_.locationAttributeFormat[i];
+                        switch (attributeLayout_.gpuType[i]) {
+                            case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribFormat (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pending_locationOffset); break;
+                            case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pending_locationOffset); break;
+                            case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pending_locationOffset); break;
                         }
                     } else {
-                        //indifferent attribute state because shader does not use attribute location at all so we do not need to change anything.
+                        threadContextGroup_->functions.glDisableVertexAttribArray(i);
                     }
                 }
-              //threadContext->attributeLayoutStates.uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
-                threadContext_->attributeLayoutChanged = false;
             }
-
-            int8_t changedSlotMin = buffer_attribute_changedSlotMin;
-            int8_t changedSlotMax = buffer_attribute_changedSlotMax;
-
-            //ignore states of buffer index if not used by shader layout
-            changedSlotMax = minimum(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
-
             if (changedSlotMin <= changedSlotMax) {
                 if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
                     int first = changedSlotMin;
                     int last  = changedSlotMax;
+                    //TODO: filter out unchanged buffer IDs from the start/end of the list
 
-                    //Filter out unchanged slots at the beginning and end of the list
-                    //Have to test how much performance impact (good or bad) this has
-
-                    //while (first <= last) {
-                    //  if (current_buffer_vertex_id                       [first] != pending_buffer_vertex_id                       [first]
-                    //  ||  current_buffer_vertex_offset                   [first] != pending_buffer_vertex_offset                   [first]
-                    //    ||  current_vertexAttributeLayout.bufferIndexStride[first] != pending_vertexAttributeLayout.bufferIndexStride[first]) break;
-                    //    first++;
-                    //}
-                    //while (first <= last) {
-                    //    if (current_buffer_vertex_id                       [last] != pending_buffer_vertex_id                       [last]
-                    //    ||  current_buffer_vertex_offset                   [last] != pending_buffer_vertex_offset                   [last]
-                    //    ||  current_vertexAttributeLayout.bufferIndexStride[last] != pending_vertexAttributeLayout.bufferIndexStride[last]) break;
-                    //    last--;
-                    //}
-
-                    //first = 255;
-                    //last  = -1;
-                    //for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    //    if (
-                    //            current_buffer_vertex_id                       [i] != pending_buffer_vertex_id                       [i]
-                    //        ||  current_buffer_vertex_offset                   [i] != pending_buffer_vertex_offset                   [i]
-                    //        ||  current_vertexAttributeLayout.bufferIndexStride[i] != pending_vertexAttributeLayout.bufferIndexStride[i]
-                    //    ){
-                    //        first = minimum(first, i);
-                    //        last  = maximum(last,  i);
-                    //    }
-                    //}
+                    /*while (first <= last) {
+                        if (    threadContext_->buffer_attribute_id               [first] != buffer_attribute_id               [first]
+                            ||  threadContext_->buffer_attribute_offset           [first] != buffer_attribute_offset           [first]
+                            ||  threadContext_->attributeLayout_.bufferIndexStride[first] != attributeLayout_.bufferIndexStride[first]) break;
+                        first++;
+                    }
+                    while (first <= last) {
+                        if (    threadContext_->buffer_attribute_id               [last] != buffer_attribute_id               [last]
+                            ||  threadContext_->buffer_attribute_offset           [last] != buffer_attribute_offset           [last]
+                            ||  threadContext_->attributeLayout_.bufferIndexStride[last] != attributeLayout_.bufferIndexStride[last]) break;
+                        last--;
+                    }*/
 
                     //first = 0;
                     //last  = 28;//config::MAX_ATTRIBUTES - 1;  //if value is higher then 28, the Win7 AMD blobs break without error output
                     if (first <= last) {
                         const uint32_t  count        = last - first + 1;
-                        const uint32_t* bufferIdList =                                   &buffer_attribute_id                    [first];
-                        const GLintptr* offsetList   = reinterpret_cast<const GLintptr*>(&buffer_attribute_offset                [first]);
-                        const GLsizei*  strideList   = reinterpret_cast<const GLsizei* >(&attributeLayoutStates.bufferIndexStride[first]);
+                        const uint32_t* bufferIdList =                                   &buffer_attribute_id               [first];
+                        const GLintptr* offsetList   = reinterpret_cast<const GLintptr*>(&buffer_attribute_offset           [first]);
+                        const GLsizei*  strideList   = reinterpret_cast<const GLsizei* >(&attributeLayout_.bufferIndexStride[first]);
                         threadContextGroup_->functions.glBindVertexBuffers(first, count, bufferIdList, offsetList, strideList);
-
-                        for (int i = first; i <= last; ++i) {
-                            threadContext_->buffer_attribute_id    [i] = buffer_attribute_id    [i];
-                            threadContext_->buffer_attribute_offset[i] = buffer_attribute_offset[i];
-                        }
                     }
                 } else {
                     for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                        if (threadContext_->buffer_attribute_id                    [i] != buffer_attribute_id                    [i]
-                        ||  threadContext_->buffer_attribute_offset                [i] != buffer_attribute_offset                [i]
-                        ||  threadContext_->attributeLayoutStates.bufferIndexStride[i] != attributeLayoutStates.bufferIndexStride[i]) {
-                            threadContextGroup_->functions.glBindVertexBuffer(i, buffer_attribute_id[i], buffer_attribute_offset[i], attributeLayoutStates.bufferIndexStride[i]);
-                            threadContext_->buffer_attribute_id                    [i] = buffer_attribute_id                     [i];
-                            threadContext_->buffer_attribute_offset                [i] = buffer_attribute_offset                 [i];
-                            threadContext_->attributeLayoutStates.bufferIndexStride[i] = attributeLayoutStates.bufferIndexStride [i];
+                        if (threadContext_->buffer_attribute_id    [i] != buffer_attribute_id    [i]
+                        ||  threadContext_->buffer_attribute_offset[i] != buffer_attribute_offset[i]) {
+                            threadContextGroup_->functions.glBindVertexBuffer(i, buffer_attribute_id[i], buffer_attribute_offset[i], attributeLayout_.bufferIndexStride[i]);
                         }
                     }
                 }
-                buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
-                buffer_attribute_changedSlotMax = -1;
             }
         } else {
-            //This path gets used when there is no GL_ARB_vertex_attrib_binding (There is also no use of GL_ARB_multi_bind here)
-            int8_t changedSlotMin = buffer_attribute_changedSlotMin;
-            int8_t changedSlotMax = buffer_attribute_changedSlotMax;
-
-            //ignore states of buffer index if not used by shader layout
-            changedSlotMax = minimum(changedSlotMax, attributeLayoutStates.uppermostActiveBufferIndex);
-
-            if (threadContext_->attributeLayoutChanged) {
-              //int uppermostActiveLocation = maximum(maximum(attributeLayoutStates.uppermostActiveLocation, attributeLayoutStates.uppermostActiveLocation), changedSlotMax);
-                int uppermostActiveLocation = attributeLayoutStates.uppermostActiveLocation;
+            if (attributeLayoutChanged) {
                 LOOPI(uppermostActiveLocation + 1) {
-                          auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
-                    const auto& pendingLoc =                 attributeLayoutStates.location[i];
+                    if (    attributeLayout_.locationAttributeFormat[i] != AttributeFormat::NONE
+                        &&  attributeLayout_.gpuType                [i] != AttributeLayout_::GpuType::unused
+                    ) {
+                        const int locationBufferIndex  = attributeLayout_.locationBufferIndex[i];
+                        const intptr_t pendingStride   = attributeLayout_.bufferIndexStride[locationBufferIndex];
+                        const intptr_t pendingOffset   = buffer_attribute_offset           [locationBufferIndex] + attributeLayout_.locationOffset[i];
+                        const uint32_t pendingBufferId = buffer_attribute_id               [locationBufferIndex];
 
-                    if (pendingLoc.usage == AttributeLayoutStates::Usage::enabled) {
-                        if (currentLoc.usage != AttributeLayoutStates::Usage::enabled) {
-                            threadContextGroup_->functions.glEnableVertexAttribArray(i);
-                            currentLoc.usage = AttributeLayoutStates::Usage::enabled;
-                        }
-                        const uint32_t pendingBufferId =                 buffer_attribute_id                    [pendingLoc.bufferIndex];
-                        const intptr_t pendingOffset   =                 buffer_attribute_offset                [pendingLoc.bufferIndex] + pendingLoc.offset;
-                        const uint32_t pendingStride   =                 attributeLayoutStates.bufferIndexStride[pendingLoc.bufferIndex];
-                        const uint32_t currentBufferId = threadContext_->buffer_attribute_id                    [currentLoc.bufferIndex];
-                        const intptr_t currentOffset   = threadContext_->buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
-                        const uint32_t currentStride   = threadContext_->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex];
-                        if (currentLoc.attributeFormat != pendingLoc.attributeFormat
-                        ||  currentLoc.gpuType         != pendingLoc.gpuType
-                        ||  currentBufferId            != pendingBufferId
-                        ||  currentOffset              != pendingOffset
-                        ||  currentStride              != pendingStride)
-                        {
-                            const auto& af = pendingLoc.attributeFormat;
-                            threadContext_->cachedBindArrayBuffer(pendingBufferId);
-                            switch (pendingLoc.gpuType) {
-                                case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                                case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                                case AttributeLayoutStates::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                                case AttributeLayoutStates::GpuType::unknown: break;
-                            }
-                            currentLoc = pendingLoc;
-                            threadContext_->buffer_attribute_id                    [currentLoc.bufferIndex] =                       buffer_attribute_id    [pendingLoc.bufferIndex];
-                            threadContext_->buffer_attribute_offset                [currentLoc.bufferIndex] =                       buffer_attribute_offset[pendingLoc.bufferIndex];
-                            threadContext_->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex] = attributeLayoutStates.bufferIndexStride      [pendingLoc.bufferIndex];
-                        }
-                              auto& currentInstancing = threadContext_->attributeLayoutStates.instancing[i];
-                        const auto& pendingInstancing =                 attributeLayoutStates.instancing[i];
-                        if (currentInstancing != pendingInstancing) {
-                            threadContextGroup_->functions.glVertexAttribDivisor(i, pendingInstancing);
-                            currentInstancing = pendingInstancing;
-                        }
-                    } else if (pendingLoc.usage == AttributeLayoutStates::Usage::disabled) {
-                        if (currentLoc.usage != AttributeLayoutStates::Usage::disabled) {
-                            threadContextGroup_->functions.glDisableVertexAttribArray(i);
-                            currentLoc.usage = AttributeLayoutStates::Usage::disabled;
+                        threadContextGroup_->functions.glEnableVertexAttribArray(i);
+                        threadContextGroup_->functions.glVertexAttribDivisor(i, attributeLayout_.bufferIndexInstancing[locationBufferIndex]);
+
+                        threadContext_->cachedBindArrayBuffer(pendingBufferId);
+                        auto& af = attributeLayout_.locationAttributeFormat[i];
+                        switch (attributeLayout_.gpuType[i]) {
+                            case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
                         }
                     } else {
-                        //indifferent attribute state because shader does not use attribute location at all. So we do not need to change anything!
+                        threadContextGroup_->functions.glDisableVertexAttribArray(i);
                     }
                 }
-                buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
-                buffer_attribute_changedSlotMax = -1;
-                threadContext_->attributeLayoutChanged = false;
-            } else if (changedSlotMax >= changedSlotMin) {
-                LOOPI(attributeLayoutStates.uppermostActiveLocation + 1) {
-                    const auto& currentLoc = threadContext_->attributeLayoutStates.location[i];
-                    const auto& pendingLoc =                 attributeLayoutStates.location[i];
-
-                    if (pendingLoc.usage == AttributeLayoutStates::Usage::indifferent) continue;
-
-                    const GLintptr pendingOffset   =                 buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
-                    const GLintptr currentOffset   = threadContext_->buffer_attribute_offset                [currentLoc.bufferIndex] + currentLoc.offset;
-                    const GLsizei  currentStride   = threadContext_->attributeLayoutStates.bufferIndexStride[currentLoc.bufferIndex];
-
-                    const uint32_t currentBufferId = threadContext_->buffer_attribute_id                    [currentLoc.bufferIndex];
-                    const uint32_t pendingBufferId =                 buffer_attribute_id                    [currentLoc.bufferIndex];
-
-                    if ((currentLoc.bufferIndex >= changedSlotMin && currentLoc.bufferIndex <= changedSlotMax)
-                        ||  currentBufferId != pendingBufferId
-                        ||  currentOffset   != pendingOffset)
-                    {
-                        const auto& af = pendingLoc.attributeFormat;
-                        threadContext_->cachedBindArrayBuffer(pendingBufferId);
-                        switch (currentLoc.gpuType) {
-                            case AttributeLayoutStates::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                            case AttributeLayoutStates::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                            case AttributeLayoutStates::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                            case AttributeLayoutStates::GpuType::unknown: break;
+            } else if (changedSlotMin <= changedSlotMax) {
+                LOOPI(uppermostActiveLocation + 1) {
+                    if (attributeLayout_.locationAttributeFormat[i] != AttributeFormat::NONE && attributeLayout_.gpuType[i] != AttributeLayout_::GpuType::unused) {
+                        const int      locationBufferIndex  =                 attributeLayout_.locationBufferIndex[i];
+                        const GLsizei  currentStride        = threadContext_->attributeLayout_.bufferIndexStride[locationBufferIndex];
+                        const GLintptr currentOffset        = threadContext_->buffer_attribute_offset           [locationBufferIndex] + threadContext_->attributeLayout_.locationOffset[locationBufferIndex];
+                        const GLintptr pendingOffset        =                 buffer_attribute_offset           [locationBufferIndex] +                 attributeLayout_.locationOffset[locationBufferIndex];
+                        const uint32_t currentBufferId      = threadContext_->buffer_attribute_offset           [locationBufferIndex];
+                        const uint32_t pendingBufferId      =                 buffer_attribute_id               [locationBufferIndex];
+                        if ((locationBufferIndex >= changedSlotMin && locationBufferIndex <= changedSlotMax)
+                            ||  currentBufferId != pendingBufferId
+                            ||  currentOffset   != pendingOffset)
+                        {
+                            auto& af = attributeLayout_.locationAttributeFormat[i];
+                            threadContext_->cachedBindArrayBuffer(pendingBufferId);
+                            switch (attributeLayout_.gpuType[i]) {
+                                case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            }
                         }
                     }
                 }
-                for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    threadContext_->buffer_attribute_id    [i] = buffer_attribute_id    [i];
-                    threadContext_->buffer_attribute_offset[i] = buffer_attribute_offset[i];
-                }
-                buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
-                buffer_attribute_changedSlotMax = -1;
             }
+        }
+
+        if (threadContext_->attributeLayoutMaybeChanged) {
+            threadContext_->attributeLayout_ = attributeLayout_;
+            threadContext_->attributeLayoutMaybeChanged = false;
+        }
+        if (changedSlotMin <= changedSlotMax) {
+            for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
+                threadContext_->buffer_attribute_id    [i] = buffer_attribute_id    [i];
+                threadContext_->buffer_attribute_offset[i] = buffer_attribute_offset[i];
+            }
+            buffer_attribute_changedSlotMin = config::MAX_ATTRIBUTES;
+            buffer_attribute_changedSlotMax = -1;
         }
     }
 
@@ -1947,9 +1816,9 @@ namespace glCompact {
 
     string PipelineRasterization::getPipelineInformationQueryString() {
         string s;
-        if (attributeLayoutStates.uppermostActiveLocation > -1) {
+        if (attributeLayout_.uppermostActiveLocation > -1) {
             s += " attributes:\n";
-            LOOPI(attributeLayoutStates.uppermostActiveLocation + 1) {
+            LOOPI(attributeLayout_.uppermostActiveLocation + 1) {
                 if (attributeLocationInfo[i].type) {
                     s += "  (location = " + to_string(i) + ") " + gl::typeToGlslAndCNameString(attributeLocationInfo[i].type) + " " + attributeLocationInfo[i].name + "\n";
                 }

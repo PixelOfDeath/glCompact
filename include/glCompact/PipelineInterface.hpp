@@ -337,12 +337,6 @@ namespace glCompact {
 
             void* multiMallocPtr = 0;
 
-            //BUFFER ATTRIBUTE
-            //attributeLayoutStates.uppermostActiveBufferIndex for highestActiveBinding
-            void       buffer_attribute_markSlotChange(int32_t slot);
-             int32_t   buffer_attribute_changedSlotMin = (std::numeric_limits<decltype(buffer_attribute_changedSlotMin)>::max)();
-             int32_t   buffer_attribute_changedSlotMax = -1;
-
             //BUFFER UNIFORM
             size_t     buffer_uniform_count = 0;
             void       buffer_uniform_markSlotChange(int32_t slot);
