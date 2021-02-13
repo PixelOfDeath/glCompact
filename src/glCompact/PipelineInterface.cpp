@@ -1032,7 +1032,7 @@ namespace glCompact {
     void PipelineInterface::buffer_uniform_markSlotChange(
         int32_t slot
     ) {
-        if (slot >= buffer_uniform_count) return;
+        UNLIKELY_IF (slot >= buffer_uniform_count) return;
         buffer_uniform_changedSlotMin = minimum(buffer_uniform_changedSlotMin, slot);
         buffer_uniform_changedSlotMax = maximum(buffer_uniform_changedSlotMax, slot);
     }
@@ -1040,7 +1040,7 @@ namespace glCompact {
     void PipelineInterface::buffer_atomicCounter_markSlotChange(
         int32_t slot
     ) {
-        if (slot >= buffer_atomicCounter_count) return;
+        UNLIKELY_IF (slot >= buffer_atomicCounter_count) return;
         buffer_atomicCounter_changedSlotMin = minimum(buffer_atomicCounter_changedSlotMin, slot);
         buffer_atomicCounter_changedSlotMax = maximum(buffer_atomicCounter_changedSlotMax, slot);
     }
@@ -1048,7 +1048,7 @@ namespace glCompact {
     void PipelineInterface::buffer_shaderStorage_markSlotChange(
         int32_t slot
     ) {
-        if (slot >= buffer_shaderStorage_count) return;
+        UNLIKELY_IF (slot >= buffer_shaderStorage_count) return;
         buffer_shaderStorage_changedSlotMin = minimum(buffer_shaderStorage_changedSlotMin, slot);
         buffer_shaderStorage_changedSlotMax = maximum(buffer_shaderStorage_changedSlotMax, slot);
     }
@@ -1056,7 +1056,7 @@ namespace glCompact {
     void PipelineInterface::texture_markSlotChange(
         int32_t slot
     ) {
-        if (slot >= sampler_count) return;
+        UNLIKELY_IF (slot >= sampler_count) return;
         texture_changedSlotMin = minimum(texture_changedSlotMin, slot);
         texture_changedSlotMax = maximum(texture_changedSlotMax, slot);
     }
@@ -1064,7 +1064,7 @@ namespace glCompact {
     void PipelineInterface::sampler_markSlotChange(
         int32_t slot
     ) {
-        if (slot >= sampler_count) return;
+        UNLIKELY_IF (slot >= sampler_count) return;
         sampler_changedSlotMin = minimum(sampler_changedSlotMin, slot);
         sampler_changedSlotMax = maximum(sampler_changedSlotMax, slot);
     }
@@ -1072,7 +1072,7 @@ namespace glCompact {
     void PipelineInterface::image_markSlotChange(
         int32_t slot
     ) {
-        if (slot >= image_count) return;
+        UNLIKELY_IF (slot >= image_count) return;
         image_changedSlotMin = minimum(image_changedSlotMin, slot);
         image_changedSlotMax = maximum(image_changedSlotMax, slot);
     }
@@ -1587,7 +1587,7 @@ namespace glCompact {
 
 
     void PipelineInterface::processPendingChangesPipeline() {
-        if (!checkedThatThreadContextBindingArraysAreBigEnough) {
+        UNLIKELY_IF (!checkedThatThreadContextBindingArraysAreBigEnough) {
             multiMallocDescriptor md[] = {
                 {&threadContext_->buffer_uniform_id,            &threadContext_->buffer_uniform_count,          buffer_uniform_count},
                 {&threadContext_->buffer_uniform_offset,        &threadContext_->buffer_uniform_count,          buffer_uniform_count},
