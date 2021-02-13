@@ -1180,8 +1180,12 @@ namespace glCompact {
     }
 
     void PipelineRasterization::processPendingChanges() {
-        processPendingChangesPipeline();
         PipelineInterface::processPendingChanges();
+        if (threadContext_->pipeline != this) {
+            PipelineInterface::processPendingChangesPipeline();
+                               processPendingChangesPipeline();
+            threadContext_->pipeline = this;
+        }
         processPendingChangesAttributeLayoutAndBuffers();
         threadContext_->processPendingChangesDrawFrame();
         processPendingChangesPipelineRasterization();
@@ -1189,15 +1193,10 @@ namespace glCompact {
     }
 
     void PipelineRasterization::processPendingChangesPipeline() {
-        threadContext_->cachedBindShader(id); //glCompact::Pipeline... and shaderId binding are independent! (e.g. setting a uniform will bind the shaderId in the background)
-        if (threadContext_->pipeline != this) {
-            PipelineInterface::processPendingChangesPipeline();
-            threadContext_->attributeLayoutMaybeChanged = 1;
-            buffer_attribute_changedSlotMin = 0;
-            buffer_attribute_changedSlotMax = attributeLayout_.uppermostActiveBufferIndex;
-            stateChange.all = ~0;
-            threadContext_->pipeline = this;
-        }
+        threadContext_->attributeLayoutMaybeChanged = 1;
+        buffer_attribute_changedSlotMin = 0;
+        buffer_attribute_changedSlotMax = attributeLayout_.uppermostActiveBufferIndex;
+        stateChange.all = ~0;
     }
 
     /*

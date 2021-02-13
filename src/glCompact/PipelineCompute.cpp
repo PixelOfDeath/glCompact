@@ -269,15 +269,17 @@ namespace glCompact {
     }
 
     void PipelineCompute::processPendingChanges() {
+        threadContext_->cachedBindShader(id);
+        if (threadContext_->pipeline != this) {
+            PipelineInterface::processPendingChangesPipeline();
+                               processPendingChangesPipeline();
+            threadContext_->pipeline = this;
+        }
         processPendingChangesPipeline();
         PipelineInterface::processPendingChanges();
     }
 
     void PipelineCompute::processPendingChangesPipeline() {
-        threadContext_->cachedBindShader(id);
-        if (threadContext_->pipeline != this) {
-            PipelineInterface::processPendingChangesPipeline();
-            threadContext_->pipeline = this;
-        }
+        //...
     }
 }

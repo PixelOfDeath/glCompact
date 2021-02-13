@@ -1575,6 +1575,7 @@ namespace glCompact {
     }
 
     void PipelineInterface::processPendingChanges() {
+        threadContext_->cachedBindShader(id); //glCompact::PipelineX and shaderId binding are independent! (e.g. setting a uniform will bind the shaderId in the background)
         processPendingChangesBuffersUniform();
         processPendingChangesBuffersAtomicCounter();
         processPendingChangesBuffersShaderStorage();
@@ -1608,6 +1609,19 @@ namespace glCompact {
             threadContext_->multiMallocPtr = multiReMallocGrowOnly(threadContext_->multiMallocPtr, md, sizeof(md));
             checkedThatThreadContextBindingArraysAreBigEnough = true;
         }
+        buffer_uniform_changedSlotMin       = 0;
+        buffer_uniform_changedSlotMax       = buffer_uniform_count       - 1;
+        buffer_atomicCounter_changedSlotMin = 0;
+        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
+        buffer_shaderStorage_changedSlotMin = 0;
+        buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_count - 1;
+        texture_changedSlotMin              = 0;
+        texture_changedSlotMax              = sampler_count              - 1;
+        sampler_changedSlotMin              = 0;
+        sampler_changedSlotMax              = sampler_count              - 1;
+        image_changedSlotMin                = 0;
+        image_changedSlotMax                = image_count                - 1;
+
     }
 
     void PipelineInterface::processPendingChangesBuffersUniform() {
