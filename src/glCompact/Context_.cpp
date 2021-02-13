@@ -6,6 +6,7 @@
 #include "glCompact/Debug.hpp"
 #include "glCompact/Frame.hpp"
 #include "glCompact/PipelineInterface.hpp"
+#include "glCompact/multiMalloc.h"
 
 #include <exception>
 #include <stdexcept>
@@ -37,6 +38,27 @@ namespace glCompact {
             DONE: replaced need for this extension via naming postfix: NAME_bindingX;
     */
     Context_::Context_() {
+        //Allocate minimum memory to hold the first bind states in case we don't have GL_ARB_direct_state_access support
+        multiMallocDescriptor md[] = {
+            {&buffer_uniform_id,            &buffer_uniform_count,          1},
+            {&buffer_uniform_offset,        &buffer_uniform_count,          1},
+            {&buffer_uniform_size,          &buffer_uniform_count,          1},
+            {&buffer_atomicCounter_id,      &buffer_atomicCounter_count,    1},
+            {&buffer_atomicCounter_offset,  &buffer_atomicCounter_count,    1},
+            {&buffer_atomicCounter_size,    &buffer_atomicCounter_count,    1},
+            {&buffer_shaderStorage_id,      &buffer_shaderStorage_count,    1},
+            {&buffer_shaderStorage_offset,  &buffer_shaderStorage_count,    1},
+            {&buffer_shaderStorage_size,    &buffer_shaderStorage_count,    1},
+            {&texture_id,                   &sampler_count,                 1},
+            {&texture_target,               &sampler_count,                 1},
+            {&sampler_id,                   &sampler_count,                 1},
+            {&image_id,                     &image_count,                   1},
+            {&image_format,                 &image_count,                   1},
+            {&image_mipmapLevel,            &image_count,                   1},
+            {&image_layer,                  &image_count,                   1},
+        };
+        multiMallocPtr = multiMalloc(md, sizeof(md));
+
         queryDisplayFramebufferFormat();
 
         contextId = nextContextId.fetch_add(1);
