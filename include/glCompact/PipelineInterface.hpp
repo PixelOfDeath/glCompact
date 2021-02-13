@@ -35,11 +35,6 @@ namespace glCompact {
             void setImage                (uint32_t slot);
             void setImage                ();
 
-            void setAtomicCounterBuffer  (uint32_t slot, const BufferInterface& buffer, uintptr_t offset = 0);
-            void setAtomicCounterBuffer  (uint32_t slot, const BufferInterface& buffer, uintptr_t offset, uintptr_t size);
-            void setAtomicCounterBuffer  (uint32_t slot);
-            void setAtomicCounterBuffer  ();
-
             void setShaderStorageBuffer  (uint32_t slot,       BufferInterface& buffer, uintptr_t offset = 0);
             void setShaderStorageBuffer  (uint32_t slot,       BufferInterface& buffer, uintptr_t offset, uintptr_t size);
             void setShaderStorageBuffer  (uint32_t slot);
@@ -347,15 +342,6 @@ namespace glCompact {
             uintptr_t* buffer_uniform_offset;
             uintptr_t* buffer_uniform_size;
 
-            //BUFFER ATOMIC COUNTER
-            size_t     buffer_atomicCounter_count = 0;
-            void       buffer_atomicCounter_markSlotChange(int32_t slot);
-             int32_t   buffer_atomicCounter_changedSlotMin = (std::numeric_limits<decltype(buffer_atomicCounter_changedSlotMin)>::max)();
-             int32_t   buffer_atomicCounter_changedSlotMax = -1;
-            uint32_t*  buffer_atomicCounter_id;
-            uintptr_t* buffer_atomicCounter_offset;
-            uintptr_t* buffer_atomicCounter_size;
-
             //BUFFER SHADER STORAGE
             size_t     buffer_shaderStorage_count = 0;
             void       buffer_shaderStorage_markSlotChange(int32_t slot);
@@ -428,18 +414,6 @@ namespace glCompact {
                 std::vector<UniformBlockUniform> uniform;
             };
 
-            //atomic counter
-            struct AtomicCounterBindingUniform {
-                std::string name;
-                int32_t offset    = 0;
-                int32_t arraySize = 0;
-                //int32_t arrayStride = 4; //Think I do not need this, should always be 4
-            };
-            struct AtomicCounterBinding {
-                uint32_t dataSize;
-                std::vector<AtomicCounterBindingUniform> uniformList;
-            };
-
             //SSBO
             struct StorageBlockVariable {
                 std::string name;
@@ -464,7 +438,6 @@ namespace glCompact {
             std::vector<BindingUniform>       samplerList;
             std::vector<BindingUniform>       imageList;
             std::vector<UniformBlock>         uniformBlockList;
-            std::vector<AtomicCounterBinding> atomicCounterBindingList;
             std::vector<StorageBlock>         storageBlockList;
 
             void collectInformation();
@@ -473,7 +446,6 @@ namespace glCompact {
             void processPendingChanges();
             void processPendingChangesPipeline();
             void processPendingChangesBuffersUniform();
-            void processPendingChangesBuffersAtomicCounter();
             void processPendingChangesBuffersShaderStorage();
             void processPendingChangesTextures();
             void processPendingChangesSamplers();

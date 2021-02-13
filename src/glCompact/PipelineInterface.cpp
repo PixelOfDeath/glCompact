@@ -255,57 +255,6 @@ namespace glCompact {
         image_changedSlotMax = image_count - 1;
     }
 
-    void PipelineInterface::setAtomicCounterBuffer(
-        uint32_t               slot,
-        const BufferInterface& buffer,
-        uintptr_t              offset
-    ) {
-        setAtomicCounterBuffer(slot, buffer, offset, buffer.getSize());
-    }
-
-    void PipelineInterface::setAtomicCounterBuffer(
-        uint32_t               slot,
-        const BufferInterface& buffer,
-        uintptr_t              offset,
-        uintptr_t              size
-    ) {
-        UNLIKELY_IF (!buffer.id)
-            throw std::runtime_error("does not take empty Buffer!");
-        UNLIKELY_IF (int32_t(slot) >= buffer_atomicCounter_count) return;
-        UNLIKELY_IF (buffer.getSize() - offset < atomicCounterBindingList[slot].dataSize)
-            throw std::runtime_error(string("")
-            +   "Buffer does not have enough space after offset for all atomic counters!\n"
-            +   "size(" + to_string(buffer.getSize()) + ") - offset(" + to_string(offset) + ") = " + to_string(buffer.getSize() - offset) + " but needed size for all actomic counters is "
-            +   to_string(atomicCounterBindingList[slot].dataSize) + "!"
-            );
-
-        buffer_atomicCounter_id    [slot] = buffer.id;
-        buffer_atomicCounter_offset[slot] = offset;
-        buffer_atomicCounter_size  [slot] = size;
-        buffer_atomicCounter_markSlotChange(slot);
-    }
-
-    void PipelineInterface::setAtomicCounterBuffer(
-        uint32_t slot
-    ) {
-        UNLIKELY_IF (int32_t(slot) >= buffer_atomicCounter_count) return;
-
-        buffer_atomicCounter_id    [slot] = 0;
-        buffer_atomicCounter_offset[slot] = 0;
-        buffer_atomicCounter_size  [slot] = 0;
-        buffer_atomicCounter_markSlotChange(slot);
-    }
-
-    void PipelineInterface::setAtomicCounterBuffer() {
-        for (int32_t i = 0; i < buffer_atomicCounter_count; ++i) {
-            buffer_atomicCounter_id    [i] = 0;
-            buffer_atomicCounter_offset[i] = 0;
-            buffer_atomicCounter_size  [i] = 0;
-        }
-        buffer_atomicCounter_changedSlotMin = 0;
-        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
-    }
-
     /*
         offset must be aligned to GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT (max. 256)
     */
@@ -509,17 +458,6 @@ namespace glCompact {
                     s += "   " + gl::typeToGlslAndCNameString(uniform.type) + " " + uniform.name
                     + (uniform.arraySize ? ("[" + to_string(uniform.arraySize) + "]") : "")
                     + "\n";
-                }
-            }
-        }
-        if (atomicCounterBindingList.size()) {
-            s += " atomic counter buffer bindings:\n";
-            LOOPI(atomicCounterBindingList.size()) {
-                if (atomicCounterBindingList[i].uniformList.size()) {
-                    s += "  binding " + to_string(i) + " (size: " + to_string(atomicCounterBindingList[i].dataSize) + " byte)\n";
-                    for (auto ac : atomicCounterBindingList[i].uniformList) {
-                        s += "   offset:" + to_string(ac.offset) + " " + ac.name + "\n";
-                    }
                 }
             }
         }
@@ -1037,14 +975,6 @@ namespace glCompact {
         buffer_uniform_changedSlotMax = maximum(buffer_uniform_changedSlotMax, slot);
     }
 
-    void PipelineInterface::buffer_atomicCounter_markSlotChange(
-        int32_t slot
-    ) {
-        UNLIKELY_IF (slot >= buffer_atomicCounter_count) return;
-        buffer_atomicCounter_changedSlotMin = minimum(buffer_atomicCounter_changedSlotMin, slot);
-        buffer_atomicCounter_changedSlotMax = maximum(buffer_atomicCounter_changedSlotMax, slot);
-    }
-
     void PipelineInterface::buffer_shaderStorage_markSlotChange(
         int32_t slot
     ) {
@@ -1423,33 +1353,12 @@ namespace glCompact {
             }
         }
 
+        bool detectedAtomicCounter = false;
         //Atomic Counter Buffer Bindings - GL_ARB_shader_atomic_counters (Core since 4.2)
         if (threadContextGroup_->extensions.GL_ARB_shader_atomic_counters) {
-            //glGetActiveUniformsiv UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX
-            //glGetActiveAtomicCounterBufferiv( GLuint program, GLuint bufferIndex, GLenum pname, GLint *params);
             int32_t activeAtomicCounter = 0;
             threadContextGroup_->functions.glGetProgramiv(id, GL_ACTIVE_ATOMIC_COUNTER_BUFFERS, &activeAtomicCounter);
-            atomicCounterBindingList.resize(activeAtomicCounter);
-            LOOPI(activeAtomicCounter) {
-                int32_t binding;
-                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_BINDING, &binding);
-                if (atomicCounterBindingList.size() < uint32_t(binding) + 1) atomicCounterBindingList.resize(binding + 1);
-                auto& acbb = atomicCounterBindingList[binding];
-
-                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_DATA_SIZE, reinterpret_cast<int32_t*>(&acbb.dataSize));
-                int32_t atomicCountersCount = 0;
-                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTERS, &atomicCountersCount);
-                vector<int32_t> atomicCounterIndexList(atomicCountersCount);
-                vector<int32_t> uniformOffsetList     (atomicCountersCount);
-                threadContextGroup_->functions.glGetActiveAtomicCounterBufferiv(id, i, GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTER_INDICES, &atomicCounterIndexList[0]);
-                threadContextGroup_->functions.glGetActiveUniformsiv(id, atomicCountersCount, reinterpret_cast<uint32_t*>(&atomicCounterIndexList[0]), GL_UNIFORM_OFFSET, &uniformOffsetList[0]);
-                acbb.uniformList.resize(atomicCountersCount);
-                LOOPJ(atomicCountersCount) {
-                    auto& ac = acbb.uniformList[j];
-                    ac.name   = rawUniformList[atomicCounterIndexList[j]].name;
-                    ac.offset = uniformOffsetList                    [j];
-                }
-            }
+            detectedAtomicCounter = activeAtomicCounter > 0;
         }
 
         //Shader Storage Buffer Object (SSBO) (Core since 4.3)
@@ -1548,8 +1457,10 @@ namespace glCompact {
         sampler_count               = samplerList.size();
         for (const auto& ub : uniformBlockList) buffer_uniform_count = max<size_t>(buffer_uniform_count, ub.binding + 1);
         image_count                 = imageList.size();
-        buffer_atomicCounter_count  = atomicCounterBindingList.size();
         for (const auto& sb : storageBlockList) buffer_shaderStorage_count = max<size_t>(buffer_shaderStorage_count, sb.binding + 1);
+
+        if (detectedAtomicCounter)
+            warning("Warning detected atomic counter variables, glCompact does not support them! (Real hardware support only exist in some AMD devices, other vendors use SSBO atomics)");
     }
 
     void PipelineInterface::allocateMemory() {
@@ -1557,9 +1468,6 @@ namespace glCompact {
             {&buffer_uniform_id,            &buffer_uniform_count,          buffer_uniform_count},
             {&buffer_uniform_offset,        &buffer_uniform_count,          buffer_uniform_count},
             {&buffer_uniform_size,          &buffer_uniform_count,          buffer_uniform_count},
-            {&buffer_atomicCounter_id,      &buffer_atomicCounter_count,    buffer_atomicCounter_count},
-            {&buffer_atomicCounter_offset,  &buffer_atomicCounter_count,    buffer_atomicCounter_count},
-            {&buffer_atomicCounter_size,    &buffer_atomicCounter_count,    buffer_atomicCounter_count},
             {&buffer_shaderStorage_id,      &buffer_shaderStorage_count,    buffer_shaderStorage_count},
             {&buffer_shaderStorage_offset,  &buffer_shaderStorage_count,    buffer_shaderStorage_count},
             {&buffer_shaderStorage_size,    &buffer_shaderStorage_count,    buffer_shaderStorage_count},
@@ -1577,7 +1485,6 @@ namespace glCompact {
     void PipelineInterface::processPendingChanges() {
         threadContext_->cachedBindShader(id); //glCompact::PipelineX and shaderId binding are independent! (e.g. setting a uniform will bind the shaderId in the background)
         processPendingChangesBuffersUniform();
-        processPendingChangesBuffersAtomicCounter();
         processPendingChangesBuffersShaderStorage();
         processPendingChangesTextures();
         processPendingChangesSamplers();
@@ -1592,9 +1499,6 @@ namespace glCompact {
                 {&threadContext_->buffer_uniform_id,            &threadContext_->buffer_uniform_count,          buffer_uniform_count},
                 {&threadContext_->buffer_uniform_offset,        &threadContext_->buffer_uniform_count,          buffer_uniform_count},
                 {&threadContext_->buffer_uniform_size,          &threadContext_->buffer_uniform_count,          buffer_uniform_count},
-                {&threadContext_->buffer_atomicCounter_id,      &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
-                {&threadContext_->buffer_atomicCounter_offset,  &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
-                {&threadContext_->buffer_atomicCounter_size,    &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
                 {&threadContext_->buffer_shaderStorage_id,      &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
                 {&threadContext_->buffer_shaderStorage_offset,  &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
                 {&threadContext_->buffer_shaderStorage_size,    &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
@@ -1611,8 +1515,6 @@ namespace glCompact {
         }
         buffer_uniform_changedSlotMin       = 0;
         buffer_uniform_changedSlotMax       = buffer_uniform_count       - 1;
-        buffer_atomicCounter_changedSlotMin = 0;
-        buffer_atomicCounter_changedSlotMax = buffer_atomicCounter_count - 1;
         buffer_shaderStorage_changedSlotMin = 0;
         buffer_shaderStorage_changedSlotMax = buffer_shaderStorage_count - 1;
         texture_changedSlotMin              = 0;
@@ -1666,51 +1568,6 @@ namespace glCompact {
             }
             buffer_uniform_changedSlotMin = std::numeric_limits<decltype(buffer_uniform_changedSlotMin)>::max();
             buffer_uniform_changedSlotMax = -1;
-        }
-    }
-
-    void PipelineInterface::processPendingChangesBuffersAtomicCounter() {
-        auto changedSlotMin = buffer_atomicCounter_changedSlotMin;
-        auto changedSlotMax = buffer_atomicCounter_changedSlotMax;
-
-        if (changedSlotMin <= changedSlotMax) {
-            if (threadContextGroup_->extensions.GL_ARB_multi_bind) {
-                //Filter out unchanged slots at the beginning and end of the list
-                while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext_->buffer_atomicCounter_id    [changedSlotMin] != buffer_atomicCounter_id    [changedSlotMin]
-                    ||  threadContext_->buffer_atomicCounter_offset[changedSlotMin] != buffer_atomicCounter_offset[changedSlotMin]
-                    ||  threadContext_->buffer_atomicCounter_size  [changedSlotMin] != buffer_atomicCounter_size  [changedSlotMin]) break;
-                    changedSlotMin++;
-                }
-                while (changedSlotMin <= changedSlotMax) {
-                    if (threadContext_->buffer_atomicCounter_id    [changedSlotMax] != buffer_atomicCounter_id    [changedSlotMax]
-                    ||  threadContext_->buffer_atomicCounter_offset[changedSlotMax] != buffer_atomicCounter_offset[changedSlotMax]
-                    ||  threadContext_->buffer_atomicCounter_size  [changedSlotMax] != buffer_atomicCounter_size  [changedSlotMax]) break;
-                    changedSlotMax--;
-                }
-
-                if (changedSlotMin <= changedSlotMax) {
-                    const uint32_t    count        = changedSlotMax - changedSlotMin + 1;
-                    const uint32_t*   bufferIdList =                                     &buffer_atomicCounter_id    [changedSlotMin];
-                    const GLintptr*   offsetList   = reinterpret_cast<const GLintptr*>  (&buffer_atomicCounter_offset[changedSlotMin]);
-                    const GLsizeiptr* sizeList     = reinterpret_cast<const GLsizeiptr*>(&buffer_atomicCounter_size  [changedSlotMin]);
-                    threadContextGroup_->functions.glBindBuffersRange(GL_ATOMIC_COUNTER_BUFFER, changedSlotMin, count, bufferIdList, offsetList, sizeList);
-                }
-            } else {
-                for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    if (threadContext_->buffer_atomicCounter_id    [i] != buffer_atomicCounter_id    [i]
-                    ||  threadContext_->buffer_atomicCounter_offset[i] != buffer_atomicCounter_offset[i]
-                    ||  threadContext_->buffer_atomicCounter_size  [i] != buffer_atomicCounter_size  [i])
-                        threadContextGroup_->functions.glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, i, buffer_atomicCounter_id[i], buffer_atomicCounter_offset[i], buffer_atomicCounter_size[i]);
-                }
-            }
-            for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                threadContext_->buffer_atomicCounter_id    [i] = buffer_atomicCounter_id    [i];
-                threadContext_->buffer_atomicCounter_offset[i] = buffer_atomicCounter_offset[i];
-                threadContext_->buffer_atomicCounter_size  [i] = buffer_atomicCounter_size  [i];
-            }
-            buffer_atomicCounter_changedSlotMin = std::numeric_limits<decltype(buffer_atomicCounter_changedSlotMin)>::max();
-            buffer_atomicCounter_changedSlotMax = -1;
         }
     }
 

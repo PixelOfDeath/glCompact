@@ -43,9 +43,6 @@ namespace glCompact {
             {&buffer_uniform_id,            &buffer_uniform_count,          1},
             {&buffer_uniform_offset,        &buffer_uniform_count,          1},
             {&buffer_uniform_size,          &buffer_uniform_count,          1},
-            {&buffer_atomicCounter_id,      &buffer_atomicCounter_count,    1},
-            {&buffer_atomicCounter_offset,  &buffer_atomicCounter_count,    1},
-            {&buffer_atomicCounter_size,    &buffer_atomicCounter_count,    1},
             {&buffer_shaderStorage_id,      &buffer_shaderStorage_count,    1},
             {&buffer_shaderStorage_offset,  &buffer_shaderStorage_count,    1},
             {&buffer_shaderStorage_size,    &buffer_shaderStorage_count,    1},
@@ -147,11 +144,6 @@ namespace glCompact {
         return buffer_uniform_highestIndexNonNull;
     }
 
-    int32_t Context_::buffer_atomicCounter_getHighestIndexNonNull() {
-        while (buffer_atomicCounter_highestIndexNonNull >= 0 && buffer_atomicCounter_id[buffer_atomicCounter_highestIndexNonNull] == 0) buffer_atomicCounter_highestIndexNonNull--;
-        return buffer_atomicCounter_highestIndexNonNull;
-    }
-
     int32_t Context_::buffer_shaderStorage_getHighestIndexNonNull() {
         while (buffer_shaderStorage_highestIndexNonNull >= 0 && buffer_shaderStorage_id[buffer_shaderStorage_highestIndexNonNull] == 0) buffer_shaderStorage_highestIndexNonNull--;
         return buffer_shaderStorage_highestIndexNonNull;
@@ -186,12 +178,6 @@ namespace glCompact {
             buffer_uniform_id    [i] = 0;
             buffer_uniform_offset[i] = 0;
             buffer_uniform_size  [i] = 0;
-        }
-
-        LOOPI(buffer_atomicCounter_getHighestIndexNonNull()) if (buffer_atomicCounter_id[i] == bufferId) {
-            buffer_atomicCounter_id    [i] = 0;
-            buffer_atomicCounter_offset[i] = 0;
-            buffer_atomicCounter_size  [i] = 0;
         }
 
         LOOPI(buffer_shaderStorage_getHighestIndexNonNull()) if (buffer_shaderStorage_id[i] == bufferId) {

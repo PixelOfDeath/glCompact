@@ -91,14 +91,6 @@ namespace glCompact {
             uintptr_t* buffer_uniform_offset;
             uintptr_t* buffer_uniform_size;
 
-            //BUFFER ATOMIC COUNTER
-            size_t     buffer_atomicCounter_count;
-             int32_t   buffer_atomicCounter_getHighestIndexNonNull();
-             int32_t   buffer_atomicCounter_highestIndexNonNull = -1;
-            uint32_t*  buffer_atomicCounter_id;
-            uintptr_t* buffer_atomicCounter_offset;
-            uintptr_t* buffer_atomicCounter_size;
-
             //BUFFER SHADER STORAGE
             size_t     buffer_shaderStorage_count;
              int32_t   buffer_shaderStorage_getHighestIndexNonNull();
