@@ -335,6 +335,7 @@ namespace glCompact {
             void getUniform(GLint uniformLocation, glm::dmat4x3& value, int count = 1);
             void getUniform(GLint uniformLocation, glm::dmat4x4& value, int count = 1);*/
 
+            bool checkedThatThreadContextBindingArraysAreBigEnough = false;
             void* multiMallocPtr = 0;
 
             //BUFFER UNIFORM

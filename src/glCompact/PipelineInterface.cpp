@@ -361,6 +361,7 @@ namespace glCompact {
     void PipelineInterface::detachFromThreadContext() {
         if (threadContext_) {
             if (threadContext_->pipeline == this) threadContext_->pipeline = 0;
+            checkedThatThreadContextBindingArraysAreBigEnough = false;
         }
     }
 
@@ -1585,25 +1586,28 @@ namespace glCompact {
 
 
     void PipelineInterface::processPendingChangesPipeline() {
-        multiMallocDescriptor md[] = {
-            {&threadContext_->buffer_uniform_id,            &threadContext_->buffer_uniform_count,          buffer_uniform_count},
-            {&threadContext_->buffer_uniform_offset,        &threadContext_->buffer_uniform_count,          buffer_uniform_count},
-            {&threadContext_->buffer_uniform_size,          &threadContext_->buffer_uniform_count,          buffer_uniform_count},
-            {&threadContext_->buffer_atomicCounter_id,      &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
-            {&threadContext_->buffer_atomicCounter_offset,  &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
-            {&threadContext_->buffer_atomicCounter_size,    &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
-            {&threadContext_->buffer_shaderStorage_id,      &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
-            {&threadContext_->buffer_shaderStorage_offset,  &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
-            {&threadContext_->buffer_shaderStorage_size,    &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
-            {&threadContext_->texture_id,                   &threadContext_->sampler_count,                 sampler_count},
-            {&threadContext_->texture_target,               &threadContext_->sampler_count,                 sampler_count},
-            {&threadContext_->sampler_id,                   &threadContext_->sampler_count,                 sampler_count},
-            {&threadContext_->image_id,                     &threadContext_->image_count,                   image_count},
-            {&threadContext_->image_format,                 &threadContext_->image_count,                   image_count},
-            {&threadContext_->image_mipmapLevel,            &threadContext_->image_count,                   image_count},
-            {&threadContext_->image_layer,                  &threadContext_->image_count,                   image_count},
-        };
-        threadContext_->multiMallocPtr = multiReMallocGrowOnly(threadContext_->multiMallocPtr, md, sizeof(md));
+        if (!checkedThatThreadContextBindingArraysAreBigEnough) {
+            multiMallocDescriptor md[] = {
+                {&threadContext_->buffer_uniform_id,            &threadContext_->buffer_uniform_count,          buffer_uniform_count},
+                {&threadContext_->buffer_uniform_offset,        &threadContext_->buffer_uniform_count,          buffer_uniform_count},
+                {&threadContext_->buffer_uniform_size,          &threadContext_->buffer_uniform_count,          buffer_uniform_count},
+                {&threadContext_->buffer_atomicCounter_id,      &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
+                {&threadContext_->buffer_atomicCounter_offset,  &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
+                {&threadContext_->buffer_atomicCounter_size,    &threadContext_->buffer_atomicCounter_count,    buffer_atomicCounter_count},
+                {&threadContext_->buffer_shaderStorage_id,      &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
+                {&threadContext_->buffer_shaderStorage_offset,  &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
+                {&threadContext_->buffer_shaderStorage_size,    &threadContext_->buffer_shaderStorage_count,    buffer_shaderStorage_count},
+                {&threadContext_->texture_id,                   &threadContext_->sampler_count,                 sampler_count},
+                {&threadContext_->texture_target,               &threadContext_->sampler_count,                 sampler_count},
+                {&threadContext_->sampler_id,                   &threadContext_->sampler_count,                 sampler_count},
+                {&threadContext_->image_id,                     &threadContext_->image_count,                   image_count},
+                {&threadContext_->image_format,                 &threadContext_->image_count,                   image_count},
+                {&threadContext_->image_mipmapLevel,            &threadContext_->image_count,                   image_count},
+                {&threadContext_->image_layer,                  &threadContext_->image_count,                   image_count},
+            };
+            threadContext_->multiMallocPtr = multiReMallocGrowOnly(threadContext_->multiMallocPtr, md, sizeof(md));
+            checkedThatThreadContextBindingArraysAreBigEnough = true;
+        }
     }
 
     void PipelineInterface::processPendingChangesBuffersUniform() {
