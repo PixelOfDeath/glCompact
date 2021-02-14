@@ -23,6 +23,8 @@ namespace glCompact {
     ) :
         commitmentMap((size + pageSize - 1) / pageSize)
     {
+        UNLIKELY_IF (!threadContextGroup_->feature.bufferSparse)
+            crash("Trying to use BufferGpuSparse without support for bufferSparse!");
         UNLIKELY_IF (size % pageSize)
             crash("size must be a multiple of pageSize(" + to_string(pageSize) + ")");
         create(clientMemoryCopyable, alignTo(size, pageSize), false, true);

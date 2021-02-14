@@ -623,6 +623,7 @@ namespace glCompact {
         feature.polygonOffsetClamp          = checkAndSetFeature(config::polygonOffsetClamp         , "polygonOffsetClamp"            , "GL_ARB_polygon_offset_clamp, core since 4.6"             , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_polygon_offset_clamp);
         feature.anisotropicFilter           = checkAndSetFeature(config::anisotropicFilter          , "anisotropicFilter"             , "GL_ARB_texture_filter_anisotropic, core since 4.6"       , config::version::glMin >= GlVersion::v46 || extensions.GL_ARB_texture_filter_anisotropic || extensions.GL_EXT_texture_filter_anisotropic);
         feature.spirv                       = checkAndSetFeature(config::spirv                      , "spirv"                         , "GL_ARB_spirv_extensions"                                 ,                                             extensions.GL_ARB_gl_spirv);
+        feature.bufferSparse                = checkAndSetFeature(config::bufferSparse               , "bufferSparse"                  , "GL_ARB_sparse_buffer"                                    ,                                             extensions.GL_ARB_sparse_buffer);
         if (errorMessage.size()) {
             crash("glCompact Error: Missing features:\n" + errorMessage);
         }

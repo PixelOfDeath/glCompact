@@ -16,5 +16,6 @@ namespace glCompact {
         bool polygonOffsetClamp;
         bool anisotropicFilter;
         bool spirv;
+        bool bufferSparse;
     };
 }
