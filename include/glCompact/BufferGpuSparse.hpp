@@ -19,7 +19,7 @@ namespace glCompact {
             void setCommitment(uintptr_t offset, uintptr_t size, bool commit);
             uintptr_t getCommitmentSize() const {return commitmentSize;}
 
-            static constexpr uintptr_t pageSize = 65536;
+            static constexpr uintptr_t pageSize = 0x10000; //64 KiB
         private:
             uintptr_t commitmentSize = 0;
             std::vector<bool> commitmentMap;
