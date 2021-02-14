@@ -5,7 +5,7 @@
 #include "glCompact/Debug.hpp"
 
 #include "glCompact/BufferGpu.hpp"
-#include "glCompact/BufferGpuVirtual.hpp"
+#include "glCompact/BufferGpuSparse.hpp"
 #include "glCompact/BufferStaging.hpp"
 
 #include "glCompact/RenderBuffer2d.hpp"
