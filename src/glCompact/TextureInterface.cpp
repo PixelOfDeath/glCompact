@@ -418,14 +418,17 @@ namespace glCompact {
         }
 
         //Maybe only use GL default init values here? (NEAREST_MIPMAP_LINEAR, GL_LINEAR)
-        if (!surfaceFormat->isCompressed & surfaceFormat->isRgbaInteger) {
-            //Integer textures do not allow linear filtering but they can come with mipmaps.
-            setTextureParameter(GL_TEXTURE_MIN_FILTER, mipmap ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
-            setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        if (samples) {
         } else {
-            //Set trilinear filtering as default for textures with mipmaps.
-            setTextureParameter(GL_TEXTURE_MIN_FILTER, mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
-            setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            if (!surfaceFormat->isCompressed && surfaceFormat->isRgbaInteger) {
+                //Integer textures do not allow linear filtering but they can come with mipmaps.
+                setTextureParameter(GL_TEXTURE_MIN_FILTER, mipmap ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
+                setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            } else {
+                //Set trilinear filtering as default for textures with mipmaps.
+                setTextureParameter(GL_TEXTURE_MIN_FILTER, mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
         }
 
         //GL_ARB_texture_storage says they changed default warping mode to GL_CLAMP_TO_EDGE
