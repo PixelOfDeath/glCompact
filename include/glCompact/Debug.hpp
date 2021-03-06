@@ -24,6 +24,12 @@ namespace glCompact {
             void setWarningCallback(WarningFunc warningFunc);
 
             static void assertThreadHasActiveGlContext();
+
+            class DisableCallbackInScope {
+                public:
+                    DisableCallbackInScope();
+                    ~DisableCallbackInScope();
+            };
         private:
             static void defaultWarningFunc(std::string message);
             static WarningFunc warningFunc;

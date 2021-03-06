@@ -116,4 +116,16 @@ namespace glCompact {
             }
         #endif
     }
+
+    Debug::DisableCallbackInScope::DisableCallbackInScope() {
+        if (threadContextGroup_->extensions.GL_KHR_debug || threadContextGroup_->version.gles >= GlesVersion::v32) {
+            threadContextGroup_->functions.glDisable(GL_DEBUG_OUTPUT);
+        }
+    }
+
+    Debug::DisableCallbackInScope::~DisableCallbackInScope() {
+        if (threadContextGroup_->extensions.GL_KHR_debug || threadContextGroup_->version.gles >= GlesVersion::v32) {
+            threadContextGroup_->functions.glEnable(GL_DEBUG_OUTPUT);
+        }
+    }
 }

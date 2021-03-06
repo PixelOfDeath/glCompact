@@ -6,6 +6,7 @@
 #include "glCompact/config.hpp"
 #include "glCompact/BufferGpu.hpp"
 #include "glCompact/minimumMaximum.hpp"
+#include "glCompact/Debug.hpp"
 
 #include "glCompact/Tools_.hpp"
 #include "glCompact/gl/Helper.hpp"
@@ -753,6 +754,9 @@ namespace glCompact {
             GL_FRAGMENT_SHADER
         };
         GLuint shaderId[5] = {0};
+
+        Debug::DisableCallbackInScope disableCallbackInScope;
+
         LOOPI(5) if (!shaderSrc[i]->empty()) {
             GLuint shaderPartId = threadContextGroup_->functions.glCreateShader(shaderType[i]);
             const char* pCString = shaderSrc[i]->c_str();
