@@ -153,7 +153,7 @@ namespace glCompact {
                         if (location == -1) {
                             pParent->warning("UniformSetter did not find a uniform with the name \"" + uniformName + "\"! Note that GLSL might discard uniforms if they do not affect the output.\n");
                         } else if (cppType != type) {
-                            pParent->warning("UniformSetter<" + glTypeToCppName(cppType) + "> mismatches GLSL type. Expected UniformSetter<" + glTypeToCppName(type)  + "> for: uniform " + glTypeToGlslName(type) + " " + uniformName);
+                            pParent->error("UniformSetter type mismatches GLSL type. UniformSetter is " + glTypeToCppName(cppType) + " but GLSL type is " + glTypeToGlslName(type) + ". Change UniformSetter to " + glTypeToCppName(type) + " or GLSL type to " + glTypeToGlslName(cppType));
                         }
                     }
                     UniformSetter(PipelineInterface* const pParent, const std::string& uniformName, const T& initValue):
