@@ -75,11 +75,6 @@ using namespace glm;
     Fixed sample locations must be the same for all targets! (Only using fixed sample locations in glCompact) Note that multisample renderbuffers always have fixed sample locations.
 
     A fbo only can hold all non-layered or all layered render targets.
-
-    Also limited to all sRGB or non-sRGB color targets?
-
-
-    //void setSRGBconversion(bool value); //enables/disables sRGB conversation  glEnable(GL_FRAMEBUFFER_SRGB)  (default is false. In OpenGL ES it is always one)
 */
 
 /*
@@ -137,8 +132,6 @@ namespace glCompact {
 
         - Targets must all have the same sample count.
 
-        - Targets must all be either SRGB or non-SRGB
-
         The smallest target size defines the rasterization size of the Frame. Therefor the Frame also needs at last one target.
 
         With GL_ARB_framebuffer_no_attachments (Core since 4.3), it is possible to create a "virtual" Frame without any attachments.
@@ -169,8 +162,6 @@ namespace glCompact {
         bool     foundSingleLayer      = false;
         bool     foundMultiLayer       = false;
         bool     foundDifferentSamples = false;
-        bool     foundSRGB             = false;
-        bool     foundNonSRGB          = false;
         uvec3    minSize               = uvec3(0xFFFFFFFF);
         uint32_t lastSamples           = 0xFFFFFFFF;
         int32_t  rgbaMapping[config::MAX_RGBA_ATTACHMENTS] = {}; //0 == GL_NONE
@@ -201,8 +192,6 @@ namespace glCompact {
                     crash(string("Can't use more RGBA targets then GL_MAX_DRAW_BUFFERS(") + to_string(threadContextGroup_->values.GL_MAX_DRAW_BUFFERS) + ")");
                 foundSingleLayer = foundSingleLayer || isSingleLayer(surfaceSelector);
                 foundMultiLayer  = foundMultiLayer  || isMultiLayer (surfaceSelector);
-                foundSRGB        = foundSRGB        ||  surfaceSelector.surface->surfaceFormat->isSrgb;
-                foundNonSRGB     = foundNonSRGB     || !surfaceSelector.surface->surfaceFormat->isSrgb;
                 minSize = glm::min(minSize, surfaceSelector.surface->getSize());
                 uint32_t sSamples = surfaceSelector.surface->samples;
                 if (lastSamples != 0xFFFFFFFF && lastSamples != sSamples) foundDifferentSamples = true;
@@ -217,8 +206,6 @@ namespace glCompact {
             crash("Can not mix single layer with multi layer surfaces!");
         UNLIKELY_IF (foundDifferentSamples)
             crash("Can not mix surfaces with different sample count!");
-        UNLIKELY_IF (foundSRGB && foundNonSRGB)
-            crash("Can not mix SRGB and non-SRGB formats!");
         //Check for zero surfaces! Incomplite without (except if GL_ARB_framebuffer_no_attachments (core since 4.3) is supportet)
         UNLIKELY_IF (!foundSingleLayer && !foundMultiLayer)
             crash("This constructor can not create a Frame without any attachments!");
@@ -228,7 +215,6 @@ namespace glCompact {
         size    = minSize;
         layered = foundMultiLayer;
         samples = lastSamples;
-        srgb    = foundSRGB;
 
         viewportSize = {minSize};
 
@@ -340,8 +326,7 @@ namespace glCompact {
         size                           = frame.size;
         samples                        = frame.samples;
         layered                        = frame.layered;
-        srgb                           = frame.srgb;
-        convertSrgb                    = frame.convertSrgb;
+        srgbTargetsReadWriteLinear     = frame.srgbTargetsReadWriteLinear;
         scissorEnabled                 = frame.scissorEnabled;
         viewportOffset                 = frame.viewportOffset;
         viewportSize                   = frame.viewportSize;
@@ -363,8 +348,7 @@ namespace glCompact {
         size                           = frame.size;
         samples                        = frame.samples;
         layered                        = frame.layered;
-        srgb                           = frame.srgb;
-        convertSrgb                    = frame.convertSrgb;
+        srgbTargetsReadWriteLinear     = frame.srgbTargetsReadWriteLinear;
         scissorEnabled                 = frame.scissorEnabled;
         viewportOffset                 = frame.viewportOffset;
         viewportSize                   = frame.viewportSize;
@@ -410,14 +394,6 @@ namespace glCompact {
         scissorSize    = size;
         scissorEnabled = offset != glm::uvec2(0, 0) || size != glm::uvec2(this->size);
         threadContext_->stateChange.viewportScissor = true;
-    }
-
-    //If this Frame is using sRGB targets, then this will enable automatic translation between the sRGBA and the linear color space when writing to it
-    //and also when blending takes destination samples from it
-    void Frame::setConvertSrgb(bool enabled) {
-        //UNLIKELY_IF(!srgb)
-        //    throw std::runtime_error("Can only enable SRGB convert for a Frame that contains SRGB targets"); //just make this a debug warning?
-        convertSrgb = enabled;
     }
 
     /**

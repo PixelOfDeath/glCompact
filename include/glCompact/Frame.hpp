@@ -39,8 +39,10 @@ namespace glCompact {
             void setViewport();
             void setScissor ();
 
-            void setConvertSrgb(bool enabled);
-            bool getConvertSrgb() const {return convertSrgb;}
+            //By default access to sRGB targets gets automatically converted between sRGB and linear color space.
+            //Note that this has has no influence on sampling from sRGB textures.
+            //TODO: GLES always converts?!
+            bool srgbTargetsReadWriteLinear = true;
 
             //TODO: negative size to flip axis?
             //TODO: allow negative offsets?
@@ -87,7 +89,6 @@ namespace glCompact {
             uint32_t   getRgbaTargetCount() const {return rgbaTargetCount;}
             uint32_t   getSamples()         const {return samples;}
             bool       isLayered()          const {return layered;}
-            bool       isSrgb()             const {return srgb;}
             bool       isDisplayFrame()     const;
 
             //TODO: And ref of active rgba/depth/stencil attachments?
@@ -97,7 +98,6 @@ namespace glCompact {
             uint32_t    rgbaTargetCount = 0;
             uint32_t    samples         = 0;
             bool        layered         = false;
-            bool        srgb            = false;
             bool        convertSrgb     = false;
             bool        scissorEnabled  = false;
             glm::uvec2  viewportOffset  = {0, 0};

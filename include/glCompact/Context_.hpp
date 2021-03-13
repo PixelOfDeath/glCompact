@@ -49,7 +49,7 @@ namespace glCompact {
             uint32_t current_frame_drawId = 0;
             uint32_t current_frame_readId = 0;
             bool current_scissor_enabled = false;
-            bool current_convertSrgb = false;
+            bool current_srgbTargetsReadWriteLinear = true;
 
             glm::uvec2 current_viewportOffset;
             glm::uvec2 current_viewportSize;
@@ -214,7 +214,7 @@ namespace glCompact {
             void cachedSetActiveTextureUnit(uint32_t slot);
             void cachedBindDrawFbo         (uint32_t fboId);
             void cachedBindReadFbo         (uint32_t fboId);
-            void cachedConvertSrgb         (bool enabled);
+            void cachedSrgbTargetsReadWriteLinear(bool enabled);
             void cachedViewport            (glm::uvec2 offset, glm::uvec2 size);
             void cachedScissorEnabled      (bool enabled);
             void cachedScissor             (glm::uvec2 offset, glm::uvec2 size);

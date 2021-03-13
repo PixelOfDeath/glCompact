@@ -294,11 +294,11 @@ namespace glCompact {
         }
     }
 
-    void Context_::cachedConvertSrgb(bool enabled) {
-        if (current_convertSrgb != enabled) {
-            if ( enabled) threadContextGroup_->functions.glEnable (GL_FRAMEBUFFER_SRGB);
-            if (!enabled) threadContextGroup_->functions.glDisable(GL_FRAMEBUFFER_SRGB);
-            current_convertSrgb = enabled;
+    void Context_::cachedSrgbTargetsReadWriteLinear(bool value) {
+        if (current_srgbTargetsReadWriteLinear != value) {
+            current_srgbTargetsReadWriteLinear = value;
+            if ( value) threadContextGroup_->functions.glEnable (GL_FRAMEBUFFER_SRGB);
+            if (!value) threadContextGroup_->functions.glDisable(GL_FRAMEBUFFER_SRGB);
         }
     }
 
@@ -420,7 +420,7 @@ namespace glCompact {
             current_frame = pendingFrame;
         }
         threadContext_->cachedBindDrawFbo(threadContext_->pending_frame_drawId);
-        threadContext_->cachedConvertSrgb(current_frame->convertSrgb);
+        threadContext_->cachedSrgbTargetsReadWriteLinear(current_frame->srgbTargetsReadWriteLinear);
         cachedViewport(pendingFrame->viewportOffset, pendingFrame->viewportSize);
 
         if (!pendingFrame->scissorEnabled) {
