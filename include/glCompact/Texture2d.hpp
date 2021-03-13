@@ -4,6 +4,7 @@
 namespace glCompact {
     class Texture2d : public TextureInterface {
         public:
+            Texture2d() = default;
             Texture2d(SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, bool mipmaps);
             Texture2d(           const Texture2d&  texture2d) = default;
             Texture2d(                 Texture2d&& texture2d) = default;

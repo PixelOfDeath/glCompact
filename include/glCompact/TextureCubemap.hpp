@@ -4,6 +4,7 @@
 namespace glCompact {
     class TextureCubemap : public TextureInterface {
         public:
+            TextureCubemap() = default;
             TextureCubemap(SurfaceFormat surfaceFormat, uint32_t xy, bool mipmaps);
             TextureCubemap(           const TextureCubemap&  textureCubemap) = default;
             TextureCubemap(                 TextureCubemap&& textureCubemap) = default;

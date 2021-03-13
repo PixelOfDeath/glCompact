@@ -4,6 +4,7 @@
 namespace glCompact {
     class Texture2dMultisampleArray : public TextureInterface {
         public:
+            Texture2dMultisampleArray() = default;
             Texture2dMultisampleArray(SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t layers, uint32_t samples);
             Texture2dMultisampleArray(           const Texture2dMultisampleArray&  texture2dMultisampleArray) = default;
             Texture2dMultisampleArray(                 Texture2dMultisampleArray&& texture2dMultisampleArray) = default;

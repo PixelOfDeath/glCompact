@@ -4,6 +4,7 @@
 namespace glCompact {
     class Texture3d : public TextureInterface {
         public:
+            Texture3d() = default;
             Texture3d(SurfaceFormat surfaceFormat, uint32_t x, uint32_t y, uint32_t z, bool mipmaps);
             Texture3d(           const Texture3d&  texture3d) = default;
             Texture3d(                 Texture3d&& texture3d) = default;

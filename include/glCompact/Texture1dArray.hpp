@@ -4,6 +4,7 @@
 namespace glCompact {
     class Texture1dArray : public TextureInterface {
         public:
+            Texture1dArray() = default;
             Texture1dArray(SurfaceFormat surfaceFormat, uint32_t x, uint32_t yLayers, bool mipmaps);
             Texture1dArray(           const Texture1dArray&  texture1dArray) = default;
             Texture1dArray(                 Texture1dArray&& texture1dArray) = default;

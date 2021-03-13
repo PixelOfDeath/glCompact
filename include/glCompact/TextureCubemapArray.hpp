@@ -5,6 +5,7 @@ namespace glCompact {
     //This kind of texture depends on GL_ARB_texture_cube_map_array (Core since 4.0)
     class TextureCubemapArray : public TextureInterface {
         public:
+            TextureCubemapArray() = default;
             TextureCubemapArray(SurfaceFormat surfaceFormat, uint32_t xy, uint32_t cubeMapCount, bool mipmaps);
             TextureCubemapArray(           const TextureCubemapArray&  textureCubemapArray) = default;
             TextureCubemapArray(                 TextureCubemapArray&& textureCubemapArray) = default;
