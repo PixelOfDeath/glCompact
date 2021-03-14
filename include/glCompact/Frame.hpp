@@ -98,7 +98,6 @@ namespace glCompact {
             uint32_t    rgbaTargetCount = 0;
             uint32_t    samples         = 0;
             bool        layered         = false;
-            bool        convertSrgb     = false;
             bool        scissorEnabled  = false;
             glm::uvec2  viewportOffset  = {0, 0};
             glm::uvec2  viewportSize    = {0, 0};
