@@ -52,6 +52,7 @@ namespace glCompact {
 
         //not part of Core
             constexpr FeatureSetting spirv                        = FeatureSetting::notSupported; //GL_ARB_spirv_extensions (spirv >1.0); GL_ARB_gl_spirv (spirv 1.0)
+            constexpr FeatureSetting bufferSparse                 = FeatureSetting::notSupported; //GL_ARB_sparse_buffer
 
         //DSA is mostly about making OpenGL less painful to use and not about performance!
         //So it makes sense to NOT always use them in glCompact, because uniform access is hidden behind the API anyway.
