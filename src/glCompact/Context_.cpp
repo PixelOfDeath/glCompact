@@ -451,13 +451,13 @@ namespace glCompact {
     void Context_::queryDisplayFramebufferFormat() {
         //glGetFramebufferAttachmentParameteriv (Querying the default framebuffer is supported since GL 3.0/GLES 3.0)
         //In a new context GL_FRAMEBUFFER is set to the default framebuffer. So we don't need to set it here.
-        constexpr auto getFboAttachmentParam = [](uint32_t attachment, uint32_t paramName) -> uint32_t {
+        auto getFboAttachmentParam = [](uint32_t attachment, uint32_t paramName) -> uint32_t {
             uint32_t ret = 0;
             threadContextGroup_->functions.glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment, paramName, reinterpret_cast<GLint*>(&ret));
             return ret;
         };
 
-        constexpr auto attachmentCommponentTypeToString = [](uint32_t commponentType) -> string {
+        auto attachmentCommponentTypeToString = [](uint32_t commponentType) -> string {
             switch (commponentType) {
                 case GL_FLOAT:              return "SFLOAT";
                 case GL_INT:                return "SINT";
