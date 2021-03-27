@@ -37,7 +37,7 @@ namespace glCompact {
         void Functions::init(
             void*(*getGlFunctionPointer)(const char* glFunctionName)
         ) {
-            auto getGlFunctionPointerPure = [getGlFunctionPointer](const char* functionName) PURE_FUNCTION -> void* {
+            auto getGlFunctionPointerPure = [getGlFunctionPointer](const char* functionName) -> void* PURE_FUNCTION {
                 return getGlFunctionPointer(functionName);
             };
             //glName = reinterpret_cast<glNamePROC>(getGlFunctionPointerPure("glName"));

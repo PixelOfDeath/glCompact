@@ -40,7 +40,7 @@ namespace glCompact {
             int32_t extensionCount = 0;
             contextGroup_->functions.glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
             auto glGetStringi = contextGroup_->functions.glGetStringi;
-            auto extensionSupported = [extensionCount, glGetStringi](const char* extensionName) PURE_FUNCTION -> bool {
+            auto extensionSupported = [extensionCount, glGetStringi](const char* extensionName) -> bool PURE_FUNCTION {
                 for (int32_t i = 0; i < extensionCount; ++i)
                     if (std::strcmp(extensionName, reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i))) == 0) return true;
                 return false;
