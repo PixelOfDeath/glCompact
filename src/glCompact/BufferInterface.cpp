@@ -495,6 +495,7 @@ void main() {
                 threadContextGroup_->functions.glBufferData(GL_COPY_WRITE_BUFFER, size, data, usageHint);
             }
         }
+        return 0;
     }
 
     void BufferInterface::free() {
