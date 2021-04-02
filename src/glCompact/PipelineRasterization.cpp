@@ -38,7 +38,7 @@ namespace glCompact {
      * Use PipelineRasterization myPipeline(PipelineRasterizationFromStrings(...));
      */
     PipelineRasterization::PipelineRasterization(
-        PrimitiveTopology  primitiveTopology,
+        Primitive          primitive,
         const std::string& vertexString,
         const std::string& tessControlString,
         const std::string& tessEvalutionString,
@@ -47,7 +47,7 @@ namespace glCompact {
     ) {
         UNLIKELY_IF (!loadStrings_(vertexString, tessControlString, tessEvalutionString, geometryString, fragmentString))
             throw std::runtime_error(infoLog_);
-        vertexStageInputPrimitiveTopology = primitiveTopology;
+        inputPrimitive = primitive;
     }
 
     //TODO: one of the only instances where I depend on catch to work (blocks people form changing throw into a simple crash)
@@ -57,7 +57,7 @@ namespace glCompact {
      */
     PipelineRasterization::PipelineRasterization(
         const std::string& path,
-        PrimitiveTopology  primitiveTopology,
+        Primitive          primitive,
         const std::string& vertexFile,
         const std::string& tessControlFile,
         const std::string& tessEvalutionFile,
@@ -93,13 +93,13 @@ namespace glCompact {
             s += infoLog_;
             throw std::runtime_error(s);
         }
-        vertexStageInputPrimitiveTopology = primitiveTopology;
+        inputPrimitive = primitive;
     }
 
-    void PipelineRasterization::setVertexStageInputPrimitiveTopology(
-        PrimitiveTopology primitiveTopology
+    void PipelineRasterization::setInputPrimitive(
+        Primitive primitive
     ) {
-        this->vertexStageInputPrimitiveTopology = primitiveTopology;
+        inputPrimitive = primitive;
     }
 
     void PipelineRasterization::setAttributeLayoutThrow(
@@ -671,67 +671,6 @@ namespace glCompact {
         buffer_attribute_changedSlotMax = maximum(buffer_attribute_changedSlotMax, slot);
     }
 
-    /*
-        Removed GL_UNSIGNED_BYTE as valid option! In some GPUs from the last century it is NOT natively supported and brings a heavy performance penalty if used!
-
-        before 3.1 there also was GL_NV_primitive_restart that still used "client states commands" for this
-
-        TODO: where to document that patches primitives are not always support restart index? (GL_PRIMITIVE_RESTART_FOR_PATCHES_SUPPORTED)
-        GL_PRIMITIVE_RESTART_FOR_PATCHES_SUPPORTED is first listed in the 4.4 core spec.
-        Somewhat related to ARB_tessellation_shader (core since 4.0)?! (At last in mesa)
-        Documentation is shit and the two bug numbers (10364, 10250) in ref can't be found in Khronos bug tracker.
-        At this point in time I do not even know how to know if I can query this value without causing an GL error...
-        And if I query it and querying is not supported that tells me nothing about the actually support for using restart on patches...
-        I also do not know if there is any core version with minimum support of either.
-
-    */
-    void PipelineRasterization::activateAttributeIndex(
-        IndexType indexType
-    ) {
-        if (threadContext_->buffer_attribute_index_id != buffer_attribute_index_id) {
-            threadContextGroup_->functions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_attribute_index_id);
-            threadContext_->buffer_attribute_index_id = buffer_attribute_index_id;
-        }
-        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) return;
-        if (threadContext_->buffer_attribute_index_type != indexType) {
-            switch (indexType) {
-                case IndexType::UINT16: threadContextGroup_->functions.glPrimitiveRestartIndex(    0xFFFF); break;
-                case IndexType::UINT32: threadContextGroup_->functions.glPrimitiveRestartIndex(0xFFFFFFFF); break;
-              //case IndexType::UINT8 : threadContextGroup_->functions.glPrimitiveRestartIndex(      0xFF); break;
-            }
-            threadContext_->buffer_attribute_index_type = indexType;
-        }
-        if (!threadContext_->buffer_attribute_index_enabled) {
-            threadContextGroup_->functions.glEnable(GL_PRIMITIVE_RESTART);
-            threadContext_->buffer_attribute_index_enabled = true;
-        }
-    }
-
-    /**
-        From https://www.opengl.org/wiki/Vertex_Rendering
-            "Note: OpenGL 4.4 and below defined primitive restarting to work with all drawing commands, including the non-indexed commands.
-            However, implementations did not implement this, and the rule itself makes no sense, so GL 4.5 specifies
-            (OpenGL 4.5, Section 10.6.3, page 342)that restart state has no effect on non-indexed drawing commands."
-
-        Some drivers actually folow this nonsensical standard. That of course breaks stuff, so we disable primitive restart for non index drawing here!
-
-        GL 4.5 specs:
-            "Note that primitive restart is not performed for array elements transferred by
-            any drawing command not taking a type parameter, including all of the *Draw*
-            commands other than *DrawElements*."
-
-        GL_ARB_ES3_compatibility (Core since 4.3) via GL_PRIMITIVE_RESTART_FIXED_INDEX does NOT use restart index in case of non index drawing!
-
-        Because we already test for GL_ARB_ES3_compatibility (Core since 4.3), we do not have to check for GL 4.5
-    */
-    void PipelineRasterization::deactivateAttributeIndex() {
-        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) return;
-        if (threadContext_->buffer_attribute_index_enabled) {
-            threadContextGroup_->functions.glDisable(GL_PRIMITIVE_RESTART);
-            threadContext_->buffer_attribute_index_enabled = false;
-        }
-    }
-
     bool PipelineRasterization::loadStrings_(
         const std::string& stringVertex,
         const std::string& stringTessControl,
@@ -894,9 +833,9 @@ namespace glCompact {
 
         //Core since 3.2
         if (hasGeometryStage()) {
-            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_VERTICES_OUT, &geometryMaxPrimitveOutput);
-            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_INPUT_TYPE,   reinterpret_cast<int32_t*>(&geometryInputType));  //=POINTS, LINES, LINES_ADJACENCY, TRIANGLES, TRIANGLES_ADJACENCY
-            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_OUTPUT_TYPE,  reinterpret_cast<int32_t*>(&geometryOutputType)); //=POINTS, LINE_STRIP, TRIANGLE_STRIP
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_VERTICES_OUT, &geometryOutputPrimitveMax);
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_OUTPUT_TYPE,  reinterpret_cast<int32_t*>(&geometryOutputPrimitive)); //=POINTS, LINE_STRIP, TRIANGLE_STRIP
+            threadContextGroup_->functions.glGetProgramiv(id, GL_GEOMETRY_INPUT_TYPE,   reinterpret_cast<int32_t*>(&geometryInputPrimitive));  //=POINTS, LINES, LINES_ADJACENCY, TRIANGLES, TRIANGLES_ADJACENCY
 
             //GEOMETRY_SHADER_INVOCATIONS
         }
@@ -928,8 +867,7 @@ namespace glCompact {
         uint32_t vertexCount
     ) {
         processPendingChanges();
-        deactivateAttributeIndex();
-        threadContextGroup_->functions.glDrawArrays(static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount);
+        threadContextGroup_->functions.glDrawArrays(static_cast<GLenum>(inputPrimitive), firstVertex, vertexCount);
     }*/
 
     //depends on GL_ARB_draw_instanced (Core since 3.1)
@@ -952,13 +890,12 @@ namespace glCompact {
             throw std::runtime_error("firstInstance must be 0 without support for GL_ARB_base_instance (Core since 4.2)!");
 
         processPendingChanges();
-        deactivateAttributeIndex();
         if (firstInstance) {
             UNLIKELY_IF (!threadContextGroup_->extensions.GL_ARB_base_instance)
                 throw std::runtime_error("GL_ARB_base_instance not supportet in driver, firstInstance must be 0!");
-            threadContextGroup_->functions.glDrawArraysInstancedBaseInstance(static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount, instanceCount, firstInstance);
+            threadContextGroup_->functions.glDrawArraysInstancedBaseInstance(static_cast<GLenum>(inputPrimitive), firstVertex, vertexCount, instanceCount, firstInstance);
         } else {
-            threadContextGroup_->functions.glDrawArraysInstanced            (static_cast<GLenum>(vertexStageInputPrimitiveTopology), firstVertex, vertexCount, instanceCount);
+            threadContextGroup_->functions.glDrawArraysInstanced            (static_cast<GLenum>(inputPrimitive), firstVertex, vertexCount, instanceCount);
         }
     }
 
@@ -971,9 +908,9 @@ namespace glCompact {
         //error out if no index buffer is set!? Do not want to support drawing from client pointer!!!
         //if ()
         processPendingChanges();
-        activateAttributeIndex(indexType);
+        threadContext_->cachedBindIndexBuffer(buffer_attribute_index_id);
         uintptr_t indexBufferByteOffset = this->buffer_attribute_index_offset + (firstIndex * (indexType == IndexType::UINT16 ? 2 : 4)); //assuming we never support UINT8 index
-        threadContextGroup_->functions.glDrawElementsBaseVertex(static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), vertexOffset);
+        threadContextGroup_->functions.glDrawElementsBaseVertex(static_cast<GLenum>(inputPrimitive), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), vertexOffset);
     }*/
 
     //Needs ARB_draw_elements_base_vertex (Core since 3.2)
@@ -997,13 +934,13 @@ namespace glCompact {
             throw std::runtime_error("firstInstance must be 0 without support for GL_ARB_base_instance (Core since 4.2)!");
 
         processPendingChanges();
-        activateAttributeIndex(indexType);
+        threadContext_->cachedBindIndexBuffer(buffer_attribute_index_id);
         uintptr_t indexBufferByteOffset = this->buffer_attribute_index_offset + (firstIndex * (indexType == IndexType::UINT16 ? 2 : 4)); //assuming we never support UINT8 index
         if (firstInstance) {
             //debug test for threadContextGroup_->extensions.GL_ARB_base_instance
-            threadContextGroup_->functions.glDrawElementsInstancedBaseVertexBaseInstance(static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset, firstInstance);
+            threadContextGroup_->functions.glDrawElementsInstancedBaseVertexBaseInstance(static_cast<GLenum>(inputPrimitive), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset, firstInstance);
         } else {
-            threadContextGroup_->functions.glDrawElementsInstancedBaseVertex            (static_cast<GLenum>(vertexStageInputPrimitiveTopology), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset);
+            threadContextGroup_->functions.glDrawElementsInstancedBaseVertex            (static_cast<GLenum>(inputPrimitive), indexCount, static_cast<GLenum>(indexType), reinterpret_cast<const void*>(indexBufferByteOffset), instanceCount, vertexOffset);
         }
     }
 
@@ -1038,16 +975,15 @@ namespace glCompact {
             throw std::runtime_error("stride must be >= 16 and aligned to 4!");
 
         processPendingChanges();
-        deactivateAttributeIndex(); //does GL_ARB_draw_indirect/GL_ARB_multi_draw_indirect really need this?
 
         //threadContext->cachedBindDrawIndirectBuffer(buffer_parameter_id);
         threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
 
         if (threadContextGroup_->extensions.GL_ARB_multi_draw_indirect) {
-            threadContextGroup_->functions.glMultiDrawArraysIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
+            threadContextGroup_->functions.glMultiDrawArraysIndirect(static_cast<GLenum>(inputPrimitive), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
         } else {
             for (unsigned i = 0; i < count; i++) {
-                threadContextGroup_->functions.glDrawArraysIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset));
+                threadContextGroup_->functions.glDrawArraysIndirect(static_cast<GLenum>(inputPrimitive), reinterpret_cast<const void*>(parameterBufferOffset));
                 parameterBufferOffset += stride;
             }
         }
@@ -1086,14 +1022,14 @@ namespace glCompact {
             throw std::runtime_error("stride must be >= 20 and aligned to 4!");
 
         processPendingChanges();
-        activateAttributeIndex(indexType);
+        threadContext_->cachedBindIndexBuffer(buffer_attribute_index_id);
         threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
 
         if (threadContextGroup_->extensions.GL_ARB_multi_draw_indirect) {
-            threadContextGroup_->functions.glMultiDrawElementsIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
+            threadContextGroup_->functions.glMultiDrawElementsIndirect(static_cast<GLenum>(inputPrimitive), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), count, stride);
         } else {
             for (unsigned i = 0; i < count; i++) {
-                threadContextGroup_->functions.glDrawElementsIndirect(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset));
+                threadContextGroup_->functions.glDrawElementsIndirect(static_cast<GLenum>(inputPrimitive), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset));
                 parameterBufferOffset += stride;
             }
         }
@@ -1140,14 +1076,13 @@ namespace glCompact {
             throw std::runtime_error("stride must be >= 16 and aligned to 4!");
 
         processPendingChanges();
-        //deactivateAttributeIndex(); //does GL_ARB_indirect_parameters need this?
         threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
         threadContext_->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
         if (threadContextGroup_->version.gl >= GlVersion::v46) {
-            threadContextGroup_->functions.glMultiDrawArraysIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+            threadContextGroup_->functions.glMultiDrawArraysIndirectCount   (static_cast<GLenum>(inputPrimitive), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         } else {
-            threadContextGroup_->functions.glMultiDrawArraysIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+            threadContextGroup_->functions.glMultiDrawArraysIndirectCountARB(static_cast<GLenum>(inputPrimitive), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         }
     }
 
@@ -1172,14 +1107,14 @@ namespace glCompact {
             throw std::runtime_error("stride must be >= 20 and aligned to 4!");
 
         processPendingChanges();
-        activateAttributeIndex(indexType);
+        threadContext_->cachedBindIndexBuffer(buffer_attribute_index_id);
         threadContext_->cachedBindDrawIndirectBuffer(parameterBuffer.id);
         threadContext_->cachedBindParameterBuffer(countBuffer.id);
         //TODO: use single function pointer set at init here? ARB should be the same as core!?
         if (threadContextGroup_->version.gl >= GlVersion::v46) {
-            threadContextGroup_->functions.glMultiDrawElementsIndirectCount   (static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+            threadContextGroup_->functions.glMultiDrawElementsIndirectCount   (static_cast<GLenum>(inputPrimitive), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         } else {
-            threadContextGroup_->functions.glMultiDrawElementsIndirectCountARB(static_cast<GLenum>(vertexStageInputPrimitiveTopology), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
+            threadContextGroup_->functions.glMultiDrawElementsIndirectCountARB(static_cast<GLenum>(inputPrimitive), static_cast<GLenum>(indexType), reinterpret_cast<const void*>(parameterBufferOffset), countBufferOffset, maxDrawCount, stride);
         }
     }
 
@@ -1247,10 +1182,6 @@ namespace glCompact {
         stateChangeBoth.all = threadContext_->stateChange.all | stateChange.all;
         threadContext_->stateChange.all = 0;
                         stateChange.all = 0;
-
-        //Check if PrimitiveTopology is set
-        UNLIKELY_IF (vertexStageInputPrimitiveTopology == static_cast<PrimitiveTopology>(0xFFFFFFFF))
-            throw std::runtime_error("Trying to issue draw command. But vertexStageInputPrimitiveTopology is not set!");
 
         /*
         if (bool(change & PipelineRasterizationStateChange::viewportScissor)) {

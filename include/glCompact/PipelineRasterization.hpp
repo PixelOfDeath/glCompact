@@ -7,7 +7,7 @@
 #include "glCompact/BlendFactors.hpp"
 #include "glCompact/BlendEquations.hpp"
 #include "glCompact/AttributeLayout_.hpp"
-#include "glCompact/PrimitiveTopology.hpp"
+#include "glCompact/Primitive.hpp"
 #include "glCompact/IndexType.hpp"
 #include "glCompact/Tribool.hpp"
 
@@ -24,7 +24,7 @@ namespace glCompact {
     class PipelineRasterization : public PipelineInterface {
         public:
             PipelineRasterization(
-                PrimitiveTopology  primitiveTopology,
+                Primitive          primitive,
                 const std::string& vertexString,
                 const std::string& tessControlString,
                 const std::string& tessEvalutionString,
@@ -33,7 +33,7 @@ namespace glCompact {
             );
             PipelineRasterization(
                 const std::string& path,
-                PrimitiveTopology  primitiveTopology,
+                Primitive          primitive,
                 const std::string& vertexFile,
                 const std::string& tessControlFile,
                 const std::string& tessEvalutionFile,
@@ -46,7 +46,7 @@ namespace glCompact {
             PipelineRasterization& operator=(PipelineRasterization&  pipelineRasterization) = delete;
             PipelineRasterization& operator=(PipelineRasterization&& pipelineRasterization) = delete;
         public:
-            void setVertexStageInputPrimitiveTopology(PrimitiveTopology primitiveTopology);
+            void setInputPrimitive(Primitive primitive);
 
           //Triangle rotation and draw face
             void setFaceFrontClockwise(bool clockwise);
@@ -107,10 +107,6 @@ namespace glCompact {
             bool hasTessEvalutionStage()const{return hasShader[2];}
             bool hasGeometryStage     ()const{return hasShader[3];}
             bool hasFragmentStage     ()const{return hasShader[4];}
-
-            int32_t           getGeometryMaxPrimitveOutput(){return geometryMaxPrimitveOutput;}
-            PrimitiveTopology getGeometryInputType        (){return geometryInputType;}
-            PrimitiveTopology getGeometryOutputType       (){return geometryOutputType;}
         private:
             virtual std::string getPipelineIdentificationString();
             std::string getPipelineInformationQueryString();
@@ -139,14 +135,14 @@ namespace glCompact {
             const bool loadedFromFiles = false;
             std::string fileName[5];
 
-            int32_t           geometryMaxPrimitveOutput = 0;
-            PrimitiveTopology geometryInputType         = static_cast<PrimitiveTopology>(-1);
-            PrimitiveTopology geometryOutputType        = static_cast<PrimitiveTopology>(-1);
+            int32_t   geometryOutputPrimitveMax = 0;
+            Primitive geometryOutputPrimitive   = static_cast<Primitive>(-1);
+            Primitive geometryInputPrimitive    = static_cast<Primitive>(-1);
 
           //STATES
             PipelineRasterizationStateChange stateChange;
 
-            PrimitiveTopology vertexStageInputPrimitiveTopology;
+            Primitive inputPrimitive;
 
             //TRIANGLE ROTATION AND DRAW FACE
             bool          triangleFrontIsClockwiseRotation = false;
@@ -218,9 +214,6 @@ namespace glCompact {
             IndexType indexType                     = static_cast<IndexType>(0);
             uint32_t  buffer_attribute_index_id     = 0;
             uintptr_t buffer_attribute_index_offset = 0; //this is a glCompact only thing. So it is not part of the state tracker
-
-            void activateAttributeIndex(IndexType indexType);
-            void deactivateAttributeIndex();
 
             void processPendingChanges();
             void processPendingChangesPipeline();

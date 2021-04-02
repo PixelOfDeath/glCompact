@@ -75,7 +75,6 @@ namespace glCompact {
             uintptr_t  buffer_attribute_offset[config::MAX_ATTRIBUTES] = {};
 
             bool       buffer_attribute_index_enabled = 0;
-            IndexType  buffer_attribute_index_type    = static_cast<IndexType>(0);
             uint32_t   buffer_attribute_index_id      = 0;
 
             //BUFFER INDIRECT
@@ -211,6 +210,7 @@ namespace glCompact {
 
             void cachedBindShader          (uint32_t pipelineShaderId);
             void cachedBindArrayBuffer     (uint32_t bufferId);
+            void cachedBindIndexBuffer     (uint32_t bufferId);
             void cachedSetActiveTextureUnit(uint32_t slot);
             void cachedBindDrawFbo         (uint32_t fboId);
             void cachedBindReadFbo         (uint32_t fboId);
