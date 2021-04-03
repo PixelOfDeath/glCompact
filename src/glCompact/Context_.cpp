@@ -263,6 +263,15 @@ namespace glCompact {
         }
     }
 
+    void Context_::cachedBindIndexBuffer(
+        uint32_t bufferId
+    ) {
+        if (buffer_attribute_index_id != bufferId) {
+            buffer_attribute_index_id = bufferId;
+            threadContextGroup_->functions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
+        }
+    }
+
     //takes i and sets GL_TEXTURE0 + i
     void Context_::cachedSetActiveTextureUnit(
         uint32_t slot
