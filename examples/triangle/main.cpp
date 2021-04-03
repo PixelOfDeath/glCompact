@@ -43,7 +43,7 @@ int main (int argc, char *argv[]) {
     };
     BufferGpu attributeBuffer(false, sizeof(attributeData), attributeData);
 
-    MyPipeline myPipeline(PrimitiveTopology::triangleList, vertexShader, "", "", "", fragmentShader);
+    MyPipeline myPipeline(Primitive::triangles, vertexShader, "", "", "", fragmentShader);
     myPipeline.setAttributeLayout(attributeLayout);
     myPipeline.setAttributeBuffer(0, attributeBuffer);
     myPipeline.rgba = vec4(1.0f, 0.0f, 0.0f, 0.0f);
