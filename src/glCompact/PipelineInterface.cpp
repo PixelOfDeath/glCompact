@@ -13,6 +13,7 @@
 #include "glCompact/SurfaceFormatDetail.hpp"
 #include "glCompact/multiMalloc.h"
 #include "glCompact/minimumMaximum.hpp"
+#include "glCompact/isDiffThenAssign.hpp"
 
 #include <glm/glm.hpp>
 
@@ -1671,9 +1672,8 @@ namespace glCompact {
                 }
             } else {
                 for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                    if (threadContext_->sampler_id[i] != sampler_id[i]) {
+                    if (isDiffThenAssign(threadContext_->sampler_id[i], sampler_id[i])) {
                         threadContextGroup_->functions.glBindSampler(i, sampler_id[i]);
-                        threadContext_->sampler_id[i] = sampler_id[i];
                     }
                 }
             }
@@ -1699,10 +1699,12 @@ namespace glCompact {
 
         if (changedSlotMin <= changedSlotMax) {
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
-                if (threadContext_->image_id         [i] != image_id         [i]
-                ||  threadContext_->image_format     [i] != image_format     [i]
-                ||  threadContext_->image_mipmapLevel[i] != image_mipmapLevel[i]
-                ||  threadContext_->image_layer      [i] != image_layer      [i]) {
+                if (isDiffThenAssign(
+                    threadContext_->image_id         [i], image_id         [i],
+                    threadContext_->image_format     [i], image_format     [i],
+                    threadContext_->image_mipmapLevel[i], image_mipmapLevel[i],
+                    threadContext_->image_layer      [i], image_layer      [i]
+                )) {
                     if (image_id[i]) {
                         if (image_layer[i] == -1) {
                             threadContextGroup_->functions.glBindImageTexture(i, image_id[i], image_mipmapLevel[i], 0,              0, GL_READ_WRITE, image_format[i]);
@@ -1713,10 +1715,6 @@ namespace glCompact {
                         //Mesa does not like the format to be 0 even when the texture is 0, so we use GL_R8!
                         threadContextGroup_->functions.glBindImageTexture(i, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8);
                     }
-                    threadContext_->image_id         [i] = image_id         [i];
-                    threadContext_->image_format     [i] = image_format     [i];
-                    threadContext_->image_mipmapLevel[i] = image_mipmapLevel[i];
-                    threadContext_->image_layer      [i] = image_layer      [i];
                 }
             }
             image_changedSlotMin = std::numeric_limits<decltype(image_changedSlotMin)>::max();

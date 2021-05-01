@@ -7,6 +7,7 @@
 #include "glCompact/Frame.hpp"
 #include "glCompact/PipelineInterface.hpp"
 #include "glCompact/multiMalloc.h"
+#include "glCompact/isDiffThenAssign.hpp"
 
 #include <exception>
 #include <stdexcept>
@@ -248,26 +249,23 @@ namespace glCompact {
     void Context_::cachedBindShader(
         uint32_t pipelineShaderId
     ) {
-        if (this->pipelineShaderId != pipelineShaderId) {
+        if (isDiffThenAssign(this->pipelineShaderId, pipelineShaderId)) {
             threadContextGroup_->functions.glUseProgram(pipelineShaderId);
-            this->pipelineShaderId = pipelineShaderId;
         }
     }
 
     void Context_::cachedBindArrayBuffer(
         uint32_t bufferId
     ) {
-        if (boundArrayBuffer != bufferId) {
+        if (isDiffThenAssign(boundArrayBuffer, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-            boundArrayBuffer = bufferId;
         }
     }
 
     void Context_::cachedBindIndexBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_attribute_index_id != bufferId) {
-            buffer_attribute_index_id = bufferId;
+        if (isDiffThenAssign(buffer_attribute_index_id, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
         }
     }
@@ -279,8 +277,7 @@ namespace glCompact {
         //TODO: debug test for values over GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS-1
         UNLIKELY_IF (slot >= uint32_t(threadContextGroup_->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS))
             throw runtime_error("Trying to set active texture bayond GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS(" + to_string(threadContextGroup_->values.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) + ")");
-        if (activeTextureSlot != slot) {
-            activeTextureSlot = slot;
+        if (isDiffThenAssign(activeTextureSlot, slot)) {
             threadContextGroup_->functions.glActiveTexture(GL_TEXTURE0 + slot);
         }
     }
@@ -288,8 +285,7 @@ namespace glCompact {
     void Context_::cachedBindDrawFbo(
         uint32_t fboId
     ) {
-        if (current_frame_drawId != fboId) {
-            current_frame_drawId = fboId;
+        if (isDiffThenAssign(current_frame_drawId, fboId)) {
             threadContextGroup_->functions.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboId);
         }
     }
@@ -297,15 +293,13 @@ namespace glCompact {
     void Context_::cachedBindReadFbo(
         uint32_t fboId
     ) {
-        if (current_frame_readId != fboId) {
-            current_frame_readId = fboId;
+        if (isDiffThenAssign(current_frame_readId, fboId)) {
             threadContextGroup_->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, fboId);
         }
     }
 
     void Context_::cachedSrgbTargetsReadWriteLinear(bool value) {
-        if (current_srgbTargetsReadWriteLinear != value) {
-            current_srgbTargetsReadWriteLinear = value;
+        if (isDiffThenAssign(current_srgbTargetsReadWriteLinear, value)) {
             if ( value) threadContextGroup_->functions.glEnable (GL_FRAMEBUFFER_SRGB);
             if (!value) threadContextGroup_->functions.glDisable(GL_FRAMEBUFFER_SRGB);
         }
@@ -315,11 +309,10 @@ namespace glCompact {
         glm::uvec2 offset,
         glm::uvec2 size
     ) {
-        if (current_viewportOffset != offset
-        ||  current_viewportSize   != size
-        ) {
-            current_viewportOffset = offset;
-            current_viewportSize   = size;
+        if (isDiffThenAssign(
+            current_viewportOffset, offset,
+            current_viewportSize,   size
+        )) {
             threadContextGroup_->functions.glViewport(offset.x, offset.y, size.x, size.y);
         }
     }
@@ -327,8 +320,7 @@ namespace glCompact {
     void Context_::cachedScissorEnabled(
         bool enabled
     ) {
-        if (current_scissor_enabled != enabled) {
-            current_scissor_enabled = enabled;
+        if (isDiffThenAssign(current_scissor_enabled, enabled)) {
             if (enabled)
                 threadContextGroup_->functions.glEnable(GL_SCISSOR_TEST);
             else
@@ -340,11 +332,10 @@ namespace glCompact {
         glm::uvec2 offset,
         glm::uvec2 size
     ) {
-        if (current_scissorOffset != offset
-        ||  current_scissorSize   != size
-        ) {
-            current_scissorOffset = offset;
-            current_scissorSize   = size;
+        if (isDiffThenAssign(
+            current_scissorOffset, offset,
+            current_scissorSize,   size
+        )) {
             threadContextGroup_->functions.glScissor(offset.x, offset.y, size.x, size.y);
         }
     }
@@ -352,36 +343,32 @@ namespace glCompact {
     void Context_::cachedBindPixelPackBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_pixelPackId != bufferId) {
+        if (isDiffThenAssign(buffer_pixelPackId, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_PIXEL_PACK_BUFFER, bufferId);
-            buffer_pixelPackId = bufferId;
         }
     }
 
     void Context_::cachedBindPixelUnpackBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_pixelUnpackId != bufferId) {
+        if (isDiffThenAssign(buffer_pixelUnpackId, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferId);
-            buffer_pixelUnpackId = bufferId;
         }
     }
 
     void Context_::cachedBindCopyReadBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_copyReadId != bufferId) {
+        if (isDiffThenAssign(buffer_copyReadId, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_COPY_READ_BUFFER, bufferId);
-            buffer_copyReadId = bufferId;
         }
     }
 
     void Context_::cachedBindCopyWriteBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_copyWriteId != bufferId) {
+        if (isDiffThenAssign(buffer_copyWriteId, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_COPY_WRITE_BUFFER, bufferId);
-            buffer_copyWriteId = bufferId;
         }
     }
 
@@ -390,18 +377,16 @@ namespace glCompact {
     void Context_::cachedBindDrawIndirectBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_draw_indirect_id != bufferId) {
+        if (isDiffThenAssign(buffer_draw_indirect_id, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_DRAW_INDIRECT_BUFFER, buffer_draw_indirect_id);
-            buffer_draw_indirect_id = bufferId;
         }
     }
 
     void Context_::cachedBindDispatchIndirectBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_dispatch_indirect_id != bufferId) {
+        if (isDiffThenAssign(buffer_dispatch_indirect_id, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, buffer_dispatch_indirect_id);
-            buffer_dispatch_indirect_id = bufferId;
         }
     }
 
@@ -409,9 +394,10 @@ namespace glCompact {
     void Context_::cachedBindParameterBuffer(
         uint32_t bufferId
     ) {
-        if (buffer_parameter_id != bufferId) {
+        if (isDiffThenAssign(buffer_parameter_id, bufferId)) {
             threadContextGroup_->functions.glBindBuffer(GL_PARAMETER_BUFFER, buffer_parameter_id);
-            buffer_parameter_id = bufferId;
+        }
+    }
         }
     }
 
@@ -424,9 +410,8 @@ namespace glCompact {
     void Context_::processPendingChangesDrawFrame(Frame* pendingFrame) {
         UNLIKELY_IF (!pendingFrame)
             throw runtime_error("This command needs an valid Frame set via setDrawFrame()!");
-        if (current_frame != pendingFrame) {
+        if (isDiffThenAssign(current_frame, pendingFrame)) {
             pending_frame_drawId = pendingFrame->id;
-            current_frame = pendingFrame;
         }
         threadContext_->cachedBindDrawFbo(threadContext_->pending_frame_drawId);
         threadContext_->cachedSrgbTargetsReadWriteLinear(current_frame->srgbTargetsReadWriteLinear);

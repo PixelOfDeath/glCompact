@@ -11,6 +11,8 @@
 #include "glCompact/Tools_.hpp"
 #include "glCompact/gl/Helper.hpp"
 
+#include "glCompact/isDiffThenAssign.hpp"
+
 #include <glm/glm.hpp>
 #include <vector>
 #include <algorithm>
@@ -1209,11 +1211,10 @@ namespace glCompact {
         */
 
         //FACE FRONT AND CULLING
-        if (threadContext_->triangleFrontIsClockwiseRotation != triangleFrontIsClockwiseRotation) {
+        if (isDiffThenAssign(threadContext_->triangleFrontIsClockwiseRotation, triangleFrontIsClockwiseRotation)) {
             threadContextGroup_->functions.glFrontFace(triangleFrontIsClockwiseRotation ? GL_CW : GL_CCW);
-            threadContext_->triangleFrontIsClockwiseRotation = triangleFrontIsClockwiseRotation;
         }
-        if (threadContext_->faceToDraw != faceToDraw) {
+        if (isDiffThenAssign(threadContext_->faceToDraw, faceToDraw)) {
             if (faceToDraw == FaceSelection::frontAndBack) {
                 threadContextGroup_->functions.glDisable(GL_CULL_FACE);
             } else {
@@ -1224,31 +1225,26 @@ namespace glCompact {
                     threadContextGroup_->functions.glCullFace(GL_FRONT);
                 }
             }
-            threadContext_->faceToDraw = faceToDraw;
         }
 
         //DEPTH
         if (bool(stateChangeBoth.depth)) {
             bool depthEnabled = depthWriteEnabled || depthCompareOperator != CompareOperator::disabled;
 
-            if (threadContext_->depthEnabled != depthEnabled) {
+            if (isDiffThenAssign(threadContext_->depthEnabled, depthEnabled)) {
                 if (depthEnabled) {
                     threadContextGroup_->functions.glEnable(GL_DEPTH_TEST);
-                    threadContext_->depthEnabled = true;
                 } else {
                     threadContextGroup_->functions.glDisable(GL_DEPTH_TEST);
-                    threadContext_->depthEnabled = false;
                 }
             }
 
             if (depthEnabled) {
-                if (threadContext_->depthCompareOperator != depthCompareOperator) {
+                if (isDiffThenAssign(threadContext_->depthCompareOperator, depthCompareOperator)) {
                     threadContextGroup_->functions.glDepthFunc(static_cast<GLenum>(depthCompareOperator));
-                    threadContext_->depthCompareOperator = depthCompareOperator;
                 }
-                if (threadContext_->depthWriteEnabled != depthWriteEnabled) {
+                if (isDiffThenAssign(threadContext_->depthWriteEnabled, depthWriteEnabled)) {
                     threadContextGroup_->functions.glDepthMask(depthWriteEnabled);
-                    threadContext_->depthWriteEnabled = depthWriteEnabled;
                 }
 
                 //TODO: maybe just always enable this states???
@@ -1289,22 +1285,20 @@ namespace glCompact {
                     threadContext_->depthBiasSlopeFactor    = depthBiasSlopeFactor;
                 }
 
-                if (threadContext_->depthNearMapping != depthNearMapping
-                ||  threadContext_->depthFarMapping  != depthFarMapping
-                ) {
+                if(isDiffThenAssign(
+                    threadContext_->depthNearMapping, depthNearMapping,
+                    threadContext_->depthFarMapping,  depthFarMapping
+                )) {
                     //There also is glDepthRangef, Core since 4.1
                     threadContextGroup_->functions.glDepthRange(depthNearMapping, depthFarMapping);
-                    threadContext_->depthNearMapping = depthNearMapping;
-                    threadContext_->depthFarMapping  = depthFarMapping;
                 }
 
-                if (threadContext_->depthClippingToClamping != depthClippingToClamping) {
+                if (isDiffThenAssign(threadContext_->depthClippingToClamping, depthClippingToClamping)) {
                     if (depthClippingToClamping) {
                         threadContextGroup_->functions.glDisable(GL_DEPTH_CLAMP);
                     } else {
                         threadContextGroup_->functions.glEnable(GL_DEPTH_CLAMP);
                     }
-                    threadContext_->depthClippingToClamping = depthClippingToClamping;
                 }
             }
         }
@@ -1357,79 +1351,68 @@ namespace glCompact {
             ||  stencilWriteBack.stencilPassDepthFailOperator          != StencilOperator::keep
             ||  stencilWriteBack.stencilPassDepthPassOrAbsentOperator  != StencilOperator::keep;
 
-            if (stencilEnabled) {
-                if (!threadContext_->stencilEnabled) {
+            if (isDiffThenAssign(threadContext_->stencilEnabled, stencilEnabled)) {
+                if (stencilEnabled) {
                     threadContextGroup_->functions.glEnable(GL_STENCIL_TEST);
-                    threadContext_->stencilEnabled = true;
+                } else {
+                    threadContextGroup_->functions.glDisable(GL_STENCIL_TEST);
                 }
+            }
+
+            if (stencilEnabled) {
                 if (faceToDraw == FaceSelection::frontAndBack || faceToDraw == FaceSelection::front) {
-                    if (    threadContext_->stencilTestFront.refValue        != stencilTestFront.refValue
-                        ||  threadContext_->stencilTestFront.compareOperator != stencilTestFront.compareOperator
-                        ||  threadContext_->stencilTestFront.readMask        != stencilTestFront.readMask
-                    ) {
+                    if (isDiffThenAssign(
+                        threadContext_->stencilTestFront.refValue,        stencilTestFront.refValue,
+                        threadContext_->stencilTestFront.compareOperator, stencilTestFront.compareOperator,
+                        threadContext_->stencilTestFront.readMask,        stencilTestFront.readMask
+                    )) {
                         threadContextGroup_->functions.glStencilFuncSeparate(
                             GL_FRONT,
                             static_cast<GLenum>(stencilTestFront.compareOperator),
                             stencilTestFront.refValue,
                             stencilTestFront.readMask);
-                        threadContext_->stencilTestFront.refValue        = stencilTestFront.refValue;
-                        threadContext_->stencilTestFront.compareOperator = stencilTestFront.compareOperator;
-                        threadContext_->stencilTestFront.readMask        = stencilTestFront.readMask;
                     }
-                    if (threadContext_->stencilWriteFront.writeMask != stencilWriteFront.writeMask) {
+                    if (isDiffThenAssign(threadContext_->stencilWriteFront.writeMask, stencilWriteFront.writeMask)) {
                         threadContextGroup_->functions.glStencilMaskSeparate(GL_FRONT, stencilWriteFront.writeMask);
-                        threadContext_->stencilWriteFront.writeMask = stencilWriteFront.writeMask;
                     }
-                    if (    threadContext_->stencilWriteFront.stencilFailOperator                  != stencilWriteFront.stencilFailOperator
-                        ||  threadContext_->stencilWriteFront.stencilPassDepthFailOperator         != stencilWriteFront.stencilPassDepthFailOperator
-                        ||  threadContext_->stencilWriteFront.stencilPassDepthPassOrAbsentOperator != stencilWriteFront.stencilPassDepthPassOrAbsentOperator
-                    ) {
+                    if (isDiffThenAssign(
+                        threadContext_->stencilWriteFront.stencilFailOperator,                  stencilWriteFront.stencilFailOperator,
+                        threadContext_->stencilWriteFront.stencilPassDepthFailOperator,         stencilWriteFront.stencilPassDepthFailOperator,
+                        threadContext_->stencilWriteFront.stencilPassDepthPassOrAbsentOperator, stencilWriteFront.stencilPassDepthPassOrAbsentOperator
+                    )) {
                         threadContextGroup_->functions.glStencilOpSeparate(
                             GL_FRONT,
                             static_cast<GLenum>(stencilWriteFront.stencilFailOperator),
                             static_cast<GLenum>(stencilWriteFront.stencilPassDepthFailOperator),
                             static_cast<GLenum>(stencilWriteFront.stencilPassDepthPassOrAbsentOperator));
-                        threadContext_->stencilWriteFront.stencilFailOperator                  = stencilWriteFront.stencilFailOperator;
-                        threadContext_->stencilWriteFront.stencilPassDepthFailOperator         = stencilWriteFront.stencilPassDepthFailOperator;
-                        threadContext_->stencilWriteFront.stencilPassDepthPassOrAbsentOperator = stencilWriteFront.stencilPassDepthPassOrAbsentOperator;
                     }
                 }
                 if (faceToDraw == FaceSelection::frontAndBack || faceToDraw == FaceSelection::back) {
-                    if (    threadContext_->stencilTestBack.refValue        != stencilTestBack.refValue
-                        ||  threadContext_->stencilTestBack.compareOperator != stencilTestBack.compareOperator
-                        ||  threadContext_->stencilTestBack.readMask        != stencilTestBack.readMask
-                    ) {
+                    if (isDiffThenAssign(
+                        threadContext_->stencilTestBack.refValue,        stencilTestBack.refValue,
+                        threadContext_->stencilTestBack.compareOperator, stencilTestBack.compareOperator,
+                        threadContext_->stencilTestBack.readMask,        stencilTestBack.readMask
+                    )) {
                         threadContextGroup_->functions.glStencilFuncSeparate(
                             GL_BACK,
                             static_cast<GLenum>(stencilTestBack.compareOperator),
                             stencilTestBack.refValue,
                             stencilTestBack.readMask);
-                        threadContext_->stencilTestBack.refValue        = stencilTestBack.refValue;
-                        threadContext_->stencilTestBack.compareOperator = stencilTestBack.compareOperator;
-                        threadContext_->stencilTestBack.readMask        = stencilTestBack.readMask;
                     }
-                    if (threadContext_->stencilWriteBack.writeMask != stencilWriteBack.writeMask) {
+                    if (isDiffThenAssign(threadContext_->stencilWriteBack.writeMask, stencilWriteBack.writeMask)) {
                         threadContextGroup_->functions.glStencilMaskSeparate(GL_BACK, stencilWriteBack.writeMask);
-                        threadContext_->stencilWriteBack.writeMask = stencilWriteBack.writeMask;
                     }
-                    if (    threadContext_->stencilWriteBack.stencilFailOperator                  != stencilWriteBack.stencilFailOperator
-                        ||  threadContext_->stencilWriteBack.stencilPassDepthFailOperator         != stencilWriteBack.stencilPassDepthFailOperator
-                        ||  threadContext_->stencilWriteBack.stencilPassDepthPassOrAbsentOperator != stencilWriteBack.stencilPassDepthPassOrAbsentOperator
-                    ) {
+                    if (isDiffThenAssign(
+                        threadContext_->stencilWriteBack.stencilFailOperator,                  stencilWriteBack.stencilFailOperator,
+                        threadContext_->stencilWriteBack.stencilPassDepthFailOperator,         stencilWriteBack.stencilPassDepthFailOperator,
+                        threadContext_->stencilWriteBack.stencilPassDepthPassOrAbsentOperator, stencilWriteBack.stencilPassDepthPassOrAbsentOperator
+                    )) {
                         threadContextGroup_->functions.glStencilOpSeparate(
                             GL_BACK,
                             static_cast<GLenum>(stencilWriteBack.stencilFailOperator),
                             static_cast<GLenum>(stencilWriteBack.stencilPassDepthFailOperator),
                             static_cast<GLenum>(stencilWriteBack.stencilPassDepthPassOrAbsentOperator));
-                        threadContext_->stencilWriteBack.stencilFailOperator                  = stencilWriteBack.stencilFailOperator;
-                        threadContext_->stencilWriteBack.stencilPassDepthFailOperator         = stencilWriteBack.stencilPassDepthFailOperator;
-                        threadContext_->stencilWriteBack.stencilPassDepthPassOrAbsentOperator = stencilWriteBack.stencilPassDepthPassOrAbsentOperator;
                     }
-                }
-            } else {
-                if (threadContext_->stencilEnabled) {
-                    threadContextGroup_->functions.glDisable(GL_STENCIL_TEST);
-                    threadContext_->stencilEnabled = false;
                 }
             }
         }
@@ -1445,9 +1428,8 @@ namespace glCompact {
                 }
             }
         } else {
-            LOOPI(config::MAX_RGBA_ATTACHMENTS) if (threadContext_->rgbaWriteMask[i].value != rgbaWriteMask[i].value) {
+            LOOPI(config::MAX_RGBA_ATTACHMENTS) if (isDiffThenAssign(threadContext_->rgbaWriteMask[i].value, rgbaWriteMask[i].value)) {
                 threadContextGroup_->functions.glColorMaski(i, rgbaWriteMask[i].r, rgbaWriteMask[i].g, rgbaWriteMask[i].b, rgbaWriteMask[i].a);
-                threadContext_->rgbaWriteMask[i].value = rgbaWriteMask[i].value;
             }
         }
 
@@ -1538,8 +1520,7 @@ namespace glCompact {
                     UNLIKELY_IF (!(threadContextGroup_->version.gl >= GlVersion::v40))
                         throw std::runtime_error("Trying to set multible rgba blend factors/equations, but not supported by this system (missing OpenGL 4.0 or higher)");
                     for (int i = firstActiveIndex; i < config::MAX_RGBA_ATTACHMENTS; i++) {
-                        if (threadContext_->blendFactors[i] != blendFactors[i]) {
-                            threadContext_->blendFactors[i] = blendFactors[i];
+                        if (isDiffThenAssign(threadContext_->blendFactors[i], blendFactors[i])) {
                             threadContextGroup_->functions.glBlendFuncSeparatei(
                                 i,
                                 static_cast<GLenum>(blendFactors[i].srcRgb),
@@ -1548,8 +1529,7 @@ namespace glCompact {
                                 static_cast<GLenum>(blendFactors[i].dstA)
                             );
                         }
-                        if (threadContext_->blendEquations[i] != blendEquations[i]) {
-                            threadContext_->blendEquations[i] = blendEquations[i];
+                        if (isDiffThenAssign(threadContext_->blendEquations[i], blendEquations[i])) {
                             threadContextGroup_->functions.glBlendEquationSeparatei(
                                 i,
                                 static_cast<GLenum>(blendEquations[i].rgb),
@@ -1570,8 +1550,7 @@ namespace glCompact {
         }
 
         //MULTISAMPLE
-        if (threadContext_->multiSample != multiSample) {
-            threadContext_->multiSample = multiSample;
+        if (isDiffThenAssign(threadContext_->multiSample, multiSample)) {
             if (multiSample)
                 threadContextGroup_->functions.glEnable(GL_MULTISAMPLE);
             else
@@ -1715,9 +1694,8 @@ namespace glCompact {
             }
         }
 
-        if (threadContext_->attributeLayoutMaybeChanged) {
+        if (isDiffThenAssign(threadContext_->attributeLayoutMaybeChanged, false)) {
             threadContext_->attributeLayout_ = attributeLayout_;
-            threadContext_->attributeLayoutMaybeChanged = false;
         }
         if (changedSlotMin <= changedSlotMax) {
             for (int i = changedSlotMin; i <= changedSlotMax; ++i) {
