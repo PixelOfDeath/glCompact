@@ -398,6 +398,20 @@ namespace glCompact {
             threadContextGroup_->functions.glBindBuffer(GL_PARAMETER_BUFFER, buffer_parameter_id);
         }
     }
+
+    void Context_::setGlState(uint32_t state, bool enable) {
+        if (enable) {
+            threadContextGroup_->functions.glEnable(state);
+        } else {
+            threadContextGroup_->functions.glDisable(state);
+        }
+    }
+
+    void Context_::setGlState(uint32_t state, uint32_t index, bool enable) {
+        if (enable) {
+            threadContextGroup_->functions.glEnablei(state, index);
+        } else {
+            threadContextGroup_->functions.glDisablei(state, index);
         }
     }
 

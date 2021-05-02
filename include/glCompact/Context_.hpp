@@ -229,6 +229,9 @@ namespace glCompact {
             void cachedBindDispatchIndirectBuffer(uint32_t bufferId);
             void cachedBindParameterBuffer       (uint32_t bufferId);
 
+            void setGlState(uint32_t state,                 bool enable);
+            void setGlState(uint32_t state, uint32_t index, bool enable);
+
           //processPending
             //we need this also outside of GraphicsPipeline
             void processPendingChangesDrawFrame();
