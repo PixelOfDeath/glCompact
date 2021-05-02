@@ -1232,11 +1232,7 @@ namespace glCompact {
             bool depthEnabled = depthWriteEnabled || depthCompareOperator != CompareOperator::disabled;
 
             if (isDiffThenAssign(threadContext_->depthEnabled, depthEnabled)) {
-                if (depthEnabled) {
-                    threadContextGroup_->functions.glEnable(GL_DEPTH_TEST);
-                } else {
-                    threadContextGroup_->functions.glDisable(GL_DEPTH_TEST);
-                }
+                threadContext_->setGlState(GL_DEPTH_TEST, depthEnabled);
             }
 
             if (depthEnabled) {
@@ -1270,15 +1266,9 @@ namespace glCompact {
                         }
                     }
                     if (current_usingDepthOffset != pending_usingDepthOffset) {
-                        if (pending_usingDepthOffset) {
-                            threadContextGroup_->functions.glEnable(GL_POLYGON_OFFSET_FILL);
-                            threadContextGroup_->functions.glEnable(GL_POLYGON_OFFSET_LINE);
-                            threadContextGroup_->functions.glEnable(GL_POLYGON_OFFSET_POINT);
-                        } else {
-                            threadContextGroup_->functions.glDisable(GL_POLYGON_OFFSET_FILL);
-                            threadContextGroup_->functions.glDisable(GL_POLYGON_OFFSET_LINE);
-                            threadContextGroup_->functions.glDisable(GL_POLYGON_OFFSET_POINT);
-                        }
+                        threadContext_->setGlState(GL_POLYGON_OFFSET_FILL,  pending_usingDepthOffset);
+                        threadContext_->setGlState(GL_POLYGON_OFFSET_LINE,  pending_usingDepthOffset);
+                        threadContext_->setGlState(GL_POLYGON_OFFSET_POINT, pending_usingDepthOffset);
                     }
                     threadContext_->depthBiasConstantFactor = depthBiasConstantFactor;
                     threadContext_->depthBiasClamp          = depthBiasClamp;
@@ -1294,11 +1284,7 @@ namespace glCompact {
                 }
 
                 if (isDiffThenAssign(threadContext_->depthClippingToClamping, depthClippingToClamping)) {
-                    if (depthClippingToClamping) {
-                        threadContextGroup_->functions.glDisable(GL_DEPTH_CLAMP);
-                    } else {
-                        threadContextGroup_->functions.glEnable(GL_DEPTH_CLAMP);
-                    }
+                    threadContext_->setGlState(GL_DEPTH_CLAMP, !depthClippingToClamping);
                 }
             }
         }
@@ -1352,11 +1338,7 @@ namespace glCompact {
             ||  stencilWriteBack.stencilPassDepthPassOrAbsentOperator  != StencilOperator::keep;
 
             if (isDiffThenAssign(threadContext_->stencilEnabled, stencilEnabled)) {
-                if (stencilEnabled) {
-                    threadContextGroup_->functions.glEnable(GL_STENCIL_TEST);
-                } else {
-                    threadContextGroup_->functions.glDisable(GL_STENCIL_TEST);
-                }
+                threadContext_->setGlState(GL_STENCIL_TEST, stencilEnabled);
             }
 
             if (stencilEnabled) {
@@ -1454,15 +1436,12 @@ namespace glCompact {
                     blendEnabledAll = all_of(begin(blendEnabled), end(blendEnabled), [](bool b){return b;});
                 if (blendEnabledAll.isTrue()) {
                     for (bool& e : threadContext_->blendEnabled) e = true;
-                    threadContextGroup_->functions.glEnable(GL_BLEND);
+                    threadContext_->setGlState(GL_BLEND, true);
                 } else {
                     LOOPI(config::MAX_RGBA_ATTACHMENTS) {
                         if (threadContext_->blendEnabled[i] != blendEnabled[i]) {
                             threadContext_->blendEnabled[i] = blendEnabled[i];
-                            if (blendEnabled[i])
-                                threadContextGroup_->functions.glEnablei(GL_BLEND, i);
-                            else
-                                threadContextGroup_->functions.glDisablei(GL_BLEND, i);
+                            threadContext_->setGlState(GL_BLEND, i, blendEnabled[i]);
                         }
                     }
                 }
@@ -1544,17 +1523,14 @@ namespace glCompact {
                     threadContext_->blendEnabledAny = false;
                     LOOPI(config::MAX_RGBA_ATTACHMENTS)
                         threadContext_->blendEnabled[i] = false;
-                    threadContextGroup_->functions.glDisable(GL_BLEND);
+                    threadContext_->setGlState(GL_BLEND, false);
                 }
             }
         }
 
         //MULTISAMPLE
         if (isDiffThenAssign(threadContext_->multiSample, multiSample)) {
-            if (multiSample)
-                threadContextGroup_->functions.glEnable(GL_MULTISAMPLE);
-            else
-                threadContextGroup_->functions.glDisable(GL_MULTISAMPLE);
+            threadContext_->setGlState(GL_MULTISAMPLE, multiSample);
         }
     }
 

@@ -111,7 +111,7 @@ namespace glCompact {
             }
         }
 
-        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) threadContextGroup_->functions.glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
+        if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) setGlState(GL_PRIMITIVE_RESTART_FIXED_INDEX, true);
     }
 
     void Context_::defaultStatesDeactivate() {
@@ -300,8 +300,7 @@ namespace glCompact {
 
     void Context_::cachedSrgbTargetsReadWriteLinear(bool value) {
         if (isDiffThenAssign(current_srgbTargetsReadWriteLinear, value)) {
-            if ( value) threadContextGroup_->functions.glEnable (GL_FRAMEBUFFER_SRGB);
-            if (!value) threadContextGroup_->functions.glDisable(GL_FRAMEBUFFER_SRGB);
+            setGlState(GL_FRAMEBUFFER_SRGB, value);
         }
     }
 
@@ -321,10 +320,7 @@ namespace glCompact {
         bool enabled
     ) {
         if (isDiffThenAssign(current_scissor_enabled, enabled)) {
-            if (enabled)
-                threadContextGroup_->functions.glEnable(GL_SCISSOR_TEST);
-            else
-                threadContextGroup_->functions.glDisable(GL_SCISSOR_TEST);
+            setGlState(GL_SCISSOR_TEST, enabled);
         }
     }
 
