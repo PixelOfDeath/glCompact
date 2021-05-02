@@ -1215,16 +1215,7 @@ namespace glCompact {
             threadContextGroup_->functions.glFrontFace(triangleFrontIsClockwiseRotation ? GL_CW : GL_CCW);
         }
         if (isDiffThenAssign(threadContext_->faceToDraw, faceToDraw)) {
-            if (faceToDraw == FaceSelection::frontAndBack) {
-                threadContextGroup_->functions.glDisable(GL_CULL_FACE);
-            } else {
-                threadContextGroup_->functions.glEnable(GL_CULL_FACE);
-                if (faceToDraw == FaceSelection::front) {
-                    threadContextGroup_->functions.glCullFace(GL_BACK);
-                } else {
-                    threadContextGroup_->functions.glCullFace(GL_FRONT);
-                }
-            }
+            threadContextGroup_->functions.glCullFace(GLenum(faceToDraw));
         }
 
         //DEPTH

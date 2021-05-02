@@ -111,6 +111,8 @@ namespace glCompact {
             }
         }
 
+        setGlState(GL_CULL_FACE, true);
+
         if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) setGlState(GL_PRIMITIVE_RESTART_FIXED_INDEX, true);
     }
 
@@ -120,6 +122,8 @@ namespace glCompact {
         } else {
             threadContextGroup_->functions.glBindVertexArray(0);
         }
+
+        setGlState(GL_CULL_FACE, false);
 
         if (threadContextGroup_->extensions.GL_ARB_ES3_compatibility) threadContextGroup_->functions.glDisable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
         cachedScissorEnabled(false);
