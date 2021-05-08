@@ -240,16 +240,16 @@ namespace glCompact {
 
     bool SurfaceFormat::isCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const {
         //If MemorySurfaceFormat is compressed, SurfaceFormat must be the exact same format!
-        if (memorySurfaceFormat->isCompressed && (memorySurfaceFormat->sizedFormat != (*this)->sizedFormat)) return false;
-        if ((*this)->isRgbaInteger                  && memorySurfaceFormat->isRgbaInteger)                   return true;
-        if ((*this)->isRgbaNormalizedIntegerOrFloat && memorySurfaceFormat->isRgbaNormalizedIntegerOrFloat)  return true;
-        if ((*this)->isDepth                        && memorySurfaceFormat->isDepth)                         return true;
-        if ((*this)->isStencil                      && memorySurfaceFormat->isStencil)                       return true;
+        if (memorySurfaceFormat.detail().isCompressed && (memorySurfaceFormat.detail().sizedFormat != (*this)->sizedFormat)) return false;
+        if ((*this)->isRgbaInteger                    &&  memorySurfaceFormat.detail().isRgbaInteger)                        return true;
+        if ((*this)->isRgbaNormalizedIntegerOrFloat   &&  memorySurfaceFormat.detail().isRgbaNormalizedIntegerOrFloat)       return true;
+        if ((*this)->isDepth                          &&  memorySurfaceFormat.detail().isDepth)                              return true;
+        if ((*this)->isStencil                        &&  memorySurfaceFormat.detail().isStencil)                            return true;
         return false;
     }
 
     void SurfaceFormat::throwIfNotCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const {
         if (!isCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat))
-            throw runtime_error("Can't copy convert between SurfaceFormat(" + string((*this)->name) + " and MemorySurfaceFormat(" + string(memorySurfaceFormat->name) + ")");
+            throw runtime_error("Can't copy convert between SurfaceFormat(" + string((*this)->name) + " and MemorySurfaceFormat(" + string(memorySurfaceFormat.detail().name) + ")");
     }
 }

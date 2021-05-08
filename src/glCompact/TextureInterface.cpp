@@ -649,9 +649,9 @@ namespace glCompact {
                 throw runtime_error("For compressed textures texOffset.xy(" + to_string(texOffset.x) + ", " + to_string(texOffset.y) + ") and texSize.xy(" +
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
-        const uintptr_t requiredBufferSize = memorySurfaceFormat->isCompressed
-            ? memorySurfaceFormat->bytePerPixelOrBlock * (maximum(blockSizeX, texSize.x) / blockSizeX) * (maximum(blockSizeY, texSize.y) / blockSizeY) * maximum(1, texSize.z)
-            : memorySurfaceFormat->bytePerPixelOrBlock * maximum(1, texSize.x) * maximum(1, texSize.y) * maximum(1, texSize.z);
+        const uintptr_t requiredBufferSize = memorySurfaceFormat.detail().isCompressed
+            ? memorySurfaceFormat.detail().bytePerPixelOrBlock * (maximum(blockSizeX, texSize.x) / blockSizeX) * (maximum(blockSizeY, texSize.y) / blockSizeY) * maximum(1, texSize.z)
+            : memorySurfaceFormat.detail().bytePerPixelOrBlock * maximum(1, texSize.x) * maximum(1, texSize.y) * maximum(1, texSize.z);
 
         if (bufferInterface) {
             UNLIKELY_IF (bufferInterface->size == 0)
@@ -670,10 +670,10 @@ namespace glCompact {
         //now we actually do something
         threadContext_->cachedBindPixelUnpackBuffer(bufferInterface ? bufferInterface->id : 0);
 
-        const int32_t componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
-        const int32_t componentsTypes          = memorySurfaceFormat->componentsTypes;
+        const int32_t componentsAndArrangement = memorySurfaceFormat.detail().componentsAndArrangement;
+        const int32_t componentsTypes          = memorySurfaceFormat.detail().componentsTypes;
 
-        if (!memorySurfaceFormat->isCompressed) {
+        if (!memorySurfaceFormat.detail().isCompressed) {
             if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                 switch (target) {
                     case GL_TEXTURE_1D:
@@ -710,7 +710,7 @@ namespace glCompact {
                         threadContextGroup_->functions.glTexSubImage3D(target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
-                        uintptr_t cubeSideBufferSize = memorySurfaceFormat->bytePerPixelOrBlock * texSize.x * texSize.y;
+                        uintptr_t cubeSideBufferSize = memorySurfaceFormat.detail().bytePerPixelOrBlock * texSize.x * texSize.y;
                         for (unsigned int i = size.z; i < size.z + texSize.z; ++i)
                             threadContextGroup_->functions.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<const void*>(dataOffset + cubeSideBufferSize * i));
                         break;
@@ -826,9 +826,9 @@ namespace glCompact {
                 throw runtime_error("For compressed textures texOffset.xy(" + to_string(texOffset.x) + ", " + to_string(texOffset.y) + ") and texSize.xy(" +
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
         }
-        const uint32_t requiredBufferSize = memorySurfaceFormat->isCompressed
-            ? memorySurfaceFormat->bytePerPixelOrBlock * (maximum(blockSizeX, texSize.x) / blockSizeX) * (maximum(blockSizeY, texSize.y) / blockSizeY) * maximum(1, texSize.z)
-            : memorySurfaceFormat->bytePerPixelOrBlock *  maximum(1, texSize.x) * maximum(1, texSize.y) * maximum(1, texSize.z);
+        const uint32_t requiredBufferSize = memorySurfaceFormat.detail().isCompressed
+            ? memorySurfaceFormat.detail().bytePerPixelOrBlock * (maximum(blockSizeX, texSize.x) / blockSizeX) * (maximum(blockSizeY, texSize.y) / blockSizeY) * maximum(1, texSize.z)
+            : memorySurfaceFormat.detail().bytePerPixelOrBlock *  maximum(1, texSize.x) * maximum(1, texSize.y) * maximum(1, texSize.z);
 
         UNLIKELY_IF (maxCopySizeGuard < requiredBufferSize)
             throw runtime_error("maxCopySizeGuard size (" + to_string(maxCopySizeGuard) + ") parameter given to this function is to small for the requested (" + to_string(requiredBufferSize) + ") transfer size!");
@@ -837,11 +837,11 @@ namespace glCompact {
         const bool entireZ  = texOffset.z == 0                     && texSize.z == mipmapLevelSize.z;
         const bool entireXYZ = entireXY && entireZ;
 
-        const int32_t componentsAndArrangement = memorySurfaceFormat->componentsAndArrangement;
-        const int32_t componentsTypes          = memorySurfaceFormat->componentsTypes;
+        const int32_t componentsAndArrangement = memorySurfaceFormat.detail().componentsAndArrangement;
+        const int32_t componentsTypes          = memorySurfaceFormat.detail().componentsTypes;
 
         threadContext_->cachedBindPixelPackBuffer(bufferInterface ? bufferInterface->id : 0);
-        if (!memorySurfaceFormat->isCompressed) {
+        if (!memorySurfaceFormat.detail().isCompressed) {
             if (entireXYZ) {
                 if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                     threadContextGroup_->functions.glGetTextureImage(id, mipmapLevel, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
@@ -853,7 +853,7 @@ namespace glCompact {
                 if (threadContextGroup_->extensions.GL_ARB_get_texture_sub_image) {
                     threadContextGroup_->functions.glGetTextureSubImage(id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
                 } else if (entireXY && target == GL_TEXTURE_CUBE_MAP) {
-                    uint32_t cubeMapSideSize = memorySurfaceFormat->bytePerPixelOrBlock * mipmapLevelSize.x * mipmapLevelSize.y;
+                    uint32_t cubeMapSideSize = memorySurfaceFormat.detail().bytePerPixelOrBlock * mipmapLevelSize.x * mipmapLevelSize.y;
                     bindTemporal();
                     for (uint32_t i = size.z; i < size.z + texSize.z; ++i)
                         threadContextGroup_->functions.glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, componentsAndArrangement, componentsTypes, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
@@ -884,7 +884,7 @@ namespace glCompact {
                     threadContextGroup_->functions.glBindFramebuffer(GL_READ_FRAMEBUFFER, fboId);
 
                     if (this->z > 1) {
-                        uintptr_t sizeOfLayer = (memorySurfaceFormat->bitsPerPixelOrBlock / 8) * mipmapLevelSize.x * mipmapLevelSize.y;
+                        uintptr_t sizeOfLayer = (memorySurfaceFormat.detail().bitsPerPixelOrBlock / 8) * mipmapLevelSize.x * mipmapLevelSize.y;
                         LOOPI(texSize.z) {
                             threadContextGroup_->functions.glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, surfaceFormat->getAttachmentType(), id, mipmapLevel, texOffset.z + i); //Core in 3.0 or 3.2? ARB_geometry_shader4?
                             threadContextGroup_->functions.glReadPixels(texOffset.x, texOffset.y, texSize.x, texSize.y, componentsAndArrangement, componentsTypes, reinterpret_cast<GLvoid*>(dataOffset + sizeOfLayer * i));
@@ -1043,7 +1043,7 @@ namespace glCompact {
         clearCheck(mipmapLevel);
 
         threadContext_->cachedBindPixelUnpackBuffer(buffer ? buffer->id : 0);
-        threadContextGroup_->functions.glClearTexImage(this->id, mipmapLevel, memorySurfaceFormat->componentsAndArrangement, memorySurfaceFormat->componentsTypes, ptr);
+        threadContextGroup_->functions.glClearTexImage(this->id, mipmapLevel, memorySurfaceFormat.detail().componentsAndArrangement, memorySurfaceFormat.detail().componentsTypes, ptr);
     }
 
     void TextureInterface::clear(
@@ -1068,7 +1068,7 @@ namespace glCompact {
         clearCheck(mipmapLevel);
 
         threadContext_->cachedBindPixelUnpackBuffer(buffer ? buffer->id : 0);
-        threadContextGroup_->functions.glClearTexSubImage(this->id, mipmapLevel, offset.x, offset.y, offset.z, size.x, size.y, size.z, memorySurfaceFormat->componentsAndArrangement, memorySurfaceFormat->componentsTypes, ptr);
+        threadContextGroup_->functions.glClearTexSubImage(this->id, mipmapLevel, offset.x, offset.y, offset.z, size.x, size.y, size.z, memorySurfaceFormat.detail().componentsAndArrangement, memorySurfaceFormat.detail().componentsTypes, ptr);
     }
 
     /*

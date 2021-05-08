@@ -1046,8 +1046,8 @@ namespace glCompact {
             currentRgbaReadSlot = rgbaSlot;
         }
         threadContext_->cachedBindPixelPackBuffer(bufferInterface ? bufferInterface->id : 0);
-        GLenum format = memorySurfaceFormat->componentsAndArrangement;
-        GLenum type   = memorySurfaceFormat->componentsTypes;
+        GLenum format = memorySurfaceFormat.detail().componentsAndArrangement;
+        GLenum type   = memorySurfaceFormat.detail().componentsTypes;
         threadContextGroup_->functions.glReadPixels(offset.x, offset.y, size.x, size.y, format, type, mem);
     }
 

@@ -207,7 +207,7 @@ namespace glCompact {
 
                 //Compressed formats
                 //S3 Texture Compression (S3TC)
-                BC1_RGB_UNORM_BLOCK = 1000,
+                BC1_RGB_UNORM_BLOCK,
                 BC1_RGBA_UNORM_BLOCK,
                 BC2_UNORM_BLOCK,
                 BC3_UNORM_BLOCK,
@@ -276,7 +276,7 @@ namespace glCompact {
                 this->formatEnum = formatEnum;
                 return *this;
             }
-            const MemorySurfaceFormatDetail* operator->() const;
+            const MemorySurfaceFormatDetail detail() const;
         private:
             FormatEnum formatEnum;
     };
