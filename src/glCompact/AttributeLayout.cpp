@@ -131,7 +131,7 @@ namespace glCompact {
         locationOffset         [location] =  currentBufferOffset;
         locationBufferIndex    [location] =  currentBufferIndex;
         uppermostActiveLocation           =  maximum<int8_t>(uppermostActiveLocation, location);
-        currentBufferOffset               += attributeFormat->byteSize;
+        currentBufferOffset               += attributeFormat.detail().byteSize;
     }
 
     void AttributeLayout::addSpacing(
@@ -147,7 +147,7 @@ namespace glCompact {
     void AttributeLayout::addSpacing(
         AttributeFormat attributeFormat
     ) {
-        addSpacing(attributeFormat->byteSize);
+        addSpacing(attributeFormat.detail().byteSize);
     }
 
     void AttributeLayout::reset() {

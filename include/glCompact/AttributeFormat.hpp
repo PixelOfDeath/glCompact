@@ -105,12 +105,9 @@ namespace glCompact {
             inline bool operator!=(const AttributeFormat& attributeFormat) const {
                 return this->formatEnum != attributeFormat.formatEnum;
             }
-            inline const AttributeFormatDetail* operator->() const {
-                return &attributeFormatDetail[formatEnum];
-            }
+            const AttributeFormatDetail detail() const;
         private:
             static constexpr FormatEnum NONE = static_cast<FormatEnum>(0);
             FormatEnum formatEnum = NONE;
-            static const AttributeFormatDetail attributeFormatDetail[];
     };
 }

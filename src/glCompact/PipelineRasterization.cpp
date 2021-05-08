@@ -153,26 +153,26 @@ namespace glCompact {
             }
             switch (shaderLocationBaseType) {
                 case GL_FLOAT:
-                    switch (attributeFormat->componentsType) {
+                    switch (attributeFormat.detail().componentsType) {
                         case GL_FLOAT:
                         case GL_HALF_FLOAT:
                         case GL_DOUBLE:
                             break;
                         default: {
-                            if (!attributeFormat->normalized)
+                            if (!attributeFormat.detail().normalized)
                                 setAttributeLayoutThrow("Shader base type float only takes integer type as normalized format!");
                         }
                     }
                     break;
                 case GL_DOUBLE:
-                    switch (attributeFormat->componentsType) {
+                    switch (attributeFormat.detail().componentsType) {
                         case GL_DOUBLE:
                             break;
                         default: setAttributeLayoutThrow("Shader base type double only takes double source base type!");
                     }
                     break;
                 case GL_INT:
-                    switch (attributeFormat->componentsType) {
+                    switch (attributeFormat.detail().componentsType) {
                         case GL_BYTE:
                         case GL_SHORT:
                         case GL_INT:
@@ -181,7 +181,7 @@ namespace glCompact {
                     }
                     break;
                 case GL_UNSIGNED_INT:
-                    switch (attributeFormat->componentsType) {
+                    switch (attributeFormat.detail().componentsType) {
                         case GL_UNSIGNED_BYTE:
                         case GL_UNSIGNED_SHORT:
                         case GL_UNSIGNED_INT:
@@ -1573,9 +1573,9 @@ namespace glCompact {
                         threadContextGroup_->functions.glVertexAttribBinding(i, locationBufferIndex);
                         auto& af = attributeLayout_.locationAttributeFormat[i];
                         switch (attributeLayout_.gpuType[i]) {
-                            case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribFormat (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pending_locationOffset); break;
-                            case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pending_locationOffset); break;
-                            case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLFormat(i, af->componentsCountOrBGRA, af->componentsType,                 pending_locationOffset); break;
+                            case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribFormat (i, af.detail().componentsCountOrBGRA, af.detail().componentsType, af.detail().normalized, pending_locationOffset); break;
+                            case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIFormat(i, af.detail().componentsCountOrBGRA, af.detail().componentsType,                         pending_locationOffset); break;
+                            case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLFormat(i, af.detail().componentsCountOrBGRA, af.detail().componentsType,                         pending_locationOffset); break;
                         }
                     } else {
                         threadContextGroup_->functions.glDisableVertexAttribArray(i);
@@ -1636,9 +1636,9 @@ namespace glCompact {
                         threadContext_->cachedBindArrayBuffer(pendingBufferId);
                         auto& af = attributeLayout_.locationAttributeFormat[i];
                         switch (attributeLayout_.gpuType[i]) {
-                            case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                            case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                            case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af.detail().componentsCountOrBGRA, af.detail().componentsType, af.detail().normalized, pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af.detail().componentsCountOrBGRA, af.detail().componentsType,                         pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                            case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af.detail().componentsCountOrBGRA, af.detail().componentsType,                         pendingStride, reinterpret_cast<const void*>(pendingOffset)); break;
                         }
                     } else {
                         threadContextGroup_->functions.glDisableVertexAttribArray(i);
@@ -1660,9 +1660,9 @@ namespace glCompact {
                             auto& af = attributeLayout_.locationAttributeFormat[i];
                             threadContext_->cachedBindArrayBuffer(pendingBufferId);
                             switch (attributeLayout_.gpuType[i]) {
-                                case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af->componentsCountOrBGRA, af->componentsType, af->normalized, currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                                case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
-                                case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af->componentsCountOrBGRA, af->componentsType,                 currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayout_::GpuType::f32: threadContextGroup_->functions.glVertexAttribPointer (i, af.detail().componentsCountOrBGRA, af.detail().componentsType, af.detail().normalized, currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayout_::GpuType::i32: threadContextGroup_->functions.glVertexAttribIPointer(i, af.detail().componentsCountOrBGRA, af.detail().componentsType,                         currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
+                                case AttributeLayout_::GpuType::f64: threadContextGroup_->functions.glVertexAttribLPointer(i, af.detail().componentsCountOrBGRA, af.detail().componentsType,                         currentStride, reinterpret_cast<const void*>(pendingOffset)); break;
                             }
                         }
                     }
