@@ -220,6 +220,6 @@ namespace glCompact {
             void throwIfNotCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const;
         private:
             FormatEnum formatEnum;
-            const SurfaceFormatDetail* operator->() const;
+            const SurfaceFormatDetail detail() const;
     };
 }

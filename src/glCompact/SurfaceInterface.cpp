@@ -285,12 +285,12 @@ namespace glCompact {
         //size = glm::min(size, glm::min(srcLimits, dstLimits));
         //if (size.x < 1 || size.y < 1 || size.z < 1) return; //debug warning here?
 
-        UNLIKELY_IF (srcSurface.surfaceFormat->isCompressed)
+        UNLIKELY_IF (srcSurface.surfaceFormat.detail().isCompressed)
             throw std::runtime_error("copyFromSurfaceComponents can not copy from compressed format!");
 
         GLint  srcId             = srcSurface.id;
       //bool   srcIsRenderBuffer = srcSurface.target == GL_RENDERBUFFER;
-        GLenum srcAttachmentType = srcSurface.surfaceFormat->attachmentType;
+        GLenum srcAttachmentType = srcSurface.surfaceFormat.detail().attachmentType;
         GLenum srcTarget         = srcSurface.target;
 
         GLenum dstTarget         = this->target;
@@ -311,10 +311,10 @@ namespace glCompact {
         GLuint targetFboId;
 
         const GLenum blitMask =
-                srcSurface.surfaceFormat->isRgbaNormalizedIntegerOrFloat ? GL_COLOR_BUFFER_BIT   : 0
-            |   srcSurface.surfaceFormat->isRgbaInteger                  ? GL_COLOR_BUFFER_BIT   : 0
-            |   srcSurface.surfaceFormat->isDepth                        ? GL_DEPTH_BUFFER_BIT   : 0
-            |   srcSurface.surfaceFormat->isStencil                      ? GL_STENCIL_BUFFER_BIT : 0;
+                srcSurface.surfaceFormat.detail().isRgbaNormalizedIntegerOrFloat ? GL_COLOR_BUFFER_BIT   : 0
+            |   srcSurface.surfaceFormat.detail().isRgbaInteger                  ? GL_COLOR_BUFFER_BIT   : 0
+            |   srcSurface.surfaceFormat.detail().isDepth                        ? GL_DEPTH_BUFFER_BIT   : 0
+            |   srcSurface.surfaceFormat.detail().isStencil                      ? GL_STENCIL_BUFFER_BIT : 0;
 
         //Binding source as layers is useless, because there is no copy function that can select a source layer (copy anything else then layer 0)! So no glFramebufferTexture (Core since 3.2) here.
         //Array textures and cube map exist before 3.2 but glFramebufferTexture, to set layered texture as a whole, did not!

@@ -168,9 +168,9 @@ namespace glCompact {
         int32_t  rgbaMappingCount      = 0;
 
         if (depthAndOrStencilSurface.surface) {
-            UNLIKELY_IF (depthAndOrStencilSurface.surface->surfaceFormat->isCompressed)
+            UNLIKELY_IF (depthAndOrStencilSurface.surface->surfaceFormat.detail().isCompressed)
                 crash("depthAndOrStencilSurface must be a uncompressed format!");
-            UNLIKELY_IF (!(depthAndOrStencilSurface.surface->surfaceFormat->isDepth || depthAndOrStencilSurface.surface->surfaceFormat->isStencil))
+            UNLIKELY_IF (!(depthAndOrStencilSurface.surface->surfaceFormat.detail().isDepth || depthAndOrStencilSurface.surface->surfaceFormat.detail().isStencil))
                 crash("depthAndOrStencilSurface must have depth and/or stencil format!");
 
             foundSingleLayer = isSingleLayer(depthAndOrStencilSurface);
@@ -181,11 +181,11 @@ namespace glCompact {
         LOOPI(config::MAX_RGBA_ATTACHMENTS) {
             auto surfaceSelector = rgbaSurfaceList[i];
             if (surfaceSelector.surface) {
-                UNLIKELY_IF (surfaceSelector.surface->surfaceFormat->isCompressed)
+                UNLIKELY_IF (surfaceSelector.surface->surfaceFormat.detail().isCompressed)
                     crash("Rgba format must be a uncompressed format!");
-                UNLIKELY_IF (  ! surfaceSelector.surface->surfaceFormat->isRenderable
-                             ||!(surfaceSelector.surface->surfaceFormat->isRgbaNormalizedIntegerOrFloat || surfaceSelector.surface->surfaceFormat->isRgbaInteger))
-                    crash(string("Not a RGBA renderable format: ") + surfaceSelector.surface->surfaceFormat->name);
+                UNLIKELY_IF (  ! surfaceSelector.surface->surfaceFormat.detail().isRenderable
+                             ||!(surfaceSelector.surface->surfaceFormat.detail().isRgbaNormalizedIntegerOrFloat || surfaceSelector.surface->surfaceFormat.detail().isRgbaInteger))
+                    crash(string("Not a RGBA renderable format: ") + surfaceSelector.surface->surfaceFormat.detail().name);
                 UNLIKELY_IF (i >= threadContextGroup_->values.GL_MAX_COLOR_ATTACHMENTS)
                     crash(string("Can't set RGBA attachment slot that is higher then GL_MAX_COLOR_ATTACHMENTS(") + to_string(threadContextGroup_->values.GL_MAX_COLOR_ATTACHMENTS) + ")");
                 UNLIKELY_IF (rgbaTargetCount + 1 >= threadContextGroup_->values.GL_MAX_DRAW_BUFFERS)
@@ -598,10 +598,10 @@ namespace glCompact {
         uint32_t  slot,
         glm::vec4 rgba
     ) {
-        if (rgbaSurfaceFormat[slot]->isRgbaNormalizedIntegerOrFloat) {
+        if (rgbaSurfaceFormat[slot].detail().isRgbaNormalizedIntegerOrFloat) {
             clearRgbaNormalizedOrFloat(slot, rgba);
-        } else if (rgbaSurfaceFormat[slot]->isRgbaInteger) {
-            if (rgbaSurfaceFormat[slot]->isSigned) {
+        } else if (rgbaSurfaceFormat[slot].detail().isRgbaInteger) {
+            if (rgbaSurfaceFormat[slot].detail().isSigned) {
                 clearRgbaSigned(slot, rgba);
             } else {
                 clearRgbaUnsigned(slot, rgba);
@@ -613,10 +613,10 @@ namespace glCompact {
         uint32_t   slot,
         glm::uvec4 rgba
     ) {
-        if (rgbaSurfaceFormat[slot]->isRgbaNormalizedIntegerOrFloat) {
+        if (rgbaSurfaceFormat[slot].detail().isRgbaNormalizedIntegerOrFloat) {
             clearRgbaNormalizedOrFloat(slot, rgba);
-        } else if (rgbaSurfaceFormat[slot]->isRgbaInteger) {
-            if (rgbaSurfaceFormat[slot]->isSigned) {
+        } else if (rgbaSurfaceFormat[slot].detail().isRgbaInteger) {
+            if (rgbaSurfaceFormat[slot].detail().isSigned) {
                 clearRgbaSigned(slot, rgba);
             } else {
                 clearRgbaUnsigned(slot, rgba);
@@ -628,10 +628,10 @@ namespace glCompact {
         uint32_t   slot,
         glm::ivec4 rgba
     ) {
-        if (rgbaSurfaceFormat[slot]->isRgbaNormalizedIntegerOrFloat) {
+        if (rgbaSurfaceFormat[slot].detail().isRgbaNormalizedIntegerOrFloat) {
             clearRgbaNormalizedOrFloat(slot, rgba);
-        } else if (rgbaSurfaceFormat[slot]->isRgbaInteger) {
-            if (rgbaSurfaceFormat[slot]->isSigned) {
+        } else if (rgbaSurfaceFormat[slot].detail().isRgbaInteger) {
+            if (rgbaSurfaceFormat[slot].detail().isSigned) {
                 clearRgbaSigned(slot, rgba);
             } else {
                 clearRgbaUnsigned(slot, rgba);
@@ -974,7 +974,7 @@ namespace glCompact {
     void Frame::setDepthAndOrStencilAttachment(
         SurfaceSelector sel
     ) {
-        setAttachment(sel, sel.surface->surfaceFormat->attachmentType);
+        setAttachment(sel, sel.surface->surfaceFormat.detail().attachmentType);
         depthAndOrStencilSurfaceFormat = sel.surface->getSurfaceFormat();
     }
 
@@ -1029,11 +1029,11 @@ namespace glCompact {
                 throw std::runtime_error("Trying to select rgbaSlot(" + to_string(rgbaSlot) + ") that has no attachment");
             rgbaSurfaceFormat[rgbaSlot].throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);
         } else {
-                   UNLIKELY_IF (isDepth && !isStencil && !depthAndOrStencilSurfaceFormat->isDepth) {
+                   UNLIKELY_IF (isDepth && !isStencil && !depthAndOrStencilSurfaceFormat.detail().isDepth) {
                 throw std::runtime_error("Trying to copyConvert depth value from Frame that has no depth attachment");
-            } else UNLIKELY_IF (!isDepth && isStencil && !depthAndOrStencilSurfaceFormat->isStencil) {
+            } else UNLIKELY_IF (!isDepth && isStencil && !depthAndOrStencilSurfaceFormat.detail().isStencil) {
                 throw std::runtime_error("Trying to copyConvert stencil value from Frame that has no stencil attachment");
-            } else UNLIKELY_IF (                         !(depthAndOrStencilSurfaceFormat->isDepth && depthAndOrStencilSurfaceFormat->isStencil)) {
+            } else UNLIKELY_IF (                         !(depthAndOrStencilSurfaceFormat.detail().isDepth && depthAndOrStencilSurfaceFormat.detail().isStencil)) {
                 throw std::runtime_error("Trying to copyConvert depthStencil value from Frame that has no depthStencil attachment");
             }
             depthAndOrStencilSurfaceFormat.throwIfNotCopyConvertibleToThisMemorySurfaceFormat(memorySurfaceFormat);

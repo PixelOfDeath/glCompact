@@ -30,9 +30,9 @@ namespace glCompact {
     }
 
     void RenderBufferInterface::create(SurfaceFormat surfaceFormat, uvec2 newSize, uint32_t samples) {
-        UNLIKELY_IF (surfaceFormat->isCompressed)
+        UNLIKELY_IF (surfaceFormat.detail().isCompressed)
             throw runtime_error("SurfaceFormat for RenderBuffer must be uncompressed format!");
-        UNLIKELY_IF (!surfaceFormat->isRenderable)
+        UNLIKELY_IF (!surfaceFormat.detail().isRenderable)
             throw runtime_error("SurfaceFormat for RenderBuffer must be renderable!");
         //TODO: throw out sampler = 1 as valid value? Does it has any use case?
         UNLIKELY_IF (newSize.x > getMaxXY() || newSize.y > getMaxXY())
@@ -41,16 +41,16 @@ namespace glCompact {
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
             threadContextGroup_->functions.glCreateRenderbuffers(1, &id);
             if (samples)
-                threadContextGroup_->functions.glNamedRenderbufferStorageMultisample(id, samples, surfaceFormat->sizedFormat, newSize.x, newSize.y);
+                threadContextGroup_->functions.glNamedRenderbufferStorageMultisample(id, samples, surfaceFormat.detail().sizedFormat, newSize.x, newSize.y);
             else
-                threadContextGroup_->functions.glNamedRenderbufferStorage(id, surfaceFormat->sizedFormat, newSize.x, newSize.y);
+                threadContextGroup_->functions.glNamedRenderbufferStorage(id, surfaceFormat.detail().sizedFormat, newSize.x, newSize.y);
         } else {
             threadContextGroup_->functions.glGenRenderbuffers(1, &id);
             threadContextGroup_->functions.glBindRenderbuffer(GL_RENDERBUFFER, id); //TODO use caching?
             if (samples)
-                threadContextGroup_->functions.glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, surfaceFormat->sizedFormat, newSize.x, newSize.y);
+                threadContextGroup_->functions.glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, surfaceFormat.detail().sizedFormat, newSize.x, newSize.y);
             else
-                threadContextGroup_->functions.glRenderbufferStorage(GL_RENDERBUFFER, surfaceFormat->sizedFormat, newSize.x, newSize.y);
+                threadContextGroup_->functions.glRenderbufferStorage(GL_RENDERBUFFER, surfaceFormat.detail().sizedFormat, newSize.x, newSize.y);
         }
 
         this->target        = GL_RENDERBUFFER;

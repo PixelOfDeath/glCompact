@@ -272,7 +272,7 @@ namespace glCompact {
 
         bool usingTexStorage = false;
 
-        GLenum sizedFormat = surfaceFormat->sizedFormat;
+        GLenum sizedFormat = surfaceFormat.detail().sizedFormat;
 
         //Theoretical GL_ARB_direct_state_access could be supported without GL_ARB_texture_storage or GL_ARB_texture_storage_multisample.
         //But its unlikely and in that case we just use the old style path
@@ -420,7 +420,7 @@ namespace glCompact {
         //Maybe only use GL default init values here? (NEAREST_MIPMAP_LINEAR, GL_LINEAR)
         if (samples) {
         } else {
-            if (!surfaceFormat->isCompressed && surfaceFormat->isRgbaInteger) {
+            if (!surfaceFormat.detail().isCompressed && surfaceFormat.detail().isRgbaInteger) {
                 //Integer textures do not allow linear filtering but they can come with mipmaps.
                 setTextureParameter(GL_TEXTURE_MIN_FILTER, mipmap ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
                 setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -474,7 +474,7 @@ namespace glCompact {
 
         //GL_ARB_direct_state_access glCreateTextures does NOT work here //tested with win10-blob and mesa (on r290)
         threadContextGroup_->functions.glGenTextures(1, &id);
-        threadContextGroup_->functions.glTextureView(id, newTarget, srcImages.id, newSurfaceFormat->sizedFormat, firstMipmap, mipmapCount, firstLayer, 1);
+        threadContextGroup_->functions.glTextureView(id, newTarget, srcImages.id, newSurfaceFormat.detail().sizedFormat, firstMipmap, mipmapCount, firstLayer, 1);
     }
 
     //TODO: shall this always return 1 (what it does right now!) for the "not existing" dimensions? So it can be used in multiplications without checking?
@@ -642,9 +642,9 @@ namespace glCompact {
             throw runtime_error("Trying to access bayond texture size");
 
         //TODO: also check the memory pointer for the alignment? Throw error if it is of? One some platforms just performance relevant? On others a hard crash?
-        const int blockSizeX = surfaceFormat->blockSizeX;
-        const int blockSizeY = surfaceFormat->blockSizeY;
-        if (surfaceFormat->isCompressed) {
+        const int blockSizeX = surfaceFormat.detail().blockSizeX;
+        const int blockSizeY = surfaceFormat.detail().blockSizeY;
+        if (surfaceFormat.detail().isCompressed) {
             UNLIKELY_IF (texOffset.x % blockSizeX || texOffset.y % blockSizeY || texSize.x % blockSizeX || texSize.y % blockSizeY)
                 throw runtime_error("For compressed textures texOffset.xy(" + to_string(texOffset.x) + ", " + to_string(texOffset.y) + ") and texSize.xy(" +
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
@@ -718,7 +718,7 @@ namespace glCompact {
                 }
             }
         } else {
-            int32_t sizedFormat = surfaceFormat->sizedFormat;
+            int32_t sizedFormat = surfaceFormat.detail().sizedFormat;
             if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                 switch (target) {
                     case GL_TEXTURE_1D:
@@ -754,7 +754,7 @@ namespace glCompact {
                         threadContextGroup_->functions.glCompressedTexSubImage3D(target, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, sizedFormat, maxCopySizeGuard, offsetPointer);
                         break;
                     case GL_TEXTURE_CUBE_MAP: {
-                        uintptr_t cubeMapSideSize = surfaceFormat->bitsPerPixelOrBlock * 8 * alignTo(mipmapLevelSize.x, blockSizeX) * alignTo(mipmapLevelSize.y, blockSizeY);
+                        uintptr_t cubeMapSideSize = surfaceFormat.detail().bitsPerPixelOrBlock * 8 * alignTo(mipmapLevelSize.x, blockSizeX) * alignTo(mipmapLevelSize.y, blockSizeY);
                         for (unsigned i = size.z; i < size.z + texSize.z; ++i)
                             threadContextGroup_->functions.glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, size.x, size.y, texSize.x, texSize.y, sizedFormat, uint32_t(cubeMapSideSize), reinterpret_cast<const void*>(dataOffset + cubeMapSideSize * i));
                         break;
@@ -819,9 +819,9 @@ namespace glCompact {
                 throw runtime_error("Buffer offset outside of buffer size");
         }
 
-        const int blockSizeX = surfaceFormat->blockSizeX;
-        const int blockSizeY = surfaceFormat->blockSizeY;
-        if (surfaceFormat->isCompressed) {
+        const int blockSizeX = surfaceFormat.detail().blockSizeX;
+        const int blockSizeY = surfaceFormat.detail().blockSizeY;
+        if (surfaceFormat.detail().isCompressed) {
             UNLIKELY_IF (texOffset.x % blockSizeX || texOffset.y % blockSizeY || texSize.x % blockSizeX || texSize.y % blockSizeY)
                 throw runtime_error("For compressed textures texOffset.xy(" + to_string(texOffset.x) + ", " + to_string(texOffset.y) + ") and texSize.xy(" +
                 to_string(texSize.x) + ", " + to_string(texSize.y) + ") must aligned with the block size(" + to_string(blockSizeX) + ", " + to_string(blockSizeY) + ")");
@@ -861,7 +861,7 @@ namespace glCompact {
                     uint32_t viewTexId = 0;
                     int32_t viewTarget = target == GL_TEXTURE_CUBE_MAP_ARRAY ? GL_TEXTURE_2D_ARRAY : target; //GL_TEXTURE_CUBE_MAP_ARRAY can not have an arbitary layer selection range, GL_TEXTURE_2D_ARRAY can!
                     threadContextGroup_->functions.glGenTextures(1, &viewTexId);
-                    threadContextGroup_->functions.glTextureView(viewTexId, viewTarget, id, surfaceFormat->sizedFormat, mipmapLevel, 1, texOffset.z, texSize.z);
+                    threadContextGroup_->functions.glTextureView(viewTexId, viewTarget, id, surfaceFormat.detail().sizedFormat, mipmapLevel, 1, texOffset.z, texSize.z);
                     if (threadContextGroup_->extensions.GL_ARB_direct_state_access) {
                         threadContextGroup_->functions.glGetTextureImage(viewTexId, mipmapLevel, componentsAndArrangement, componentsTypes, maxCopySizeGuard, offsetPointer);
                     } else {
@@ -914,7 +914,7 @@ namespace glCompact {
                      threadContextGroup_->functions.glGetCompressedTextureSubImage(this->id, mipmapLevel, texOffset.x, texOffset.y, texOffset.z, texSize.x, texSize.y, texSize.z, maxCopySizeGuard, offsetPointer);
                 } else if (entireXY && target == GL_TEXTURE_CUBE_MAP) {
                     bindTemporal();
-                    uint32_t cubeMapSideSize = (surfaceFormat->bitsPerPixelOrBlock / 8) * alignTo(mipmapLevelSize.x, blockSizeX) * alignTo(mipmapLevelSize.y, blockSizeY);
+                    uint32_t cubeMapSideSize = (surfaceFormat.detail().bitsPerPixelOrBlock / 8) * alignTo(mipmapLevelSize.x, blockSizeX) * alignTo(mipmapLevelSize.y, blockSizeY);
                     LOOPI(6) threadContextGroup_->functions.glGetCompressedTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mipmapLevel, reinterpret_cast<void*>(dataOffset + cubeMapSideSize * i));
                 } else {
                     throw runtime_error("Missing GL_ARB_get_texture_sub_image, can not copy sub image to memory/buffer!");
@@ -958,7 +958,7 @@ namespace glCompact {
             throw runtime_error("Can't generate mipmaps for empty texture object!");
         UNLIKELY_IF (mipmapCount <= 1)
             throw runtime_error("Can't generate mipmaps for texture that only has base mipmap level 0!");
-        UNLIKELY_IF (surfaceFormat->isCompressed)
+        UNLIKELY_IF (surfaceFormat.detail().isCompressed)
             throw runtime_error("Invalid usage of generateMipmaps(), can't be used on compressed texture format!");
         if (threadContextGroup_->extensions.GL_ARB_direct_state_access)
             threadContextGroup_->functions.glGenerateTextureMipmap(id);
@@ -1021,7 +1021,7 @@ namespace glCompact {
             throw runtime_error("Can't clear empty texture object!");
         UNLIKELY_IF (mipmapLevel >= mipmapCount)
             throw runtime_error("Can't clear texture mipmap level that doesn't exist!");
-        UNLIKELY_IF (surfaceFormat->isCompressed)
+        UNLIKELY_IF (surfaceFormat.detail().isCompressed)
             throw runtime_error("Can't clear texture that is using a compressed format!");
     }
 

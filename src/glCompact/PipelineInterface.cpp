@@ -235,7 +235,7 @@ namespace glCompact {
         UNLIKELY_IF (int32_t(slot) >= image_count) return;
 
         image_id         [slot] = textureSelector.texture->id;
-        image_format     [slot] = surfaceFormat->sizedFormat;
+        image_format     [slot] = surfaceFormat.detail().sizedFormat;
         image_mipmapLevel[slot] = textureSelector.mipmapLevel;
         image_layer      [slot] = textureSelector.layer;
         image_markSlotChange(slot);
