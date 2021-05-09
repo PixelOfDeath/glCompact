@@ -211,10 +211,8 @@ namespace glCompact {
             case ASTC_12x10_SRGB_BLOCK      : return {"ASTC_12x10_SRGB_BLOCK",       GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10,          0,                            128,  12, 10,   0, 1, 1, 0, 0,  1, 0, 0, 0, 0};
             case ASTC_12x12_UNORM_BLOCK     : return {"ASTC_12x12_UNORM_BLOCK",      GL_COMPRESSED_RGBA_ASTC_12x12,                  0,                            128,  12, 12,   0, 1, 0, 0, 0,  1, 0, 0, 0, 0};
             case ASTC_12x12_SRGB_BLOCK      : return {"ASTC_12x12_SRGB_BLOCK",       GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12,          0,                            128,  12, 12,   0, 1, 1, 0, 0,  1, 0, 0, 0, 0};
-
-
-            default                         : return {"none",                        0,                                              0,                              0,   0,  0,   0, 0, 0, 0, 0,  0, 0, 0, 0, 0};
         }
+                                              return {"INVALID_SurfaceFormat",       0,                                              0,                              0,   0,  0,   0, 0, 0, 0, 0,  0, 0, 0, 0, 0};
     }
 
     bool SurfaceFormat::isCopyConvertibleToThisMemorySurfaceFormat(MemorySurfaceFormat memorySurfaceFormat) const {

@@ -96,8 +96,7 @@ namespace glCompact {
             case A2R10G10B10_SNORM  : return {GL_UNSIGNED_INT_2_10_10_10_REV,  GL_BGRA,            1,  4};
 
             case B10G11R11_UFLOAT   : return {GL_UNSIGNED_INT_10F_11F_11F_REV, 3,                  1,  4};
-
-            default                 : return {GL_NONE,                         0,                  0,  0};
         }
+                                      return {GL_NONE,                         0,                  0,  0};
     }
 }
