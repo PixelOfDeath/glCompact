@@ -10,17 +10,17 @@ namespace glCompact {
     const MemorySurfaceFormatDetail MemorySurfaceFormat::detail() const {
         switch (formatEnum) {
           //                                           name                           sizedFormat (To check compressed format compatibility with SurfaceFormat)
-          //                                           |                              |                                               componentsAndArrangement
-          //                                           |                              |                                               |                   componentsTypes                     bytePerPixelOrBlock
-          //                                           |                              |                                               |                   |                                   |    blockSizeX
-          //                                           |                              |                                               |                   |                                   |    |   blockSizeY
-          //                                           |                              |                                               |                   |                                   |    |   |    isRgbaNormalizedIntegerOrFloat
-          //                                           |                              |                                               |                   |                                   |    |   |    |  isRgbaInteger
-          //                                           |                              |                                               |                   |                                   |    |   |    |  |  isDepth
-          //                                           |                              |                                               |                   |                                   |    |   |    |  |  |  isStencil
-          //                                           |                              |                                               |                   |                                   |    |   |    |  |  |  |  isCompressed
-          //                                           |                              |                                               |                   |                                   |    |   |    |  |  |  |  |  isSigned
-          //                                           |                              |                                               |                   |                                   |    |   |    |  |  |  |  |  |
+          //                                           |                              |                                              componentsAndArrangement
+          //                                           |                              |                                              |                   componentsTypes                     bytePerPixelOrBlock
+          //                                           |                              |                                              |                   |                                   |    blockSizeX
+          //                                           |                              |                                              |                   |                                   |    |   blockSizeY
+          //                                           |                              |                                              |                   |                                   |    |   |    isRgbaNormalizedIntegerOrFloat
+          //                                           |                              |                                              |                   |                                   |    |   |    |  isRgbaInteger
+          //                                           |                              |                                              |                   |                                   |    |   |    |  |  isDepth
+          //                                           |                              |                                              |                   |                                   |    |   |    |  |  |  isStencil
+          //                                           |                              |                                              |                   |                                   |    |   |    |  |  |  |  isCompressed
+          //                                           |                              |                                              |                   |                                   |    |   |    |  |  |  |  |  isSigned
+          //                                           |                              |                                              |                   |                                   |    |   |    |  |  |  |  |  |
             case R8_UNORM                   : return {"R8_UNORM",                    0,                                              GL_RED            , GL_UNSIGNED_BYTE                 ,  1,   1,  1,   1, 0, 0, 0, 0, 0};
             case R8_SNORM                   : return {"R8_SNORM",                    0,                                              GL_RED            , GL_BYTE                          ,  1,   1,  1,   1, 0, 0, 0, 0, 1};
             case R8_UINT                    : return {"R8_UINT",                     0,                                              GL_RED_INTEGER    , GL_UNSIGNED_BYTE                 ,  1,   1,  1,   0, 1, 0, 0, 0, 0};
